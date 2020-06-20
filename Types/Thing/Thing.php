@@ -1,0 +1,64 @@
+<?php
+
+namespace Fwc\Api\Type;
+
+class Thing extends TypeAbstract implements TypeInterface
+{
+    protected $table = "thing";
+    protected $type = "Thing";
+
+    // index, show
+    public function get($args)
+    {
+        return parent::index();
+    }
+    
+    // create
+    public function post($args)
+    {
+        
+    }
+    
+    // update
+    public function put($args)
+    {
+        
+    }
+    
+    // delete
+    public function erase($args)
+    {
+        
+    }
+    
+    public function createSqlTable($type = null): bool
+    {
+        return parent::createSqlTable('thing');
+    }
+    
+    
+
+
+    /*public function index(string $where = null, $orderBy = null, $groupBy = null, $limit = null, $offset = null) {
+        $data = parent::index($where, $orderBy, $groupBy, $limit, $offset);
+    }
+
+    public function listAll(string $where = null, $order = null, $limit = null, $offset = null) {
+        parent::listAll($where, $order, $limit, $offset);
+    }
+    
+    public function selectById($id, $order = null, $field = '*') {
+        parent::selectById($id, $order, $field);
+    }
+    
+    public function index() 
+    {     
+        $data = parent::getQuery("SELECT TABLE_NAME AS type , TABLE_ROWS AS items FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '{$this->dbname}' AND TABLE_NAME NOT LIKE '%_has_%';");        
+        return json_encode($data);
+    }
+    
+    public function show() {
+        
+    }*/
+}
+
