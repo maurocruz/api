@@ -6,13 +6,20 @@ use Fwc\Api\Server\Maintenance;
 
 class Person extends TypeAbstract implements TypeInterface
 {
+    protected $table = "person";
+    protected $type = "Person";
+        
     public function get(array $args): array {
         ;
     }
     
     public function post(array $params): array 
     {
-        return [ "mesage" => "under development" ];
+        if(isset($params['givenName']) && isset($params['familyName'])) {
+            return parent::created($params);
+        } else {
+            return [ "messagen" => "incomplete mandatory data" ];
+        } 
     }
     
     

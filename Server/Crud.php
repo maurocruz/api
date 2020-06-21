@@ -44,7 +44,10 @@ abstract class Crud
             ]];
         }
 
-        return [ "message" => "Created successfully" ];
+        return [ 
+            "message" => "Record created successfully",
+            "data" => $data
+        ];
     }
     
     // READ

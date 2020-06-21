@@ -14,11 +14,21 @@ class FwcApi
         $this->slimApp = $slimApp;
     }
 
-    public function connect($driver, $host, $dbname, $username, $password, $options = [])
+    public function connect($driver, $host, $dbname, $userPublic, $passwordPublic, $options = [])
     {
-        PDOConnect::connect($driver, $host, $dbname, $username, $password, $options);
+        PDOConnect::setUserPublic($userPublic);
+        
+        PDOConnect::setPasswordPublic($passwordPublic);
+        
+        PDOConnect::connect($driver, $host, $dbname, $userPublic, $passwordPublic, $options);
     }
 
+    public function setAdminData($userAdmin, $passwordAdmin) 
+    {
+        PDOConnect::setUserAdmin($userAdmin);
+        PDOConnect::setPasswordAdmin($passwordAdmin);
+    }
+    
     public function run()
     {
         $routers = require __DIR__.'/router.php';

@@ -71,7 +71,9 @@ return function(App $slimApp) {
         if ($request->getAttribute("userAuth") === false) {
             $data = [ "message" => "User not authorized" ];
             
-        } else {        
+        } else { 
+            PDOConnect::reconnectToAdmin();
+            
             $type = $args['type'];
             $params = $request->getParsedBody();
 
@@ -87,8 +89,7 @@ return function(App $slimApp) {
         $newResponse->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );        
         return $response;
         
-    })->add(function(Request $request, RequestHandler $handle)
-    {
+    })->add(function(Request $request, RequestHandler $handle) {
         if (Session::checkUserAdmin() === false) {
             $request = $request->withAttribute('userAuth', false);
             
