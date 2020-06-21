@@ -8,6 +8,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 abstract class TypeAbstract extends Model 
 {
     protected $request;
+    
+    use SchemaTrait;
 
     public function __construct(Request $request)
     {
@@ -22,17 +24,17 @@ abstract class TypeAbstract extends Model
     protected function returnListAll($data)
     {
         if (isset($data['error'])) {
-           return json_encode($data); 
+           return $data; 
            
         } elseif (empty ($data)) {
-            return json_encode(ItemList::list(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            return self::listItem();
             
         } else {
             foreach ($data as $key => $value) {                
                 $list[] = $this->schema($value);
             }
             
-            return json_encode(ItemList::list(count($data),$list), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);     
+            return self::listItem($list);
         }
     }
     

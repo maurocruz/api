@@ -4,8 +4,14 @@ namespace Fwc\Api\Type;
 
 
 interface TypeInterface 
-{    
-    public function get($args);
+{   
+    /**
+     * HTTP Request GET
+     * @param array $args
+     */
+    public function get(array $args): array;
+    
+    public function post(array $queryParams): array;
     
     public function createSqlTable($type = null): bool;
 }

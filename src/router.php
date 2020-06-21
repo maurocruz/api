@@ -12,27 +12,15 @@ use Fwc\Api\Server\Maintenance;
 return function(App $slimApp) {
 
     // get, post, put, delete
-
-    $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args) 
-    {
-        $dataController = new ApiController($request);
-        
-        $data = $dataController->getTypes($args);
-        
-        $newResponse = $response->withHeader("Content-type", "'application/json'");
-        
-        $newResponse->getBody()->write($data);
-        
-        return $response;
-    });
-    
+    /*
+     * Init application
+     */
     $slimApp->post('/api/start', function(Request $request, Response $response, $args) 
     {
-        $username = $request->getParsedBody()['username'] ?? null;
-        $password = $request->getParsedBody()['password'] ?? null;
+        $username = $request->getParsedBody()['userDb'] ?? null;
+        $password = $request->getParsedBody()['passDb'] ?? null;
         
-        if ($username && $password) {
-            
+        if ($username && $password) {            
             $driver = PDOConnect::getDrive();
             $host = PDOConnect::getHost();
             $dbname = PDOConnect::getDbname();
@@ -57,9 +45,42 @@ return function(App $slimApp) {
         
         $newResponse->getBody()->write($data);
         
+        return $response;        
+    });
+    
+    // Generic POST
+    $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
+    {
+        $type = $args['type'];
+        $queryParams = $request->getParsedBody();
+        
+        $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+        
+        if (class_exists($className)) {
+            $typeClass = new $className($request);
+            $data = $typeClass->post($queryParams);
+        }
+        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");
+        
+        $newResponse->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+        
         return $response;
         
+    });
+    
+    // Generic GET
+    $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args) 
+    {
+        $dataController = new ApiController($request);
         
+        $data = json_encode( $dataController->getTypes($args), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");
+        
+        $newResponse->getBody()->write($data);
+        
+        return $response;
     });
 };
 

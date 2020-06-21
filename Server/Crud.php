@@ -11,6 +11,8 @@ abstract class Crud
      // CREATED
     protected function created(array $data) 
     {
+        $connect = PDOConnect::getPDOConnect();
+        
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`";
@@ -19,19 +21,30 @@ abstract class Crud
         }   
         
         $columns = implode(",", $names);        
-        $rows = implode(",", $values);        
+        $rows = implode(",", $values);
         $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
-        
+                
         // prepare
-        $stmt = $this->connect->prepare($query);        
+        $stmt = $connect->prepare($query);        
         
         foreach ($bindValues as $key => $value2) {
             $stmt->bindValue(($key+1), $value2);
         }
         
-        $stmt->execute();
-        
-        return $stmt->errorInfo();
+        try {            
+            if ($stmt->execute() === false) {
+                throw new \PDOException();
+            }
+            
+        } catch (\PDOException $exc) {
+            return [ "error" => [
+                "code" => $stmt->errorCode(),
+                "driverCodeError" => $stmt->errorInfo()[1],
+                "message" => $stmt->errorInfo()[2]
+            ]];
+        }
+
+        return [ "message" => "Created successfully" ];
     }
     
     // READ
@@ -48,6 +61,8 @@ abstract class Crud
     // UPDATE
     public function update(array $data, string $where) 
     {
+        $connect = PDOConnect::getPDOConnect();
+        
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`=?";
@@ -59,7 +74,7 @@ abstract class Crud
         $query .= " WHERE $where;";
         
         // prepare
-        $stmt = $this->connect->prepare($query);
+        $stmt = $connect->prepare($query);
         
         foreach ($values as $key => $value2) {
             $stmt->bindValue(($key+1), $value2);
@@ -73,6 +88,8 @@ abstract class Crud
     // DELETE
     public function delete(array $where, $limit = null): object 
     {
+        $connect = PDOConnect::getPDOConnect();
+        
         // query
         foreach ($where as $key => $value) {
             $clause[] = "`$key`=?";
@@ -85,7 +102,7 @@ abstract class Crud
         $query .= ";";
         
         // prepare
-        $stmt = $this->connect->prepare($query);
+        $stmt = $connect->prepare($query);
         
         foreach ($values as $key => $value2) {
             $stmt->bindValue(($key+1), $value2);

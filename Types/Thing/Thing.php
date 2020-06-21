@@ -7,25 +7,24 @@ class Thing extends TypeAbstract implements TypeInterface
     protected $table = "thing";
     protected $type = "Thing";
 
-    // index, show
-    public function get($args)
+    // index, show (SELECT)
+    public function get($args): array
     {
         return parent::index();
     }
     
-    // create
-    public function post($args)
-    {
-        
+    // create (INSERT)
+    public function post(array $args): array
+    {        
     }
     
-    // update
+    // update (UPDATE)
     public function put($args)
     {
         
     }
     
-    // delete
+    // delete (DELETE)
     public function erase($args)
     {
         

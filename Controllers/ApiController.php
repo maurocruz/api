@@ -36,7 +36,7 @@ class ApiController
             $typeObject = new $nameClass($this->request);
             return $typeObject->get($args);
         } else {
-            return '{ data: "no type" }';
+            return [ "message" => "Not founded type '$type'" ];
         }
             
         /*if ($id) {
