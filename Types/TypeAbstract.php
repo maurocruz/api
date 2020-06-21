@@ -27,14 +27,14 @@ abstract class TypeAbstract extends Model
            return $data; 
            
         } elseif (empty ($data)) {
-            return self::listItem();
+            return $this->listItem();
             
         } else {
-            foreach ($data as $key => $value) {                
-                $list[] = $this->schema($value);
+            foreach ($data as $key => $value) { 
+               $list[] = $this->schema($value);
             }
             
-            return self::listItem($list);
+            return $this->listItem($list);
         }
     }
     

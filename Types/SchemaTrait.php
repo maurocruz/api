@@ -2,33 +2,64 @@
 
 namespace Fwc\Api\Type;
 
-
 trait SchemaTrait 
 {
-    protected static function listItem(array $list = null): array 
+    protected $properties = [];
+    protected $table;
+    protected $type;
+    
+    protected function listItem(array $list = null): array 
     {
         if (!$list) {
             $name = "Empty list";
             $numberOfItems = 0;
+        } else {
+            $name = "list of ".$this->type;
+            $numberOfItems = count($list);
+            foreach ($list as $i => $valueList) {
+                $itemListElement[] = [
+                    "@type" => "ListItem",
+                    "position" => $i+1,
+                    "item" => $valueList
+                ];
+            }
         }
                 
-        $value = [
+        return [
+            "@context" => "https://schema.org",
             "@type" => "ItemList",
             "name" => $name,
             "numberOfItems" => $numberOfItems,
             "itemListOrder" => $itemListOrder ?? null,
             "itemListElement" => $itemListElement ?? null
-        ];        
-        
-        return self::schema($value);
+        ]; 
     }
     
-    private static function schema(array $value) 
+    private function schema(array $value) 
     {
+        $id = $value['id'.$this->table];
+        $urlApi = "//".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."?id=".$id;
+        
         $schema = [
             "@context" => "https://schema.org",
-            "@type" => $value
-        ];
+            "@type" => $this->type,
+            "identifier" =>[
+                [ "@type" => "PropertyValue", "name" => "fwc_id", "value" => $id ]
+            ]
+        ];        
+                
+        // add properties
+        if (!empty($this->properties)) {
+            foreach ($this->properties as $valueProperty) {
+                $schema[$valueProperty] = $value[$valueProperty];
+            }
+        }
+        
+        // url
+        if ($value['url'] == null) {
+            $schema['url'] = $urlApi;
+        }
+        
         return $schema;
     }
 }
