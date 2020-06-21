@@ -11,6 +11,7 @@ use Fwc\Api\Server\PDOConnect;
 use Fwc\Api\Server\Maintenance;
 use Fwc\Api\Auth;
 use Fwc\Api\Auth\Session;
+use Fwc\Api\Auth\AuthMiddleware;
 
 return function(App $slimApp) {
 
@@ -53,7 +54,9 @@ return function(App $slimApp) {
     
     
     
-    // POST login
+    /**
+     * POST
+     */
     $slimApp->post('/api/login', function (Request $request, Response $response) 
     {
         $auth = new Auth\AuthController($request);
@@ -68,10 +71,8 @@ return function(App $slimApp) {
     // Generic POST
     $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
     {
-        if ($request->getAttribute("userAuth") === false) {
-            $data = [ "message" => "User not authorized" ];
+        if ($request->getAttribute("userAuth") === true) {
             
-        } else { 
             PDOConnect::reconnectToAdmin();
             
             $type = $args['type'];
@@ -83,26 +84,16 @@ return function(App $slimApp) {
                 $typeClass = new $className($request);
                 $data = $typeClass->post($params);
             }
-        }
-        
-        $newResponse = $response->withHeader("Content-type", "'application/json'");        
-        $newResponse->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );        
-        return $response;
-        
-    })->add(function(Request $request, RequestHandler $handle) {
-        if (Session::checkUserAdmin() === false) {
-            $request = $request->withAttribute('userAuth', false);
             
-        } else {     
-            $request = $request->withAttribute('userAuth', true);   
+            $response->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ); 
         }
         
-        $response = $handle->handle($request);     
+        $response = $response->withHeader("Content-type", "'application/json'");
         return $response;
-    });
+        
+    })->add(new AuthMiddleware());
     
-    
-    
+        
     
     // GET logout
     $slimApp->get('/api/logout', function(Request $request, Response $response)
@@ -125,5 +116,23 @@ return function(App $slimApp) {
         $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));        
         return $response;
     });
+    
+    
+    /**
+     * DELETE
+     */
+    $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
+    {
+        if ($request->getAttribute("userAuth") === true){
+            
+            $data = [ "message" => "Under development" ];
+                           
+            $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
+        
+        $response = $response->withHeader("Content-type", "application/json");
+        return $response;
+        
+    })->addMiddleware(new AuthMiddleware());
 };
 
