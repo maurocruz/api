@@ -5,9 +5,12 @@ namespace Fwc\Api;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 use Fwc\Api\Server\PDOConnect;
 use Fwc\Api\Server\Maintenance;
+use Fwc\Api\Auth;
+use Fwc\Api\Auth\Session;
 
 return function(App $slimApp) {
 
@@ -48,25 +51,66 @@ return function(App $slimApp) {
         return $response;        
     });
     
+    
+    
+    // POST login
+    $slimApp->post('/api/login', function (Request $request, Response $response) 
+    {
+        $auth = new Auth\AuthController($request);
+        
+        $data = $auth->login($request->getParsedBody());
+        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");        
+        $newResponse->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));        
+        return $response;
+    });
+    
     // Generic POST
     $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
     {
-        $type = $args['type'];
-        $queryParams = $request->getParsedBody();
-        
-        $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
-        
-        if (class_exists($className)) {
-            $typeClass = new $className($request);
-            $data = $typeClass->post($queryParams);
+        if ($request->getAttribute("userAuth") === false) {
+            $data = [ "message" => "User not authorized" ];
+            
+        } else {        
+            $type = $args['type'];
+            $params = $request->getParsedBody();
+
+            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+
+            if (class_exists($className)) {
+                $typeClass = new $className($request);
+                $data = $typeClass->post($params);
+            }
         }
         
-        $newResponse = $response->withHeader("Content-type", "'application/json'");
-        
-        $newResponse->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
-        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");        
+        $newResponse->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );        
         return $response;
         
+    })->add(function(Request $request, RequestHandler $handle)
+    {
+        if (Session::checkUserAdmin() === false) {
+            $request = $request->withAttribute('userAuth', false);
+            
+        } else {     
+            $request = $request->withAttribute('userAuth', true);   
+        }
+        
+        $response = $handle->handle($request);     
+        return $response;
+    });
+    
+    
+    
+    
+    // GET logout
+    $slimApp->get('/api/logout', function(Request $request, Response $response)
+    {
+        $data = (new Auth\AuthController($request))->logout();
+        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");        
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));        
+        return $response;
     });
     
     // Generic GET
@@ -74,12 +118,10 @@ return function(App $slimApp) {
     {
         $dataController = new ApiController($request);
         
-        $data = json_encode( $dataController->getTypes($args), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+        $data = $dataController->getTypes($args);
         
-        $newResponse = $response->withHeader("Content-type", "'application/json'");
-        
-        $newResponse->getBody()->write($data);
-        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");        
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));        
         return $response;
     });
 };

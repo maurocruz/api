@@ -2,19 +2,23 @@
 
 namespace Fwc\Api\Type;
 
+use Fwc\Api\Auth\Session;
+
 class User extends TypeAbstract implements TypeInterface
 {
     protected $table = "user";
     protected $type = "User";
 
-
-    public function get(array $args): array 
-    {
+    public function get(array $args): array {
         ;
-    }
+    }    
     
-    public function post(array $queryParams): array 
-    {        
+    /**
+     * Create new user
+     * @param array $queryParams
+     * @return array
+     */
+    public function post(array $queryParams): array {        
         if ( strlen($queryParams['name']) < 2 ) {                      
             return [ "error" => [
                 "message" => "The name must be longer than 2 characters"
@@ -56,8 +60,26 @@ class User extends TypeAbstract implements TypeInterface
         return parent::created($queryParams);
     }
     
-    public function createSqlTable($type = null): bool 
-    {
+    public function createSqlTable($type = null): bool {
         return parent::createSqlTable('user');
+    }
+    
+    public function login($params) 
+    {
+        $email = $params['email'];
+        $password = $params['password'];
+        
+        $where = "`email`='{$email}'";
+        $data = parent::read("*", $where);
+                
+        if (empty($data)) {
+            return [ "message" => "User not found" ];
+            
+        } elseif (password_verify($password, $data[0]['password'])) {
+            
+            Session::login($data[0]);
+            
+            return [ "message" => "Session login started" ];
+        }
     }
 }

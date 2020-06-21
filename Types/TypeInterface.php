@@ -11,7 +11,7 @@ interface TypeInterface
      */
     public function get(array $args): array;
     
-    public function post(array $queryParams): array;
+    public function post(array $params): array;
     
     public function createSqlTable($type = null): bool;
 }
