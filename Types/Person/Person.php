@@ -32,6 +32,16 @@ class Person extends TypeAbstract implements TypeInterface
         return parent::delete(["idperson" => $id]);        
     }
     
+    public function put(string $id): array
+    {
+        return parent::put($id);
+    }
+    
+    /**
+     * Create table in sql driver
+     * @param type $type
+     * @return bool
+     */
     public function createSqlTable($type = null): bool 
     {         
         $maintenance = new Maintenance($this->request);        

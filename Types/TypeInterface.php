@@ -15,5 +15,7 @@ interface TypeInterface
     
     public function erase(string $id): array;
     
+    public function put(string $id): array;
+    
     public function createSqlTable($type = null): bool;
 }

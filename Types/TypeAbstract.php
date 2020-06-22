@@ -10,7 +10,6 @@ abstract class TypeAbstract extends Model
     protected $request;
     protected $table;
 
-
     use SchemaTrait;
 
     public function __construct(Request $request)
@@ -70,7 +69,7 @@ abstract class TypeAbstract extends Model
         return $this->returnListAll( parent::index($where, $orderBy, $groupBy, $limit, $offset), $ordering ?? null );
     }
     
-    protected function returnListAll($data, $ordering)
+    private function returnListAll($data, $ordering)
     {
         if (isset($data['error'])) {
            return $data; 
@@ -87,6 +86,18 @@ abstract class TypeAbstract extends Model
         }
     }
     
+    protected function put(string $id): array
+    {
+        $params = $this->request->getParsedBody();
+        
+        $idname = "id".$this->table;
+        
+        $idvalue = $this->request->getAttribute('id');
+        
+        return parent::update($params, "`$idname`=$idvalue");        
+    }
+
+
     public function createSqlTable($type = null) 
     {
         $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));

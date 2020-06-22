@@ -9,16 +9,27 @@ class User extends TypeAbstract implements TypeInterface
     protected $table = "user";
     protected $type = "User";
 
-    public function get(array $args): array {
-        ;
-    }    
+    public function get(array $args): array 
+    {
+        return parent::index();
+    }   
     
+    public function erase(string $id): array {
+        ;
+    }
+    
+    public function put(string $id): array 
+    {
+        return parent::put($id);
+    }
+        
     /**
      * Create new user
      * @param array $queryParams
      * @return array
      */
-    public function post(array $queryParams): array {        
+    public function post(array $queryParams): array 
+    {        
         if ( strlen($queryParams['name']) < 2 ) {                      
             return [ "error" => [
                 "message" => "The name must be longer than 2 characters"

@@ -51,49 +51,7 @@ return function(App $slimApp) {
         
         return $response;        
     });
-    
-    
-    
-    /**
-     * POST
-     */
-    $slimApp->post('/api/login', function (Request $request, Response $response) 
-    {
-        $auth = new Auth\AuthController($request);
-        
-        $data = $auth->login($request->getParsedBody());
-        
-        $newResponse = $response->withHeader("Content-type", "'application/json'");        
-        $newResponse->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));        
-        return $response;
-    });
-    
-    // Generic POST
-    $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
-    {
-        if ($request->getAttribute("userAuth") === true) {
-            
-            PDOConnect::reconnectToAdmin();
-            
-            $type = $args['type'];
-            $params = $request->getParsedBody();
-
-            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
-
-            if (class_exists($className)) {
-                $typeClass = new $className($request);
-                $data = $typeClass->post($params);
-            }
-            
-            $response->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ); 
-        }
-        
-        $response = $response->withHeader("Content-type", "'application/json'");
-        return $response;
-        
-    })->add(new AuthMiddleware());
-    
-        
+     
     
     // GET logout
     $slimApp->get('/api/logout', function(Request $request, Response $response)
@@ -119,6 +77,46 @@ return function(App $slimApp) {
     
     
     /**
+     * POST
+     */
+    $slimApp->post('/api/login', function (Request $request, Response $response) 
+    {
+        $auth = new Auth\AuthController($request);
+        
+        $data = $auth->login($request->getParsedBody());
+        
+        $newResponse = $response->withHeader("Content-type", "'application/json'");        
+        $newResponse->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));        
+        return $response;
+    });
+    
+    // Generic POST
+    $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
+    {
+        if ($request->getAttribute("userAuth") === true) {
+            
+            PDOConnect::reconnectToAdmin();
+            
+            $type = $args['type'];
+            $params = $request->getParsedBody();
+            
+            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+
+            if (class_exists($className)) {
+                $typeClass = new $className($request);
+                $data = $typeClass->post($params);
+            }
+            
+            $response->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+        }
+        
+        $response = $response->withHeader("Content-type", "'application/json'");
+        return $response;
+        
+    })->add(new AuthMiddleware());
+    
+       
+    /**
      * DELETE
      */
     $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
@@ -138,5 +136,26 @@ return function(App $slimApp) {
         return $response;
         
     })->addMiddleware(new AuthMiddleware());
+    
+    /**
+     * PUT
+     */
+    $slimApp->put('/api/{type}/{id}', function (Request $request, Response $response, $args) 
+    {
+        if ($request->getAttribute('userAuth') === true) {
+            
+            PDOConnect::reconnectToAdmin();
+                        
+            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
+            
+            $data = json_encode((new $classname($request))->put($args['id']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );      
+        
+            $response->getBody()->write($data);
+        }
+        
+        $response = $response->withHeader("Content-type", "'application/json'");        
+        return $response;
+        
+    })->addMiddleware(new AuthMiddleware());    
 };
 

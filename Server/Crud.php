@@ -4,7 +4,7 @@ namespace Fwc\Api\Server;
 
 use Fwc\Api\Server\PDOConnect;
 
-abstract class Crud 
+class Crud 
 {
     protected $table;
     
@@ -22,9 +22,7 @@ abstract class Crud
     
      // CREATED
     protected function created(array $data) 
-    {
-        $connect = PDOConnect::getPDOConnect();
-        
+    {        
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`";
@@ -35,58 +33,24 @@ abstract class Crud
         $columns = implode(",", $names);        
         $rows = implode(",", $values);
         $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
-                
-        // prepare
-        $stmt = $connect->prepare($query);        
         
-        foreach ($bindValues as $key => $value2) {
-            $stmt->bindValue(($key+1), $value2);
-        }
-        
-        try {            
-            if ($stmt->execute() === false) {
-                throw new \PDOException();
-            }
-            
-        } catch (\PDOException $exc) {
-            return [ "error" => [
-                "code" => $stmt->errorCode(),
-                "driverCodeError" => $stmt->errorInfo()[1],
-                "message" => $stmt->errorInfo()[2]
-            ]];
-        }
-
-        return [ 
-            "message" => "Record created successfully",
-            "data" => $data
-        ];
+        return self::execute($query, $bindValues, "Record created successfully", $data);
     }
 
     // UPDATE
     public function update(array $data, string $where) 
-    {
-        $connect = PDOConnect::getPDOConnect();
-        
+    {        
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`=?";
-            $values[] = $value;
+            $bindValues[] = $value;
         }
         
         $query = "UPDATE $this->table SET ";
         $query .= implode(",", $names);
         $query .= " WHERE $where;";
         
-        // prepare
-        $stmt = $connect->prepare($query);
-        
-        foreach ($values as $key => $value2) {
-            $stmt->bindValue(($key+1), $value2);
-        }
-        
-        $stmt->execute();
-        
-        return $stmt;
+        return self::execute($query, $bindValues, "Updated data successefully", $data);
     }
     
     // DELETE
