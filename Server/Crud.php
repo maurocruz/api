@@ -187,7 +187,8 @@ abstract class Crud
             } elseif ($errorInfo !== '0000') {                
                 return [ "error" => [ 
                     "message" => $errorInfo[2],
-                    "code" => $errorInfo[1]
+                    "code" => $errorInfo[1],
+                    "query" => $query
                 ] ];
             } else {
                 return [ "error" => [ 

@@ -8,7 +8,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 abstract class TypeAbstract extends Model 
 {
     protected $request;
-    
+    protected $table;
+
+
     use SchemaTrait;
 
     public function __construct(Request $request)
@@ -18,10 +20,49 @@ abstract class TypeAbstract extends Model
     
     public function index(string $where = null, $orderBy = null, $groupBy = null, $limit = null, $offset = null) 
     {
-        return $this->returnListAll( parent::index($where, $orderBy, $groupBy, $limit, $offset) );
+        $queryParams = $this->request->getQueryParams();
+        
+        $limit = $limit && $limit < 200 ? $limit : 200; 
+        
+        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id" ];
+        
+        if (!empty($queryParams)) {
+            
+            foreach ($queryParams as $key => $value) {
+                
+                // ORDER BY
+                if (stripos($key, "orderBy") !== false) {
+                    $ordering = $queryParams['ordering'] ?? 'ASC';
+                    $orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ".$ordering;
+                }
+                
+                // WHERE
+                $like = stristr($key,"like", true);
+                if ($like) {
+                    $whereArray[] = "`$like` LIKE '%$value%'";
+                    
+                } elseif (!in_array($key, $noWhere)) {
+                    $whereArray[] = "`$key`='$value'"; 
+                    
+                } elseif (stripos($key, "id") !== false) {
+                    $idname = "id".$this->table;
+                    $whereArray[] = "`$idname`=$value";
+                }
+                
+                // LIMIT
+                if (stripos($key, 'limit') !== false) {
+                    $limit = $value;
+                }
+            }
+        }        
+        
+        // WHERE
+        $where = isset($whereArray) ? implode(" AND ", $whereArray) : null;
+        
+        return $this->returnListAll( parent::index($where, $orderBy, $groupBy, $limit, $offset), $ordering ?? null );
     }
     
-    protected function returnListAll($data)
+    protected function returnListAll($data, $ordering)
     {
         if (isset($data['error'])) {
            return $data; 
@@ -34,7 +75,7 @@ abstract class TypeAbstract extends Model
                $list[] = $this->schema($value);
             }
             
-            return $this->listItem($list);
+            return $this->listItem($list, $ordering);
         }
     }
     

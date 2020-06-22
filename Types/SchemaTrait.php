@@ -8,8 +8,12 @@ trait SchemaTrait
     protected $table;
     protected $type;
     
-    protected function listItem(array $list = null): array 
+    protected function listItem(array $list = null, $ordering = null): array 
     {
+        $itemListOrder = stripos($ordering,'asc') !== false ? "ascending" : 
+                ( stripos($ordering,"desc") !== false ? "descending" : 
+                (stripos($ordering, 'rand') !== false ? "randomly" : "unordering") );        
+        
         if (!$list) {
             $name = "Empty list";
             $numberOfItems = 0;
@@ -30,7 +34,7 @@ trait SchemaTrait
             "@type" => "ItemList",
             "name" => $name,
             "numberOfItems" => $numberOfItems,
-            "itemListOrder" => $itemListOrder ?? null,
+            "itemListOrder" => $itemListOrder,
             "itemListElement" => $itemListElement ?? null
         ]; 
     }

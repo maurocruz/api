@@ -20,6 +20,7 @@ class Person extends TypeAbstract implements TypeInterface
     {
         if(isset($params['givenName']) && isset($params['familyName'])) {
             $params['name'] = $params['givenName']." ".$params['familyName'];
+            $params['dateRegistration'] = date('Y-m-d');
             return parent::created($params);
         } else {
             return [ "messagen" => "incomplete mandatory data" ];
