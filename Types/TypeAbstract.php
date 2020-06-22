@@ -20,12 +20,20 @@ abstract class TypeAbstract extends Model
     
     public function index(string $where = null, $orderBy = null, $groupBy = null, $limit = null, $offset = null) 
     {
+        // params from URL queries strings
         $queryParams = $this->request->getQueryParams();
         
+        // param id from argument url
+        if ($this->request->getAttribute('id')) {
+            $queryParams['id'] = $this->request->getAttribute('id');
+        }
+        
+        // set max limit
         $limit = $limit && $limit < 200 ? $limit : 200; 
         
+        // fields not exists
         $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id" ];
-        
+                
         if (!empty($queryParams)) {
             
             foreach ($queryParams as $key => $value) {
