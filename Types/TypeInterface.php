@@ -9,7 +9,7 @@ interface TypeInterface
      * HTTP Request GET
      * @param array $args
      */
-    public function get(array $args): array;
+    public function get(): array;
     
     public function post(array $params): array;
     
