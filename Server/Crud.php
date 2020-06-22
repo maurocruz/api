@@ -8,6 +8,18 @@ abstract class Crud
 {
     protected $table;
     
+    
+    // READ
+    protected function read(string $field = "*", string $where = null, string $groupby = null, string $order = null, array $args = null) 
+    {
+        $query = "SELECT $field FROM $this->table";
+        $query .= $where ? " WHERE $where" : NULL;
+        $query .= $groupby ? " GROUP BY $groupby" : NULL;
+        $query .= $order ? " ORDER BY $order" : NULL;
+        $query .= ";";
+        return $this->getQuery($query, $args);
+    }
+    
      // CREATED
     protected function created(array $data) 
     {
@@ -49,17 +61,6 @@ abstract class Crud
             "data" => $data
         ];
     }
-    
-    // READ
-    protected function read(string $field = "*", string $where = null, string $groupby = null, string $order = null, array $args = null) 
-    {
-        $query = "SELECT $field FROM $this->table";
-        $query .= $where ? " WHERE $where" : NULL;
-        $query .= $groupby ? " GROUP BY $groupby" : NULL;
-        $query .= $order ? " ORDER BY $order" : NULL;
-        $query .= ";";
-        return $this->getQuery($query, $args);
-    }
 
     // UPDATE
     public function update(array $data, string $where) 
@@ -89,14 +90,12 @@ abstract class Crud
     }
     
     // DELETE
-    public function delete(array $where, $limit = null): object 
-    {
-        $connect = PDOConnect::getPDOConnect();
-        
+    public function delete(array $where, $limit = null): array 
+    {        
         // query
         foreach ($where as $key => $value) {
             $clause[] = "`$key`=?";
-            $values[] = $value;
+            $bindValues[] = $value;
         }
         
         $conditions = implode(" AND ", $clause);
@@ -104,16 +103,37 @@ abstract class Crud
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
-        // prepare
-        $stmt = $connect->prepare($query);
+        return self::execute($query, $bindValues, "Delete successfully", $query);
+    }
+    
+    private static function execute($query, $bindValues, $message, $data)
+    {
+        $connect = PDOConnect::getPDOConnect();
         
-        foreach ($values as $key => $value2) {
-            $stmt->bindValue(($key+1), $value2);
+        // prepare
+        $stmt = $connect->prepare($query);        
+        
+        foreach ($bindValues as $key => $valueBind) {
+            $stmt->bindValue(($key+1), $valueBind);
         }
         
-        $stmt->execute();
-        
-        return $stmt;
+        try {            
+            if ($stmt->execute() === false) {
+                throw new \PDOException();
+            }
+            
+        } catch (\PDOException $exc) {
+            return [ "error" => [
+                "code" => $stmt->errorCode(),
+                "driverCodeError" => $stmt->errorInfo()[1],
+                "message" => $stmt->errorInfo()[2]
+            ]];
+        }
+
+        return [ 
+            "message" => $message,
+            "data" => $data
+        ];
     }
     
     // LAST INSERT ID

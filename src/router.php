@@ -123,9 +123,13 @@ return function(App $slimApp) {
      */
     $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
     {
-        if ($request->getAttribute("userAuth") === true){
+        if ($request->getAttribute("userAuth") === true) {
             
-            $data = [ "message" => "Under development" ];
+            PDOConnect::reconnectToAdmin();
+            
+            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
+            
+            $data = (new $classname($request))->erase($args['id']);
                            
             $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }

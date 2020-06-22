@@ -24,7 +24,12 @@ class Person extends TypeAbstract implements TypeInterface
         } else {
             return [ "messagen" => "incomplete mandatory data" ];
         } 
-    }    
+    }   
+    
+    public function erase(string $id): array 
+    {
+        return parent::delete(["idperson" => $id]);        
+    }
     
     public function createSqlTable($type = null): bool 
     {         
