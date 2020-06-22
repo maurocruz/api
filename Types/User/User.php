@@ -9,9 +9,9 @@ class User extends TypeAbstract implements TypeInterface
     protected $table = "user";
     protected $type = "User";
 
-    public function get(array $args): array 
+    public function get(): array 
     {
-        return parent::index();
+        return parent::get();
     }   
     
     public function erase(string $id): array {
@@ -69,6 +69,11 @@ class User extends TypeAbstract implements TypeInterface
         $queryParams['password'] = password_hash($queryParams['password'], PASSWORD_DEFAULT);
         
         return parent::created($queryParams);
+    }
+    
+    public function delete(string $id): array 
+    {
+        return parent::delete($id);
     }
     
     public function createSqlTable($type = null): bool {

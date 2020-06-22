@@ -66,12 +66,17 @@ return function(App $slimApp) {
     // Generic GET
     $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args) 
     {
-        $dataController = new ApiController($request);
+        $type = $args['type'];
         
-        $data = $dataController->getTypes($args);
+        $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
         
-        $newResponse = $response->withHeader("Content-type", "'application/json'");        
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));        
+        if (class_exists($className)) {
+            $data = json_encode((new $className($request))->get(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+        }
+              
+        $response->getBody()->write($data);  
+        
+        $response = $response->withHeader("Content-type", "'application/json'");        
         return $response;
     });
     
@@ -127,7 +132,7 @@ return function(App $slimApp) {
             
             $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
             
-            $data = (new $classname($request))->erase($args['id']);
+            $data = (new $classname($request))->delete($args['id']);
                            
             $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }

@@ -68,7 +68,7 @@ trait SchemaTrait
         }
         
         // url
-        if ($value['url'] == null) {
+        if (isset($value['url']) && $value['url'] == null) {
             $schema['url'] = $urlApi;
         }
         

@@ -11,9 +11,9 @@ class Person extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "givenName", "familyName", "url" ];
         
-    public function get(array $args): array 
+    public function get(): array 
     {
-        return parent::index();
+        return parent::get();
     }
     
     public function post(array $params): array 
@@ -21,13 +21,13 @@ class Person extends TypeAbstract implements TypeInterface
         if(isset($params['givenName']) && isset($params['familyName'])) {
             $params['name'] = $params['givenName']." ".$params['familyName'];
             $params['dateRegistration'] = date('Y-m-d');
-            return parent::created($params);
+            return parent::post($params);
         } else {
             return [ "messagen" => "incomplete mandatory data" ];
         } 
     }   
     
-    public function erase(string $id): array 
+    public function delete(string $id): array 
     {
         return parent::delete(["idperson" => $id]);        
     }

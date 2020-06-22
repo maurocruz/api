@@ -4,8 +4,30 @@ namespace Fwc\Api\Type;
 
 class PostalAddress extends TypeAbstract implements TypeInterface
 {
-    public function get($args) {
-        ;
+    protected $table = 'postalAddress';
+    
+    protected $type = 'PostalAddress';
+    
+    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ]; 
+    
+
+    public function get(): array 
+    {
+        return parent::get();
+    }
+    
+    public function post(array $params): array 
+    {
+        return parent::post($params);
+    }
+    
+    public function delete(string $id): array 
+    {
+        return parent::delete($id);
+    }
+    
+    public function put(string $id): array {
+        return parent::put($id);
     }
     
     public function createSqlTable($type = null): bool

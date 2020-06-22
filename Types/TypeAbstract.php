@@ -2,10 +2,10 @@
 
 namespace Fwc\Api\Type;
 
-use Fwc\Api\Server\Model;
+use Fwc\Api\Server\Crud;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-abstract class TypeAbstract extends Model 
+abstract class TypeAbstract extends Crud
 {
     protected $request;
     protected $table;
@@ -17,8 +17,20 @@ abstract class TypeAbstract extends Model
         $this->request = $request;
     }
     
-    public function index(string $where = null, $orderBy = null, $groupBy = null, $limit = null, $offset = null) 
+    protected function get() 
     {
+        // properties not exists
+        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties" ];
+        
+        $field = "*";
+        $where = null;
+        $groupBy = null;
+        $orderBy = null;
+        $limit = 200;
+        $offset = null;
+        $ordering = "unordering";
+        $args = null;
+        
         // params from URL queries strings
         $queryParams = $this->request->getQueryParams();
         
@@ -26,14 +38,11 @@ abstract class TypeAbstract extends Model
         if ($this->request->getAttribute('id')) {
             $queryParams['id'] = $this->request->getAttribute('id');
         }
-        
-        // set max limit
-        $limit = $limit && $limit < 200 ? $limit : 200; 
-        
-        // fields not exists
-        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties" ];
                 
         if (!empty($queryParams)) {
+            
+            // set max limit
+            $limit = isset($queryParams['limit']) && $queryParams['limit'] < 200 ? $queryParams['limit'] : $limit; 
             
             foreach ($queryParams as $key => $value) {
                 
@@ -71,7 +80,7 @@ abstract class TypeAbstract extends Model
             $this->propertiesMerge($queryParams['properties']);
         }
         
-        return $this->returnListAll( parent::index($where, $orderBy, $groupBy, $limit, $offset), $ordering ?? null );
+        return $this->returnListAll( parent::read($field, $where, $groupBy, $orderBy, $limit, $offset, $args), $ordering );
     }
     
     private function returnListAll($data, $ordering)
@@ -91,6 +100,11 @@ abstract class TypeAbstract extends Model
         }
     }
     
+    protected function post(array $params): array 
+    {
+        return parent::created($params);
+    }
+
     protected function put(string $id): array
     {
         $params = $this->request->getParsedBody();
@@ -102,8 +116,13 @@ abstract class TypeAbstract extends Model
         return parent::update($params, "`$idname`=$idvalue");        
     }
 
+    protected function delete(string $id): array
+    {
+        $idname = 'id'.$this->table;
+        return parent::erase([ $idname => $id ]);
+    }
 
-    public function createSqlTable($type = null) 
+    protected function createSqlTable($type = null) 
     {
         $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));
                

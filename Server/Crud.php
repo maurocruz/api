@@ -26,6 +26,9 @@ class Crud
      // CREATED
     protected function created(array $data) 
     {   
+        if (empty($data)) {
+            return [ "message" => "Record not created by data is empty" ];
+        }
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`";
@@ -41,7 +44,7 @@ class Crud
     }
 
     // UPDATE
-    public function update(array $data, string $where) 
+    protected function update(array $data, string $where) 
     {        
         // query
         foreach ($data as $key => $value) {
@@ -57,7 +60,7 @@ class Crud
     }
     
     // DELETE
-    public function delete(array $where, $limit = null): array 
+    protected function erase(array $where): array 
     {        
         // query
         foreach ($where as $key => $value) {
@@ -67,7 +70,6 @@ class Crud
         
         $conditions = implode(" AND ", $clause);
         $query = "DELETE FROM $this->table WHERE $conditions";
-        $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
         return self::execute($query, $bindValues, "Delete successfully", $query);
