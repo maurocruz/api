@@ -10,19 +10,22 @@ class Crud
     
     
     // READ
-    protected function read(string $field = "*", string $where = null, string $groupby = null, string $order = null, array $args = null) 
-    {
-        $query = "SELECT $field FROM $this->table";
-        $query .= $where ? " WHERE $where" : NULL;
-        $query .= $groupby ? " GROUP BY $groupby" : NULL;
-        $query .= $order ? " ORDER BY $order" : NULL;
+    protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null) 
+    {        
+        $query = "SELECT * FROM $this->table";
+        $query .= $where ? " WHERE $where" : null;
+        $query .= $groupBy ? " GROUP BY $groupBy" : null;
+        $query .= $orderBy ? " ORDER BY $order" : null;
+        $query .= $limit ? " LIMIT $limit" : null;
+        $query .= $offset ? " OFFSET $offset" : null;
         $query .= ";";
+        
         return $this->getQuery($query, $args);
     }
     
      // CREATED
     protected function created(array $data) 
-    {        
+    {   
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`";
