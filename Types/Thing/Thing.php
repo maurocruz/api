@@ -19,13 +19,13 @@ class Thing extends TypeAbstract implements TypeInterface
     }
     
     // update (UPDATE)
-    public function put($args)
+    public function put(string $id): array
     {
         
     }
     
     // delete (DELETE)
-    public function erase($args)
+    public function erase(string $id): array
     {
         
     }

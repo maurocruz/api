@@ -31,7 +31,7 @@ abstract class TypeAbstract extends Model
         $limit = $limit && $limit < 200 ? $limit : 200; 
         
         // fields not exists
-        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id" ];
+        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties" ];
                 
         if (!empty($queryParams)) {
             
@@ -65,6 +65,11 @@ abstract class TypeAbstract extends Model
         
         // WHERE
         $where = isset($whereArray) ? implode(" AND ", $whereArray) : null;
+        
+        // properties
+        if (isset($queryParams['properties'])) {
+            $this->propertiesMerge($queryParams['properties']);
+        }
         
         return $this->returnListAll( parent::index($where, $orderBy, $groupBy, $limit, $offset), $ordering ?? null );
     }

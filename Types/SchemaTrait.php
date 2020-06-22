@@ -39,6 +39,12 @@ trait SchemaTrait
         ]; 
     }
     
+    protected function propertiesMerge(string $propertiesIncrement) 
+    {
+        $propArray = explode(",", $propertiesIncrement);
+        $this->properties = array_merge($this->properties, $propArray);
+    }
+    
     private function schema(array $value) 
     {
         $id = $value['id'.$this->table];
@@ -55,7 +61,9 @@ trait SchemaTrait
         // add properties
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
-                $schema[$valueProperty] = $value[$valueProperty];
+                if (array_key_exists($valueProperty, $value)) {
+                    $schema[$valueProperty] = $value[$valueProperty];
+                }
             }
         }
         
