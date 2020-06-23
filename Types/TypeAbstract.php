@@ -19,68 +19,13 @@ abstract class TypeAbstract extends Crud
     
     protected function get() 
     {
-        // properties not exists
-        $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties" ];
+        $filterget = new FilterGet($this->request->getQueryParams(), $this->table, $this->properties);
         
-        $field = "*";
-        $where = null;
-        $groupBy = null;
-        $orderBy = null;
-        $limit = 200;
-        $offset = null;
-        $ordering = "unordering";
-        $args = null;
-        
-        // params from URL queries strings
-        $queryParams = $this->request->getQueryParams();
-        
-        // param id from argument url
-        if ($this->request->getAttribute('id')) {
-            $queryParams['id'] = $this->request->getAttribute('id');
-        }
+        $this->properties = $filterget->getProperties();
                 
-        if (!empty($queryParams)) {
-            
-            // set max limit
-            $limit = isset($queryParams['limit']) && $queryParams['limit'] < 200 ? $queryParams['limit'] : $limit; 
-            
-            foreach ($queryParams as $key => $value) {
-                
-                // ORDER BY
-                if (stripos($key, "orderBy") !== false) {
-                    $ordering = $queryParams['ordering'] ?? 'ASC';
-                    $orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ".$ordering;
-                }
-                
-                // WHERE
-                $like = stristr($key,"like", true);
-                if ($like) {
-                    $whereArray[] = "`$like` LIKE '%$value%'";
-                    
-                } elseif (!in_array($key, $noWhere)) {
-                    $whereArray[] = "`$key`='$value'"; 
-                    
-                } elseif (stripos($key, "id") !== false) {
-                    $idname = "id".$this->table;
-                    $whereArray[] = "`$idname`=$value";
-                }
-                
-                // LIMIT
-                if (stripos($key, 'limit') !== false) {
-                    $limit = $value;
-                }
-            }
-        }        
+        $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
         
-        // WHERE
-        $where = isset($whereArray) ? implode(" AND ", $whereArray) : null;
-        
-        // properties
-        if (isset($queryParams['properties'])) {
-            $this->propertiesMerge($queryParams['properties']);
-        }
-        
-        return $this->returnListAll( parent::read($field, $where, $groupBy, $orderBy, $limit, $offset, $args), $ordering );
+        return $this->returnListAll( $data, $filterget->ordering() );
     }
     
     private function returnListAll($data, $ordering)
@@ -128,10 +73,8 @@ abstract class TypeAbstract extends Crud
                
         $sqlFile = $dir."/createSqlTable.sql";
         
-        if (file_exists($sqlFile)) {
-            
-            parent::getQuery(file_get_contents($sqlFile));
-            
+        if (file_exists($sqlFile)) {            
+            parent::getQuery(file_get_contents($sqlFile));            
             return true;
            
         } else {
