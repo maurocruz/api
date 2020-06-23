@@ -10,7 +10,10 @@ class Person extends TypeAbstract implements TypeInterface
     protected $type = "Person";
     
     protected $properties = [ "name", "givenName", "familyName", "url" ];
-        
+    
+    protected $propertiesHasTypes = [ "address" => 'PostalAddress', "contactPoint" => "contactPoint" ];
+
+
     public function get(): array 
     {
         return parent::get();
