@@ -4,51 +4,33 @@ namespace Fwc\Api\Type;
 
 trait SchemaTrait 
 {
-    protected $properties = [];
     protected $table;
+    
     protected $type;
     
-    protected function listItem(array $list = null, $ordering = null): array 
+    protected $properties = [];
+    
+    protected $propertiesHasTypes = [];
+
+    protected function listSchema($data) 
     {
-        $itemListOrder = stripos($ordering,'asc') !== false ? "ascending" : 
-                ( stripos($ordering,"desc") !== false ? "descending" : 
-                (stripos($ordering, 'rand') !== false ? "randomly" : "unordering") );        
+        if (empty($data)) {
+            return [ "messagem" => "Not founded" ];
+        } 
         
-        if (!$list) {
-            $name = "Empty list";
-            $numberOfItems = 0;
-        } else {
-            $name = "list of ".$this->type;
-            $numberOfItems = count($list);
-            foreach ($list as $i => $valueList) {
-                $itemListElement[] = [
-                    "@type" => "ListItem",
-                    "position" => $i+1,
-                    "item" => $valueList
-                ];
-            }
+        foreach ($data as $value) {            
+            $list[] = $this->schema($value);
         }
-                
-        return [
-            "@context" => "https://schema.org",
-            "@type" => "ItemList",
-            "name" => $name,
-            "numberOfItems" => $numberOfItems,
-            "itemListOrder" => $itemListOrder,
-            "itemListElement" => $itemListElement ?? null
-        ]; 
+            
+        return $list;
     }
-    
-    protected function propertiesMerge(string $propertiesIncrement) 
-    {
-        $propArray = explode(",", $propertiesIncrement);
-        $this->properties = array_merge($this->properties, $propArray);
-    }
-    
+
     private function schema(array $value) 
     {
         $id = $value['id'.$this->table];
-        $urlApi = "//".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."?id=".$id;
+        $host = "//".$_SERVER['HTTP_HOST'];
+        $urlApi = $host.$_SERVER['REQUEST_URI'];
+        $url = $urlApi."?id=".$id;
         
         $schema = [
             "@context" => "https://schema.org",
@@ -67,9 +49,34 @@ trait SchemaTrait
             }
         }
         
+        foreach ($this->propertiesHasTypes as $propertyName => $type) {
+            if (isset($schema[$propertyName])) {
+                                
+                $urlDep = "http:".$host."/api/".lcfirst($type). "?id=".$value[$propertyName];
+                
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $urlDep);
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                $data = curl_exec($ch);
+                curl_close($ch);
+                
+                $schema[$propertyName] = json_decode($data, true);
+            } else {
+                
+                $tableOwner = $this->table;
+                $idOwner = $id;
+                
+                //var_dump($tableOwner);                        
+                //var_dump($idOwner);                        
+                
+                $schema[$propertyName] = "oneToMany ".$type;
+            }
+        }
+        
         // url
         if (isset($value['url']) && $value['url'] == null) {
-            $schema['url'] = $urlApi;
+            $schema['url'] = $url;
         }
         
         return $schema;
