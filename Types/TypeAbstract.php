@@ -25,24 +25,7 @@ abstract class TypeAbstract extends Crud
                 
         $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
         
-        return $this->returnListAll( $data, $filterget->ordering() );
-    }
-    
-    private function returnListAll($data, $ordering)
-    {
-        if (isset($data['error'])) {
-           return $data; 
-           
-        } elseif (empty ($data)) {
-            return $this->listItem();
-            
-        } else {
-            foreach ($data as $key => $value) { 
-               $list[] = $this->schema($value);
-            }
-            
-            return $this->listItem($list, $ordering);
-        }
+        return $this->listSchema($data);
     }
     
     protected function post(array $params): array 
