@@ -12,11 +12,7 @@ class User extends TypeAbstract implements TypeInterface
     public function get(): array 
     {
         return parent::get();
-    }   
-    
-    public function erase(string $id): array {
-        ;
-    }
+    } 
     
     public function put(string $id): array 
     {
