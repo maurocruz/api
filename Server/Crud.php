@@ -15,7 +15,7 @@ class Crud
         $query = "SELECT * FROM $this->table";
         $query .= $where ? " WHERE $where" : null;
         $query .= $groupBy ? " GROUP BY $groupBy" : null;
-        $query .= $orderBy ? " ORDER BY $order" : null;
+        $query .= $orderBy ? " ORDER BY $orderBy" : null;
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= $offset ? " OFFSET $offset" : null;
         $query .= ";";
