@@ -10,8 +10,12 @@ namespace Fwc\Api\Type;
 class ContactPoint extends TypeAbstract implements TypeInterface
 {
     protected $table = 'contactPoint';
+    
     protected $type = 'ContactPoint';
     
+    protected $properties = [ "telephone", "email" ];
+
+
     public function get(): array
     {
         return parent::get();
