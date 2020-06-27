@@ -25,11 +25,20 @@ abstract class TypeAbstract extends Crud
                 
         $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
         
-        return $this->listSchema($data);
+        if (array_key_exists('error', $data)) {            
+            return $data;
+            
+        } else {        
+            return $this->listSchema($data);
+        }
     }
     
     protected function post(array $params): array 
     {
+        if ($this->request->getParsedBody()['action'] == 'create') {            
+            return $this->createSqlTable();                
+        }
+        
         return parent::created($params);
     }
 
@@ -52,21 +61,24 @@ abstract class TypeAbstract extends Crud
 
     protected function createSqlTable($type = null) 
     {
-        $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));
-               
-        $sqlFile = $dir."/createSqlTable.sql";
+        // path to sql file
+        if (method_exists($this, 'getDir')) {
+            $sqlFile = $this->getDir()."/".$type.".sql";    
+        } else {
+            $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
+            $sqlFile = $dir."/createSqlTable.sql";
+        }
         
-        if (file_exists($sqlFile)) {            
-            parent::getQuery(file_get_contents($sqlFile));            
-            return true;
+        // run sql
+        if (file_exists($sqlFile)) {
+            $data = parent::getQuery(file_get_contents($sqlFile));
+            if (array_key_exists("error", $data)) {
+                return $data;
+            }
+            return [ "message" => "Sql table for ".$type. " created successfully!" ];
            
         } else {
-            return false;
+            return [ "message" => "Sql table for ".$type." not created!" ];
         }
-    }
-    
-    protected function createRelationship($tableOwner, $idOwner, $tableHas, $idHas) 
-    {
-        
     }
 }
