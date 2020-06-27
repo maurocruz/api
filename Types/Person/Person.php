@@ -25,19 +25,32 @@ class Person extends TypeAbstract implements TypeInterface
             $params['name'] = $params['givenName']." ".$params['familyName'];
             $params['dateRegistration'] = date('Y-m-d');
             return parent::post($params);
+            
         } else {
             return [ "messagen" => "incomplete mandatory data" ];
         } 
-    }   
+    } 
+    
+    public function put(string $id, $params = null): array
+    {
+        foreach ($this->request->getParsedBody() as $key => $value) {
+            
+            if(in_array($key, $this->propertiesHasTypes)) {
+                
+                $relationship = new \Fwc\Api\Server\Relationships();
+                $query = $relationship->putRelationship($this->table, $id, $key, $value);
+                
+                $params  = $this->request->getParsedBody();
+                unset($params[$key]);
+            }
+        }
+        
+        return parent::put($id, $params);
+    }  
     
     public function delete(string $id): array 
     {
         return parent::delete(["idperson" => $id]);        
-    }
-    
-    public function put(string $id): array
-    {
-        return parent::put($id);
     }
     
     /**
