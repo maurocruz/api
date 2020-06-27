@@ -39,38 +39,42 @@ trait SchemaTrait
                 [ "@type" => "PropertyValue", "name" => "fwc_id", "value" => $id ]
             ]
         ];        
-                
+        
+        
         // add properties
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
+                
                 if (array_key_exists($valueProperty, $value)) {
                     $schema[$valueProperty] = $value[$valueProperty];
                 }
-            }
-        }
-        
-        foreach ($this->propertiesHasTypes as $propertyName => $type) {
-            if (isset($schema[$propertyName])) {
-                                
-                $urlDep = "http:".$host."/api/".lcfirst($type). "?id=".$value[$propertyName];
                 
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $urlDep);
-                curl_setopt($ch, CURLOPT_HEADER, 0);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                $data = curl_exec($ch);
-                curl_close($ch);
-                
-                $schema[$propertyName] = json_decode($data, true);
-            } else {
-                
-                $tableOwner = $this->table;
-                $idOwner = $id;
-                
-                //var_dump($tableOwner);                        
-                //var_dump($idOwner);                        
-                
-                $schema[$propertyName] = "oneToMany ".$type;
+                // relationships
+                if (array_key_exists($valueProperty, $this->propertiesHasTypes)) {
+                    $type = $this->propertiesHasTypes[$valueProperty];
+                    
+                     if (isset($schema[$valueProperty])) {
+
+                    $urlDep = "http:".$host."/api/".lcfirst($type). "?id=".$value[$valueProperty];
+
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, $urlDep);
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    $data = curl_exec($ch);
+                    curl_close($ch);
+
+                    $schema[$valueProperty] = json_decode($data, true);
+
+                }
+                // one to many
+                else {                
+                    $rel = new \Fwc\Api\Server\Relationships();
+                    $data = $rel->getRelationship($this->table, $id, $type);
+
+                    $schema[$valueProperty] = $data;
+                }
+                }
             }
         }
         
