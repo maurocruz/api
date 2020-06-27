@@ -114,17 +114,6 @@ class Crud
         return $return[0]['id'];
     }
     
-    protected function getHasTable($tableOwner,$idOwner, $order = null) 
-    {
-        $tableHas = $tableOwner."_has_".$this->table;
-        $idTable = "id".$this->table;
-        $query = "SELECT * FROM $this->table, $tableHas WHERE {$this->table}.{$idTable}={$tableHas}.{$idTable} AND {$tableHas}.id{$tableOwner}=$idOwner";
-        $query .= $order ? " ORDER BY $order" : null;
-        $query .= ";";
-        
-        return $this->getQuery($query);
-    }
-    
     // 
     protected function getQuery($query, $args = null) 
     {
