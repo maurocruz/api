@@ -2,19 +2,12 @@
 
 namespace Fwc\Api\Type;
 
-/**
- * ContactPoint
- *
- * @author Mauro Cruz <maurocruz@pirenopolis.tur.br>
- */
-class ContactPoint extends TypeAbstract implements TypeInterface
-{
-    protected $table = 'contactPoint';
-    
-    protected $type = 'ContactPoint';
-    
-    protected $properties = [ "telephone", "email" ];
+use Fwc\Api\Server\Maintenance;
 
+class ImageObject extends TypeAbstract implements TypeInterface
+{
+    protected $table = "imageObject";
+    protected $type = "ImageObject";
 
     public function get(): array
     {
@@ -38,6 +31,7 @@ class ContactPoint extends TypeAbstract implements TypeInterface
     
     public function createSqlTable($type = null)
     {
-        return parent::createSqlTable("ContactPoint");
+        $message[] =  parent::createSqlTable("ImageObject");
+        return $message;
     }
 }

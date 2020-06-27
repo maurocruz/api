@@ -25,7 +25,7 @@ class Maintenance extends Crud
             return (new $className($this->request))->createSqlTable($type);
             
         } else {
-            return false;
+            return [ "message" => $type. " already exists" ];
         }
     }
     
@@ -35,6 +35,9 @@ class Maintenance extends Crud
         $this->createSqlTable('User');
         $this->createSqlTable('Person');
         
-        return [ "response" => "Basic types created" ];
+        // create admin user
+        $data = (new \Fwc\Api\Type\User($this->request))->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
+        
+        return [ "message" => "Basic types created", "data" => $data ];
     }
 }

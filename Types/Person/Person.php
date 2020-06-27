@@ -58,11 +58,18 @@ class Person extends TypeAbstract implements TypeInterface
      * @param type $type
      * @return bool
      */
-    public function createSqlTable($type = null): bool 
+    public function createSqlTable($type = null) 
     {         
-        $maintenance = new Maintenance($this->request);        
-        $maintenance->createSqlTable("PostalAddress");        
-        $maintenance->createSqlTable("ContactPoint");        
-        return parent::createSqlTable("Person");
+        $maintenance = new Maintenance($this->request);
+        
+        $message[] = $maintenance->createSqlTable("PostalAddress");
+        
+        $message[] = $maintenance->createSqlTable("ContactPoint"); 
+        
+        $message[] = $maintenance->createSqlTable("ImageObject");
+        
+        $message[] = parent::createSqlTable("Person");
+        
+        return $message;
     }
 }

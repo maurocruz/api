@@ -39,3 +39,19 @@ CREATE TABLE IF NOT EXISTS `person_has_contactPoint` (
   CONSTRAINT `fk_person_has_contactPoint_contactPoint1` FOREIGN KEY (`idcontactPoint`) REFERENCES `contactPoint` (`idcontactPoint`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_person_has_contactPoint_person` FOREIGN KEY (`idperson`) REFERENCES `person` (`idperson`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+
+--
+-- relational table with imageObject
+
+CREATE TABLE IF NOT EXISTS `person_has_imageObject` (
+  `idperson` INT(10) NOT NULL,
+  `idimageObject` INT(10) NOT NULL,
+  `position` INT(5) NULL,
+  `caption` VARCHAR(255) NULL,
+  `representativeOfPage` TINYINT(1) NULL,
+  PRIMARY KEY (`idperson`, `idimageObject`),
+  INDEX `fk_person_has_imageObject_imageObject1_idx` (`idimageObject` ASC),
+  INDEX `fk_person_has_imageObject_person1_idx` (`idperson` ASC),
+  CONSTRAINT `fk_person_has_imageObject_person1` FOREIGN KEY (`idperson`) REFERENCES `person` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_person_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;

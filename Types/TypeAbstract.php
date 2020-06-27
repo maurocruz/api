@@ -35,7 +35,8 @@ abstract class TypeAbstract extends Crud
     
     protected function post(array $params): array 
     {
-        if ($this->request->getParsedBody()['action'] == 'create') {            
+        $action = $this->request->getParsedBody()['action'] ?? null;
+        if ($action == 'create') {            
             return $this->createSqlTable();                
         }
         
@@ -61,13 +62,8 @@ abstract class TypeAbstract extends Crud
 
     protected function createSqlTable($type = null) 
     {
-        // path to sql file
-        if (method_exists($this, 'getDir')) {
-            $sqlFile = $this->getDir()."/".$type.".sql";    
-        } else {
-            $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
-            $sqlFile = $dir."/createSqlTable.sql";
-        }
+        $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
+        $sqlFile = $dir."/".$type.".sql";        
         
         // run sql
         if (file_exists($sqlFile)) {

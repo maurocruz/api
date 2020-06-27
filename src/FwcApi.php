@@ -23,9 +23,10 @@ class FwcApi
         PDOConnect::connect($driver, $host, $dbname, $userPublic, $passwordPublic, $options);
     }
 
-    public function setAdminData($userAdmin, $passwordAdmin) 
+    public function setAdminData($usernameAdmin, $emailAdmin, $passwordAdmin) 
     {
-        PDOConnect::setUserAdmin($userAdmin);
+        PDOConnect::setUsernameAdmin($usernameAdmin);
+        PDOConnect::setemailAdmin($emailAdmin);
         PDOConnect::setPasswordAdmin($passwordAdmin);
     }
     

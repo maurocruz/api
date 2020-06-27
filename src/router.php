@@ -21,8 +21,8 @@ return function(App $slimApp) {
      */
     $slimApp->post('/api/start', function(Request $request, Response $response, $args) 
     {
-        $username = $request->getParsedBody()['userDb'] ?? null;
-        $password = $request->getParsedBody()['passDb'] ?? null;
+        $username = $request->getParsedBody()['username'] ?? null;
+        $password = $request->getParsedBody()['password'] ?? null;
         
         if ($username && $password) {            
             $driver = PDOConnect::getDrive();
@@ -34,21 +34,20 @@ return function(App $slimApp) {
             $pdo = PDOConnect::connect($driver, $host, $dbname, $username, $password);
             
             if (array_key_exists('error', $pdo)) {
-                $data = json_encode($pdo);
+                $data = $pdo;
                 
             } elseif (is_object($pdo)) { 
                 $maintenance = new Maintenance($request);
-                $data = json_encode($maintenance->start());
+                $data = $maintenance->start();
             }
             
         } else {
-            $data = '{"data":"User and pass not found"}';
+            $data = [ "message" => "User and pass not found" ];
         }   
         
-        $newResponse = $response->withHeader("Content-type", "'application/json'");
+        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         
-        $newResponse->getBody()->write($data);
-        
+        $response = $response->withHeader("Content-type", "'application/json'");
         return $response;        
     });
      
@@ -66,15 +65,24 @@ return function(App $slimApp) {
     // Generic GET
     $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args) 
     {
-        $type = $args['type'];
+        $type = $args['type'] ?? null;
+        $id = $args['id'] ?? null;
         
-        $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
-        
-        if (class_exists($className)) {
-            $data = json_encode((new $className($request))->get(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+        if ($type) {        
+            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+
+            if (class_exists($className)) {
+                $data = (new $className($request))->get();
+                
+            } else {
+                 $data = [ "message" => "type not founded" ];
+            }
+            
+        } else {
+            $data = (new Type\index())->index();
         }
               
-        $response->getBody()->write($data);  
+        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));  
         
         $response = $response->withHeader("Content-type", "'application/json'");        
         return $response;
@@ -98,12 +106,13 @@ return function(App $slimApp) {
     // Generic POST
     $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
     {
+        $type = $args['type'];
+        $params = $request->getParsedBody();
+            
         if ($request->getAttribute("userAuth") === true) {
             
             PDOConnect::reconnectToAdmin();
             
-            $type = $args['type'];
-            $params = $request->getParsedBody();
             
             $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
 
@@ -111,9 +120,13 @@ return function(App $slimApp) {
                 $typeClass = new $className($request);
                 $data = $typeClass->post($params);
             }
+            $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
             
-            $response->getBody()->write( json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
-        }
+        } elseif ($type == "user") {
+            unset($params['status']);
+            $data = (new \Fwc\Api\Type\User($request))->post($params);
+            $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        } 
         
         $response = $response->withHeader("Content-type", "'application/json'");
         return $response;

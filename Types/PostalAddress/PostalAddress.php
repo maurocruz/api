@@ -31,7 +31,7 @@ class PostalAddress extends TypeAbstract implements TypeInterface
         return parent::put($id, $params);
     }
     
-    public function createSqlTable($type = null): bool
+    public function createSqlTable($type = null)
     {
         return parent::createSqlTable("PostalAddress");
     }

@@ -14,57 +14,57 @@ class User extends TypeAbstract implements TypeInterface
         return parent::get();
     } 
     
-    public function put(string $id): array 
+    public function put(string $id, $params = null): array 
     {
         return parent::put($id);
     }
         
     /**
      * Create new user
-     * @param array $queryParams
+     * @param array $params
      * @return array
      */
-    public function post(array $queryParams): array 
+    public function post(array $params): array 
     {        
-        if ( strlen($queryParams['name']) < 2 ) {                      
+        if (strlen($params['name']) < 2 ) {                      
             return [ "error" => [
                 "message" => "The name must be longer than 2 characters"
             ]];
         }
         
-        if (filter_var($queryParams['email'], FILTER_VALIDATE_EMAIL) === false) {
+        if (filter_var($params['email'], FILTER_VALIDATE_EMAIL) === false) {
             return [ "error" => [
                 "message" => "Invalid email" 
             ]];
         }        
                 
-        if(strlen($queryParams['password']) < 8) {  
+        if(strlen($params['password']) < 8) {  
             return [ "error" => [
                 "message" => "Password must be a minimum of 8 characters" 
             ]];
         }
         
-        if(preg_match('@[A-Z]@', $queryParams['password']) === 0) {  
+        if(preg_match('@[A-Z]@', $params['password']) === 0) {  
             return [ "error" => [
                 "message" => "Password must contain at least one uppercase character" 
             ]];
         }
         
-        if(preg_match('@[a-z]@', $queryParams['password']) === 0) {  
+        if(preg_match('@[a-z]@', $params['password']) === 0) {  
             return [ "error" => [
                 "message" => "Password must contain at least one lowercase character" 
             ]];
         }
         
-        if(preg_match('@[0-9]@', $queryParams['password']) === 0) {  
+        if(preg_match('@[0-9]@', $params['password']) === 0) {  
             return [ "error" => [
                 "message" => "Password must contain at least 1 number" 
             ]];
         }
                 
-        $queryParams['password'] = password_hash($queryParams['password'], PASSWORD_DEFAULT);
+        $params['password'] = password_hash($params['password'], PASSWORD_DEFAULT);
         
-        return parent::created($queryParams);
+        return parent::created($params);
     }
     
     public function delete(string $id): array 
@@ -72,8 +72,9 @@ class User extends TypeAbstract implements TypeInterface
         return parent::delete($id);
     }
     
-    public function createSqlTable($type = null): bool {
-        return parent::createSqlTable('user');
+    public function createSqlTable($type = null)
+    {
+        return parent::createSqlTable('User');
     }
     
     public function login($params) 

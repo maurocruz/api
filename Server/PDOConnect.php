@@ -13,7 +13,8 @@ class PDOConnect
     private static $userPublic;
     private static $passwordPublic;
     
-    private static $userAdmin;
+    private static $usernameAdmin;
+    private static $emailAdmin;
     private static $passwordAdmin;
 
     public static function connect($driver, $host, $dbname, $username, $password, $options = []) 
@@ -76,6 +77,21 @@ class PDOConnect
         return self::$dbname;
     }
     
+    public static function getUsernameAdmin()
+    {
+        return self::$usernameAdmin;
+    }
+    
+    public static function getEmailAdmin()
+    {
+        return self::$emailAdmin;
+    }
+    
+    public static function getPasswordAdmin()
+    {
+        return self::$passwordAdmin;
+    }
+    
     public static function setUserPublic($userPublic) 
     {
         self::$userPublic = $userPublic;
@@ -86,9 +102,14 @@ class PDOConnect
         self::$passwordPublic = $passwordPublic;
     }
     
-    public static function setUserAdmin($userAdmin) 
+    public static function setUsernameAdmin($usernameAdmin) 
     {
-        self::$userAdmin = $userAdmin;
+        self::$usernameAdmin = $usernameAdmin;
+    }
+    
+    public static function setEmailAdmin($emailAdmin) 
+    {
+        self::$emailAdmin = $emailAdmin;
     }
     
     public static function setPasswordAdmin($passwordAdmin) 
@@ -99,7 +120,7 @@ class PDOConnect
     public static function reconnectToAdmin() 
     {
         self::disconnect();
-        self::connect(self::$driver, self::$host, self::$dbname, self::$userAdmin, self::$passwordAdmin);
+        self::connect(self::$driver, self::$host, self::$dbname, self::$usernameAdmin, self::$passwordAdmin);
     }
     
     public static function reconnectToPublic() 
