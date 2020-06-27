@@ -26,8 +26,9 @@ class PostalAddress extends TypeAbstract implements TypeInterface
         return parent::delete($id);
     }
     
-    public function put(string $id): array {
-        return parent::put($id);
+    public function put(string $id, $params = null): array 
+    {
+        return parent::put($id, $params);
     }
     
     public function createSqlTable($type = null): bool
