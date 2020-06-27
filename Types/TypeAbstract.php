@@ -33,9 +33,9 @@ abstract class TypeAbstract extends Crud
         return parent::created($params);
     }
 
-    protected function put(string $id): array
+    protected function put(string $id, $params = null): array
     {
-        $params = $this->request->getParsedBody();
+        $params = $params ?? $this->request->getParsedBody();
         
         $idname = "id".$this->table;
         
@@ -63,5 +63,10 @@ abstract class TypeAbstract extends Crud
         } else {
             return false;
         }
+    }
+    
+    protected function createRelationship($tableOwner, $idOwner, $tableHas, $idHas) 
+    {
+        
     }
 }
