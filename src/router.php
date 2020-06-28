@@ -67,12 +67,13 @@ return function(App $slimApp) {
     {
         $type = $args['type'] ?? null;
         $id = $args['id'] ?? null;
+        $params = $request->getQueryParams() ?? null;
         
         if ($type) {        
             $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
 
             if (class_exists($className)) {
-                $data = (new $className($request))->get();
+                $data = (new $className($request))->get($params);
                 
             } else {
                  $data = [ "message" => "type not founded" ];
@@ -84,7 +85,7 @@ return function(App $slimApp) {
               
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));  
         
-        $response = $response->withHeader("Content-type", "'application/json'");        
+        //$response = $response->withHeader("Content-type", "'application/json'");        
         return $response;
     });
     
@@ -162,11 +163,13 @@ return function(App $slimApp) {
     {
         if ($request->getAttribute('userAuth') === true) {
             
+            $params = $request->getParsedBody() ?? null;
+            
             PDOConnect::reconnectToAdmin();
                         
             $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
             
-            $data = json_encode((new $classname($request))->put($args['id']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );      
+            $data = json_encode((new $classname($request))->put($args['id'], $params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );      
         
             $response->getBody()->write($data);
         }
