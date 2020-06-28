@@ -10,12 +10,12 @@ trait SchemaTrait
     
     protected $properties = [];
     
-    protected $propertiesHasTypes = [];
+    protected $withTypes = [];
 
     protected function listSchema($data) 
     {
         if (empty($data)) {
-            return [ "messagem" => "Not founded" ];
+            return [ "messagem" => "No data founded" ];
         } 
         
         foreach ($data as $value) {            
@@ -52,10 +52,10 @@ trait SchemaTrait
                 }
                 
                 // set relationships
-                if (array_key_exists($valueProperty, $this->propertiesHasTypes)) {
+                if (array_key_exists($valueProperty, $this->withTypes)) {
                     
                     // set relational object type
-                    $type = $this->propertiesHasTypes[$valueProperty];                    
+                    $type = $this->withTypes[$valueProperty];                    
                     $typObjectName = __NAMESPACE__.'\\'.$type;  
                     
                     if (class_exists($typObjectName)) {
@@ -67,7 +67,7 @@ trait SchemaTrait
 
                             if (is_numeric($id)) {
                                 $resp = $typeObject->get([ "id" => $id ]);
-                                $data = $resp[0];
+                                $data = $resp[0] ?? null;
                             } else {
                                 $data = null;
                             }
@@ -76,7 +76,7 @@ trait SchemaTrait
                         // one to many
                         else {
                             $rel = (new \Fwc\Api\Server\Relationships())->getRelationship($this->table, $id, lcfirst($type));
-
+                            
                             foreach ($rel as $valueRel) {
                                 $data[] = $typeObject->schema($valueRel);                                
                             }

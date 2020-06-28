@@ -112,15 +112,18 @@ return function(App $slimApp) {
             
         if ($request->getAttribute("userAuth") === true) {
             
-            PDOConnect::reconnectToAdmin();
-            
+            PDOConnect::reconnectToAdmin();            
             
             $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
 
             if (class_exists($className)) {
                 $typeClass = new $className($request);
                 $data = $typeClass->post($params);
+                
+            } else {
+                $data = [ "message" => "Type not founded" ];
             }
+            
             $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
             
         } elseif ($type == "user") {
@@ -134,27 +137,6 @@ return function(App $slimApp) {
         
     })->add(new AuthMiddleware());
     
-       
-    /**
-     * DELETE
-     */
-    $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
-    {
-        if ($request->getAttribute("userAuth") === true) {
-            
-            PDOConnect::reconnectToAdmin();
-            
-            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
-            
-            $data = (new $classname($request))->delete($args['id']);
-                           
-            $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        }
-        
-        $response = $response->withHeader("Content-type", "application/json");
-        return $response;
-        
-    })->addMiddleware(new AuthMiddleware());
     
     /**
      * PUT
@@ -174,9 +156,32 @@ return function(App $slimApp) {
             $response->getBody()->write($data);
         }
         
-        $response = $response->withHeader("Content-type", "'application/json'");        
+        //$response = $response->withHeader("Content-type", "'application/json'");        
         return $response;
         
-    })->addMiddleware(new AuthMiddleware());    
+    })->addMiddleware(new AuthMiddleware());   
+    
+    /**
+     * DELETE
+     */
+    $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
+    {
+        if ($request->getAttribute("userAuth") === true) {
+            
+            PDOConnect::reconnectToAdmin();
+            
+            $queryParams = $request->getQueryParams() ?? null;
+            
+            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
+            
+            $data = (new $classname($request))->delete($args['id'], $queryParams);
+                           
+            $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        }
+        
+        //$response = $response->withHeader("Content-type", "application/json");
+        return $response;
+        
+    })->addMiddleware(new AuthMiddleware()); 
 };
 

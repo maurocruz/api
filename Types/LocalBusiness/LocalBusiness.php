@@ -4,14 +4,15 @@ namespace Fwc\Api\Type;
 
 use Fwc\Api\Server\Maintenance;
 
-class Organization extends TypeAbstract implements TypeInterface
+class LocalBusiness extends TypeAbstract implements TypeInterface
 {
-    protected $table = "organization";
+    protected $table = "localBusiness";
     
-    protected $type = "Organization";
+    protected $type = "LocalBusiness";
     
-    protected $properties = [ "name", "description", "legalName", "taxId" ];
-
+    protected $properties = [ "name", "location", "organization" ];
+    
+    protected $withTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress" ];
 
     /**
      * GET
@@ -32,14 +33,14 @@ class Organization extends TypeAbstract implements TypeInterface
     {
         return parent::post($params);
     }
-
+    
     /**
      * PUT
      * @param string $id
      * @param type $params
      * @return array
- */
-    public function put(string $id, $params = null): array 
+     */
+    public function put(string $id, $params): array 
     {
         return parent::put($id, $params);
     }
@@ -62,13 +63,15 @@ class Organization extends TypeAbstract implements TypeInterface
     public function createSqlTable($type = null) 
     {
         $maintenance = (new Maintenance($this->request));
+        
         $message[] = $maintenance->createSqlTable("ContactPoint");
         $message[] = $maintenance->createSqlTable("PostalAddress");
         $message[] = $maintenance->createSqlTable("ImageObject");
         $message[] = $maintenance->createSqlTable("Person");
         $message[] = $maintenance->createSqlTable("Place");
-        // sql create statement
-        $message[] = parent::createSqlTable("Organization");
+        $message[] = $maintenance->createSqlTable("Organization");
+        
+        $message[] = parent::createSqlTable("LocalBusiness");
         
         return $message;
     }

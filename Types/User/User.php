@@ -9,15 +9,15 @@ class User extends TypeAbstract implements TypeInterface
     protected $table = "user";
     protected $type = "User";
 
-    public function get(): array 
+    /**
+     * GET
+     * @param array $params
+     * @return array
+     */
+    public function get(array $params = null): array 
     {
-        return parent::get();
+        return parent::get($params);
     } 
-    
-    public function put(string $id, $params = null): array 
-    {
-        return parent::put($id);
-    }
         
     /**
      * Create new user
@@ -67,11 +67,33 @@ class User extends TypeAbstract implements TypeInterface
         return parent::created($params);
     }
     
-    public function delete(string $id): array 
+    
+    /**
+     * PUT
+     * @param string $id
+     * @param type $params
+     * @return array
+     */
+    public function put(string $id, $params = null): array 
     {
-        return parent::delete($id);
+        return parent::put($id);
     }
     
+    /**
+     * DELETE
+     * @param string $id
+     * @return array
+     */
+    public function delete(string $id, $params): array 
+    {
+        return parent::delete($id, $params);
+    }
+    
+    /**
+     * 
+     * @param type $type
+     * @return type
+     */
     public function createSqlTable($type = null)
     {
         return parent::createSqlTable('User');

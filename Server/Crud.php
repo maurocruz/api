@@ -27,7 +27,7 @@ class Crud
     protected function created(array $data) 
     {   
         if (empty($data)) {
-            return [ "message" => "Record not created by data is empty" ];
+            return [ "message" => "Record in $this->table not created because data is empty" ];
         }
         // query
         foreach ($data as $key => $value) {
@@ -40,7 +40,7 @@ class Crud
         $rows = implode(",", $values);
         $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
         
-        return self::execute($query, $bindValues, "Record created successfully", $data);
+        return self::execute($query, $bindValues, "Record in $this->table created successfully", $data);
     }
 
     // UPDATE

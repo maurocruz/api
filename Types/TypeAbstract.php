@@ -8,7 +8,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 abstract class TypeAbstract extends Crud
 {
     protected $request;
+    
     protected $table;
+    
+    protected $properties = [];
+    
+    protected $withTypes = [];
 
     use SchemaTrait;
 
@@ -17,7 +22,7 @@ abstract class TypeAbstract extends Crud
         $this->request = $request;
     }
     
-    protected function get(array $params): array 
+    public function get(array $params): array 
     {
         $filterget = new FilterGet($params, $this->table, $this->properties);
         
@@ -33,7 +38,7 @@ abstract class TypeAbstract extends Crud
         }
     }
     
-    protected function post(array $params): array 
+    public function post(array $params): array 
     {
         $action = $this->request->getParsedBody()['action'] ?? null;
         if ($action == 'create') {            
@@ -43,29 +48,56 @@ abstract class TypeAbstract extends Crud
         return parent::created($params);
     }
 
-    protected function put(string $id, $params): array
-    {
-        // if params element relationship
-        foreach ($params as $key => $value) {
-            
-            if(in_array($key, $this->propertiesHasTypes)) {                
-                $relationship = new \Fwc\Api\Server\Relationships();
-                $query = $relationship->putRelationship($this->table, $id, $key, $value);
+    public function put(string $id, $params): array
+    {   
+        $rel = $this->putOnRelationship($id, $params);
+        $params = $rel['params'];
+        $response = $rel['response'];
                 
-                unset($params[$key]);
-            }
-        }
-        
         $idname = "id".$this->table;        
         $idvalue = $this->request->getAttribute('id');
         
-        return parent::update($params, "`$idname`=$idvalue");        
+        $response[] = parent::update($params, "`$idname`=$idvalue");
+        
+        return $response;
+    }
+    
+    private function putOnRelationship($id, $params) 
+    {
+        $columns = parent::getQuery("SHOW COLUMNS FROM $this->table");
+        
+        foreach ($columns as $valueColumns) {
+            $propColumns[] = $valueColumns['Field'];
+        }
+        foreach ($params as $keyParams => $valueParams) {
+            if (!in_array($keyParams, $propColumns)) {
+                $paramRel[$keyParams] = $valueParams;
+                unset($params[$keyParams]);
+            }
+        }
+        // if params element relationship
+        foreach ($paramRel as $key => $value) {    
+            if(array_key_exists($key, $this->withTypes)) {                
+                $relationship = new \Fwc\Api\Server\Relationships();
+                $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
+            }
+        }
+        
+        return [ "params" => $params, "response" => $response ];
     }
 
-    protected function delete(string $id): array
+    public function delete(string $id, $params): array
     {
-        $idname = 'id'.$this->table;
-        return parent::erase([ $idname => $id ]);
+        if ($params) { // delete relationship
+            foreach ($params as $key => $value) {
+                $response[] = (new \Fwc\Api\Server\Relationships())->deleteRelationship($this->table, $id, $key, $value);
+            }
+            return $response;
+            
+        } else {        
+            $idname = 'id'.$this->table;
+            return parent::erase([ $idname => $id ]);
+        }
     }
 
     protected function createSqlTable($type = null) 

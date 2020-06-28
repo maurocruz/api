@@ -6,35 +6,66 @@ use Fwc\Api\Server\Maintenance;
 
 class Place extends TypeAbstract implements TypeInterface
 {
-    public function get(): array
+    protected $table = "place";
+    
+    protected $type = "Place";
+    
+    protected $properties = [ "name", "latitude", "longitude" ];
+
+    /**
+     * GET
+     * @param array $params
+     * @return array
+     */
+    public function get(array $params): array
     {
-        return parent::get();
+        return parent::get($params);
     }
     
+    /**
+     * POST
+     * @param array $params
+     * @return array
+     */
     public function post(array $params): array 
     {
         return parent::post($params);
     }
     
+    /**
+     * PUT
+     * @param string $id
+     * @param type $params
+     * @return array
+     */
     public function put(string $id, $params = null): array 
     {
         return parent::put($id, $params);
     }
     
-    public function delete(string $id): array 
+    /**
+     * DELETE
+     * @param string $id
+     * @return array
+     */
+    public function delete(string $id, $params): array 
     {
-        return parent::delete($id);
+        return parent::delete($id, $params);
     }
     
+    /**
+     * CREATE SQL
+     * @param type $type
+     * @return type
+     */
     public function createSqlTable($type = null)
     {    
-        $maintenance = new Maintenance($this->request);
+        $maintenance = new Maintenance($this->request);        
         
-        $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("ImageObject");        
+        $message[] = $maintenance->createSqlTable("PostalAddress");  
         
-        $message[] = $maintenance->createSqlTable("PostalAddress");
-        
-        $message[] =  parent::createSqlTable("Place");
+        $message[] =  parent::createSqlTable("Place");        
         
         return $message;
     }

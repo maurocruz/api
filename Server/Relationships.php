@@ -11,7 +11,7 @@ class Relationships extends Crud
         $idOwnerName = 'id'.$tableOwner;
         $idHasName = 'id'.$tableHas;
         
-        $query = "SELECT * FROM $tableHas LEFT JOIN $tableRel ON $tableHas.$idHasName=$tableRel.$idHasName AND $tableRel.$idOwnerName=$idOwner;";
+        $query = "SELECT * FROM $tableHas, $tableRel WHERE $tableHas.$idHasName=$tableRel.$idHasName AND $tableRel.$idOwnerName=$idOwner;";
         
         return parent::getQuery($query);
     }
@@ -27,6 +27,26 @@ class Relationships extends Crud
                 
         if (empty($ifExists)) {
             return parent::created([ $idOwnerName => $idOwner, $idHasName => $idHas ]);
-        } 
+            
+        } else {
+            return [ "messagem" => "Record relationship $tableHas already exists!" ];
+        }
+    }
+    
+    public function deleteRelationship($tableOwner, $idOwner, $tableHas, $idHas)
+    {   
+        $this->table = $tableOwner.'_has_'.$tableHas;
+        
+        $idOwnerName = 'id'.$tableOwner;
+        $idHasName = 'id'.$tableHas;
+        
+        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idHasName`=$idHas");
+                
+        if (empty($ifExists)) {
+            return [ "messagem" => "Relationship $tableHas doesn't exists!" ];
+            
+        } else {
+            return parent::erase([ $idOwnerName => $idOwner, $idHasName => $idHas ]);
+        }
     }
 }
