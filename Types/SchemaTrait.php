@@ -39,8 +39,7 @@ trait SchemaTrait
                 [ "@type" => "PropertyValue", "name" => "fwc_id", "value" => $id ]
             ]
         ];        
-        
-        
+                
         // add properties
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
@@ -79,7 +78,7 @@ trait SchemaTrait
         }
         
         // url
-        if (isset($value['url']) && $value['url'] == null) {
+        if (array_key_exists('url', $schema) && $schema['url'] == null) {
             $schema['url'] = $url;
         }
         
