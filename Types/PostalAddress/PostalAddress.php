@@ -11,9 +11,9 @@ class PostalAddress extends TypeAbstract implements TypeInterface
     protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ]; 
     
 
-    public function get(): array 
+    public function get(array $params): array 
     {
-        return parent::get();
+        return parent::get($params);
     }
     
     public function post(array $params): array 

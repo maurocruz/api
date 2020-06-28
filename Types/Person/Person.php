@@ -11,12 +11,12 @@ class Person extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "givenName", "familyName", "url" ];
     
-    protected $propertiesHasTypes = [ "address" => 'PostalAddress', "contactPoint" => "contactPoint" ];
+    protected $propertiesHasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint" ];
 
 
-    public function get(): array 
+    public function get(array $params): array 
     {
-        return parent::get();
+        return parent::get($params);
     }
     
     public function post(array $params): array 
@@ -31,22 +31,17 @@ class Person extends TypeAbstract implements TypeInterface
         } 
     } 
     
-    public function put(string $id, $params = null): array
+    /**
+     * PUT
+     * @param string $id
+     * @param type $params
+     * @return array
+     */
+    public function put(string $id, $params): array
     {
-        foreach ($this->request->getParsedBody() as $key => $value) {
-            
-            if(in_array($key, $this->propertiesHasTypes)) {
-                
-                $relationship = new \Fwc\Api\Server\Relationships();
-                $query = $relationship->putRelationship($this->table, $id, $key, $value);
-                
-                $params  = $this->request->getParsedBody();
-                unset($params[$key]);
-            }
-        }
-        
         return parent::put($id, $params);
     }  
+    
     
     public function delete(string $id): array 
     {

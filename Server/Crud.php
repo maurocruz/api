@@ -45,7 +45,10 @@ class Crud
 
     // UPDATE
     protected function update(array $data, string $where) 
-    {        
+    {   
+        if (empty($data)) {
+            return [ "message" => "No data from update in CRUD" ];
+        }
         // query
         foreach ($data as $key => $value) {
             $names[] = "`$key`=?";

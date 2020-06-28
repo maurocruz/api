@@ -17,9 +17,9 @@ abstract class TypeAbstract extends Crud
         $this->request = $request;
     }
     
-    protected function get() 
+    protected function get(array $params): array 
     {
-        $filterget = new FilterGet($this->request->getQueryParams(), $this->table, $this->properties);
+        $filterget = new FilterGet($params, $this->table, $this->properties);
         
         $this->properties = $filterget->getProperties();
                 
@@ -43,12 +43,20 @@ abstract class TypeAbstract extends Crud
         return parent::created($params);
     }
 
-    protected function put(string $id, $params = null): array
+    protected function put(string $id, $params): array
     {
-        $params = $params ?? $this->request->getParsedBody();
+        // if params element relationship
+        foreach ($params as $key => $value) {
+            
+            if(in_array($key, $this->propertiesHasTypes)) {                
+                $relationship = new \Fwc\Api\Server\Relationships();
+                $query = $relationship->putRelationship($this->table, $id, $key, $value);
+                
+                unset($params[$key]);
+            }
+        }
         
-        $idname = "id".$this->table;
-        
+        $idname = "id".$this->table;        
         $idvalue = $this->request->getAttribute('id');
         
         return parent::update($params, "`$idname`=$idvalue");        

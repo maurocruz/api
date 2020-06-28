@@ -16,9 +16,9 @@ class ContactPoint extends TypeAbstract implements TypeInterface
     protected $properties = [ "telephone", "email" ];
 
 
-    public function get(): array
+    public function get(array $params): array
     {
-        return parent::get();
+        return parent::get($params);
     }
     
     public function post(array $params): array 
@@ -26,7 +26,7 @@ class ContactPoint extends TypeAbstract implements TypeInterface
         return parent::post($params);
     }
     
-    public function put(string $id, $params = null): array 
+    public function put(string $id, $params): array 
     {
         return parent::put($id, $params);
     }
