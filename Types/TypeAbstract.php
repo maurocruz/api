@@ -50,7 +50,7 @@ abstract class TypeAbstract extends Crud
 
     public function put(string $id, $params): array
     {   
-        $rel = $this->putOnRelationship($id, $params);
+        $rel = $this->putInRelationship($id, $params);
         $params = $rel['params'];
         $response = $rel['response'];
                 
@@ -62,24 +62,30 @@ abstract class TypeAbstract extends Crud
         return $response;
     }
     
-    private function putOnRelationship($id, $params) 
+    private function putInRelationship($id, $params) 
     {
+        // check if properties exists with fields
         $columns = parent::getQuery("SHOW COLUMNS FROM $this->table");
-        
+        // build array with fields columns bd        
         foreach ($columns as $valueColumns) {
             $propColumns[] = $valueColumns['Field'];
         }
+        // compare params with fields
         foreach ($params as $keyParams => $valueParams) {
+            // build array with relational params
             if (!in_array($keyParams, $propColumns)) {
                 $paramRel[$keyParams] = $valueParams;
                 unset($params[$keyParams]);
             }
         }
+        
         // if params element relationship
-        foreach ($paramRel as $key => $value) {    
+        foreach ($paramRel as $key => $value) {  
             if(array_key_exists($key, $this->withTypes)) {                
                 $relationship = new \Fwc\Api\Server\Relationships();
                 $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
+            } else {
+                $response[] = [ "message" => "No relational params" ];
             }
         }
         
