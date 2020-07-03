@@ -9,7 +9,7 @@ Php api for schema.org modelling
 
 > Grant insert privilegies for the public user in only the user table and grant all privilegies for the admin user;
 
-> GRANT INSERT ON plinct.user TO 'publicUser'@'localhost' IDENTIFIED BY 'p1r3n0p0l1s';
+> GRANT INSERT ON <schema>.user TO 'publicUser'@'<host>' IDENTIFIED BY '<password>';
 
 
 Add in index page on the root
