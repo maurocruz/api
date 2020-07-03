@@ -14,9 +14,8 @@ Php api for schema.org modelling
 
 Add in index page on the root
  
-/*
- * FWC API
- */
+//  FWC API
+ 
 $fwcApi = FwcApiFactory::create($slimApp);
 
 $fwcApi->connect("driver sql", "host name", "database name", "publicUser", "password");
