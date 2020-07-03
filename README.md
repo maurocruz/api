@@ -9,7 +9,7 @@ Php api for schema.org modelling
 
 > Grant insert privilegies for the public user in only the user table and grant all privilegies for the admin user;
 
-> GRANT INSERT ON <schema>.user TO 'publicUser'@'<host>' IDENTIFIED BY '<password>';
+> GRANT INSERT ON schema.user TO 'publicUser'@'hostname' IDENTIFIED BY 'password';
 
 
 Add in index page on the root
@@ -24,7 +24,7 @@ $fwcApi->run();
 
 
 
-> Start api using https://<domain>/api/start with request HTTP POST request, sending the database admin username and password by form url encoded using <username> and <password> with name of values;
+> Start api using https://domain/api/start with request HTTP POST request, sending the database admin username and password by form url encoded using <username> and <password> with name of values;
 
 > Register a user with <name>, <email> and <password> on https://<domain>/api/user sending with request HTTP POST from a form url encoded;
 
