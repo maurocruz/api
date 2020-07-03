@@ -5,15 +5,21 @@ namespace Fwc\Api\Type;
 class ImageObject extends TypeAbstract implements TypeInterface
 {
     protected $table = "imageObject";
+    
     protected $type = "ImageObject";
+    
+    protected $properties = [ "contentUrl" ]; 
 
     /**
      * PUT
      * @return array
      */
-    public function get(): array
+    public function get(array $params): array
     {
-        return parent::get();
+        if ($params['tableOwner']) {
+            return parent::getWithPartOf($params);
+        }
+        return parent::get($params);
     }
     
     /**
