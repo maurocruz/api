@@ -17,7 +17,7 @@ abstract class TypeAbstract extends Crud
 
     use SchemaTrait;
 
-    public function __construct(Request $request)
+    public function __construct(Request $request = null)
     {
         $this->request = $request;
     }
@@ -36,6 +36,28 @@ abstract class TypeAbstract extends Crud
         } else {        
             return $this->listSchema($data);
         }
+    }
+    
+    public function getWithPartOf($params) 
+    {
+        $tableOwner = $params['tableOwner'];
+        $tableHas = $tableOwner."_has_".$this->table;
+        
+        $idOwnerName = "id$tableOwner";
+        $idOwner = $params['idOwner'];
+        
+        $query = "SELECT * FROM $this->table, $tableHas";
+        $query .= " WHERE $tableHas.id$this->table=$this->table.id$this->table";
+        $query .= $idOwner ? " AND $tableHas.$idOwnerName=$idOwner" : null;
+        $query .= ";";
+        
+        $data = parent::getQuery($query);
+        
+        if (array_key_exists('error', $data)) {
+            return $data;
+        }
+        
+        return $this->listSchema($data);
     }
     
     public function post(array $params): array 
@@ -106,7 +128,7 @@ abstract class TypeAbstract extends Crud
         }
     }
 
-    protected function createSqlTable($type = null) 
+    public function createSqlTable($type = null) 
     {
         $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
         $sqlFile = $dir."/".$type.".sql";        
