@@ -39,9 +39,10 @@ abstract class TypeAbstract extends Crud
             return $data;
             
         } else {   
-            
+            // format ItemList
             if (isset($params['format']) && $params['format'] == "ItemList") {
-                return $this->listSchema($data, count($data));
+                $numberOfItems = parent::read("COUNT(*) as q");
+                return $this->listSchema($data, $numberOfItems[0]['q']);
             }
             
             return $this->getSchema($data);
