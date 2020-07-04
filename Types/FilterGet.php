@@ -76,6 +76,9 @@ class FilterGet
         // limit
         $this->limit = isset($queryParams['limit']) && $queryParams['limit'] < 200 ? $queryParams['limit'] : $this->limit; 
         
+        // offset        
+        $this->offset = $queryParams['offset'] ?? null;
+        
         // properties
         if (isset($queryParams['properties'])) {
             $this->propertiesMerge($queryParams['properties']);
