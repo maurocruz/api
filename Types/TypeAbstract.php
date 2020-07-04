@@ -22,6 +22,11 @@ abstract class TypeAbstract extends Crud
         $this->request = $request;
     }
     
+    /**
+     * GET
+     * @param array $params
+     * @return array
+     */
     public function get(array $params): array 
     {
         $filterget = new FilterGet($params, $this->table, $this->properties);
@@ -33,11 +38,21 @@ abstract class TypeAbstract extends Crud
         if (array_key_exists('error', $data)) {            
             return $data;
             
-        } else {        
-            return $this->listSchema($data);
+        } else {   
+            
+            if (isset($params['format']) && $params['format'] == "ItemList") {
+                return $this->listSchema($data, count($data));
+            }
+            
+            return $this->getSchema($data);
         }
     }
     
+    /**
+     * GET WITH RELATIONSHIPS
+     * @param type $params
+     * @return type
+     */
     public function getWithPartOf($params) 
     {
         $tableOwner = $params['tableOwner'];
@@ -57,9 +72,14 @@ abstract class TypeAbstract extends Crud
             return $data;
         }
         
-        return $this->listSchema($data);
+        return $this->getSchema($data);
     }
     
+    /**
+     * POST
+     * @param array $params
+     * @return array
+     */
     public function post(array $params): array 
     {
         $action = $this->request->getParsedBody()['action'] ?? null;
@@ -70,6 +90,12 @@ abstract class TypeAbstract extends Crud
         return parent::created($params);
     }
 
+    /**
+     * PUT
+     * @param string $id
+     * @param type $params
+     * @return array
+     */
     public function put(string $id, $params): array
     {   
         $rel = $this->putInRelationship($id, $params);
@@ -84,6 +110,12 @@ abstract class TypeAbstract extends Crud
         return $response;
     }
     
+    /**
+     * PUT RELATIONSHIPS
+     * @param type $id
+     * @param type $params
+     * @return type
+     */
     private function putInRelationship($id, $params) 
     {
         // check if properties exists with fields
@@ -114,6 +146,12 @@ abstract class TypeAbstract extends Crud
         return [ "params" => $params, "response" => $response ];
     }
 
+    /**
+     * DELETE
+     * @param string $id
+     * @param type $params
+     * @return array
+     */
     public function delete(string $id, $params): array
     {
         if ($params) { // delete relationship
@@ -128,6 +166,11 @@ abstract class TypeAbstract extends Crud
         }
     }
 
+    /**
+     * CREATE SQL
+     * @param type $type
+     * @return type
+     */
     public function createSqlTable($type = null) 
     {
         $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
