@@ -64,4 +64,29 @@ class ImageObject extends TypeAbstract implements TypeInterface
         $message[] =  parent::createSqlTable("ImageObject");
         return $message;
     }
+    
+    
+    public static function getRepresentativeImageOfPage($data, $mode = "string") 
+    {
+        if ($data) {
+            foreach ($data as $valueImage) {
+                if (isset($valueImage['representativeOfPage'])) {
+                    $image =  $valueImage['contentUrl'];
+                    $arrayRep = $valueImage;
+                    break;
+                    
+                } else {
+                    $images[] = $valueImage['contentUrl'];
+                    $array[] = $valueImage;
+                }
+            }   
+            
+            if ($mode == "string") {
+                return $image ?? $images[0] ?? null;
+                
+            } else {
+                return $arrayRep ?? $array[0];
+            }
+        }
+    }
 }
