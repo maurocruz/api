@@ -12,20 +12,56 @@ trait SchemaTrait
     
     protected $withTypes = [];
 
-    protected function listSchema($data) 
+    /**
+     * GET SCHEMA WITH ARRAY ITEMS
+     * @param type $data
+     * @return type
+     */
+    protected function getSchema($data) 
     {
         if (empty($data)) {
             return [ "messagem" => "No data founded" ];
         } 
         
-        foreach ($data as $value) {            
+        foreach ($data as $value) {
             $list[] = $this->schema($value);
         }
             
         return $list;
     }
+    
+    protected function listSchema($data, $numberOfList, $itemListOrder = "ascending")
+    {        
+        if (empty($data)) {
+            return [ "messagem" => "No data founded" ];
+        } 
+        
+        $itemList = [
+            "@context" => "http://schema.org",
+            "@type" => "ItemList",
+            "numberOfItems" => $numberOfList            
+        ];
+        
+        foreach ($data as $key => $value) {
+            $listItem[] = [
+                "@type" => "ListItem",
+                "position" => ($key+1),
+                "item" => $this->schema($value)
+            ];
+        }
+            
+        $itemList["itemListElement"] = $listItem;
+                
+        return $itemList;
+    }
 
-    public function schema(array $value) 
+
+    /**
+     * SCHEMA
+     * @param array $value
+     * @return string
+     */
+    private function schema(array $value) 
     {
         $id = $value['id'.$this->table];
         $host = "//".$_SERVER['HTTP_HOST'];
