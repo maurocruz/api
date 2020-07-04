@@ -5,7 +5,7 @@ namespace Fwc\Api\Type;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format" ];
         
     // conditions sql
     private $fields = "*";
