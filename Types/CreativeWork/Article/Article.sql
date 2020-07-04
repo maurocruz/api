@@ -5,10 +5,10 @@
 
 --
 -- CREATE TABLE article
--- request
--- image
--- organization
--- person
+-- Relationships
+-- -- Person
+-- -- ImageObject
+-- -- Organization
 --
 
 CREATE TABLE `article` (
