@@ -5,7 +5,7 @@ namespace Fwc\Api\Type;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where" ];
         
     // conditions sql
     private $fields = "*";
@@ -46,17 +46,25 @@ class FilterGet
             }
             
             // WHERE
+              // like
             $like = stristr($key,"like", true);
             if ($like) {
                 $whereArray[] = "`$like` LIKE '%$value%'";
 
-            } elseif (!in_array($key, $this->noWhere)) {
+            }
+            if (!in_array($key, $this->noWhere)) {
                 $whereArray[] = "`$key`='$value'"; 
 
-            } elseif (stripos($key, "id") !== false) {
+            }
+            if (stripos($key, "id") !== false) {
                 $idname = "id".$this->table;
                 $whereArray[] = "`$idname`=$value";
             }
+            if (stripos($key, "where") !== false) {
+                $whereArray[] = "$value";
+            }
+            
+            
         }                
         
         // WHERE
