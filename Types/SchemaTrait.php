@@ -39,13 +39,13 @@ trait SchemaTrait
                 [ "@type" => "PropertyValue", "name" => "fwc_id", "value" => $id ]
             ]
         ];        
-                
+               
         // add properties
         if (!empty($this->properties)) {
             
             foreach ($this->properties as $valueProperty) {
                 $data = null;
-                
+                  
                 // added properties on schema array
                 if (array_key_exists($valueProperty, $value)) {
                     $schema[$valueProperty] = $value[$valueProperty];
@@ -63,10 +63,9 @@ trait SchemaTrait
                         
                         // one to one
                         if (array_key_exists($valueProperty, $value)) {
-                            $id = $value[$valueProperty];
 
                             if (is_numeric($id)) {
-                                $resp = $typeObject->get([ "id" => $id ]);
+                                $resp = $typeObject->get([ "id" => $value[$valueProperty] ]);
                                 $data = $resp[0] ?? null;
                             } else {
                                 $data = null;
@@ -78,9 +77,10 @@ trait SchemaTrait
                             $rel = (new \Fwc\Api\Server\Relationships())->getRelationship($this->table, $id, lcfirst($type));
                             
                             foreach ($rel as $valueRel) {
-                                $data[] = $typeObject->schema($valueRel);                                
+                               $data[] = $typeObject->schema($valueRel);                                
                             }
                         }
+                        
                     }
                     
                     $schema[$valueProperty] = $data;
