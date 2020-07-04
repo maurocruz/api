@@ -8,7 +8,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
     
     protected $type = "ImageObject";
     
-    protected $properties = [ "contentUrl" ]; 
+    protected $properties = [ "contentUrl", "caption" ]; 
 
     /**
      * PUT
