@@ -34,6 +34,12 @@ class Event extends TypeAbstract implements TypeInterface
     
     public function createSqlTable($type = null) 
     {
+        $maintenance = new \Fwc\Api\Server\Maintenance($this->request);
+        
+        $maintenance->createSqlTable("Person");        
+        $maintenance->createSqlTable("ImageObject");        
+        $maintenance->createSqlTable("Place");
+        
         return parent::createSqlTable($type);
     }
     
