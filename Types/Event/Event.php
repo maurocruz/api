@@ -41,29 +41,5 @@ class Event extends TypeAbstract implements TypeInterface
         $maintenance->createSqlTable("Place");
         
         return parent::createSqlTable($type);
-    }
-    
-    public static function getRepresentativeImageOfPage($data, $mode = "string") 
-    {
-        if ($data) {
-            foreach ($data as $valueImage) {
-                if (isset($valueImage['representativeOfPage'])) {
-                    $image =  $valueImage['contentUrl'];
-                    $arrayRep = $valueImage;
-                    break;
-                    
-                } else {
-                    $images[] = $valueImage['contentUrl'];
-                    $array[] = $valueImage;
-                }
-            }   
-            
-            if ($mode == "string") {
-                return $image ?? $images[0] ?? null;
-                
-            } else {
-                return $arrayRep ?? $array[0];
-            }
-        }
-    }
+    }    
 }
