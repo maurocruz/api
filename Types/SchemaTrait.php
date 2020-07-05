@@ -125,9 +125,15 @@ trait SchemaTrait
         }
         
         // url
-        if (array_key_exists('url', $schema) && $schema['url'] == null) {
-            $schema['url'] = $url;
-        }
+        if (array_key_exists('url', $schema)) {
+            $schema['url'] = 
+                $schema['url'] == null ? $url 
+                    : ( 
+                        strpos(
+                            "http", $schema['url'], 4) || strpos($_SERVER['HTTP_HOST'], $schema['url']) ? $schema['url'] 
+                                : "//".$_SERVER['HTTP_HOST'].$schema['url'] 
+                    );
+        } 
         
         return $schema;
     }
