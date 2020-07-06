@@ -50,3 +50,6 @@ CHANGE COLUMN `nome` `name` VARCHAR(255) NULL DEFAULT '' ;
 ALTER TABLE `pirenopolis02`.`taxon` 
 CHANGE COLUMN `genero` `genus` VARCHAR(50) NOT NULL DEFAULT '' ,
 CHANGE COLUMN `especie` `specie` VARCHAR(50) NOT NULL DEFAULT '' ;
+
+ALTER TABLE `pirenopolis02`.`taxon` 
+CHANGE COLUMN `descricao` `description` TEXT NULL DEFAULT NULL ;
