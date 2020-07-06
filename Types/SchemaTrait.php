@@ -20,7 +20,7 @@ trait SchemaTrait
     protected function getSchema($data) 
     {
         if (empty($data)) {
-            return [ "messagem" => "No data founded" ];
+            return [ "message" => "No data founded" ];
         } 
         
         foreach ($data as $value) {
@@ -39,7 +39,8 @@ trait SchemaTrait
         $itemList = [
             "@context" => "http://schema.org",
             "@type" => "ItemList",
-            "numberOfItems" => $numberOfList            
+            "numberOfItems" => $numberOfList,
+            "itemListOrder" => $itemListOrder
         ];
         
         foreach ($data as $key => $value) {
@@ -83,7 +84,14 @@ trait SchemaTrait
                 $data = null;
                   
                 // added properties on schema array
-                if (array_key_exists($valueProperty, $value)) {
+                if ($valueProperty == "*") {
+                    foreach ($value as $key => $valueValue) {
+                         $schema[$key] = $valueValue;
+                    }
+                    
+                } 
+                
+                if (array_key_exists($valueProperty, $value)) {                    
                     $schema[$valueProperty] = $value[$valueProperty];
                 }
                 
@@ -129,8 +137,7 @@ trait SchemaTrait
             $schema['url'] = 
                 $schema['url'] == null ? $url 
                     : ( 
-                        strpos(
-                            "http", $schema['url'], 4) || strpos($_SERVER['HTTP_HOST'], $schema['url']) ? $schema['url'] 
+                        strpos($schema['url'], "http") !== false || strpos($schema['url'], $_SERVER['HTTP_HOST']) !== false ? $schema['url'] 
                                 : "//".$_SERVER['HTTP_HOST'].$schema['url'] 
                     );
         } 

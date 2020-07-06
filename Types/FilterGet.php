@@ -5,7 +5,7 @@ namespace Fwc\Api\Type;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields" ];
         
     // conditions sql
     private $fields = "*";
@@ -51,8 +51,7 @@ class FilterGet
             if ($like) {
                 $whereArray[] = "`$like` LIKE '%$value%'";
 
-            }
-            if (!in_array($key, $this->noWhere)) {
+            } elseif (!in_array($key, $this->noWhere)) {
                 $whereArray[] = "`$key`='$value'"; 
 
             }
@@ -130,7 +129,12 @@ class FilterGet
     private function propertiesMerge(string $propertiesIncrement) 
     {
         $propArray = explode(",", $propertiesIncrement);
-        $this->properties = array_merge($this->properties, $propArray);
+                
+        foreach ($propArray as $value) {
+            $array[] = trim($value);
+        }
+        
+        $this->properties = array_merge($this->properties, $array);
     }
     
 }

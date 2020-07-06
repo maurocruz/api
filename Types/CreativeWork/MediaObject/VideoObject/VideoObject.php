@@ -2,14 +2,14 @@
 
 namespace Fwc\Api\Type;
 
-class WebPage extends TypeAbstract implements TypeInterface
+class VideoObject extends TypeAbstract implements TypeInterface
 {
-    protected $table = "webPage";
+    protected $table = "videoObject";
     
-    protected $type = "WebPage";
+    protected $type = "VideoObject";
     
-    protected $properties = [ "name", "url", "description" ];
-
+    protected $properties = [ "name", "description", "url", "thumbnail" ];
+    
     /**
      * GET
      * @param array $params
@@ -59,6 +59,6 @@ class WebPage extends TypeAbstract implements TypeInterface
      */    
     public function createSqlTable($type = null) 
     {
-        return parent::createSqlTable("WebPage");
+        return parent::createSqlTable("VideoObject");
     }
 }

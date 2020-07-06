@@ -40,6 +40,6 @@ class Event extends TypeAbstract implements TypeInterface
         $maintenance->createSqlTable("ImageObject");        
         $maintenance->createSqlTable("Place");
         
-        return parent::createSqlTable($type);
+        return parent::createSqlTable("Event");
     }    
 }

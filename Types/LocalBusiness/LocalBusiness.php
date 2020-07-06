@@ -12,7 +12,7 @@ class LocalBusiness extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "location", "organization" ];
     
-    protected $withTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "person" => "Person" ];
+    protected $withTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "person" => "Person", "image" => "ImageObject" ];
 
     /**
      * GET
