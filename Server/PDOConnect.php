@@ -6,22 +6,22 @@ class PDOConnect
 {
     private static $PDOConnect;
     
-    private static $driver;
-    private static $host;
-    private static $dbname;
+    private static $DRIVER;
+    private static $HOST;
+    private static $DBNAME;
     
-    private static $userPublic;
-    private static $passwordPublic;
+    private static $USERPUBLIC;
+    private static $PASSWORDPUBLIC;
     
-    private static $usernameAdmin;
-    private static $emailAdmin;
-    private static $passwordAdmin;
+    private static $USERNAMEADMIN;
+    private static $EMAILADMIN;
+    private static $PASSWORDADMIN;
 
     public static function connect($driver, $host, $dbname, $username, $password, $options = []) 
     {
-        self::$driver = $driver;
-        self::$host = $host;
-        self::$dbname = $dbname;
+        self::$DRIVER = $driver;
+        self::$HOST = $host;
+        self::$DBNAME = $dbname;
         
         if(self::$PDOConnect == null) {
             $default_options = [
@@ -64,69 +64,69 @@ class PDOConnect
     
     public static function getDrive()
     {
-        return self::$driver;
+        return self::$DRIVER;
     }
     
     public static function getHost()
     {
-        return self::$host;
+        return self::$HOST;
     }
     
     public static function getDbname()
     {
-        return self::$dbname;
+        return self::$DBNAME;
     }
     
     public static function getUsernameAdmin()
     {
-        return self::$usernameAdmin;
+        return self::$USERNAMEADMIN;
     }
     
     public static function getEmailAdmin()
     {
-        return self::$emailAdmin;
+        return self::$EMAILADMIN;
     }
     
     public static function getPasswordAdmin()
     {
-        return self::$passwordAdmin;
+        return self::$PASSWORDADMIN;
     }
     
     public static function setUserPublic($userPublic) 
     {
-        self::$userPublic = $userPublic;
+        self::$USERPUBLIC = $userPublic;
     }
     
     public static function setPasswordPublic($passwordPublic) 
     {
-        self::$passwordPublic = $passwordPublic;
+        self::$PASSWORDPUBLIC = $passwordPublic;
     }
     
     public static function setUsernameAdmin($usernameAdmin) 
     {
-        self::$usernameAdmin = $usernameAdmin;
+        self::$USERNAMEADMIN = $usernameAdmin;
     }
     
     public static function setEmailAdmin($emailAdmin) 
     {
-        self::$emailAdmin = $emailAdmin;
+        self::$EMAILADMIN = $emailAdmin;
     }
     
     public static function setPasswordAdmin($passwordAdmin) 
     {
-        self::$passwordAdmin = $passwordAdmin;
+        self::$PASSWORDADMIN = $passwordAdmin;
     }
     
     public static function reconnectToAdmin() 
     {
-        self::disconnect();
-        self::connect(self::$driver, self::$host, self::$dbname, self::$usernameAdmin, self::$passwordAdmin);
+        self::disconnect(); 
+        self::connect(self::$DRIVER, self::$HOST, self::$DBNAME, self::$USERNAMEADMIN ?? self::$USERPUBLIC, self::$PASSWORDADMIN ?? self::$PASSWORDPUBLIC);
     }
     
     public static function reconnectToPublic() 
     {
         self::disconnect();
-        self::connect(self::$driver, self::$host, self::$dbname, self::$userPublic, self::$passwordPublic);
+        self::connect(self::$DRIVER, self::$HOST, self::$DBNAME, self::$USERPUBLIC, self::$PASSWORDPUBLIC);
     }
 
 
