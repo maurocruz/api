@@ -111,7 +111,7 @@ abstract class TypeAbstract extends Crud
         $response = $rel['response'];
                 
         $idname = "id".$this->table;        
-        $idvalue = $this->request->getAttribute('id');
+        $idvalue = $id;
         
         $response[] = parent::update($params, "`$idname`=$idvalue");
         
@@ -128,10 +128,12 @@ abstract class TypeAbstract extends Crud
     {
         // check if properties exists with fields
         $columns = parent::getQuery("SHOW COLUMNS FROM $this->table");
+        
         // build array with fields columns bd        
         foreach ($columns as $valueColumns) {
             $propColumns[] = $valueColumns['Field'];
         }
+        
         // compare params with fields
         foreach ($params as $keyParams => $valueParams) {
             // build array with relational params
@@ -140,15 +142,19 @@ abstract class TypeAbstract extends Crud
                 unset($params[$keyParams]);
             }
         }
-        
-        // if params element relationship
-        foreach ($paramRel as $key => $value) {  
-            if(array_key_exists($key, $this->withTypes)) {                
-                $relationship = new \Fwc\Api\Server\Relationships();
-                $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
-            } else {
-                $response[] = [ "message" => "No relational params" ];
+        if (isset($paramRel)) {
+            // if params element relationship
+            foreach ($paramRel as $key => $value) {  
+                if(array_key_exists($key, $this->withTypes)) {                
+                    $relationship = new \Fwc\Api\Server\Relationships();
+                    $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
+
+                } else {
+                    $response[] = [ "message" => "No relational params" ];
+                }
             }
+        } else {
+            $response[] = [ "message" => "No relational params" ];
         }
         
         return [ "params" => $params, "response" => $response ];
