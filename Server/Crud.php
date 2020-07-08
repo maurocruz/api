@@ -59,7 +59,7 @@ class Crud
         $query .= implode(",", $names);
         $query .= " WHERE $where;";
         
-        return self::execute($query, $bindValues, "Updated data successefully", $data);
+        return self::execute($query, $bindValues, "Updated data successfully", $data);
     }
     
     // DELETE
