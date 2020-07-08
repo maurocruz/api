@@ -130,13 +130,45 @@ class PDOConnect
     }
 
 
-    public function run($sql, $args = NULL) 
+    public static function run($query, $args = NULL) 
     {
-        if (!$args) {
-             return $this->query($sql);
+         $connect = self::$PDOConnect;
+     
+        try {
+            if ($connect && !array_key_exists('error', $connect)) {
+                $q = $connect->prepare($query);
+                $q->setFetchMode(\PDO::FETCH_ASSOC);
+                
+                $q->execute($args);
+                $errorInfo = $q->errorInfo();
+
+                if ($errorInfo[0] == "0000") {        
+                    return $q->fetchAll();
+
+                } else {
+                    throw new \PDOException();
+                }   
+            } else {
+                throw new \PDOException();
+            }
+            
+        } catch (\PDOException $e) {
+            
+            if(array_key_exists('error', $connect)) {
+                return $connect;
+                
+            } elseif ($errorInfo !== '0000') {                
+                return [ "error" => [ 
+                    "message" => $errorInfo[2],
+                    "code" => $errorInfo[1],
+                    "query" => $query
+                ] ];
+            } else {
+                return [ "error" => [ 
+                    "message" => $e->getMessage(),
+                    "code" => $e->getCode()
+                ] ];
+            }
         }
-        $stmt = $this->prepare($sql);
-        $stmt->execute($args);
-        return $stmt;
     }
 }
