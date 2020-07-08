@@ -1,16 +1,17 @@
-/**
- * Author:  Mauro Cruz <maurocruz@pirenopolis.tur.br>
- * Created: 25 de fev de 2020
- */
 
 --
--- CREATE TABLE localBusiness REQUIRE
--- -- place
--- -- postalAddress
--- -- Organization
--- -- contactPoint
--- -- person
--- -- imageObject
+-- CREATE TABLE localBusiness
+--
+-- Relationships
+-- -- one to one
+-- -- -- postalAddress
+-- -- -- orgatnization
+-- -- one to many
+-- -- -- place
+-- -- -- contactPoint
+-- -- -- person
+-- -- -- imageObject
+--
 
 CREATE TABLE IF NOT EXISTS `localBusiness` (
   `idlocalBusiness` int(10) NOT NULL AUTO_INCREMENT,
