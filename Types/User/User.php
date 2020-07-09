@@ -84,9 +84,9 @@ class User extends TypeAbstract implements TypeInterface
      * @param string $id
      * @return array
      */
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     /**

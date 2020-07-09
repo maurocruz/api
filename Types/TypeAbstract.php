@@ -31,7 +31,7 @@ abstract class TypeAbstract extends Crud
     {
         $filterget = new FilterGet($params, $this->table, $this->properties);
         
-        $this->properties = $filterget->getProperties();
+        //$this->properties = $filterget->getProperties();
                 
         $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
         
@@ -40,7 +40,7 @@ abstract class TypeAbstract extends Crud
             
         } else {   
             // format ItemList            
-            if (isset($params['format']) && $params['format'] == "ItemList") {;
+            if (isset($params['format']) && $params['format'] == "ItemList") {
                 if (isset($params['count']) && $params['count'] == "all") {
                     $countAll = parent::read("COUNT(*) as q");
                     $numberOfItems = $countAll[0]['q'];
@@ -80,7 +80,24 @@ abstract class TypeAbstract extends Crud
             return $data;
         }
         
+        if (isset($params['format']) && $params['format'] == "ItemList") {
+            return $this->formatItemList($params, $data);
+        }
+        
         return $this->getSchema($data);
+    }
+    
+    private function formatItemList($params, $data)
+    {
+        if (isset($params['count']) && $params['count'] == "all") {
+            $countAll = parent::read("COUNT(*) as q");
+            $numberOfItems = $countAll[0]['q'];
+
+        } else {
+            $numberOfItems =  count($data);
+        }
+
+        return $this->listSchema($data, $numberOfItems);
     }
     
     /**
@@ -91,11 +108,14 @@ abstract class TypeAbstract extends Crud
     public function post(array $params): array 
     {
         $action = $this->request->getParsedBody()['action'] ?? null;
+        
         if ($action == 'create') {            
             return $this->createSqlTable();                
         }
         
-        return parent::created($params);
+        $message = parent::created($params);
+        
+        return [ "id" => parent::lastInsertId() ];
     }
 
     /**
@@ -166,18 +186,11 @@ abstract class TypeAbstract extends Crud
      * @param type $params
      * @return array
      */
-    public function delete(string $id, $params): array
+    public function delete(array $params): array
     {
-        if ($params) { // delete relationship
-            foreach ($params as $key => $value) {
-                $response[] = (new \Fwc\Api\Server\Relationships())->deleteRelationship($this->table, $id, $key, $value);
-            }
-            return $response;
-            
-        } else {        
-            $idname = 'id'.$this->table;
-            return parent::erase([ $idname => $id ]);
-        }
+        $filter = new FilterGet($params, $this->table, $this->properties); 
+        
+        return parent::erase($filter->where(), $filter->limit());
     }
 
     /**

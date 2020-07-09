@@ -13,7 +13,11 @@ class History extends TypeAbstract implements TypeInterface
     protected $withTypes = [  ];
 
     public function get(array $params): array 
-    {
+    {        
+         if (isset($params['tableOwner']) && isset($params['idOwner'])) {
+             return parent::getWithPartOf($params);
+         }
+        
         return parent::get($params);
     }
     
@@ -27,9 +31,9 @@ class History extends TypeAbstract implements TypeInterface
         return parent::put($id, $params);
     }
     
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     public function createSqlTable($type = null) 

@@ -13,7 +13,7 @@ interface TypeInterface
     
     public function post(array $params): array;
     
-    public function delete(string $id, $params): array;
+    public function delete(array $params): array;
     
     public function put(string $id, $params): array;
     

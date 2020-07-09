@@ -63,19 +63,18 @@ class Crud
     }
     
     // DELETE
-    protected function erase(array $where): array 
-    {        
-        // query
-        foreach ($where as $key => $value) {
-            $clause[] = "`$key`=?";
-            $bindValues[] = $value;
-        }
-        
-        $conditions = implode(" AND ", $clause);
-        $query = "DELETE FROM $this->table WHERE $conditions";
+    protected function erase(string $where, $limit = null): array 
+    {    
+        $query = "DELETE FROM $this->table";
+        $query .= " WHERE $where";
+        $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
-        return self::execute($query, $bindValues, "Delete successfully", $query);
+        $run = PDOConnect::run($query);
+        
+        if (empty($run)) {
+            return [ "message" => "Deleted successfully" ];
+        }
     }
     
     private static function execute($query, $bindValues, $message, $data)

@@ -2,8 +2,6 @@
 
 namespace Fwc\Api\Auth;
 
-session_start();
-
 class Session 
 {
     public static function login($value) 

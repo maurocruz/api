@@ -1,55 +1,28 @@
 
-ALTER TABLE `pirenopolis02`.`videos` 
-CHANGE COLUMN `id` `idvideos` INT(10) UNSIGNED NOT NULL, 
-CHANGE COLUMN `title` `name` VARCHAR(255) NOT NULL DEFAULT '',
-CHANGE COLUMN `thumb` `thumbnail` VARCHAR(255) NOT NULL DEFAULT '',
-CHANGE COLUMN `size` `bitrate` DECIMAL(6,2) NULL DEFAULT NULL ,
-CHANGE COLUMN `length` `duration` TIME NULL DEFAULT NULL ;
+ALTER TABLE `pirenopolis02`.`advertising` 
+CHANGE COLUMN `idlocalBusiness` `customer` INT(10) NULL DEFAULT NULL ;
 
-ALTER TABLE `pirenopolis02`.`videos` 
-ADD COLUMN `contentUrl` VARCHAR(255) NULL AFTER `description`,
-CHANGE COLUMN `data` `uploadDate` DATETIME NULL DEFAULT NULL , RENAME TO  `pirenopolis02`.`videoObject` ;
+ALTER TABLE `pirenopolis02`.`advertising` 
+CHANGE COLUMN `idadvertising` `idadvertising` INT(10) NOT NULL AUTO_INCREMENT  ;
 
-ALTER TABLE `pirenopolis02`.`videoObject` 
-CHANGE COLUMN `idvideos` `idvideoObject` INT(10) UNSIGNED NOT NULL ;
+ALTER TABLE `pirenopolis02`.`formpg` 
+ENGINE = InnoDB ;
 
-UPDATE `pirenopolis02`.`videoObject` SET `url` = CONCAT('/multimidia/video/',url);
+ALTER TABLE `pirenopolis02`.`formpg` 
+CHANGE COLUMN `idformpg` `idpayment` INT(10) NOT NULL AUTO_INCREMENT ,
+CHANGE COLUMN `idcontratos` `idadvertising` INT(10) NOT NULL , 
+RENAME TO  `pirenopolis02`.`payment` ;
 
-UPDATE `pirenopolis02`.`videoObject` SET `thumbnail` = CONCAT('/portal/public/images/videos/',thumbnail);
+/*
+SELECT * FROM payment LEFT JOIN advertising ON payment.idadvertising=advertising.idadvertising
+WHERE advertising.idadvertising is null order by create_time;
 
-UPDATE `pirenopolis02`.`videoObject` SET `contentUrl` = CONCAT('/portal/public/images/videos/',substring_index(url,'/',-1),'_VP8.webm');
+ALTER TABLE `pirenopolis02`.`payment` 
+ADD CONSTRAINT `fk_payment_advertising1` FOREIGN KEY (`idadvertising`) REFERENCES `pirenopolis02`.`advertising` (`idadvertising`) ON DELETE CASCADE ON UPDATE NO ACTION;*/
 
-ALTER TABLE `pirenopolis02`.`videoObject` 
-CHANGE COLUMN `idvideoObject` `idvideoObject` INT(10) NOT NULL AUTO_INCREMENT ;
-
-
-
-ALTER TABLE `pirenopolis02`.`herbario` 
-RENAME TO  `pirenopolis02`.`taxon` ;
-
-ALTER TABLE `pirenopolis02`.`taxon` 
-CHANGE COLUMN `idherbario` `idtaxon` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ;
-
-ALTER TABLE `pirenopolis02`.`herbario_has_imageObject` 
-DROP FOREIGN KEY `FK_herbario_has_images_herbario`;
-
-ALTER TABLE `pirenopolis02`.`herbario_has_imageObject` 
-CHANGE COLUMN `idherbario` `idtaxon` INT(10) UNSIGNED NOT NULL, 
-RENAME TO  `pirenopolis02`.`taxon_has_imageObject` ;
-
-ALTER TABLE `pirenopolis02`.`taxon_has_imageObject` 
-ADD CONSTRAINT `FK_taxon_has_imageObject`
-  FOREIGN KEY (`idtaxon`)
-  REFERENCES `pirenopolis02`.`taxon` (`idtaxon`)
+ALTER TABLE `pirenopolis02`.`advertising_has_history` 
+ADD CONSTRAINT `fk_advertising_has_history_2`
+  FOREIGN KEY (`idadvertising`)
+  REFERENCES `pirenopolis02`.`advertising` (`idadvertising`)
   ON DELETE CASCADE
   ON UPDATE NO ACTION;
-
-ALTER TABLE `pirenopolis02`.`taxon` 
-CHANGE COLUMN `nome` `name` VARCHAR(255) NULL DEFAULT '' ;
-
-ALTER TABLE `pirenopolis02`.`taxon` 
-CHANGE COLUMN `genero` `genus` VARCHAR(50) NOT NULL DEFAULT '' ,
-CHANGE COLUMN `especie` `specie` VARCHAR(50) NOT NULL DEFAULT '' ;
-
-ALTER TABLE `pirenopolis02`.`taxon` 
-CHANGE COLUMN `descricao` `description` TEXT NULL DEFAULT NULL ;

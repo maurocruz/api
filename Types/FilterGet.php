@@ -5,7 +5,7 @@ namespace Fwc\Api\Type;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableOwner", "idOwner" ];
         
     // conditions sql
     private $fields = "*";
@@ -73,7 +73,7 @@ class FilterGet
         $this->groupBy = $queryParams['groupBy'] ?? null;
                 
         // limit
-        $this->limit = isset($queryParams['limit']) && $queryParams['limit'] < 200 ? $queryParams['limit'] : $this->limit; 
+        $this->limit = isset($queryParams['limit']) ? ($queryParams['limit'] !== "none" ? $queryParams['limit'] : null) : $this->limit; 
         
         // offset        
         $this->offset = $queryParams['offset'] ?? null;

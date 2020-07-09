@@ -164,22 +164,28 @@ return function(App $slimApp) {
     /**
      * DELETE
      */
-    $slimApp->delete("/api/{type}/{id}", function (Request $request, Response $response, $args) 
+    $slimApp->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args) 
     {
         if ($request->getAttribute("userAuth") === true) {
             
+            $type = $args['type'];
+            $id = $args['id'] ?? null;
+            
             PDOConnect::reconnectToAdmin();
             
-            $queryParams = $request->getQueryParams() ?? null;
+            $params = $request->getQueryParams() ?? null;
             
-            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
+            if ($id) {
+                $params["id$type"] = $id;
+            }
             
-            $data = (new $classname($request))->delete($args['id'], $queryParams);
+            $classname = "\\Fwc\\Api\\Type\\".ucfirst($type);
+            
+            $data = (new $classname($request))->delete($params);
                            
             $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
         
-        //$response = $response->withHeader("Content-type", "application/json");
         return $response;
         
     })->addMiddleware(new AuthMiddleware()); 
