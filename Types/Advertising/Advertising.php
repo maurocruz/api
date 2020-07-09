@@ -8,7 +8,7 @@ class Advertising extends TypeAbstract implements TypeInterface
     
     protected $type = "Advertising";
     
-    protected $properties = [ "customer","tipo","valor","data","vencimento","status" ];
+    protected $properties = [ "customer","tipo","valor","data","vencimento","status","tags" ];
     
     protected $withTypes = [ "customer" => "LocalBusiness", "history" => "History" ];
 
@@ -23,13 +23,13 @@ class Advertising extends TypeAbstract implements TypeInterface
     }
     
     public function put(string $id, $params): array 
-    {
+    {        
         return parent::put($id, $params);
     }
     
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     public function createSqlTable($type = null) 
