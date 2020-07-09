@@ -31,7 +31,7 @@ abstract class TypeAbstract extends Crud
     {
         $filterget = new FilterGet($params, $this->table, $this->properties);
         
-        //$this->properties = $filterget->getProperties();
+        $this->properties = $filterget->getProperties();
                 
         $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
         
@@ -189,6 +189,8 @@ abstract class TypeAbstract extends Crud
     public function delete(array $params): array
     {
         $filter = new FilterGet($params, $this->table, $this->properties); 
+        
+        $this->properties = $filterget->getProperties();
         
         return parent::erase($filter->where(), $filter->limit());
     }
