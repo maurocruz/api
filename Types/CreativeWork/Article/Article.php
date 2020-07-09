@@ -27,7 +27,7 @@ class Article extends TypeAbstract implements TypeInterface
         return parent::put($id, $params);
     }
     
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
         return parent::delete($id, $params);
     }

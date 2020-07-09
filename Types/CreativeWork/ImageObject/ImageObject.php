@@ -49,7 +49,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
         return parent::delete($id, $params);
     }
