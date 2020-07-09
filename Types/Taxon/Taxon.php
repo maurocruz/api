@@ -14,28 +14,7 @@ class Taxon extends TypeAbstract implements TypeInterface
     
     public function get(array $params): array 
     {
-        $schema = parent::get($params);
-        
-        
-        /*    "hasDefinedTerm" => [
-                [ "@type" => "DefinedTerm", "name" => "family", "description" => $value['family'] ],
-                [ "@type" => "DefinedTerm", "name" => "genus", "description" => $value['genero'] ],
-                [ "@type" => "DefinedTerm", "name" => "specie", "description" => $value['especie'] ],
-                [ "@type" => "DefinedTerm", "name" => "botanico", "description" => $value['botanico'] ],
-                [ "@type" => "DefinedTerm", "name" => "uso", "description" => $value['uso'] ],
-                [ "@type" => "DefinedTerm", "name" => "ocorrencia", "description" => $value['ocorrencia'] ],
-                [ "@type" => "DefinedTerm", "name" => "floracao", "description" => $value['floracao'] ],
-                [ "@type" => "DefinedTerm", "name" => "frutificacao", "description" => $value['frutificacao'] ],
-                [ "@type" => "DefinedTerm", "name" => "porte", "description" => $value['porte'] ],
-                [ "@type" => "DefinedTerm", "name" => "raizes", "description" => $value['raizes'] ],
-                [ "@type" => "DefinedTerm", "name" => "flores", "description" => $value['flores'] ],
-                [ "@type" => "DefinedTerm", "name" => "frutos", "description" => $value['frutos'] ],
-                [ "@type" => "DefinedTerm", "name" => "obs", "description" => $value['obs'] ],
-                [ "@type" => "DefinedTerm", "name" => "fontes", "description" => $value['fontes'] ],
-                [ "@type" => "DefinedTerm", "name" => "gallery", "description" => $value['gallery'] ]
-            ]*/
-        
-        return $schema;
+        return parent::get($params);
     }
     
     public function post(array $params): array 
@@ -48,7 +27,7 @@ class Taxon extends TypeAbstract implements TypeInterface
         return parent::put($id, $params);
     }
     
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
         return parent::delete($id, $params);
     }
