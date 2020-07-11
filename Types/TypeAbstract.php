@@ -190,7 +190,7 @@ abstract class TypeAbstract extends Crud
     {
         $filter = new FilterGet($params, $this->table, $this->properties); 
         
-        $this->properties = $filterget->getProperties();
+        $this->properties = $filter->getProperties();
         
         return parent::erase($filter->where(), $filter->limit());
     }
