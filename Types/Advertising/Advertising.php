@@ -23,7 +23,16 @@ class Advertising extends TypeAbstract implements TypeInterface
     }
     
     public function put(string $id, $params): array 
-    {        
+    {
+        $summary = filter_input(INPUT_GET, "summaryHistory");
+        
+        if ($summary) {
+            $paramsHistory["action"] = "UPDATE";
+            $paramsHistory["summary"] = $summary == "" ? "ND" : $summary;
+            
+            (new History())->setHistory("advertising", $id, $paramsHistory);
+        }
+        
         return parent::put($id, $params);
     }
     
