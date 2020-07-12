@@ -130,7 +130,11 @@ abstract class TypeAbstract extends Crud
      */
     public function put(string $id, $params): array
     {   
+        unset($params['tableOwner']);
+        unset($params['idOwner']);
+        
         $rel = $this->putInRelationship($id, $params);
+        
         $params = $rel['params'];
         $response = $rel['response'];
                 
