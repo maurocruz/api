@@ -68,10 +68,12 @@ abstract class TypeAbstract extends Crud
         
         $idOwnerName = "id$tableOwner";
         $idOwner = $params['idOwner'];
+        $orderBy = $params['orderBy']." ".$params['ordering'];
         
         $query = "SELECT * FROM $this->table, $tableHas";
         $query .= " WHERE $tableHas.id$this->table=$this->table.id$this->table";
         $query .= $idOwner ? " AND $tableHas.$idOwnerName=$idOwner" : null;
+        $query .= $orderBy ? " ORDER BY $orderBy" : null;
         $query .= ";";
         
         $data = parent::getQuery($query);
@@ -107,10 +109,12 @@ abstract class TypeAbstract extends Crud
      */
     public function post(array $params): array 
     {
-        $action = $this->request->getParsedBody()['action'] ?? null;
-        
-        if ($action == 'create') {            
-            return $this->createSqlTable();                
+        if ($this->request) {        
+            $action = $this->request->getParsedBody()['action'] ?? null;
+
+            if ($action == 'create') {            
+                return $this->createSqlTable();                
+            }
         }
         
         $message = parent::created($params);
