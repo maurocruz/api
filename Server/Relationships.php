@@ -24,8 +24,8 @@ class Relationships extends Crud
         $idHasName = 'id'.$tableHas;
         
         $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idHasName`=$idHas");
-                
-        if (empty($ifExists)) {
+        
+        if ($ifExists[0]['q'] == '0') {
             return parent::created([ $idOwnerName => $idOwner, $idHasName => $idHas ]);
             
         } else {
