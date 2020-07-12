@@ -68,7 +68,7 @@ abstract class TypeAbstract extends Crud
         
         $idOwnerName = "id$tableOwner";
         $idOwner = $params['idOwner'];
-        $orderBy = $params['orderBy']." ".$params['ordering'];
+        $orderBy = isset($params['orderBy']) ? $params['orderBy']." ".$params['ordering'] : null;
         
         $query = "SELECT * FROM $this->table, $tableHas";
         $query .= " WHERE $tableHas.id$this->table=$this->table.id$this->table";
