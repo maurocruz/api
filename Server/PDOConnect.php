@@ -171,4 +171,13 @@ class PDOConnect
             }
         }
     }
+        
+    // LAST INSERT ID
+    public static function lastInsertId(): string 
+    {
+        $query = "SELECT LAST_INSERT_ID() AS id;";
+        $return = self::run($query);        
+        
+        return $return[0]['id'];
+    }
 }
