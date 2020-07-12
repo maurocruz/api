@@ -40,4 +40,13 @@ class History extends TypeAbstract implements TypeInterface
     {        
         return parent::createSqlTable("History");
     }
+    
+    public function setHistory($tableOwner, $idOwner, $paramsHistory)
+    {     
+        $paramsHistory['user'] = \fwc\Cms\Auth\Users::getUsername();
+            
+        $idhistory = (new History())->post($paramsHistory);            
+
+        (new \Fwc\Api\Server\Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
+    }
 }
