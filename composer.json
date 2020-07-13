@@ -1,0 +1,19 @@
+{
+    "name": "fwc/api",
+    "description": "Api for Fwc app",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mauro Cruz",
+            "email": "maurocruz@pirenopolis.tur.br"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+    
+    },
+    "require-dev": {
+        
+    }
+}
