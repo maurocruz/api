@@ -1,8 +1,6 @@
 {
     "name": "plinct/api",
     "description": "Api for Fwc app",
-    "type": "project",
-    "license": "MIT",
     "authors": [
         {
             "name": "Mauro Cruz",
