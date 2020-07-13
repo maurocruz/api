@@ -1,6 +1,7 @@
 {
     "name": "plinct/api",
     "description": "Api for Fwc app",
+    "license": "MIT",
     "authors": [
         {
             "name": "Mauro Cruz",
