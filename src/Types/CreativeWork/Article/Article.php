@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
 class Article extends TypeAbstract implements TypeInterface
 {
@@ -34,7 +34,7 @@ class Article extends TypeAbstract implements TypeInterface
     
     public function createSqlTable($type = null) 
     {
-        $maintenance = new \Fwc\Api\Server\Maintenance($this->request);
+        $maintenance = new \Plinct\Api\Server\Maintenance($this->request);
         
         $maintenance->createSqlTable("Person");
         $maintenance->createSqlTable("ImageObject");

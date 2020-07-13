@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
 class History extends TypeAbstract implements TypeInterface
 {
@@ -47,6 +47,6 @@ class History extends TypeAbstract implements TypeInterface
             
         $idhistory = (new History())->post($paramsHistory);            
 
-        (new \Fwc\Api\Server\Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
+        (new \Plinct\Api\Server\Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
     }
 }

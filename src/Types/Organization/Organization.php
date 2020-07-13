@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
-use Fwc\Api\Server\Maintenance;
+use Plinct\Api\Server\Maintenance;
 
 class Organization extends TypeAbstract implements TypeInterface
 {

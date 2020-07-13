@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
 class VideoObject extends TypeAbstract implements TypeInterface
 {
