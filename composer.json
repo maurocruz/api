@@ -8,7 +8,7 @@
             "email": "maurocruz@pirenopolis.tur.br"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "dev-master",
     "require": {
     
     },
