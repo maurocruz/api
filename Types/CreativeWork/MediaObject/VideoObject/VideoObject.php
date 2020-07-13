@@ -8,7 +8,7 @@ class VideoObject extends TypeAbstract implements TypeInterface
     
     protected $type = "VideoObject";
     
-    protected $properties = [ "name", "description", "url", "thumbnail" ];
+    protected $properties = [ "name", "description", "url", "thumbnailUrl" ];
     
     /**
      * GET
@@ -47,7 +47,7 @@ class VideoObject extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
         return parent::delete($id, $params);
     }
