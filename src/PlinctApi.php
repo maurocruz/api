@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwc\Api;
+namespace Plinct\Api;
 
 use Slim\App;
-use Fwc\Api\Server\PDOConnect;
+use Plinct\Api\Server\PDOConnect;
 
-class FwcApi
+class PlinctApi
 {
     protected $slimApp;
 

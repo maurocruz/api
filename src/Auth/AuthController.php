@@ -1,11 +1,11 @@
 <?php
 
-namespace Fwc\Api\Auth;
+namespace Plinct\Api\Auth;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Fwc\Api\Type\User;
+use Plinct\Api\Type\User;
 
-use Fwc\Api\Auth\Session;
+use Plinct\Api\Auth\Session;
 
 class AuthController extends User
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Fwc\Api;
+namespace Plinct\Api;
 
 use Slim\App;
 
-class FwcApiFactory
+class PlinctApiFactory
 {
     public static function create(App $slimApp)
     {
-        return new FwcApi($slimApp);
+        return new PlinctApi($slimApp);
     }
 }

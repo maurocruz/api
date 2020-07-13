@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwc\Api\Server;
+namespace Plinct\Api\Server;
 
-use Fwc\Api\Server\PDOConnect;
+use Plinct\Api\Server\PDOConnect;
 
 class Crud 
 {

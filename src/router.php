@@ -1,17 +1,17 @@
 <?php
 
-namespace Fwc\Api;
+namespace Plinct\Api;
 
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
-use Fwc\Api\Server\PDOConnect;
-use Fwc\Api\Server\Maintenance;
-use Fwc\Api\Auth;
-use Fwc\Api\Auth\Session;
-use Fwc\Api\Auth\AuthMiddleware;
+use Plinct\Api\Server\PDOConnect;
+use Plinct\Api\Server\Maintenance;
+use Plinct\Api\Auth;
+use Plinct\Api\Auth\Session;
+use Plinct\Api\Auth\AuthMiddleware;
 
 return function(App $slimApp) {
 
@@ -70,7 +70,7 @@ return function(App $slimApp) {
         $params = $request->getQueryParams() ?? null;
         
         if ($type) {        
-            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+            $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
 
             if (class_exists($className)) {
                 $data = (new $className($request))->get($params);
@@ -114,7 +114,7 @@ return function(App $slimApp) {
             
             PDOConnect::reconnectToAdmin();            
             
-            $className = "\\Fwc\\Api\\Type\\".ucfirst($type);
+            $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
 
             if (class_exists($className)) {
                 $typeClass = new $className($request);
@@ -128,7 +128,7 @@ return function(App $slimApp) {
             
         } elseif ($type == "user") {
             unset($params['status']);
-            $data = (new \Fwc\Api\Type\User($request))->post($params);
+            $data = (new \Plinct\Api\Type\User($request))->post($params);
             $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         } 
         
@@ -149,7 +149,7 @@ return function(App $slimApp) {
             
             PDOConnect::reconnectToAdmin();
                         
-            $classname = "\\Fwc\\Api\\Type\\".ucfirst($args['type']);
+            $classname = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
             
             $data = json_encode((new $classname($request))->put($args['id'], $params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );      
         
@@ -179,7 +179,7 @@ return function(App $slimApp) {
                 $params["id$type"] = $id;
             }
             
-            $classname = "\\Fwc\\Api\\Type\\".ucfirst($type);
+            $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
             
             $data = (new $classname($request))->delete($params);
                            

@@ -1,5 +1,5 @@
 <?php
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
 class index 
 {

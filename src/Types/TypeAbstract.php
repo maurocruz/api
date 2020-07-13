@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
-use Fwc\Api\Server\Crud;
+use Plinct\Api\Server\Crud;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 abstract class TypeAbstract extends Crud
@@ -174,7 +174,7 @@ abstract class TypeAbstract extends Crud
             // if params element relationship
             foreach ($paramRel as $key => $value) {  
                 if(array_key_exists($key, $this->withTypes)) {                
-                    $relationship = new \Fwc\Api\Server\Relationships();
+                    $relationship = new \Plinct\Api\Server\Relationships();
                     $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
 
                 } else {

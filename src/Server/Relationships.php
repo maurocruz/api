@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Server;
+namespace Plinct\Api\Server;
 
 class Relationships extends Crud
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Auth;
+namespace Plinct\Api\Auth;
 
 class Session 
 {

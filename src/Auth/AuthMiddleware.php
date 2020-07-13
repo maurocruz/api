@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Auth;
+namespace Plinct\Api\Auth;
 
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;

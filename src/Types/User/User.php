@@ -1,8 +1,8 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
-use Fwc\Api\Auth\Session;
+use Plinct\Api\Auth\Session;
 
 class User extends TypeAbstract implements TypeInterface
 {

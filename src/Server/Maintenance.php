@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Server;
+namespace Plinct\Api\Server;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -21,7 +21,7 @@ class Maintenance extends Crud
         $data = parent::getQuery($query);
         
         if (empty($data)) {
-            $className = "\\Fwc\\Api\\Type\\".$type;
+            $className = "\\Plinct\\Api\\Type\\".$type;
             return (new $className($this->request))->createSqlTable($type);
             
         } else {
@@ -36,7 +36,7 @@ class Maintenance extends Crud
         $this->createSqlTable('Person');
         
         // create admin user
-        $data = (new \Fwc\Api\Type\User($this->request))->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
+        $data = (new \Plinct\Api\Type\User($this->request))->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
         
         return [ "message" => "Basic types created", "data" => $data ];
     }

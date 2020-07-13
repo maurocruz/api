@@ -1,6 +1,6 @@
 <?php
 
-namespace Fwc\Api\Type;
+namespace Plinct\Api\Type;
 
 trait SchemaTrait 
 {
@@ -118,7 +118,7 @@ trait SchemaTrait
                         }
                         // one to many
                         else {
-                            $rel = (new \Fwc\Api\Server\Relationships())->getRelationship($this->table, $id, lcfirst($type));
+                            $rel = (new \Plinct\Api\Server\Relationships())->getRelationship($this->table, $id, lcfirst($type));
                             
                             foreach ($rel as $valueRel) {
                                $data[] = $typeObject->schema($valueRel);                                
