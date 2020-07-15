@@ -1,0 +1,22 @@
+{
+    "name": "plinct/api",
+    "description": "Api for Fwc app",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mauro Cruz",
+            "email": "maurocruz@pirenopolis.tur.br"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Plinct\\": "src/"
+        }        
+    },
+    "require": {
+    
+    },
+    "require-dev": {
+        
+    }
+}
