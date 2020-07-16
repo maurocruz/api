@@ -84,8 +84,7 @@ return function(App $slimApp) {
         }
               
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));  
-        
-        //$response = $response->withHeader("Content-type", "'application/json'");        
+              
         return $response;
     });
     
@@ -95,7 +94,7 @@ return function(App $slimApp) {
      */
     $slimApp->post('/api/login', function (Request $request, Response $response) 
     {
-        $auth = new Auth\AuthController($request);
+        $auth = new Auth\AuthController();
         
         $data = $auth->login($request->getParsedBody());
         

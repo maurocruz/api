@@ -11,7 +11,7 @@ class AuthMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, Handler $handler): ResponseInterface 
     {
-        if (Session::checkUserAdmin() === false) {
+        if (SessionUser::checkUserAdmin() === false) {
             $request = $request->withAttribute('userAuth', false);
             
             $data =  json_encode([ "message" => "User not authorized" ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );

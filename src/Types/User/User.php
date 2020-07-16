@@ -2,12 +2,15 @@
 
 namespace Plinct\Api\Type;
 
-use Plinct\Api\Auth\Session;
+use Plinct\Api\Auth\SessionUser;
 
 class User extends TypeAbstract implements TypeInterface
 {
     protected $table = "user";
+    
     protected $type = "User";
+    
+    protected $properties = [ "name", "status" ];
 
     /**
      * GET
@@ -112,9 +115,12 @@ class User extends TypeAbstract implements TypeInterface
             
         } elseif (password_verify($password, $data[0]['password'])) {
             
-            Session::login($data[0]);
+            SessionUser::login($data[0]);
             
             return [ "message" => "Session login started" ];
+            
+        } else {
+            return [ "message" => "Password invalid" ];
         }
     }
 }

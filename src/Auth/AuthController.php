@@ -2,29 +2,19 @@
 
 namespace Plinct\Api\Auth;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
 use Plinct\Api\Type\User;
-
-use Plinct\Api\Auth\Session;
+use Plinct\Api\Auth\SessionUser;
 
 class AuthController extends User
-{
-    protected $request;
-    
-    public function __construct(Request $request)
-    {
-        $this->request = $request;
-    }
-    
+{    
     public function login($params)
     {
         return parent::login($params);
-    }
-    
+    }    
     
     public function logout()
     {
-        Session::logout();
+        SessionUser::logout();
         
         return [ "message" => "Session login unseted" ];
     }
