@@ -6,6 +6,13 @@ class SessionUser
 {        
     private static $NameParam = "userLogin";
     
+    private static function startSession()
+    {
+        if(!isset($_SESSION)) {
+            session_start();
+        }
+    }
+    
     public static function getId() 
     {
         return $_SESSION[self::$NameParam]['iduser'];
@@ -23,7 +30,7 @@ class SessionUser
         
     public static function getStatus() 
     {
-        return $_SESSION[self::$NameParam]['status'];
+        return isset($_SESSION[self::$NameParam]['status']) ? $_SESSION[self::$NameParam]['status'] : null;
     }
     
     public static function getStatusWithString($number = null) 
@@ -38,7 +45,6 @@ class SessionUser
                 return "user";
         }
     }
-
 
     public static function login($value) 
     {                       
@@ -57,6 +63,8 @@ class SessionUser
     
     public static function checkUserAdmin()
     {    
+        self::startSession();
+        
         return self::getStatus() == '1' ? true : false;
     }
 }
