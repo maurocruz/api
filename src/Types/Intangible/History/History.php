@@ -2,6 +2,9 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Auth\SessionUser;
+use Plinct\Api\Server\Relationships;
+
 class History extends TypeAbstract implements TypeInterface
 {
     protected $table = "history";
@@ -43,10 +46,10 @@ class History extends TypeAbstract implements TypeInterface
     
     public function setHistory($tableOwner, $idOwner, $paramsHistory)
     {     
-        $paramsHistory['user'] = \fwc\Cms\Auth\Users::getUsername();
+        $paramsHistory['user'] = SessionUser::getName();
             
         $idhistory = (new History())->post($paramsHistory);            
 
-        (new \Plinct\Api\Server\Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
+        (new Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
     }
 }
