@@ -16,7 +16,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
      */
     public function get(array $params): array
     {
-        if ($params['tableOwner']) {
+        if (isset($params['tableOwner'])) {
             return parent::getWithPartOf($params);
         }
         return parent::get($params);
