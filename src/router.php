@@ -13,9 +13,8 @@ use Plinct\Api\Auth;
 use Plinct\Api\Auth\Session;
 use Plinct\Api\Auth\AuthMiddleware;
 
-return function(App $slimApp) {
-
-    // get, post, put, delete
+return function(App $slimApp) 
+{
     /*
      * Init application
      */
@@ -47,7 +46,7 @@ return function(App $slimApp) {
         
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         
-        $response = $response->withHeader("Content-type", "'application/json'");
+        $response = $response->withHeader("Content-type", "application/json");
         return $response;        
     });
      
@@ -82,9 +81,14 @@ return function(App $slimApp) {
         } else {
             $data = (new Type\index())->index();
         }
-              
+
+        $response = $response->withHeader("Content-type", "application/json");
+
+        $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));  
               
+        
         return $response;
     });
     
