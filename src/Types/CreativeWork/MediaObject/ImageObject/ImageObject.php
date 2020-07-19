@@ -19,7 +19,46 @@ class ImageObject extends TypeAbstract implements TypeInterface
         if (isset($params['tableOwner'])) {
             return parent::getWithPartOf($params);
         }
-        return parent::get($params);
+         
+        $data = parent::getData($params);
+                
+        // EXTRA PROPERTIES
+        if (isset($params['properties']) && !array_key_exists('error', $data)) {
+            
+            // THUMBNAIL
+            if (strpos($params['properties'], "thumbnail") !== false) {
+                
+                foreach ($data as $valueThumb) { 
+                    
+                    $thumbnail = new \Plinct\Web\Object\ThumbnailObject($valueThumb['contentUrl']);
+                    $valueThumb['thumbnail'] = $thumbnail->getThumbnail(200);
+
+                    $dataThumb[] = $valueThumb;
+                }
+                $data = $dataThumb;
+            }
+        
+            // SIZES
+            if (strpos($params['properties'], 'sizes') !== false) {
+                foreach ($data as $valueSizes) {
+                    
+                    $imagePath = $_SERVER['DOCUMENT_ROOT'].$valueSizes['contentUrl'];
+                    
+                    if (file_exists($imagePath)) {
+                        
+                        list( $width, $height) = getimagesize($_SERVER['DOCUMENT_ROOT'].$valueSizes['contentUrl']);
+                        
+                        $valueSizes['width'] = $width;
+                        $valueSizes['height'] = $height;
+                        
+                        $dataSizes[] = $valueSizes;
+                    }
+                }
+                $data = $dataSizes;
+            }
+        }
+        
+        return parent::buildSchema($params, $data);
     }
     
     /**
