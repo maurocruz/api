@@ -28,17 +28,29 @@ abstract class TypeAbstract extends Crud
      * @return array
      */
     public function get(array $params): array 
-    {
+    {           
+        $data = $this->getData($params);
+        
+        return $this->buildSchema($params, $data);
+    }
+    
+    protected function getData($params)
+    {        
         $filterget = new FilterGet($params, $this->table, $this->properties);
         
         $this->properties = $filterget->getProperties();
                 
         $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
-        
-        if (array_key_exists('error', $data)) {            
+                 
+        return $data;        
+    }
+    
+    protected function buildSchema($params, $data) 
+    {
+         if (array_key_exists('error', $data)) {            
             return $data;
             
-        } else {   
+        } else {    
             // format ItemList            
             if (isset($params['format']) && $params['format'] == "ItemList") {
                 if (isset($params['count']) && $params['count'] == "all") {
