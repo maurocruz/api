@@ -135,7 +135,7 @@ return function(App $slimApp)
             $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         } 
         
-        $response = $response->withHeader("Content-type", "'application/json'");
+        $response = $response->withHeader("Content-type", "application/json");
         return $response;
         
     })->add(new AuthMiddleware());
@@ -159,7 +159,7 @@ return function(App $slimApp)
             $response->getBody()->write($data);
         }
         
-        //$response = $response->withHeader("Content-type", "'application/json'");        
+        $response = $response->withHeader("Content-type", "application/json");        
         return $response;
         
     })->addMiddleware(new AuthMiddleware());   
