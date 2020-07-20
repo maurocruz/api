@@ -16,7 +16,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
      */
     public function get(array $params): array
     {
-        if (isset($params['tableOwner'])) {
+        if (isset($params['tableOwner'])) {             
             return parent::getWithPartOf($params);
         }
          
@@ -67,8 +67,17 @@ class ImageObject extends TypeAbstract implements TypeInterface
      * @return array
      */
     public function post(array $params): array 
-    {
+    {                
         return parent::post($params);
+    }
+    
+    public function postRelationship(array $params) 
+    {
+        $params['tableIsPartOf'] = $this->table;
+        $params['idIsPartOf'] = $params['idimageObject'];
+        unset($params['idimageObject']);
+        
+        return parent::postRelationship($params);
     }
     
     /**
