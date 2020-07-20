@@ -100,10 +100,10 @@ trait SchemaTrait
                     
                     // set relational object type
                     $type = $this->withTypes[$valueProperty];                    
-                    $typObjectName = __NAMESPACE__.'\\'.$type;  
+                    $typeObjectName = __NAMESPACE__.'\\'.$type;  
                     
-                    if (class_exists($typObjectName)) {
-                        $typeObject = new $typObjectName($this->request);
+                    if (class_exists($typeObjectName)) {
+                        $typeObject = new $typeObjectName($this->request);
                         
                         // one to one
                         if (array_key_exists($valueProperty, $value)) {
