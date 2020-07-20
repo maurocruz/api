@@ -121,6 +121,7 @@ abstract class TypeAbstract extends Crud
      */
     public function post(array $params): array 
     {
+        // CREATE TABLE SQL IF NOT EXISTS
         if ($this->request) {        
             $action = $this->request->getParsedBody()['action'] ?? null;
 
@@ -133,6 +134,20 @@ abstract class TypeAbstract extends Crud
         
         return [ "id" => parent::lastInsertId() ];
     }
+    
+    protected function postRelationship(array $params) 
+    {                
+        $tableOwner = $params['tableOwner'];
+        unset($params['tableOwner']);
+        $idOwner = $params['idOwner'];
+        unset($params['idOwner']);
+        $tableIsPartOf = $params['tableIsPartOf'];
+        unset($params['tableIsPartOf']);
+        $idIsPartOf = $params['idIsPartOf'];
+        unset($params['idIsPartOf']);
+                
+        return parent::createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $params);
+    }
 
     /**
      * PUT
@@ -142,8 +157,6 @@ abstract class TypeAbstract extends Crud
      */
     public function put(string $id, $params): array
     {   
-        unset($params['tableOwner']);
-        unset($params['idOwner']);
         
         $rel = $this->putInRelationship($id, $params);
         
@@ -165,8 +178,16 @@ abstract class TypeAbstract extends Crud
      * @return type
      */
     private function putInRelationship($id, $params) 
-    {
-        // check if properties exists with fields
+    {        
+        $tableOwner = $params['tableOwner'];
+        unset($params['tableOwner']);
+        $idOwner = $params['idOwner'];
+        unset($params['idOwner']);
+        $tableIsPartOf = $this->table;
+        $idIsPartOf = $id;
+        
+        
+        // check which properties exists in table
         $columns = parent::getQuery("SHOW COLUMNS FROM $this->table");
         
         // build array with fields columns bd        
@@ -182,17 +203,13 @@ abstract class TypeAbstract extends Crud
                 unset($params[$keyParams]);
             }
         }
+        
         if (isset($paramRel)) {
-            // if params element relationship
-            foreach ($paramRel as $key => $value) {  
-                if(array_key_exists($key, $this->withTypes)) {                
-                    $relationship = new \Plinct\Api\Server\Relationships();
-                    $response[] = $relationship->putRelationship($this->table, $id, $key, $value);
-
-                } else {
-                    $response[] = [ "message" => "No relational params" ];
-                }
-            }
+            
+            parent::updateRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $paramRel);
+            
+            $response[] = [ "message" => "Relational table updated" ];
+            
         } else {
             $response[] = [ "message" => "No relational params" ];
         }
