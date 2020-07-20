@@ -23,7 +23,7 @@ class Crud
         return $this->getQuery($query, $args);
     }
     
-     // CREATED
+    // CREATED
     protected function created(array $data) 
     {   
         if (empty($data)) {
@@ -42,6 +42,22 @@ class Crud
         
         return self::execute($query, $bindValues, "Record in $this->table created successfully", $data);
     }
+    
+    // CREATE RELATIONSHIP
+    protected function createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null) 
+    {        
+        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
+        
+        $idOwnerName = 'id'.$tableOwner;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
+        
+        $dataIds = [ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ];
+        
+        $dataFinal = $data ? array_merge($dataIds, $data) : $dataIds;
+        
+        return $this->created($dataFinal);
+    }
+    
 
     // UPDATE
     protected function update(array $data, string $where) 
@@ -62,6 +78,18 @@ class Crud
         return self::execute($query, $bindValues, "Updated data successfully", $data);
     }
     
+    protected function updateRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null)
+    {        
+        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
+        
+        $idOwnerName = 'id'.$tableOwner;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
+        
+        $where = "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf";
+        
+        return $this->update($data, $where);
+    }
+    
     // DELETE
     protected function erase(string $where, $limit = null): array 
     {    
@@ -76,7 +104,7 @@ class Crud
             return [ "message" => "Deleted successfully" ];
         }
     }
-    
+        
     private static function execute($query, $bindValues, $message, $data)
     {
         $connect = PDOConnect::getPDOConnect();
