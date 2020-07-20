@@ -5,48 +5,52 @@ namespace Plinct\Api\Server;
 class Relationships extends Crud
 {
         
-    public function getRelationship($tableOwner, $idOwner, $tableHas) 
+    public function getRelationship($tableOwner, $idOwner, $tableIsPartOf) 
     {
-        $tableRel = $tableOwner.'_has_'.$tableHas;
+        $tableRel = $tableOwner.'_has_'.$tableIsPartOf;
         $idOwnerName = 'id'.$tableOwner;
-        $idHasName = 'id'.$tableHas;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
         
-        $query = "SELECT * FROM $tableHas, $tableRel WHERE $tableHas.$idHasName=$tableRel.$idHasName AND $tableRel.$idOwnerName=$idOwner;";
+        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idOwnerName=$idOwner";
+        
+        $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : null;
+        
+        $query .= ";";
         
         return parent::getQuery($query);
     }
     
-    public function putRelationship($tableOwner, $idOwner, $tableHas, $idHas) 
+    public function putRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf) 
     { 
-        $this->table = $tableOwner.'_has_'.$tableHas;
+        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
         
         $idOwnerName = 'id'.$tableOwner;
-        $idHasName = 'id'.$tableHas;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
         
-        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idHasName`=$idHas");
+        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf");
         
         if ($ifExists[0]['q'] == '0') {
-            return parent::created([ $idOwnerName => $idOwner, $idHasName => $idHas ]);
+            return parent::created([ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ]);
             
         } else {
-            return [ "messagem" => "Record relationship $tableHas already exists!" ];
+            return [ "messagem" => "Record relationship $tableIsPartOf already exists!" ];
         }
     }
     
-    public function deleteRelationship($tableOwner, $idOwner, $tableHas, $idHas)
+    public function deleteRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf)
     {   
-        $this->table = $tableOwner.'_has_'.$tableHas;
+        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
         
         $idOwnerName = 'id'.$tableOwner;
-        $idHasName = 'id'.$tableHas;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
         
-        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idHasName`=$idHas");
+        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf");
                 
         if (empty($ifExists)) {
-            return [ "messagem" => "Relationship $tableHas doesn't exists!" ];
+            return [ "messagem" => "Relationship $tableIsPartOf doesn't exists!" ];
             
         } else {
-            return parent::erase([ $idOwnerName => $idOwner, $idHasName => $idHas ]);
+            return parent::erase([ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ]);
         }
     }
 }
