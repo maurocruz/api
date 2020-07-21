@@ -104,6 +104,18 @@ class Crud
             return [ "message" => "Deleted successfully" ];
         }
     }
+    
+    protected function eraseRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf)
+    {            
+        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
+        
+        $idOwnerName = 'id'.$tableOwner;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
+        
+        $where = "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf";
+        
+        return $this->erase($where);
+    }
         
     private static function execute($query, $bindValues, $message, $data)
     {
