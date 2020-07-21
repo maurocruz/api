@@ -76,8 +76,27 @@ class ImageObject extends TypeAbstract implements TypeInterface
         $params['tableIsPartOf'] = $this->table;
         $params['idIsPartOf'] = $params['idimageObject'];
         unset($params['idimageObject']);
-        
+                
         return parent::postRelationship($params);
+    }
+    
+    public function postAndPostRelationship($imageUpload, $params) 
+    {;
+        $tableOwner = $params['tableOwner'];
+        unset($params['tableOwner']);
+        $idOwner = $params['idOwner'];
+        unset($params['idOwner']);        
+
+        // upload image        
+        $contentUrl = self::uploadImage($imageUpload, $params['location']);
+        
+        // insert data image in imageObject table
+        $params['contentSize'] = $imageUpload['size'];
+        $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . $contentUrl;
+        $idimageObject = $this->post($params)['id'];
+
+        // insert relationship
+        return parent::createdRelationship($tableOwner, $idOwner, $this->table, $idimageObject);
     }
     
     /**
@@ -98,8 +117,13 @@ class ImageObject extends TypeAbstract implements TypeInterface
      * @return array
      */
     public function delete(array $params): array 
+    {        
+        return parent::delete($params);
+    }
+    
+    public function deleteRelationship($params)
     {
-        return parent::delete($id, $params);
+        return parent::eraseRelationship($params['tableOwner'], $params['idOwner'], $this->table, $params['idimageObject']);
     }
     
     /**
@@ -137,4 +161,17 @@ class ImageObject extends TypeAbstract implements TypeInterface
             }
         }
     }
+    
+    private static function uploadImage($imageUpload, $location) 
+    {
+        $dir = substr($location, 0, 1) == '/' ? $location : '/'.$location;
+        
+        $filename = \Plinct\Tool\StringTool::removeAccentsAndSpaces($imageUpload['name']);
+        
+        $path = $dir."/".$filename; 
+        
+        (new \Plinct\Web\Object\ThumbnailObject($imageUpload['tmp_name']))->uploadImage($path);
+        
+        return $filename;
+    }  
 }
