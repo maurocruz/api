@@ -44,9 +44,9 @@ class ImageObject extends TypeAbstract implements TypeInterface
                     
                     $imagePath = $_SERVER['DOCUMENT_ROOT'].$valueSizes['contentUrl'];
                     
-                    if (file_exists($imagePath)) {
+                    if (file_exists($imagePath) && is_file($imagePath)) {
                         
-                        list( $width, $height) = getimagesize($_SERVER['DOCUMENT_ROOT'].$valueSizes['contentUrl']);
+                        list( $width, $height) = getimagesize($imagePath);
                         
                         $valueSizes['width'] = $width;
                         $valueSizes['height'] = $height;
