@@ -2,6 +2,8 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Tool\Thumbnail;
+
 class ImageObject extends TypeAbstract implements TypeInterface
 {
     protected $table = "imageObject";
@@ -30,7 +32,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
                 
                 foreach ($data as $valueThumb) { 
                     
-                    $thumbnail = new \Plinct\Web\Object\ThumbnailObject($valueThumb['contentUrl']);
+                    $thumbnail = new Thumbnail($valueThumb['contentUrl']);
                     $valueThumb['thumbnail'] = $thumbnail->getThumbnail(200);
 
                     $dataThumb[] = $valueThumb;

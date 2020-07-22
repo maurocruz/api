@@ -1,7 +1,24 @@
-# Fwc Api
+# Plinct Api
 
 Php api for schema.org modelling
 
+**UNDER DEVELOPMENT**
+
+## Depedencies
+- composer
+- php7+
+- slim/slim 4.0
+- slim/psr7 0.4+
+
+## Install dependencies
+
+  ```composer require slim/slim:"4.*"```
+
+  ```composer require slim/psr7```
+
+  ```composer require plinct/api```
+
+## Getting Start
 
 > Create mysql schema;
 
@@ -14,15 +31,33 @@ Php api for schema.org modelling
 
 Add in index page on the root
  
-//  FWC API
- 
-$fwcApi = FwcApiFactory::create($slimApp);
+``` 
+<?php
+declare(strict_types=1);
 
-$fwcApi->connect("driver sql", "host name", "database name", "publicUser", "password");
+use \Slim\Factory\AppFactory;
+use Plinct\Api\PlinctApiFactory;
 
-$fwcApi->run();
+// autoload
+include '../vendor/autoload.php';
 
+// slim app
+$slimApp = AppFactory::create();
 
+// for enable routes PUT and DELETE
+$slimApp->addBodyParsingMiddleware();
+
+/******** PLINCT API ***********/
+// api factory
+$api = PlinctApiFactory::create($slimApp);
+// database connect
+$api->connect("driver", "host", "dbname", "username", "password");
+
+$api->run();
+
+// run
+$slimApp->run();
+```
 
 > Start api using https://domain/api/start with request HTTP POST request, sending the database admin username and password by form url encoded using <username> and <password> with name of values;
 
@@ -31,4 +66,21 @@ $fwcApi->run();
 > Update in table user the user for administrator with status = 1
 
 
-> For adding new entities:
+## Types enabled
+
+- Action
+- Article
+- Book
+- ContactPoint
+- Event
+- ImageObject
+- LocalBusiness
+- Organization
+- Person
+- Place
+- PostalAddress
+- PropertyValue
+- Taxon
+- VideoObject
+- WebPage
+

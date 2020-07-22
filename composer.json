@@ -1,6 +1,6 @@
 {
     "name": "plinct/api",
-    "description": "Api for Fwc app",
+    "description": "Api for Plinct app",
     "license": "MIT",
     "authors": [
         {
@@ -10,13 +10,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "Plinct\\": "src/"
+            "Plinct\\Api\\": "src/"
         }        
     },
-    "require": {
-    
-    },
-    "require-dev": {
-        
+    "require": {    
+        "php": "^7.2",
+        "plinct/tool": "^0.1"
     }
 }
