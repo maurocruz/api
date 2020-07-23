@@ -43,9 +43,9 @@ class Person extends TypeAbstract implements TypeInterface
     }  
     
     
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array 
     {
-        return parent::delete($id, $params);        
+        return parent::delete($params);        
     }
     
     /**
