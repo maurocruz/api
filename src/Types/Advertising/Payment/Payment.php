@@ -10,7 +10,7 @@ class Payment extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "*" ];
     
-    protected $withTypes = [  ];
+    protected $hasTypes = [  ];
 
     /**
      * GET
