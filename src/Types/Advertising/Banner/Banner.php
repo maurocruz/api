@@ -10,7 +10,7 @@ class Banner extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "*","image" ];
     
-    protected $withTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject" ];
 
     /**
      * GET
