@@ -10,7 +10,7 @@ class Advertising extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "customer","tipo","valor","data","vencimento","status","tags" ];
     
-    protected $withTypes = [ "customer" => "LocalBusiness", "history" => "History" ];
+    protected $hasTypes = [ "customer" => "LocalBusiness", "history" => "History" ];
 
     public function get(array $params): array 
     {
