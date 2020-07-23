@@ -12,7 +12,7 @@ class Place extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "latitude", "longitude", "address" ];
     
-    protected $withTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
+    protected $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
 
     /**
      * GET
