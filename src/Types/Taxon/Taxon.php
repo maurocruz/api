@@ -10,7 +10,7 @@ class Taxon extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "family", "genus", "specie" ];
     
-    protected $withTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject" ];
     
     public function get(array $params): array 
     {
