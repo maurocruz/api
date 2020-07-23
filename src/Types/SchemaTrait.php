@@ -10,7 +10,7 @@ trait SchemaTrait
     
     protected $properties = [];
     
-    protected $withTypes = [];
+    protected $hasTypes = [];
 
     /**
      * GET SCHEMA WITH ARRAY ITEMS
@@ -96,10 +96,10 @@ trait SchemaTrait
                 }
                 
                 // set relationships
-                if (array_key_exists($valueProperty, $this->withTypes)) {
+                if (array_key_exists($valueProperty, $this->hasTypes)) {
                     
                     // set relational object type
-                    $type = $this->withTypes[$valueProperty];                    
+                    $type = $this->hasTypes[$valueProperty];                    
                     $typeObjectName = __NAMESPACE__.'\\'.$type;  
                     
                     if (class_exists($typeObjectName)) {
