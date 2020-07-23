@@ -10,7 +10,7 @@ class Article extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "headline", "author", "datePublished", "publisher"];
     
-    protected $withTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject" ];
 
     public function get(array $params): array 
     {
