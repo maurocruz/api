@@ -12,6 +12,7 @@ class Organization extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "description", "legalName", "taxId" ];
 
+    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject" ];
 
     /**
      * GET
@@ -67,6 +68,7 @@ class Organization extends TypeAbstract implements TypeInterface
         $message[] = $maintenance->createSqlTable("ImageObject");
         $message[] = $maintenance->createSqlTable("Person");
         $message[] = $maintenance->createSqlTable("Place");
+        
         // sql create statement
         $message[] = parent::createSqlTable("Organization");
         
