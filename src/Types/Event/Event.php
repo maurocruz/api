@@ -10,7 +10,7 @@ class Event extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "location", "startDate" ];
     
-    protected $withTypes = [ "location" => "Place", "image" => "ImageObject" ];
+    protected $hasTypes = [ "location" => "Place", "image" => "ImageObject" ];
     
     public function get(array $params): array 
     {
