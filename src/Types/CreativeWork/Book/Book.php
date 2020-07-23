@@ -10,7 +10,7 @@ class Book extends TypeAbstract implements TypeInterface
     
     protected $properties = [ "name", "author" ];
     
-    protected $withTypes = [ ];
+    protected $hasTypes = [ ];
 
     public function get(array $params): array 
     {
