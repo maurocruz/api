@@ -82,23 +82,27 @@ class ImageObject extends TypeAbstract implements TypeInterface
         return parent::postRelationship($params);
     }
     
-    public function postAndPostRelationship($imageUpload, $params) 
-    {;
-        $tableOwner = $params['tableOwner'];
-        unset($params['tableOwner']);
-        $idOwner = $params['idOwner'];
-        unset($params['idOwner']);        
+    public function newAndPostRelationship($params) 
+    {             
+        $uploadedFiles = $_FILES['imageupload'];
+                                        
+        if ($uploadedFiles['size'] !== 0) {
+            $tableOwner = $params['tableOwner'];
+            unset($params['tableOwner']);
+            $idOwner = $params['idOwner'];
+            unset($params['idOwner']);        
 
-        // upload image        
-        $contentUrl = self::uploadImage($imageUpload, $params['location']);
-        
-        // insert data image in imageObject table
-        $params['contentSize'] = $imageUpload['size'];
-        $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . $contentUrl;
-        $idimageObject = $this->post($params)['id'];
+            // upload image        
+            $contentUrl = self::uploadImage($uploadedFiles, $params['location']);
 
-        // insert relationship
-        return parent::createdRelationship($tableOwner, $idOwner, $this->table, $idimageObject);
+            // insert data image in imageObject table
+            $params['contentSize'] = $uploadedFiles['size'];
+            $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . $contentUrl;
+            $idimageObject = $this->post($params)['id'];
+
+            // insert relationship
+            return parent::createdRelationship($tableOwner, $idOwner, $this->table, $idimageObject);
+        }
     }
     
     /**
@@ -107,9 +111,9 @@ class ImageObject extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function put(string $id, $params = null): array 
+    public function put(array $params = null): array 
     {
-        return parent::put($id, $params);
+        return parent::put($params);
     }
     
     /**
