@@ -36,8 +36,13 @@ class FilterGet
         // fieds
         $this->fields = $queryParams['fields'] ?? $this->fields;
                 
-        // where        
+        // query params        
         foreach ($queryParams as $key => $value) {
+            
+            $idname = "id".$this->table;
+            if ($value == "id") {
+                $value = $idname;
+            }            
             
             // ORDER BY
             if (stripos($key, "orderBy") !== false) {
@@ -55,10 +60,11 @@ class FilterGet
                 $whereArray[] = "`$key`='$value'"; 
 
             }
+            
             if (stripos($key, "id") !== false) {
-                $idname = "id".$this->table;
                 $whereArray[] = "`$idname`=$value";
             }
+            
             if (stripos($key, "where") !== false) {
                 $whereArray[] = "$value";
             }
