@@ -73,7 +73,7 @@ trait SchemaTrait
             "@context" => "https://schema.org",
             "@type" => $this->type,
             "identifier" =>[
-                [ "@type" => "PropertyValue", "name" => "fwc_id", "value" => $id ]
+                [ "@type" => "PropertyValue", "name" => "id", "value" => $id ]
             ]
         ];        
                
