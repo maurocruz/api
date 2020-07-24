@@ -19,9 +19,9 @@ class PropertyValue extends TypeAbstract implements TypeInterface
         return parent::post($params);
     }
     
-    public function put(string $id, $params): array 
+    public function put(array $params): array 
     {
-        return parent::put($id, $params);
+        return parent::put($params);
     }
     
     public function delete(array $params): array 
@@ -33,8 +33,7 @@ class PropertyValue extends TypeAbstract implements TypeInterface
     {
         return parent::createSqlTable("PropertyValue");
     }
-    
-    
+        
     public static function extractValue($array, $name) 
     {
         if ($array) {

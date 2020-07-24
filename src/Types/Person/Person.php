@@ -37,9 +37,9 @@ class Person extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function put(string $id, $params): array
+    public function put(array $params): array
     {
-        return parent::put($id, $params);
+        return parent::put($params);
     }  
     
     

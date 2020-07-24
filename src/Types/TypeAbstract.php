@@ -149,26 +149,39 @@ abstract class TypeAbstract extends Crud
         return parent::createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $params);
     }
 
+    protected function newAndPostRelationship(array $params)
+    {                  
+        $tableOwner = $params['tableOwner'];
+        unset($params['tableOwner']);
+        $idOwner = $params['idOwner'];
+        unset($params['idOwner']);
+        $tableIsPartOf = $params['tableIsPartOf'];
+        unset($params['tableIsPartOf']);
+        
+        $idArray = $this->post($params);
+        $idIsPartOf = $idArray['id'];
+        
+        return parent::createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf);
+    }
+    
     /**
      * PUT
      * @param string $id
      * @param type $params
      * @return array
      */
-    public function put(string $id, $params): array
-    {   
-        
-        $rel = $this->putInRelationship($id, $params);
+    public function put(array $params): array
+    {           
+        /*$rel = $this->putInRelationship($id, $params);
         
         $params = $rel['params'];
-        $response = $rel['response'];
+        $response = $rel['response'];*/
                 
         $idname = "id".$this->table;        
-        $idvalue = $id;
+        $idvalue = $params['id'];
+        unset($params['id']);
         
-        $response[] = parent::update($params, "`$idname`=$idvalue");
-        
-        return $response;
+        return parent::update($params, "`$idname`=$idvalue");
     }
     
     /**

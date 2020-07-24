@@ -15,7 +15,7 @@ interface TypeInterface
     
     public function delete(array $params): array;
     
-    public function put(string $id, $params): array;
+    public function put(array $params): array;
     
     public function createSqlTable($type = null);
 }

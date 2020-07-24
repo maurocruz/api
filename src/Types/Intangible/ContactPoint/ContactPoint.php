@@ -2,20 +2,25 @@
 
 namespace Plinct\Api\Type;
 
-class PostalAddress extends TypeAbstract implements TypeInterface
+/**
+ * ContactPoint
+ *
+ * @author Mauro Cruz <maurocruz@pirenopolis.tur.br>
+ */
+class ContactPoint extends TypeAbstract implements TypeInterface
 {
-    protected $table = 'postalAddress';
+    protected $table = 'contactPoint';
     
-    protected $type = 'PostalAddress';
+    protected $type = 'ContactPoint';
     
-    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ]; 
-    
+    protected $properties = [ "telephone", "email" ];
+
     /**
      * GET
      * @param array $params
      * @return array
      */
-    public function get(array $params): array 
+    public function get(array $params): array
     {
         return parent::get($params);
     }
@@ -36,9 +41,9 @@ class PostalAddress extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function put(string $id, $params = null): array 
+    public function put(array $params): array 
     {
-        return parent::put($id, $params);
+        return parent::put($params);
     }
     
     /**
@@ -59,6 +64,6 @@ class PostalAddress extends TypeAbstract implements TypeInterface
      */
     public function createSqlTable($type = null)
     {
-        return parent::createSqlTable("PostalAddress");
+        return parent::createSqlTable("ContactPoint");
     }
 }

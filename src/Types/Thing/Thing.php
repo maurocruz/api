@@ -19,9 +19,9 @@ class Thing extends TypeAbstract implements TypeInterface
     }
     
     // update (UPDATE)
-    public function put(string $id, $params = null): array
+    public function put(array $params): array
     {
-        return $this->put($id, $params);
+        return $this->put($params);
     }
     
     // delete (DELETE)
