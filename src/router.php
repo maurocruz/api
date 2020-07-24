@@ -15,6 +15,8 @@ use Plinct\Api\Auth\AuthMiddleware;
 
 return function(App $slimApp) 
 {
+    session_start();
+        
     /*
      * Init application
      */
@@ -94,7 +96,7 @@ return function(App $slimApp)
     
     
     /**
-     * POST
+     * LOGIN
      */
     $slimApp->post('/api/login', function (Request $request, Response $response) 
     {
@@ -111,31 +113,38 @@ return function(App $slimApp)
     $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) 
     {
         $type = $args['type'];
-        $params = $request->getParsedBody();
+        $params = $request->getParsedBody();        
+        $className = "\\Plinct\\Api\\Type\\".ucfirst($type);      
+        $action = $request->getParsedBody()['action'] ?? null;
             
         if ($request->getAttribute("userAuth") === true) {
             
-            PDOConnect::reconnectToAdmin();            
-            
-            $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
+            PDOConnect::reconnectToAdmin();    
 
             if (class_exists($className)) {
-                $typeClass = new $className($request);
-                $data = $typeClass->post($params);
+                
+                $classObject = new $className();
+                
+                if ($action == 'create') {            
+                    $data = $classObject->createSqlTable();                
+                } else {
+                    $data = $classObject->post($params);
+                }
                 
             } else {
                 $data = [ "message" => "Type not founded" ];
-            }
-            
-            $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            }            
             
         } elseif ($type == "user") {
             unset($params['status']);
             $data = (new \Plinct\Api\Type\User($request))->post($params);
-            $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            
         } 
         
+        $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        
         $response = $response->withHeader("Content-type", "application/json");
+        
         return $response;
         
     })->add(new AuthMiddleware());
@@ -144,22 +153,31 @@ return function(App $slimApp)
     /**
      * PUT
      */
-    $slimApp->put('/api/{type}/{id}', function (Request $request, Response $response, $args) 
+    $slimApp->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args) 
     {
-        if ($request->getAttribute('userAuth') === true) {
+        $params = $request->getParsedBody() ?? null;
+        $params['id'] = $args['id'] ?? $params['id'] ?? null;
+        $className = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
+        
+        if (!$params['id']) {
+            $data = [ "message" => "missing data"];
             
-            $params = $request->getParsedBody() ?? null;
+        } elseif ($request->getAttribute('userAuth') === true) {            
             
             PDOConnect::reconnectToAdmin();
-                        
-            $classname = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
-            
-            $data = json_encode((new $classname($request))->put($args['id'], $params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );      
-        
-            $response->getBody()->write($data);
+                  
+            if (class_exists($className)) {
+                $data = (new $className())->put($params);
+                
+            } else {
+                $data = [ "message" => "Type not founded" ];                
+            }        
         }
         
+        $response->getBody()->write(json_encode($data), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+            
         $response = $response->withHeader("Content-type", "application/json");        
+        
         return $response;
         
     })->addMiddleware(new AuthMiddleware());   
@@ -169,25 +187,26 @@ return function(App $slimApp)
      */
     $slimApp->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args) 
     {
-        if ($request->getAttribute("userAuth") === true) {
+        $params = $request->getParsedBody() ?? null;
+        $params['id'] = $args['id'] ?? $params['id'] ?? null;
+        $type = $args['type'];
+        
+        if (!$params['id']) {
+            $data = [ "message" => "missing data"];
             
-            $type = $args['type'];
-            $id = $args['id'] ?? null;
+        } elseif ($request->getAttribute("userAuth") === true) {
             
             PDOConnect::reconnectToAdmin();
-            
-            $params = $request->getQueryParams() ?? null;
-            
-            if ($id) {
-                $params["id$type"] = $id;
-            }
-            
+                        
             $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
             
-            $data = (new $classname($request))->delete($params);
-                           
-            $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            $data = (new $classname())->delete($params);
+            
         }
+        
+        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        
+        $response = $response->withHeader("Content-type", "application/json");        
         
         return $response;
         

@@ -4,7 +4,34 @@ namespace Plinct\Api\Server;
 
 class Relationships extends Crud
 {
+    protected $tableHasPart;
+    
+    protected $idTableHasPart;
+    
+    protected $tableIsPartOf;
+    
+    protected $idTableIsPartOf;
+    
+    public function createNewEntityAndNewRelationship($param) 
+    {
+                
+    }
+    
+    public function createRelationship($param) 
+    {
         
+    }
+    
+    public function updateRelationship($param)
+    {
+        
+    }
+    
+    public function deleteRelationship($param) 
+    {
+        
+    }
+    
     public function getRelationship($tableOwner, $idOwner, $tableIsPartOf) 
     {
         $tableRel = $tableOwner.'_has_'.$tableIsPartOf;
@@ -20,7 +47,7 @@ class Relationships extends Crud
         return parent::getQuery($query);
     }
     
-    public function putRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf) 
+    /*public function putRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf) 
     { 
         $this->table = $tableOwner.'_has_'.$tableIsPartOf;
         
@@ -52,5 +79,5 @@ class Relationships extends Crud
         } else {
             return parent::erase([ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ]);
         }
-    }
+    }*/
 }

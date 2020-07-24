@@ -78,7 +78,7 @@ class Crud
         return self::execute($query, $bindValues, "Updated data successfully", $data);
     }
     
-    protected function updateRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null)
+    /*protected function updateRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null)
     {        
         $this->table = $tableOwner.'_has_'.$tableIsPartOf;
         
@@ -88,7 +88,7 @@ class Crud
         $where = "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf";
         
         return $this->update($data, $where);
-    }
+    }*/
     
     // DELETE
     protected function erase(string $where, $limit = null): array 

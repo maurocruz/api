@@ -6,9 +6,7 @@ use Plinct\Api\Server\Crud;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 abstract class TypeAbstract extends Crud
-{
-    protected $request;
-    
+{    
     protected $table;
     
     protected $properties = [];
@@ -16,11 +14,6 @@ abstract class TypeAbstract extends Crud
     protected $withTypes = [];
 
     use SchemaTrait;
-
-    public function __construct(Request $request = null)
-    {
-        $this->request = $request;
-    }
     
     /**
      * GET
@@ -120,16 +113,7 @@ abstract class TypeAbstract extends Crud
      * @return array
      */
     public function post(array $params): array 
-    {
-        // CREATE TABLE SQL IF NOT EXISTS
-        if ($this->request) {        
-            $action = $this->request->getParsedBody()['action'] ?? null;
-
-            if ($action == 'create') {            
-                return $this->createSqlTable();                
-            }
-        }
-        
+    {        
         $message = parent::created($params);
         
         return [ "id" => parent::lastInsertId() ];
