@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `organization` (
   INDEX `fk_Organization_place2_idx` (`areaServed` ASC),
   CONSTRAINT `fk_Organization_place1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_Organization_place2` FOREIGN KEY (`areaServed`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Organization_postalAddres1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `fk_Organization_postalAddres1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
 --
