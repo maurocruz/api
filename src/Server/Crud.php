@@ -99,9 +99,12 @@ class Crud
         $query .= ";";
         
         $run = PDOConnect::run($query);
-        
+                
         if (empty($run)) {
             return [ "message" => "Deleted successfully" ];
+            
+        } else {
+            return [ "message" => "unsuccess delete" ];
         }
     }
     
