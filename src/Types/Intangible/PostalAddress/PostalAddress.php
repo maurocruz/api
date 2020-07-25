@@ -46,7 +46,7 @@ class PostalAddress extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function put(array $params = null): array 
+    public function put(array $params): array 
     {
         return parent::put($params);
     }
