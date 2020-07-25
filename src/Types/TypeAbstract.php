@@ -11,7 +11,7 @@ abstract class TypeAbstract extends Crud
     
     protected $properties = [];
     
-    protected $withTypes = [];
+    protected $hasTypes = [];
 
     use SchemaTrait;
     
@@ -250,5 +250,11 @@ abstract class TypeAbstract extends Crud
         } else {
             return [ "message" => "Sql table for ".$type." not created!" ];
         }
+    }
+        
+    
+    public function getHasTypes()
+    {
+        return $this->hasTypes;
     }
 }
