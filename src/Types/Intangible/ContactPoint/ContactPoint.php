@@ -54,7 +54,7 @@ class ContactPoint extends TypeAbstract implements TypeInterface
      */
     public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     /**
