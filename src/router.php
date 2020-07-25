@@ -191,17 +191,19 @@ return function(App $slimApp)
         $params['id'] = $args['id'] ?? $params['id'] ?? null;
         $type = $args['type'];
         
-        if (!$params['id']) {
+        if ($request->getAttribute("userAuth") === true) {
+            if (!$params['id']) {
             $data = [ "message" => "missing data"];
             
-        } elseif ($request->getAttribute("userAuth") === true) {
-            
-            PDOConnect::reconnectToAdmin();
-                        
-            $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
-            
-            $data = (new $classname())->delete($params);
-            
+            } else {
+                PDOConnect::reconnectToAdmin();
+
+                $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
+
+                $data = (new $classname())->delete($params);
+            }            
+        } else {            
+            $data = null;
         }
         
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
