@@ -44,7 +44,7 @@ class Crud
     }
     
     // CREATE RELATIONSHIP
-    protected function createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null) 
+    /*protected function createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null) 
     {        
         $this->table = $tableOwner.'_has_'.$tableIsPartOf;
         
@@ -56,7 +56,7 @@ class Crud
         $dataFinal = $data ? array_merge($dataIds, $data) : $dataIds;
         
         return $this->created($dataFinal);
-    }
+    }*/
     
 
     // UPDATE
