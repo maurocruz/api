@@ -18,6 +18,8 @@ class Relationship extends Crud
     
     protected $params;
     
+    protected $table;
+    
     protected $type;
     
     protected $hasTypes;
@@ -33,7 +35,7 @@ class Relationship extends Crud
         
         $this->idHasPart = $params['idHasPart'] ?? null;
         
-        $this->tableIsPartOf = $params['tableIsPartOf'] ?? null;
+        $this->tableIsPartOf = $params['tableIsPartOf'] ?? $this->table;
         
         $this->idIsPartOf = $params['idIsPartOf'] ?? null;
                 
@@ -120,38 +122,4 @@ class Relationship extends Crud
         
         return PDOConnect::run($query);
     }
-    
-    /*public function putRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf) 
-    { 
-        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
-        
-        $idOwnerName = 'id'.$tableOwner;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf");
-        
-        if ($ifExists[0]['q'] == '0') {
-            return parent::created([ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ]);
-            
-        } else {
-            return [ "messagem" => "Record relationship $tableIsPartOf already exists!" ];
-        }
-    }
-    
-    public function deleteRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf)
-    {   
-        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
-        
-        $idOwnerName = 'id'.$tableOwner;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $ifExists = parent::read("COUNT(*) as q", "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf");
-                
-        if (empty($ifExists)) {
-            return [ "messagem" => "Relationship $tableIsPartOf doesn't exists!" ];
-            
-        } else {
-            return parent::erase([ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ]);
-        }
-    }*/
 }
