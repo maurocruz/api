@@ -2,9 +2,10 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Server\Entity;
 use Plinct\Api\Auth\SessionUser;
 
-class User extends TypeAbstract implements TypeInterface
+class User extends Entity implements TypeInterface
 {
     protected $table = "user";
     
