@@ -5,7 +5,7 @@ namespace Plinct\Api\Server;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableOwner", "idOwner" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "allDetails" ];
         
     // conditions sql
     private $fields = "*";
@@ -23,8 +23,8 @@ class FilterGet
     public function __construct($queryParams, $table, $properties) 
     {        
         $this->table = $table;
-        
-        $this->properties = $properties;
+                
+        $this->properties = isset($queryParams['allDetails']) ? ["*"] : $properties;
         
         if (!empty($queryParams)) {
             $this->setQueries($queryParams);
@@ -61,16 +61,14 @@ class FilterGet
 
             }
             
-            if (stripos($key, "id") !== false) {
+            if ($key == "id") {
                 $whereArray[] = "`$idname`=$value";
             }
             
             if (stripos($key, "where") !== false) {
                 $whereArray[] = "$value";
             }
-            
-            
-        }                
+        }
         
         // WHERE
         $this->where = isset($whereArray) ? implode(" AND ", $whereArray) : null;
