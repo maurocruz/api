@@ -99,6 +99,8 @@ abstract class Entity extends Relationship
      */
     public function delete(array $params): array
     {
+        $params = array_filter($params);
+        
         $filter = new FilterGet($params, $this->table, $this->properties); 
         
         $this->properties = $filter->getProperties();
