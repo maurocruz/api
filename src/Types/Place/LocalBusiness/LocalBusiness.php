@@ -4,7 +4,9 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Maintenance;
 
-class LocalBusiness extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class LocalBusiness extends Entity implements TypeInterface
 {
     protected $table = "localBusiness";
     

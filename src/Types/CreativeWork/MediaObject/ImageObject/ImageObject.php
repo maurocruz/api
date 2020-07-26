@@ -2,9 +2,10 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Server\Entity;
 use Plinct\Tool\Thumbnail;
 
-class ImageObject extends TypeAbstract implements TypeInterface
+class ImageObject extends Entity implements TypeInterface
 {
     protected $table = "imageObject";
     
@@ -73,7 +74,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
         return parent::post($params);
     }
     
-    public function postRelationship(array $params) 
+    /*public function postRelationship(array $params) 
     {
         $params['tableIsPartOf'] = $this->table;
         $params['idIsPartOf'] = $params['idimageObject'];
@@ -103,7 +104,7 @@ class ImageObject extends TypeAbstract implements TypeInterface
             // insert relationship
             return parent::createdRelationship($tableOwner, $idOwner, $this->table, $idimageObject);
         }
-    }
+    }*/
     
     /**
      * PUT
@@ -127,10 +128,10 @@ class ImageObject extends TypeAbstract implements TypeInterface
         return parent::delete($params);
     }
     
-    public function deleteRelationship($params)
+    /*public function deleteRelationship($params)
     {
         return parent::eraseRelationship($params['tableOwner'], $params['idOwner'], $this->table, $params['idimageObject']);
-    }
+    }*/
     
     /**
      * CREATE SQL

@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
-class Book extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class Book extends Entity implements TypeInterface
 {
     protected $table = "book";
     

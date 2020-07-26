@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
-class Taxon extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class Taxon extends Entity implements TypeInterface
 {    
     protected $table = "taxon";
     

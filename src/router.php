@@ -139,11 +139,13 @@ return function(App $slimApp)
             unset($params['status']);
             $data = (new \Plinct\Api\Type\User($request))->post($params);
             
-        } 
+        } else {
+            $data = null;
+        }
         
-        $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        $data ? $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
         
-        $response = $response->withHeader("Content-type", "application/json");
+        //$response = $response->withHeader("Content-type", "application/json");
         
         return $response;
         

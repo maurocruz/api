@@ -3,9 +3,8 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Crud;
-use Psr\Http\Message\ServerRequestInterface as Request;
 
-abstract class TypeAbstract extends Crud
+abstract class TypeAbstractDEPRECATED extends Crud
 {    
     protected $table;
     
@@ -13,7 +12,7 @@ abstract class TypeAbstract extends Crud
     
     protected $hasTypes = [];
 
-    use SchemaTrait;
+    //use SchemaTrait;
     
     /**
      * GET
@@ -115,6 +114,10 @@ abstract class TypeAbstract extends Crud
     public function post(array $params): array 
     {        
         $message = parent::created($params);
+        
+        $lastId = 
+        
+        var_dump($message);
         
         return [ "id" => parent::lastInsertId() ];
     }

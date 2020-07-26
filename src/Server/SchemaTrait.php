@@ -1,6 +1,6 @@
 <?php
 
-namespace Plinct\Api\Type;
+namespace Plinct\Api\Server;
 
 trait SchemaTrait 
 {
@@ -100,7 +100,7 @@ trait SchemaTrait
                     
                     // set relational object type
                     $type = $this->hasTypes[$valueProperty];                    
-                    $typeObjectName = __NAMESPACE__.'\\'.$type;  
+                    $typeObjectName = "\\Plinct\\Api\\Type\\".$type;  
                     
                     if (class_exists($typeObjectName)) {
                         $typeObject = new $typeObjectName();
@@ -118,7 +118,7 @@ trait SchemaTrait
                         }
                         // one to many
                         else {
-                            $rel = (new \Plinct\Api\Server\Relationships())->getRelationship($this->table, $id, lcfirst($type));
+                            $rel = (new \Plinct\Api\Server\Relationship())->getRelationship($this->table, $id, lcfirst($type));
                             
                             foreach ($rel as $valueRel) {
                                $data[] = $typeObject->schema($valueRel);                                

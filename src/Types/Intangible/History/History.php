@@ -2,10 +2,11 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Server\Entity;
 use Plinct\Api\Auth\SessionUser;
 use Plinct\Api\Server\Relationships;
 
-class History extends TypeAbstract implements TypeInterface
+class History extends Entity implements TypeInterface
 {
     protected $table = "history";
     

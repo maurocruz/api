@@ -20,7 +20,7 @@ class Crud
         $query .= $offset ? " OFFSET $offset" : null;
         $query .= ";";
         
-        return $this->getQuery($query, $args);
+        return PDOConnect::run($query, $args);
     }
     
     // CREATED
@@ -41,23 +41,7 @@ class Crud
         $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
         
         return self::execute($query, $bindValues, "Record in $this->table created successfully", $data);
-    }
-    
-    // CREATE RELATIONSHIP
-    /*protected function createdRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null) 
-    {        
-        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
-        
-        $idOwnerName = 'id'.$tableOwner;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $dataIds = [ $idOwnerName => $idOwner, $idIsPartOfName => $idIsPartOf ];
-        
-        $dataFinal = $data ? array_merge($dataIds, $data) : $dataIds;
-        
-        return $this->created($dataFinal);
-    }*/
-    
+    }    
 
     // UPDATE
     protected function update(array $data, string $where) 
@@ -78,18 +62,6 @@ class Crud
         return self::execute($query, $bindValues, "Updated data successfully", $data);
     }
     
-    /*protected function updateRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf, $data = null)
-    {        
-        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
-        
-        $idOwnerName = 'id'.$tableOwner;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $where = "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf";
-        
-        return $this->update($data, $where);
-    }*/
-    
     // DELETE
     protected function erase(string $where, $limit = null): array 
     {    
@@ -106,18 +78,6 @@ class Crud
         } else {
             return [ "message" => "unsuccess delete" ];
         }
-    }
-    
-    protected function eraseRelationship($tableOwner, $idOwner, $tableIsPartOf, $idIsPartOf)
-    {            
-        $this->table = $tableOwner.'_has_'.$tableIsPartOf;
-        
-        $idOwnerName = 'id'.$tableOwner;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $where = "`$idOwnerName`=$idOwner AND `$idIsPartOfName`=$idIsPartOf";
-        
-        return $this->erase($where);
     }
         
     private static function execute($query, $bindValues, $message, $data)

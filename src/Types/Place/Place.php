@@ -3,8 +3,9 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Maintenance;
+use Plinct\Api\Server\Entity;
 
-class Place extends TypeAbstract implements TypeInterface
+class Place extends Entity implements TypeInterface
 {
     protected $table = "place";
     

@@ -2,13 +2,15 @@
 
 namespace Plinct\Api\Type;
 
-class PostalAddress extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class PostalAddress extends Entity implements TypeInterface
 {
     protected $table = 'postalAddress';
     
     protected $type = 'PostalAddress';
     
-    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ]; 
+    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ];
     
     /**
      * GET
@@ -28,16 +30,6 @@ class PostalAddress extends TypeAbstract implements TypeInterface
     public function post(array $params): array 
     {
         return parent::post($params);
-    }
-    
-    public function postRelationship(array $params) 
-    {
-        return parent::postRelationship($params);
-    }
-    
-    public function newAndPostRelationship(array $params) 
-    {
-        return parent::newAndPostRelationship($params);
     }
     
     /**

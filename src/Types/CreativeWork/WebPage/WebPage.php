@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
-class WebPage extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class WebPage extends Entity implements TypeInterface
 {
     protected $table = "webPage";
     

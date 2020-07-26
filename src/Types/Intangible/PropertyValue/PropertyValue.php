@@ -2,8 +2,9 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Server\Entity;
 
-class PropertyValue extends TypeAbstract implements TypeInterface
+class PropertyValue extends Entity implements TypeInterface
 {
     protected $table = "attributes";
     

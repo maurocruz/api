@@ -1,6 +1,6 @@
 <?php
 
-namespace Plinct\Api\Type;
+namespace Plinct\Api\Server;
 
 class FilterGet 
 {   

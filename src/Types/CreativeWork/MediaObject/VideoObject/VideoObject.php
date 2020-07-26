@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
-class VideoObject extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class VideoObject extends Entity implements TypeInterface
 {
     protected $table = "videoObject";
     
