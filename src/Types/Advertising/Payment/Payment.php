@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
-class Payment extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+
+class Payment extends Entity implements TypeInterface
 {
     protected $table = "payment";
     
@@ -40,12 +42,12 @@ class Payment extends TypeAbstract implements TypeInterface
      * @param type $params
      * @return array
      */
-    public function put(string $id, $params): array 
+    public function put($params): array 
     {   
         $params = self::setHistory("UPDATE", $params);
         unset($params['idadvertising']);
         
-        return parent::put($id, $params);
+        return parent::put($params);
     }
     
     /**
