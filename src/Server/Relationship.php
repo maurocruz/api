@@ -67,16 +67,33 @@ class Relationship extends Crud
             parent::update([ $propertyIsPartOf => $this->idIsPartOf ], "`id{$this->tableHasPart}`={$this->idHasPart}");
         } 
         
-        // one to many relationship type
+        // with manys relationship type
         else {             
             $this->table = $this->tableHasPart.'_has_'.$this->tableIsPartOf;
 
+            $ifTableExists = PDOConnect::run("SHOW tables like '".$this->table."';");
+            
             $idHasPartName = 'id'.$this->tableHasPart;
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
+                
+            // one to many
+            if (empty($ifTableExists)) {
+                $this->table = $this->tableIsPartOf;
+                
+                $params[$idHasPartName] = $params['idHasPart'];
+                
+                unset($params['tableHasPart']);
+                unset($params['idHasPart']);
+                
+                return parent::created($params);
+                
+            } 
+            // many to many
+            else {
+                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];            
 
-            $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];            
-
-            return parent::created($paramCreate);
+                return parent::created($paramCreate);
+            }
         }
         
         return $this->params;
@@ -92,7 +109,7 @@ class Relationship extends Crud
     {        
         // check which properties exists in table
         $columns = parent::getQuery("SHOW COLUMNS FROM $this->tableHasPart");
-        
+                
         // fields columns bd        
         foreach ($columns as $valueColumns) {
             $propColumns[] = $valueColumns['Field'];
