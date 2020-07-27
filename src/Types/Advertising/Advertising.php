@@ -13,7 +13,7 @@ class Advertising extends Entity implements TypeInterface
     
     protected $properties = [ "customer","tipo","valor","data","vencimento","status","tags" ];
     
-    protected $hasTypes = [ "customer" => "LocalBusiness", "history" => "History" ];
+    protected $hasTypes = [ "customer" => "LocalBusiness", "history" => "History", "payment" => "Payment" ];
 
     public function get(array $params): array 
     {
