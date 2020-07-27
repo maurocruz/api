@@ -18,8 +18,12 @@ abstract class Entity extends Relationship
      * @return array
      */
     public function get(array $params): array 
-    {           
-        $data = $this->getData($params);
+    {
+        if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
+            $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+        } else {
+            $data = $this->getData($params);
+        }
         
         return $this->buildSchema($params, $data);
     }
