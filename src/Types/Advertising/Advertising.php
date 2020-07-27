@@ -2,7 +2,10 @@
 
 namespace Plinct\Api\Type;
 
-class Advertising extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+use Plinct\Api\Auth\SessionUser;
+
+class Advertising extends Entity implements TypeInterface
 {
     protected $table = "advertising";
     
@@ -22,18 +25,21 @@ class Advertising extends TypeAbstract implements TypeInterface
         return parent::post($params);
     }
     
-    public function put(string $id, $params): array 
+    public function put($params): array 
     {
         $summary = filter_input(INPUT_GET, "summaryHistory");
         
         if ($summary) {
             $paramsHistory["action"] = "UPDATE";
             $paramsHistory["summary"] = $summary == "" ? "ND" : $summary;
+            $paramsHistory['tableHasPart'] = "advertising";
+            $paramsHistory['idHasPart'] = $params['id'];
+            $paramsHistory['user'] = SessionUser::getName();
             
-            (new History())->setHistory("advertising", $id, $paramsHistory);
+            (new History())->post($paramsHistory);
         }
         
-        return parent::put($id, $params);
+        return parent::put($params);
     }
     
     public function delete(array $params): array 
