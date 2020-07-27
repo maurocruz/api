@@ -5,7 +5,7 @@ namespace Plinct\Api\Server;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "allDetails" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "allDetails", "tableHasPart", "idHasPart" ];
         
     // conditions sql
     private $fields = "*";
