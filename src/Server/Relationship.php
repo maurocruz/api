@@ -108,13 +108,13 @@ class Relationship extends Crud
         
     }
     
-    public function getRelationship($tableOwner, $idOwner, $tableIsPartOf) 
+    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf) 
     {
-        $tableRel = $tableOwner.'_has_'.$tableIsPartOf;
-        $idOwnerName = 'id'.$tableOwner;
+        $tableRel = $tableHasPart.'_has_'.$tableIsPartOf;
+        $idHasPartName = 'id'.$tableHasPart;
         $idIsPartOfName = 'id'.$tableIsPartOf;
         
-        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idOwnerName=$idOwner";
+        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idHasPartName=$idHasPart";
         
         $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : null;
         
