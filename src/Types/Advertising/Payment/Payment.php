@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Auth\SessionUser;
 
 class Payment extends Entity implements TypeInterface
 {
@@ -79,13 +80,14 @@ class Payment extends Entity implements TypeInterface
      * @return type
      */
     private static function setHistory($action, $params) 
-    {    
-        $idadvertising = $params['idadvertising'];
-                        
+    {                        
         $paramsHistory["action"] = $action;
         $paramsHistory["summary"] = "Valor: ".number_format($params['valorparc'], 2, ",", ".")." / vencimento: ".$params['vencimentoparc']." / quitado: ".$params['quitado'];
+        $paramsHistory['tableHasPart'] = $params['tableHasPart'];
+        $paramsHistory['idHasPart'] = $params['idHasPart'];
+        $paramsHistory['user'] = SessionUser::getName();
         
-        (new History())->setHistory("advertising", $idadvertising, $paramsHistory);
+        (new History())->post($paramsHistory);
         
         return $params;
     }
