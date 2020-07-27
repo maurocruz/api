@@ -17,11 +17,7 @@ class History extends Entity implements TypeInterface
     protected $withTypes = [  ];
 
     public function get(array $params): array 
-    {        
-         if (isset($params['tableOwner']) && isset($params['idOwner'])) {
-             return parent::getWithPartOf($params);
-         }
-        
+    {   
         return parent::get($params);
     }
     
@@ -43,14 +39,5 @@ class History extends Entity implements TypeInterface
     public function createSqlTable($type = null) 
     {        
         return parent::createSqlTable("History");
-    }
-    
-    public function setHistory($tableOwner, $idOwner, $paramsHistory)
-    {     
-        $paramsHistory['user'] = SessionUser::getName();
-            
-        $idhistory = (new History())->post($paramsHistory);            
-
-        (new Relationships())->putRelationship($tableOwner, $idOwner, "history", $idhistory['id']);
     }
 }
