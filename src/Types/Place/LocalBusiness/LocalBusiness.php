@@ -12,7 +12,7 @@ class LocalBusiness extends Entity implements TypeInterface
     
     protected $type = "LocalBusiness";
     
-    protected $properties = [ "name", "location", "organization" ];
+    protected $properties = [ "*" ];
     
     protected $hasTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "person" => "Person", "image" => "ImageObject" ];
 
