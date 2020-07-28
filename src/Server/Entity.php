@@ -20,7 +20,8 @@ abstract class Entity extends Relationship
     public function get(array $params): array 
     {
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
-            $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+            $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
+            
         } else {
             $data = $this->getData($params);
         }
@@ -87,7 +88,12 @@ abstract class Entity extends Relationship
      * @return array
      */
     public function put(array $params): array
-    {                
+    {  
+        // if relationship
+        if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
+            return parent::putRelationship($params);
+        } 
+        
         $idname = "id".$this->table;        
         $idvalue = $params['id'];
         unset($params['id']);
