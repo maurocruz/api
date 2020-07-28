@@ -16,6 +16,8 @@ class Relationship extends Crud
     
     protected $idIsPartOf;
     
+    protected $table_has_table;
+    
     protected $params;
     
     protected $table;
@@ -31,23 +33,45 @@ class Relationship extends Crud
 
             $classname = "\\Plinct\\Api\\Type\\". ucfirst($params['tableHasPart']);
             $this->tableHasPartObject = new $classname();
+        
+            $this->idHasPart = $params['idHasPart'] ?? null;
+
+            $this->tableIsPartOf = $params['tableIsPartOf'] ?? $this->table;
+
+            $this->idIsPartOf = $params['idIsPartOf'] ?? $params['id'] ?? null;
+
+            $this->table_has_table = $this->tableHasPart.'_has_'.$this->tableIsPartOf;
+
+            unset($params['tableHasPart']);
+
+            unset($params['idHasPart']);
+
+            unset($params['tableIsPartOf']);
+
+            unset($params['idIsPartOf']);
+            
+            unset($params['id']);
         }
-        
-        $this->idHasPart = $params['idHasPart'] ?? null;
-        
-        $this->tableIsPartOf = $params['tableIsPartOf'] ?? $this->table;
-        
-        $this->idIsPartOf = $params['idIsPartOf'] ?? null;
-                
-        unset($params['tableHasPart']);
-        
-        unset($params['idHasPart']);
-        
-        unset($params['tableIsPartOf']);
-        
-        unset($params['idIsPartOf']);
-        
         $this->params = $params;
+    }
+    
+    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null)
+    {        
+        $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
+        
+        $orderBy = $filterget->orderBy();
+        
+        $tableRel = $tableHasPart.'_has_'.$tableIsPartOf;
+        $idHasPartName = 'id'.$tableHasPart;
+        $idIsPartOfName = 'id'.$tableIsPartOf;
+        
+        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idHasPartName=$idHasPart";
+        
+        $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
+        
+        $query .= ";";
+        
+        return PDOConnect::run($query);
     }
     
     public function postRelationship(array $params): array
@@ -55,8 +79,12 @@ class Relationship extends Crud
         $this->setVars($params);
                 
         // created is part of
-        parent::created($this->params);
-        $this->idIsPartOf = parent::lastInsertId();
+        if ($params['id']) {
+            $this->idIsPartOf = $params['id'];
+        } else {
+            parent::created($this->params);
+            $this->idIsPartOf = parent::lastInsertId();
+        }
                 
         // one to one relationship type 
         $propertyIsPartOf = $this->propertyIsPartOf();
@@ -69,7 +97,7 @@ class Relationship extends Crud
         
         // with manys relationship type
         else {             
-            $this->table = $this->tableHasPart.'_has_'.$this->tableIsPartOf;
+            $this->table = $this->table_has_table;
 
             $ifTableExists = PDOConnect::run("SHOW tables like '".$this->table."';");
             
@@ -99,6 +127,21 @@ class Relationship extends Crud
         return $this->params;
     }
     
+    public function putRelationship($params) 
+    {               
+        $this->setVars($params);
+        
+        $this->table = $this->table_has_table;
+        
+        $idHasPartName = 'id'.$this->tableHasPart;
+        $idIsPartOfName = 'id'.$this->tableIsPartOf;
+        
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";            
+        
+        return parent::update($this->params, $where);
+    }
+
+
     public function getHasTypes()
     {
         return $this->hasTypes;
@@ -125,18 +168,4 @@ class Relationship extends Crud
         
     }
     
-    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf) 
-    {
-        $tableRel = $tableHasPart.'_has_'.$tableIsPartOf;
-        $idHasPartName = 'id'.$tableHasPart;
-        $idIsPartOfName = 'id'.$tableIsPartOf;
-        
-        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idHasPartName=$idHasPart";
-        
-        $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : null;
-        
-        $query .= ";";
-        
-        return PDOConnect::run($query);
-    }
 }
