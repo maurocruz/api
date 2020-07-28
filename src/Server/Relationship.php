@@ -79,7 +79,7 @@ class Relationship extends Crud
         $this->setVars($params);
                 
         // created is part of
-        if ($params['id']) {
+        if (isset($params['id'])) {
             $this->idIsPartOf = $params['id'];
         } else {
             parent::created($this->params);

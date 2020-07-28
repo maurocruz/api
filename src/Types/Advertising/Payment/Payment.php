@@ -46,6 +46,8 @@ class Payment extends Entity implements TypeInterface
     public function put($params): array 
     {   
         $params = self::setHistory("UPDATE", $params);
+        unset($params['tableHasPart']);
+        unset($params['idHasPart']);
         unset($params['idadvertising']);
         
         return parent::put($params);
