@@ -52,7 +52,7 @@ class FilterGet
             
             // WHERE
               // like
-            $like = stristr($key,"like", true);
+            $like = stristr($key,"like", true) !== false ? stristr($key,"like", true) : ($key == "q" || $key == "search" ? "name" : null);
             if ($like) {
                 $whereArray[] = "`$like` LIKE '%$value%'";
 
