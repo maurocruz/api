@@ -88,8 +88,7 @@ return function(App $slimApp)
 
         $response = $response->withHeader('Access-Control-Allow-Origin', '*');
 
-        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));  
-              
+        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));              
         
         return $response;
     });
@@ -143,9 +142,9 @@ return function(App $slimApp)
             $data = null;
         }
         
-        $data ? $response->getBody()->write(json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
+        $data ? $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
         
-        //$response = $response->withHeader("Content-type", "application/json");
+        $response = $response->withHeader("Content-type", "application/json");
         
         return $response;
         
