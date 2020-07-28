@@ -19,10 +19,6 @@ class ImageObject extends Entity implements TypeInterface
      */
     public function get(array $params): array
     {
-        if (isset($params['tableOwner'])) {             
-            return parent::getWithPartOf($params);
-        }
-         
         $data = parent::getData($params);
                 
         // EXTRA PROPERTIES
@@ -74,38 +70,6 @@ class ImageObject extends Entity implements TypeInterface
         return parent::post($params);
     }
     
-    /*public function postRelationship(array $params) 
-    {
-        $params['tableIsPartOf'] = $this->table;
-        $params['idIsPartOf'] = $params['idimageObject'];
-        unset($params['idimageObject']);
-                
-        return parent::postRelationship($params);
-    }
-    
-    public function newAndPostRelationship($params) 
-    {             
-        $uploadedFiles = $_FILES['imageupload'];
-                                        
-        if ($uploadedFiles['size'] !== 0) {
-            $tableOwner = $params['tableOwner'];
-            unset($params['tableOwner']);
-            $idOwner = $params['idOwner'];
-            unset($params['idOwner']);        
-
-            // upload image        
-            $contentUrl = self::uploadImage($uploadedFiles, $params['location']);
-
-            // insert data image in imageObject table
-            $params['contentSize'] = $uploadedFiles['size'];
-            $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . $contentUrl;
-            $idimageObject = $this->post($params)['id'];
-
-            // insert relationship
-            return parent::createdRelationship($tableOwner, $idOwner, $this->table, $idimageObject);
-        }
-    }*/
-    
     /**
      * PUT
      * @param string $id
@@ -128,11 +92,6 @@ class ImageObject extends Entity implements TypeInterface
         return parent::delete($params);
     }
     
-    /*public function deleteRelationship($params)
-    {
-        return parent::eraseRelationship($params['tableOwner'], $params['idOwner'], $this->table, $params['idimageObject']);
-    }*/
-    
     /**
      * CREATE SQL
      * @param type $type
@@ -142,8 +101,7 @@ class ImageObject extends Entity implements TypeInterface
     {
         $message[] =  parent::createSqlTable("ImageObject");
         return $message;
-    }
-    
+    }    
     
     public static function getRepresentativeImageOfPage($data, $mode = "string") 
     {
