@@ -21,29 +21,23 @@ class Advertising extends Entity implements TypeInterface
     }
     
     public function post(array $params): array 
-    {
-        return parent::post($params);
+    {        
+        $data = parent::post($params);
+        
+        (new History())->postHistory("CREATED", _("Create new advertising"), "advertising", $data['id']);
+        
+        return $data;
     }
     
     public function put($params): array 
     {
-        $summary = filter_input(INPUT_GET, "summaryHistory");
-        
-        if ($summary) {
-            $paramsHistory["action"] = "UPDATE";
-            $paramsHistory["summary"] = $summary == "" ? "ND" : $summary;
-            $paramsHistory['tableHasPart'] = "advertising";
-            $paramsHistory['idHasPart'] = $params['id'];
-            $paramsHistory['user'] = SessionUser::getName();
-            
-            (new History())->post($paramsHistory);
-        }
+        (new History())->postHistory("UPDATE", filter_input(INPUT_GET, "summaryHistory"), "advertising", $params['id']);
         
         return parent::put($params);
     }
     
     public function delete(array $params): array 
-    {
+    {        
         return parent::delete($params);
     }
     
