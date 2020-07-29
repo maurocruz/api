@@ -33,6 +33,8 @@ class LocalBusiness extends Entity implements TypeInterface
      */
     public function post(array $params): array 
     {
+        $params['dateCreated'] = date("Y-m-d");
+        
         return parent::post($params);
     }
     
