@@ -65,9 +65,6 @@ trait SchemaTrait
     private function schema(array $value) 
     {
         $id = $value['id'.$this->table];
-        $host = "//".$_SERVER['HTTP_HOST'];
-        $urlApi = $host.$_SERVER['REQUEST_URI'];
-        $url = $urlApi."?id=".$id;
         
         $schema = [
             "@context" => "https://schema.org",
@@ -131,16 +128,6 @@ trait SchemaTrait
                 }
             }
         }
-        
-        // url
-        if (array_key_exists('url', $schema)) {
-            $schema['url'] = 
-                $schema['url'] == null ? $url 
-                    : ( 
-                        strpos($schema['url'], "http") !== false || strpos($schema['url'], $_SERVER['HTTP_HOST']) !== false ? $schema['url'] 
-                                : "//".$_SERVER['HTTP_HOST'].$schema['url'] 
-                    );
-        } 
         
         return $schema;
     }
