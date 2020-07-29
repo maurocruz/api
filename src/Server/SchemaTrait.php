@@ -56,7 +56,6 @@ trait SchemaTrait
         return $itemList;
     }
 
-
     /**
      * SCHEMA
      * @param array $value
@@ -84,8 +83,7 @@ trait SchemaTrait
                 if ($valueProperty == "*") {
                     foreach ($value as $key => $valueValue) {
                          $schema[$key] = $valueValue;
-                    }
-                    
+                    }                    
                 } 
                 
                 if (array_key_exists($valueProperty, $value)) {                    
@@ -111,8 +109,8 @@ trait SchemaTrait
                             } else {
                                 $data = null;
                             }
-
                         }
+                        
                         // one to many
                         else {
                             $rel = (new \Plinct\Api\Server\Relationship())->getRelationship($this->table, $id, lcfirst($type));
@@ -120,8 +118,7 @@ trait SchemaTrait
                             foreach ($rel as $valueRel) {
                                $data[] = $typeObject->schema($valueRel);                                
                             }
-                        }
-                        
+                        }                        
                     }
                     
                     $schema[$valueProperty] = $data;
