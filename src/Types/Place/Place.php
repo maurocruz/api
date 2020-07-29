@@ -32,6 +32,8 @@ class Place extends Entity implements TypeInterface
      */
     public function post(array $params): array 
     {
+        $params['dateCreated'] = date("Y-m-d H:i:s");
+        
         return parent::post($params);
     }
     
