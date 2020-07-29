@@ -8,18 +8,28 @@ use Plinct\Api\Server\Maintenance;
 class Person extends Entity implements TypeInterface
 {
     protected $table = "person";
+    
     protected $type = "Person";
     
     protected $properties = [ "*" ];
     
-    protected $propertiesHasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint" ];
+    protected $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint" ];
 
-
+    /**
+     * GET
+     * @param array $params
+     * @return array
+     */
     public function get(array $params): array 
     {
         return parent::get($params);
     }
     
+    /**
+     * POST
+     * @param array $params
+     * @return array
+     */
     public function post(array $params): array 
     {
         if(isset($params['givenName']) && isset($params['familyName'])) {
@@ -43,7 +53,11 @@ class Person extends Entity implements TypeInterface
         return parent::put($params);
     }  
     
-    
+    /**
+     * DELETE
+     * @param array $params
+     * @return array
+     */
     public function delete(array $params): array 
     {
         return parent::delete($params);        
@@ -58,10 +72,8 @@ class Person extends Entity implements TypeInterface
     {         
         $maintenance = new Maintenance($this->request);
         
-        $message[] = $maintenance->createSqlTable("PostalAddress");
-        
-        $message[] = $maintenance->createSqlTable("ContactPoint"); 
-        
+        $message[] = $maintenance->createSqlTable("PostalAddress");        
+        $message[] = $maintenance->createSqlTable("ContactPoint");         
         $message[] = $maintenance->createSqlTable("ImageObject");
         
         $message[] = parent::createSqlTable("Person");
