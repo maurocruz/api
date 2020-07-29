@@ -10,7 +10,7 @@ class WebPage extends Entity implements TypeInterface
     
     protected $type = "WebPage";
     
-    protected $properties = [ "name", "url", "description" ];
+    protected $properties = [ "*" ];
 
     /**
      * GET
@@ -51,7 +51,7 @@ class WebPage extends Entity implements TypeInterface
      */
     public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     /**
