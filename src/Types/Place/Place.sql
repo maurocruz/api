@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS `place` (
   `longitude` FLOAT(10,6) NULL DEFAULT NULL,
   `elevation` VARCHAR(45) NULL,
   `address` INT(10) NULL DEFAULT NULL,
-  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `dateCreated` timestamp NULL DEFAULT NULL,
+  `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idplace`),
   INDEX `fk_place_1_idx` (`address` ASC),
   CONSTRAINT `fk_place_1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE CASCADE ON UPDATE NO ACTION
