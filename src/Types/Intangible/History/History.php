@@ -40,4 +40,18 @@ class History extends Entity implements TypeInterface
     {        
         return parent::createSqlTable("History");
     }
+           
+    /**
+     * SET Params
+     */
+    public function postHistory($action, $summary, $tableHasPart, $idHasPart) 
+    {                        
+        $paramsHistory["action"] = $action;
+        $paramsHistory["summary"] = $summary;
+        $paramsHistory['tableHasPart'] = $tableHasPart;
+        $paramsHistory['idHasPart'] = $idHasPart;
+        $paramsHistory['user'] = SessionUser::getName();
+        
+        $this->post($paramsHistory);
+    }
 }
