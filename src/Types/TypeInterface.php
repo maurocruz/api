@@ -2,7 +2,6 @@
 
 namespace Plinct\Api\Type;
 
-
 interface TypeInterface 
 {   
     /**
