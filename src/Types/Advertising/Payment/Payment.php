@@ -59,10 +59,10 @@ class Payment extends Entity implements TypeInterface
      * @return array
      */
     public function delete(array $params): array 
-    {        
+    {
         $params = self::setHistory("DELETE", $params);
         
-        return parent::delete([ "idpayment" => $params['idpayment'] ]);
+        return parent::delete([ "idpayment" => $params['id'] ]);
     }
     
     /**
