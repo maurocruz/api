@@ -112,6 +112,10 @@ abstract class Entity extends Relationship
      */
     public function delete(array $params): array
     {
+        if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
+            return parent::deleteRelationship($params);            
+        }
+                
         $params = array_filter($params);
         
         $filter = new FilterGet($params, $this->table, $this->properties); 
