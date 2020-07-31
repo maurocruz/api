@@ -53,23 +53,6 @@ class Relationship extends Crud
         $this->params = $params;
     }
     
-    private static function getTypeObject($type) 
-    {
-        $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
-        
-        if (class_exists($classname)) {
-            return new $classname();
-            
-        } else {
-            return false;
-        }
-    }
-    
-    private static function table_exists($table)
-    {
-        return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
-    }
-    
     public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null)
     {        
         $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
@@ -92,11 +75,11 @@ class Relationship extends Crud
     public function postRelationship(array $params): array
     {
         $this->setVars($params);
-                
+        
         // created is part of
         if (isset($params['id'])) {
             $this->idIsPartOf = $params['id'];
-        } else {
+        } elseif (isset($this->params['contentUrl'])) {
             parent::created($this->params);
             $this->idIsPartOf = parent::lastInsertId();
         }
@@ -115,8 +98,17 @@ class Relationship extends Crud
             $idHasPartName = 'id'.$this->tableHasPart;
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
                 
-            // one to many
+            // many to many
             if (self::table_exists($this->table_has_table)) {
+                $this->table = $this->table_has_table;
+                
+                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];            
+
+               return parent::created($paramCreate);
+            } 
+            
+            // many to many
+            else {
                 $this->table = $this->tableIsPartOf;
                 
                 $params[$idHasPartName] = $params['idHasPart'];
@@ -125,13 +117,6 @@ class Relationship extends Crud
                 unset($params['idHasPart']);
                 
                 return parent::created($params);
-                
-            } 
-            // many to many
-            else {
-                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];            
-
-                return parent::created($paramCreate);
             }
         }
         
@@ -152,11 +137,42 @@ class Relationship extends Crud
         return parent::update($this->params, $where);
     }
 
+    public function deleteRelationship($params)
+    {      
+        $this->setVars($params);
+        
+        $this->table = $this->table_has_table;
+        
+        $idHasPartName = 'id'.$this->tableHasPart;
+        $idIsPartOfName = 'id'.$this->tableIsPartOf;
+        
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";  
+                
+        return parent::erase($where);
+    }
+    
     public function getHasTypes()
     {
         return $this->hasTypes;
-    }
+    }       
+    
+    private static function getTypeObject($type) 
+    {
+        $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
         
+        if (class_exists($classname)) {
+            return new $classname();
+            
+        } else {
+            return false;
+        }
+    }
+    
+    private static function table_exists($table)
+    {
+        return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
+    }
+    
     private function propertyIsPartOf() 
     {        
         // check which properties exists in table
