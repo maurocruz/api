@@ -11,7 +11,7 @@ class ImageObject extends Entity implements TypeInterface
     
     protected $type = "ImageObject";
     
-    protected $properties = [ "*" ]; 
+    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height" ]; 
 
     /**
      * PUT

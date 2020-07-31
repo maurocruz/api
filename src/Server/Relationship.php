@@ -8,10 +8,8 @@ class Relationship extends Crud
 {
     protected $tableHasPart;
     
-    protected $tableHasPartObject;
-    
     protected $idHasPart;
-    
+        
     protected $tableIsPartOf;
     
     protected $idIsPartOf;
@@ -24,15 +22,14 @@ class Relationship extends Crud
     
     protected $type;
     
+    protected $properties;
+    
     protected $hasTypes;
 
     public function setVars($params) 
     {
         if ($params['tableHasPart']) { 
             $this->tableHasPart = $params['tableHasPart'] ?? null;
-
-            $classname = "\\Plinct\\Api\\Type\\". ucfirst($params['tableHasPart']);
-            $this->tableHasPartObject = new $classname();
         
             $this->idHasPart = $params['idHasPart'] ?? null;
 
@@ -52,7 +49,25 @@ class Relationship extends Crud
             
             unset($params['id']);
         }
+        
         $this->params = $params;
+    }
+    
+    private static function getTypeObject($type) 
+    {
+        $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
+        
+        if (class_exists($classname)) {
+            return new $classname();
+            
+        } else {
+            return false;
+        }
+    }
+    
+    private static function table_exists($table)
+    {
+        return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
     }
     
     public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null)
@@ -96,16 +111,12 @@ class Relationship extends Crud
         } 
         
         // with manys relationship type
-        else {             
-            $this->table = $this->table_has_table;
-
-            $ifTableExists = PDOConnect::run("SHOW tables like '".$this->table."';");
-            
+        else {                         
             $idHasPartName = 'id'.$this->tableHasPart;
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
                 
             // one to many
-            if (empty($ifTableExists)) {
+            if (self::table_exists($this->table_has_table)) {
                 $this->table = $this->tableIsPartOf;
                 
                 $params[$idHasPartName] = $params['idHasPart'];
@@ -141,13 +152,11 @@ class Relationship extends Crud
         return parent::update($this->params, $where);
     }
 
-
     public function getHasTypes()
     {
         return $this->hasTypes;
     }
-    
-    
+        
     private function propertyIsPartOf() 
     {        
         // check which properties exists in table
@@ -159,7 +168,7 @@ class Relationship extends Crud
         }
         
         // has types of table has part
-        $hasTypes = $this->tableHasPartObject->getHasTypes();
+        $hasTypes = (self::getTypeObject($this->tableHasPart))->getHasTypes();
         
         // property is part type 
         $propIsPartType = array_keys($hasTypes, $this->type);
@@ -168,4 +177,47 @@ class Relationship extends Crud
         
     }
     
+    protected function relationshipsInSchema($valueData, $valueProperty) 
+    {
+        $typeIsPartOf = $this->hasTypes[$valueProperty];
+        
+        $this->tableIsPartOf = lcfirst($typeIsPartOf);
+        
+        $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
+        
+        if ($typeIsPartOfObject) {
+                        
+            // one to one
+            if (array_key_exists($valueProperty, $valueData)) {
+                
+                if (is_numeric($this->idHasPart)) {
+                    $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
+                    return $resp[0] ?? null;
+                } else {
+                    return null;
+                }
+            }
+
+            // manys
+            else {
+                $this->table_has_table = $this->tableHasPart."_has_".$this->tableIsPartOf;
+                
+                // many to many
+                if (self::table_exists($this->table_has_table)) {
+                    $rel = $this->getRelationship($this->table, $this->idHasPart, $this->tableIsPartOf);
+
+                    foreach ($rel as $valueRel) {
+                       $data[] = $typeIsPartOfObject->schema($valueRel);                                
+                    }
+                    
+                    return $data ?? null;
+                } 
+                // one to many
+                else {
+                    $idTableHasPartName = "id".$this->tableHasPart;
+                    return $typeIsPartOfObject->get([ $idTableHasPartName => $this->idHasPart ]);
+                }
+            }
+        } 
+    }
 }

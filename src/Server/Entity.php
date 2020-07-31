@@ -19,6 +19,9 @@ abstract class Entity extends Relationship
      */
     public function get(array $params): array 
     {
+        $this->tableHasPart = $this->table;
+        $this->params = $params;
+        
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
             

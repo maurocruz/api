@@ -6,10 +6,13 @@ use Plinct\Api\Server\Entity;
 
 class PropertyValue extends Entity implements TypeInterface
 {
-    protected $table = "attributes";
+    protected $table = "propertyValue";
     
     protected $type = "PropertyValue";
     
+    protected $properties = [ "name", "value" ];
+    
+
     public function get(array $params): array 
     {
         return parent::get($params);

@@ -10,9 +10,9 @@ class WebPageElement extends Entity implements TypeInterface
     
     protected $type = "WebPageElement";
     
-    protected $properties = [ "*" ];
+    protected $properties = [ "name", "text", "position", "image", "identifier" ];
     
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject", "identifier" => "PropertyValue" ];
     
     public function get(array $params): array 
     {

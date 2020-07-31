@@ -2,8 +2,12 @@
 
 namespace Plinct\Api\Server;
 
-trait SchemaTrait 
+trait SchemaTrait
 {
+    protected $tableHasPart;
+        
+    protected $idHasPart;
+    
     protected $table;
     
     protected $type;
@@ -58,19 +62,16 @@ trait SchemaTrait
 
     /**
      * SCHEMA
-     * @param array $value
+     * @param array $valueData
      * @return string
      */
-    private function schema(array $value) 
-    {
-        $id = $value['id'.$this->table];
-        
+    public function schema(array $valueData) 
+    {        
+        $this->idHasPart = $valueData['id'.$this->table];
+                
         $schema = [
             "@context" => "https://schema.org",
-            "@type" => $this->type,
-            "identifier" =>[
-                [ "@type" => "PropertyValue", "name" => "id", "value" => $id ]
-            ]
+            "@type" => $this->type
         ];        
                
         // add properties
@@ -79,52 +80,25 @@ trait SchemaTrait
             foreach ($this->properties as $valueProperty) {
                 $data = null;
                   
-                // added properties on schema array
+                // added properties on schema array if $properties is defined with *
                 if ($valueProperty == "*") {
-                    foreach ($value as $key => $valueValue) {
+                    foreach ($valueData as $key => $valueValue) {
                          $schema[$key] = $valueValue;
                     }                    
                 } 
-                
-                if (array_key_exists($valueProperty, $value)) {                    
-                    $schema[$valueProperty] = $value[$valueProperty];
+                // add properties defined others type $properties
+                if (array_key_exists($valueProperty, $valueData)) {
+                    $schema[$valueProperty] = $valueData[$valueProperty];
                 }
                 
                 // set relationships
-                if (array_key_exists($valueProperty, $this->hasTypes)) {
-                    
-                    // set relational object type
-                    $type = $this->hasTypes[$valueProperty];                    
-                    $typeObjectName = "\\Plinct\\Api\\Type\\".$type;  
-                    
-                    if (class_exists($typeObjectName)) {
-                        $typeObject = new $typeObjectName();
-                        
-                        // one to one
-                        if (array_key_exists($valueProperty, $value)) {
-
-                            if (is_numeric($id)) {
-                                $resp = $typeObject->get([ "id" => $value[$valueProperty] ]);
-                                $data = $resp[0] ?? null;
-                            } else {
-                                $data = null;
-                            }
-                        }
-                        
-                        // one to many
-                        else {
-                            $rel = (new \Plinct\Api\Server\Relationship())->getRelationship($this->table, $id, lcfirst($type));
-                            
-                            foreach ($rel as $valueRel) {
-                               $data[] = $typeObject->schema($valueRel);                                
-                            }
-                        }                        
-                    }
-                    
-                    $schema[$valueProperty] = $data;
+                if (array_key_exists($valueProperty, $this->hasTypes)) {                    
+                    $schema[$valueProperty] = parent::relationshipsInSchema($valueData, $valueProperty);
                 }
             }
         }
+        
+        $schema['identifier'][] = [ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ];
         
         return $schema;
     }

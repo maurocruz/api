@@ -10,7 +10,9 @@ class WebPage extends Entity implements TypeInterface
     
     protected $type = "WebPage";
     
-    protected $properties = [ "*" ];
+    protected $properties = [ "name", "description", "url" ];
+    
+    protected $hasTypes = [ "hasPart" => "WebPageElement" ];
 
     /**
      * GET
