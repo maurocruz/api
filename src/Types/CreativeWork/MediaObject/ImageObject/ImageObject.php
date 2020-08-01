@@ -4,6 +4,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Tool\Thumbnail;
+use Plinct\Tool\StringTool;
 
 class ImageObject extends Entity implements TypeInterface
 {
@@ -66,7 +67,16 @@ class ImageObject extends Entity implements TypeInterface
      * @return array
      */
     public function post(array $params): array 
-    {                
+    {
+        // upload image
+        if (isset($_FILES['imageupload']) && $_FILES['imageupload']['size'] > 0) {
+            $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . self::uploadImage($_FILES['imageupload'],$params['location']);
+            unset($params['location']);
+            
+        } else {
+            return false;
+        }
+        
         return parent::post($params);
     }
     
@@ -131,11 +141,11 @@ class ImageObject extends Entity implements TypeInterface
     {
         $dir = substr($location, 0, 1) == '/' ? $location : '/'.$location;
         
-        $filename = \Plinct\Tool\StringTool::removeAccentsAndSpaces($imageUpload['name']);
+        $filename = StringTool::removeAccentsAndSpaces($imageUpload['name']);
         
         $path = $dir."/".$filename; 
         
-        (new \Plinct\Web\Object\ThumbnailObject($imageUpload['tmp_name']))->uploadImage($path);
+        (new Thumbnail($imageUpload['tmp_name']))->uploadImage($path);
         
         return $filename;
     }  
