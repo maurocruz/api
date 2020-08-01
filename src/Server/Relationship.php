@@ -79,7 +79,7 @@ class Relationship extends Crud
         // created is part of
         if (isset($params['id'])) {
             $this->idIsPartOf = $params['id'];
-        } elseif (isset($this->params['contentUrl'])) {
+        } else {
             parent::created($this->params);
             $this->idIsPartOf = parent::lastInsertId();
         }
