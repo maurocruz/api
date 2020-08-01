@@ -71,10 +71,7 @@ class ImageObject extends Entity implements TypeInterface
         // upload image
         if (isset($_FILES['imageupload']) && $_FILES['imageupload']['size'] > 0) {
             $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . self::uploadImage($_FILES['imageupload'],$params['location']);
-            unset($params['location']);
-            
-        } else {
-            return false;
+            unset($params['location']);            
         }
         
         return parent::post($params);
