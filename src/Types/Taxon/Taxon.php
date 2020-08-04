@@ -10,9 +10,9 @@ class Taxon extends Entity implements TypeInterface
     
     protected $type = "Taxon";
     
-    protected $properties = [ "name", "family", "genus", "specie" ];
+    protected $properties = [ "name", "taxonRank", "parentTaxon" ];
     
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject", "parentTaxon" => "Taxon" ];
     
     public function get(array $params): array 
     {
