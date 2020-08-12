@@ -38,9 +38,7 @@ abstract class Entity extends Relationship
         
         $this->properties = $filterget->getProperties();
                 
-        $data = parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
-                 
-        return $data;        
+        return parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
     }
     
     protected function buildSchema($params, $data) 
@@ -86,8 +84,7 @@ abstract class Entity extends Relationship
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array
@@ -96,7 +93,8 @@ abstract class Entity extends Relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::putRelationship($params);
         } 
-        
+        unset($params['tableHasPart']);
+
         $idname = "id".$this->table;        
         $idvalue = $params['id'];
         unset($params['id']);
@@ -106,8 +104,7 @@ abstract class Entity extends Relationship
     
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array
@@ -127,10 +124,10 @@ abstract class Entity extends Relationship
 
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param string $type
+     * @return array
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null)
     {
         $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
         $sqlFile = $dir."/".$type.".sql";        
