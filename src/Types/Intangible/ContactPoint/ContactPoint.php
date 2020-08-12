@@ -34,8 +34,7 @@ class ContactPoint extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
@@ -45,19 +44,18 @@ class ContactPoint extends Entity implements TypeInterface
     
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {
         return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param string $type
+     * @return object
      */
     public function createSqlTable($type = null)
     {
