@@ -2,6 +2,7 @@
 
 namespace Plinct\Api;
 
+use Plinct\Api\Type\User;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -10,7 +11,6 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Plinct\Api\Server\PDOConnect;
 use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Auth;
-use Plinct\Api\Auth\Session;
 use Plinct\Api\Auth\AuthMiddleware;
 
 return function(App $slimApp) 
@@ -20,9 +20,12 @@ return function(App $slimApp)
     /*
      * Init application
      */
-    $slimApp->post('/api/start', function(Request $request, Response $response, $args) 
+    $slimApp->post('/api/start', function(Request $request, Response $response)
     {
+        $data = null;
+
         $username = $request->getParsedBody()['username'] ?? null;
+
         $password = $request->getParsedBody()['password'] ?? null;
         
         if ($username && $password) {            
@@ -38,7 +41,7 @@ return function(App $slimApp)
                 $data = $pdo;
                 
             } elseif (is_object($pdo)) { 
-                $maintenance = new Maintenance($request);
+                $maintenance = new Maintenance();
                 $data = $maintenance->start();
             }
             
@@ -56,7 +59,7 @@ return function(App $slimApp)
     // GET logout
     $slimApp->get('/api/logout', function(Request $request, Response $response)
     {
-        $data = (new Auth\AuthController($request))->logout();
+        $data = (new Auth\AuthController())->logout();
         
         $newResponse = $response->withHeader("Content-type", "'application/json'");        
         $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));        
@@ -67,7 +70,7 @@ return function(App $slimApp)
     $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args) 
     {
         $type = $args['type'] ?? null;
-        $id = $args['id'] ?? null;
+
         $params = $request->getQueryParams() ?? null;
         
         if ($type) {        
@@ -136,7 +139,7 @@ return function(App $slimApp)
             
         } elseif ($type == "user") {
             unset($params['status']);
-            $data = (new \Plinct\Api\Type\User($request))->post($params);
+            $data = (new User())->post($params);
             
         } else {
             $data = null;
@@ -156,8 +159,12 @@ return function(App $slimApp)
      */
     $slimApp->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args) 
     {
+        $data = null;
+
         $params = $request->getParsedBody() ?? null;
+
         $params['id'] = $args['id'] ?? $params['id'] ?? null;
+
         $className = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
         
         if (!$params['id']) {

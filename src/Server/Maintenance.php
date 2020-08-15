@@ -2,17 +2,10 @@
 
 namespace Plinct\Api\Server;
 
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Plinct\Api\Type\User;
 
-class Maintenance extends Crud 
+class Maintenance extends Crud
 {
-    protected  $request;
-    
-    public function __construct(Request $request) 
-    {
-        $this->request = $request;
-    }
-    
     public function createSqlTable($type) 
     {
         $table = substr_replace($type, strtolower(substr($type, 0, 1)), 0, 1);
@@ -22,7 +15,7 @@ class Maintenance extends Crud
         
         if (empty($data)) {
             $className = "\\Plinct\\Api\\Type\\".$type;
-            return (new $className($this->request))->createSqlTable($type);
+            return (new $className())->createSqlTable($type);
             
         } else {
             return [ "message" => $type. " already exists" ];
@@ -36,7 +29,7 @@ class Maintenance extends Crud
         $this->createSqlTable('Person');
         
         // create admin user
-        $data = (new \Plinct\Api\Type\User($this->request))->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
+        $data = (new User())->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
         
         return [ "message" => "Basic types created", "data" => $data ];
     }

@@ -2,13 +2,13 @@
 
 namespace Plinct\Api\Server;
 
-use Plinct\Api\Server\PDOConnect;
+use PDO;
+use PDOException;
 
-class Crud 
+class Crud
 {
     protected $table;
-    
-    
+
     // READ
     protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null) 
     {        
@@ -19,7 +19,7 @@ class Crud
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= $offset ? " OFFSET $offset" : null;
         $query .= ";";
-        
+
         return PDOConnect::run($query, $args);
     }
     
@@ -93,10 +93,10 @@ class Crud
         
         try {            
             if ($stmt->execute() === false) {
-                throw new \PDOException();
+                throw new PDOException();
             }
             
-        } catch (\PDOException $exc) {
+        } catch (PDOException $exc) {
             return [ "error" => [
                 "code" => $stmt->errorCode(),
                 "driverCodeError" => $stmt->errorInfo()[1],
@@ -127,7 +127,7 @@ class Crud
         try {
             if ($connect && !array_key_exists('error', $connect)) {
                 $q = $connect->prepare($query);
-                $q->setFetchMode(\PDO::FETCH_ASSOC);
+                $q->setFetchMode(PDO::FETCH_ASSOC);
                 
                 $q->execute($args);
                 $errorInfo = $q->errorInfo();
@@ -136,13 +136,13 @@ class Crud
                     return $q->fetchAll();
 
                 } else {
-                    throw new \PDOException();
+                    throw new PDOException();
                 }   
             } else {
-                throw new \PDOException();
+                throw new PDOException();
             }
             
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             
             if(array_key_exists('error', $connect)) {
                 return $connect;

@@ -2,8 +2,6 @@
 
 namespace Plinct\Api\Server;
 
-use Fwc\Api\Type\TypeInterface as Type;
-
 class Relationship extends Crud
 {
     protected $tableHasPart;
@@ -64,7 +62,9 @@ class Relationship extends Crud
         $idIsPartOfName = 'id'.$tableIsPartOf;
         
         $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idHasPartName=$idHasPart";
-        
+        // representativeOfPage
+        $query .= in_array('representativeOfPage',$this->properties) ? " AND `representativeOfPage` IS TRUE " : null;
+        //
         $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
         
         $query .= ";";
@@ -202,10 +202,10 @@ class Relationship extends Crud
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
         
         if ($typeIsPartOfObject) {
-                        
+
             // one to one
             if (array_key_exists($valueProperty, $valueData)) {
-                
+
                 if (is_numeric($this->idHasPart)) {
                     $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
                     return $resp[0] ?? null;
@@ -217,23 +217,24 @@ class Relationship extends Crud
             // manys
             else {
                 $this->table_has_table = $this->tableHasPart."_has_".$this->tableIsPartOf;
-                
+
                 // many to many
                 if (self::table_exists($this->table_has_table)) {
                     $rel = $this->getRelationship($this->table, $this->idHasPart, $this->tableIsPartOf);
 
                     foreach ($rel as $valueRel) {
-                       $data[] = $typeIsPartOfObject->schema($valueRel);                                
+                       $data[] = $typeIsPartOfObject->schema($valueRel);
                     }
-                    
+
                     return $data ?? null;
-                } 
+                }
                 // one to many
                 else {
                     $idTableHasPartName = "id".$this->tableHasPart;
                     return $typeIsPartOfObject->get([ $idTableHasPartName => $this->idHasPart ]);
                 }
             }
-        } 
+        }
+        return false;
     }
 }

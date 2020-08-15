@@ -18,8 +18,8 @@ trait SchemaTrait
 
     /**
      * GET SCHEMA WITH ARRAY ITEMS
-     * @param type $data
-     * @return type
+     * @param array $data
+     * @return array
      */
     protected function getSchema($data) 
     {
@@ -63,7 +63,7 @@ trait SchemaTrait
     /**
      * SCHEMA
      * @param array $valueData
-     * @return string
+     * @return array
      */
     public function schema(array $valueData) 
     {        

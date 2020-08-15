@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
 
 class Taxon extends Entity implements TypeInterface
 {    
@@ -31,12 +32,12 @@ class Taxon extends Entity implements TypeInterface
     
     public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
     
     public function createSqlTable($type = null) 
     {
-        $maintenance = new \Plinct\Api\Server\Maintenance($this->request);
+        $maintenance = new Maintenance();
               
         $maintenance->createSqlTable("ImageObject");
         

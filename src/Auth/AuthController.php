@@ -3,7 +3,6 @@
 namespace Plinct\Api\Auth;
 
 use Plinct\Api\Type\User;
-use Plinct\Api\Auth\SessionUser;
 
 class AuthController extends User
 {    

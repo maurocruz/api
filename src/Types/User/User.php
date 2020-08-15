@@ -74,18 +74,17 @@ class User extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
     {
         return parent::put($params);
     }
-    
+
     /**
      * DELETE
-     * @param string $id
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
@@ -95,8 +94,8 @@ class User extends Entity implements TypeInterface
     
     /**
      * 
-     * @param type $type
-     * @return type
+     * @param array $type
+     * @return array
      */
     public function createSqlTable($type = null)
     {
