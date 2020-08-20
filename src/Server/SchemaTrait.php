@@ -24,7 +24,7 @@ trait SchemaTrait
     protected function getSchema($data) 
     {
         if (empty($data)) {
-            return [ "message" => "No data founded" ];
+            return $data;
         } 
         
         foreach ($data as $value) {
