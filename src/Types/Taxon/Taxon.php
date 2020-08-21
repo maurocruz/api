@@ -11,7 +11,7 @@ class Taxon extends Entity implements TypeInterface
     
     protected $type = "Taxon";
     
-    protected $properties = [ "name", "taxonRank", "parentTaxon" ];
+    protected $properties = [ "name", "taxonRank", "parentTaxon", "url" ];
     
     protected $hasTypes = [ "image" => "ImageObject", "parentTaxon" => "Taxon" ];
     
