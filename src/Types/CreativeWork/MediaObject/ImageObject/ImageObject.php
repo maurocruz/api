@@ -16,6 +16,7 @@ class ImageObject extends Entity implements TypeInterface
 
     /**
      * PUT
+     * @param array $params
      * @return array
      */
     public function get(array $params): array
@@ -76,33 +77,31 @@ class ImageObject extends Entity implements TypeInterface
         
         return parent::post($params);
     }
-    
+
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array|null $params
      * @return array
      */
     public function put(array $params = null): array 
     {
         return parent::put($params);
     }
-    
+
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {        
         return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param null $type $type
+     * @return string
      */
     public function createSqlTable($type = null)
     {
@@ -132,6 +131,7 @@ class ImageObject extends Entity implements TypeInterface
                 return $arrayRep ?? $array[0];
             }
         }
+        return false;
     }
     
     private static function uploadImage($imageUpload, $location) 
