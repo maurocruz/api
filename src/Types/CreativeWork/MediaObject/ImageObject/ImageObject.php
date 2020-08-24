@@ -113,7 +113,7 @@ class ImageObject extends Entity implements TypeInterface
     {
         if ($data) {
             foreach ($data as $valueImage) {
-                if (isset($valueImage['representativeOfPage'])) {
+                if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {
                     $image =  $valueImage['contentUrl'];
                     $arrayRep = $valueImage;
                     break;
