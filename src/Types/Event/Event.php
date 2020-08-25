@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
 
 class Event extends Entity implements TypeInterface
 {
@@ -10,7 +11,7 @@ class Event extends Entity implements TypeInterface
     
     protected $type = "Event";
     
-    protected $properties = [ "name", "location", "startDate" ];
+    protected $properties = [ "name", "startDate" ];
     
     protected $hasTypes = [ "location" => "Place", "image" => "ImageObject" ];
     
@@ -31,12 +32,12 @@ class Event extends Entity implements TypeInterface
     
     public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete([ "idevent" => $params['id'] ]);
     }
     
     public function createSqlTable($type = null) 
     {
-        $maintenance = new \Plinct\Api\Server\Maintenance($this->request);
+        $maintenance = new Maintenance();
         
         $maintenance->createSqlTable("Person");        
         $maintenance->createSqlTable("ImageObject");        
