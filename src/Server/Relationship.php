@@ -221,12 +221,13 @@ class Relationship extends Crud
                 // many to many
                 if (self::table_exists($this->table_has_table)) {
                     $rel = $this->getRelationship($this->table, $this->idHasPart, $this->tableIsPartOf);
+                    $data = null;
 
                     foreach ($rel as $valueRel) {
                        $data[] = $typeIsPartOfObject->schema($valueRel);
                     }
 
-                    return $data ?? null;
+                    return $data;
                 }
                 // one to many
                 else {
