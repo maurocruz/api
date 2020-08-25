@@ -16,6 +16,8 @@ class WebPageElement extends Entity implements TypeInterface
     
     public function get(array $params): array 
     {
+        $params['orderBy'] = $params['orderBy'] ?? "position";
+
         return parent::get($params);
     }
     
