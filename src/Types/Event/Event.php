@@ -22,11 +22,21 @@ class Event extends Entity implements TypeInterface
     
     public function post(array $params): array 
     {
+        $params['startDate'] = $params['startDate']." ".$params['startTime'];
+        $params['endDate'] = $params['endDate']." ".$params['endTime'];
+        unset($params['startTime']);
+        unset($params['endTime']);
+
         return parent::post($params);
     }
     
     public function put(array $params): array 
     {
+        $params['startDate'] = $params['startDate']." ".$params['startTime'];
+        $params['endDate'] = $params['endDate']." ".$params['endTime'];
+        unset($params['startTime']);
+        unset($params['endTime']);
+
         return parent::put($params);
     }
     
