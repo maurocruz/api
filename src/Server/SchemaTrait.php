@@ -35,10 +35,7 @@ trait SchemaTrait
     }
     
     protected function listSchema($data, $numberOfList, $itemListOrder = "ascending")
-    {        
-        if (empty($data)) {
-            return [ "messagem" => "No data founded" ];
-        } 
+    {
         
         $itemList = [
             "@context" => "http://schema.org",
@@ -46,13 +43,17 @@ trait SchemaTrait
             "numberOfItems" => $numberOfList,
             "itemListOrder" => $itemListOrder
         ];
-        
-        foreach ($data as $key => $value) {
-            $listItem[] = [
-                "@type" => "ListItem",
-                "position" => ($key+1),
-                "item" => $this->schema($value)
-            ];
+
+        if (empty($data)) {
+            $listItem = [];
+        } else {
+            foreach ($data as $key => $value) {
+                $listItem[] = [
+                    "@type" => "ListItem",
+                    "position" => ($key + 1),
+                    "item" => $this->schema($value)
+                ];
+            }
         }
             
         $itemList["itemListElement"] = $listItem;
