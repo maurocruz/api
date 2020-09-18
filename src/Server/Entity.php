@@ -2,6 +2,9 @@
 
 namespace Plinct\Api\Server;
 
+use ReflectionClass;
+use ReflectionException;
+
 abstract class Entity extends Relationship
 {    
     protected $table;
@@ -34,11 +37,11 @@ abstract class Entity extends Relationship
     
     protected function getData($params)
     {        
-        $filterget = new FilterGet($params, $this->table, $this->properties);
+        $filterGet = new FilterGet($params, $this->table, $this->properties);
         
-        $this->properties = $filterget->getProperties();
+        $this->properties = $filterGet->getProperties();
                 
-        return parent::read($filterget->field(), $filterget->where(), $filterget->groupBy(), $filterget->orderBy(), $filterget->limit(), $filterget->offset());
+        return parent::read($filterGet->field(), $filterGet->where(), $filterGet->groupBy(), $filterGet->orderBy(), $filterGet->limit(), $filterGet->offset());
     }
     
     protected function buildSchema($params, $data) 
@@ -95,11 +98,11 @@ abstract class Entity extends Relationship
         } 
         unset($params['tableHasPart']);
 
-        $idname = "id".$this->table;        
-        $idvalue = $params['id'];
+        $idName = "id".$this->table;
+        $idValue = $params['id'];
         unset($params['id']);
         
-        return parent::update($params, "`$idname`=$idvalue");
+        return parent::update($params, "`$idName`=$idValue");
     }
     
     /**
@@ -124,14 +127,16 @@ abstract class Entity extends Relationship
 
     /**
      * CREATE SQL
-     * @param string $type
+     * @param null $type
      * @return array
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null)
     {
-        $dir = realpath(__DIR__ . "/../Types/" . ucfirst($type));               
-        $sqlFile = $dir."/".$type.".sql";        
-        
+        $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
+        $reflection = new ReflectionClass($className);
+        $sqlFile = dirname($reflection->getFileName()) . "/" . $type . ".sql";
+
         // run sql
         if (file_exists($sqlFile)) {
             $data = parent::getQuery(file_get_contents($sqlFile));

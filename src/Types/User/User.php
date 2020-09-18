@@ -15,7 +15,7 @@ class User extends Entity implements TypeInterface
 
     /**
      * GET
-     * @param array $params
+     * @param array|null $params
      * @return array
      */
     public function get(array $params = null): array 
@@ -91,10 +91,10 @@ class User extends Entity implements TypeInterface
     {
         return parent::delete($params);
     }
-    
+
     /**
-     * 
-     * @param array $type
+     *
+     * @param null $type
      * @return array
      */
     public function createSqlTable($type = null)
@@ -109,14 +109,15 @@ class User extends Entity implements TypeInterface
         
         $where = "`email`='{$email}'";
         $data = parent::read("*", $where);
-                
-        if (empty($data)) {
+
+        if(isset($data['error'])) {
+            return $data;
+
+        } elseif (empty($data)) {
             return [ "message" => "User not found" ];
             
         } elseif (password_verify($password, $data[0]['password'])) {
-            
             SessionUser::login($data[0]);
-            
             return [ "message" => "Session login started" ];
             
         } else {

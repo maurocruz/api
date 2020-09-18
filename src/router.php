@@ -24,34 +24,36 @@ return function(App $slimApp)
     {
         $data = null;
 
-        $username = $request->getParsedBody()['username'] ?? null;
+        $userAdmin = $request->getParsedBody()['userAdmin'] ?? null;
+        $emailAdmin = $request->getParsedBody()['emailAdmin'] ?? null;
+        $passwordAdmin = $request->getParsedBody()['passwordAdmin'] ?? null;
+        $dbName = $request->getParsedBody()['dbName'] ?? null;
+        $dbUserName = $request->getParsedBody()['dbUserName'] ?? null;
+        $dbPassword = $request->getParsedBody()['dbPassword'] ?? null;
 
-        $password = $request->getParsedBody()['password'] ?? null;
-        
-        if ($username && $password) {            
+        if ($userAdmin && $emailAdmin && $passwordAdmin && $dbUserName && $dbPassword) {
             $driver = PDOConnect::getDrive();
             $host = PDOConnect::getHost();
-            $dbname = PDOConnect::getDbname();
             
             PDOConnect::disconnect();
             
-            $pdo = PDOConnect::connect($driver, $host, $dbname, $username, $password);
+            $pdo = PDOConnect::connect($driver, $host, $dbName, $dbUserName, $dbPassword);
             
             if (array_key_exists('error', $pdo)) {
                 $data = $pdo;
                 
             } elseif (is_object($pdo)) { 
                 $maintenance = new Maintenance();
-                $data = $maintenance->start();
+                $data = $maintenance->start($userAdmin, $emailAdmin, $passwordAdmin);
             }
             
         } else {
-            $data = [ "message" => "User and pass not found" ];
+            $data = [ "message" => "incomplete data" ];
         }   
         
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         
-        $response = $response->withHeader("Content-type", "application/json");
+        //$response = $response->withHeader("Content-type", "application/json");
         return $response;        
     });
      

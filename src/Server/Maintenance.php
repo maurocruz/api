@@ -9,7 +9,7 @@ class Maintenance extends Crud
     public function createSqlTable($type) 
     {
         $table = substr_replace($type, strtolower(substr($type, 0, 1)), 0, 1);
-                
+
         $query = "SHOW TABLES LIKE '$table';";
         $data = parent::getQuery($query);
         
@@ -22,14 +22,14 @@ class Maintenance extends Crud
         }
     }
     
-    public function start() 
+    public function start($userAdmin, $emailAdmin, $passwordAdmin)
     {
         $this->createSqlTable('Thing');
         $this->createSqlTable('User');
         $this->createSqlTable('Person');
         
         // create admin user
-        $data = (new User())->post([ "name" => PDOConnect::getUsernameAdmin(), "email" => PDOConnect::getEmailAdmin(), "password" => PDOConnect::getPasswordAdmin(), "status" => 1 ]);
+        $data = (new User())->post([ "name" => $userAdmin, "email" => $emailAdmin, "password" => password_hash($passwordAdmin,PASSWORD_DEFAULT), "status" => 1 ]);
         
         return [ "message" => "Basic types created", "data" => $data ];
     }

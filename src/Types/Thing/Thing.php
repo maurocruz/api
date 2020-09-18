@@ -9,7 +9,7 @@ class Thing extends Entity implements TypeInterface
     protected $table = "thing";
     protected $type = "Thing";
 
-    public function get(): array
+    public function get(array $params): array
     {
         return parent::index();
     }
@@ -27,13 +27,13 @@ class Thing extends Entity implements TypeInterface
     }
     
     // delete (DELETE)
-    public function delete(string $id): array
+    public function delete(array $params): array
     {
-        return $this->delete($id);
+        return $this->delete($params);
     }
     
     public function createSqlTable($type = null)
     {
-        return parent::createSqlTable('thing');
+        return parent::createSqlTable('Thing');
     }
 }

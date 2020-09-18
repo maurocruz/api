@@ -38,14 +38,13 @@ class Person extends Entity implements TypeInterface
             return parent::post($params);
             
         } else {
-            return [ "messagen" => "incomplete mandatory data" ];
+            return [ "message" => "incomplete mandatory data" ];
         } 
     } 
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array
@@ -65,12 +64,12 @@ class Person extends Entity implements TypeInterface
     
     /**
      * Create table in sql driver
-     * @param type $type
+     * @param $type
      * @return bool
      */
     public function createSqlTable($type = null) 
     {         
-        $maintenance = new Maintenance($this->request);
+        $maintenance = new Maintenance();
         
         $message[] = $maintenance->createSqlTable("PostalAddress");        
         $message[] = $maintenance->createSqlTable("ContactPoint");         

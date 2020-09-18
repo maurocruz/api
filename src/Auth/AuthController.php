@@ -15,6 +15,19 @@ class AuthController extends User
     {
         SessionUser::logout();
         
-        return [ "message" => "Session login unseted" ];
+        return [ "message" => "Session login unsetted" ];
+    }
+
+    public function register(array $params)
+    {
+        $responseData = parent::post($params);
+
+        // Init application
+        if (isset($responseData['error']) && $responseData['error']['code'] == "42S02") {
+            parent::createSqlTable();
+            parent::post($params);
+        }
+
+        return "userAdded";
     }
 }
