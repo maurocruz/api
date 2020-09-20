@@ -29,7 +29,7 @@ class Maintenance extends Crud
         $this->createSqlTable('Person');
         
         // create admin user
-        $data = (new User())->post([ "name" => $userAdmin, "email" => $emailAdmin, "password" => password_hash($passwordAdmin,PASSWORD_DEFAULT), "status" => 1 ]);
+        $data = (new User())->post([ "name" => $userAdmin, "email" => $emailAdmin, "password" => $passwordAdmin, "status" => 1 ]);
         
         return [ "message" => "Basic types created", "data" => $data ];
     }

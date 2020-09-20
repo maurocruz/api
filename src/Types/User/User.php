@@ -4,6 +4,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Auth\SessionUser;
+use ReflectionException;
 
 class User extends Entity implements TypeInterface
 {
@@ -93,9 +94,9 @@ class User extends Entity implements TypeInterface
     }
 
     /**
-     *
      * @param null $type
      * @return array
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null)
     {

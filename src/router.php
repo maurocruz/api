@@ -22,38 +22,11 @@ return function(App $slimApp)
      */
     $slimApp->post('/api/start', function(Request $request, Response $response)
     {
-        $data = null;
-
-        $userAdmin = $request->getParsedBody()['userAdmin'] ?? null;
-        $emailAdmin = $request->getParsedBody()['emailAdmin'] ?? null;
-        $passwordAdmin = $request->getParsedBody()['passwordAdmin'] ?? null;
-        $dbName = $request->getParsedBody()['dbName'] ?? null;
-        $dbUserName = $request->getParsedBody()['dbUserName'] ?? null;
-        $dbPassword = $request->getParsedBody()['dbPassword'] ?? null;
-
-        if ($userAdmin && $emailAdmin && $passwordAdmin && $dbUserName && $dbPassword) {
-            $driver = PDOConnect::getDrive();
-            $host = PDOConnect::getHost();
-            
-            PDOConnect::disconnect();
-            
-            $pdo = PDOConnect::connect($driver, $host, $dbName, $dbUserName, $dbPassword);
-            
-            if (array_key_exists('error', $pdo)) {
-                $data = $pdo;
-                
-            } elseif (is_object($pdo)) { 
-                $maintenance = new Maintenance();
-                $data = $maintenance->start($userAdmin, $emailAdmin, $passwordAdmin);
-            }
-            
-        } else {
-            $data = [ "message" => "incomplete data" ];
-        }   
+        $data = PlinctApi::starApplication($request->getParsedBody());
         
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         
-        //$response = $response->withHeader("Content-type", "application/json");
+        $response = $response->withHeader("Content-type", "application/json");
         return $response;        
     });
      
