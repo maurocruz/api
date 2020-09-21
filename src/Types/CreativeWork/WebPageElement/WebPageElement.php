@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
 
 class WebPageElement extends Entity implements TypeInterface
 {
@@ -38,6 +39,14 @@ class WebPageElement extends Entity implements TypeInterface
     
     public function createSqlTable($type = null) 
     {
-        return parent::createSqlTable("WebPageElement");
+        $maintenance = new Maintenance();
+
+        $message[] = $maintenance->createSqlTable("propertyValue");
+        $message[] = $maintenance->createSqlTable("webPage");
+        $message[] = $maintenance->createSqlTable("imageObject");
+
+        $message[] = parent::createSqlTable("WebPageElement");
+
+        return $message;
     }
 }
