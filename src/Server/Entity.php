@@ -135,14 +135,16 @@ abstract class Entity extends Relationship
     {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);
-        $sqlFile = dirname($reflection->getFileName()) . "/" . $type . ".sql";
+        $sqlFile = dirname($reflection->getFileName()) . "/" . ucfirst($type) . ".sql";
 
         // run sql
         if (file_exists($sqlFile)) {
-            $data = parent::getQuery(file_get_contents($sqlFile));
+            $data = PDOConnect::run(file_get_contents($sqlFile));
+
             if (array_key_exists("error", $data)) {
                 return $data;
             }
+
             return [ "message" => "Sql table for ".$type. " created successfully!" ];
            
         } else {
