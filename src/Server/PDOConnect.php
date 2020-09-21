@@ -2,7 +2,10 @@
 
 namespace Plinct\Api\Server;
 
-class PDOConnect 
+use PDO;
+use PDOException;
+
+class PDOConnect
 {
     private static $PDOConnect;
     
@@ -25,9 +28,9 @@ class PDOConnect
         
         if(self::$PDOConnect == null) {
             $default_options = [
-                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                \PDO::ATTR_EMULATE_PREPARES => true
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => true
             ];
 
             $options = array_replace($default_options, $options);
@@ -35,9 +38,9 @@ class PDOConnect
             $dsn = $driver . ":host=" . $host . ";dbname=" . $dbname;
             
             try {
-                $PDOConnect = new \PDO($dsn, $username, $password, $options);
+                $PDOConnect = new PDO($dsn, $username, $password, $options);
                                 
-            } catch (\PDOException $e) {
+            } catch (PDOException $e) {
                 $PDOConnect = [ "error" => [
                     "message" => $e->getMessage(),
                     "code" => $e->getCode()
@@ -132,12 +135,13 @@ class PDOConnect
 
     public static function run($query, $args = NULL) 
     {
-         $connect = self::$PDOConnect;
+        $errorInfo = null;
+        $connect = self::$PDOConnect;
      
         try {
             if ($connect && !array_key_exists('error', $connect)) {
                 $q = $connect->prepare($query);
-                $q->setFetchMode(\PDO::FETCH_ASSOC);
+                $q->setFetchMode(PDO::FETCH_ASSOC);
                 
                 $q->execute($args);
                 $errorInfo = $q->errorInfo();
@@ -146,13 +150,13 @@ class PDOConnect
                     return $q->fetchAll();
 
                 } else {
-                    throw new \PDOException();
+                    throw new PDOException();
                 }   
             } else {
-                throw new \PDOException();
+                throw new PDOException();
             }
             
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             
             if(array_key_exists('error', $connect)) {
                 return $connect;
