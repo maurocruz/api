@@ -14,7 +14,7 @@ class Maintenance extends Crud
         $data = parent::getQuery($query);
         
         if (empty($data)) {
-            $className = "\\Plinct\\Api\\Type\\".$type;
+            $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
             return (new $className())->createSqlTable($type);
             
         } else {
