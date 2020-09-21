@@ -2,7 +2,6 @@
 
 namespace Plinct\Api\Server;
 
-use PDO;
 use PDOException;
 
 class Crud
@@ -25,7 +24,11 @@ class Crud
     
     // CREATED
     protected function created(array $data) 
-    {   
+    {
+        $names = null;
+        $values = null;
+        $bindValues = null;
+
         if (empty($data)) {
             return [ "message" => "Record in $this->table not created because data is empty" ];
         }
@@ -45,7 +48,10 @@ class Crud
 
     // UPDATE
     protected function update(array $data, string $where) 
-    {   
+    {
+        $names = null;
+        $bindValues = null;
+
         if (empty($data)) {
             return [ "message" => "No data from update in CRUD" ];
         }
@@ -113,52 +119,12 @@ class Crud
     // LAST INSERT ID
     protected function lastInsertId(): string 
     {
-        $query = "SELECT LAST_INSERT_ID() AS id;";
-        $return = $this->getQuery($query);        
-        
-        return $return[0]['id'];
+        return PDOConnect::lastInsertId();
     }
     
     // 
     protected function getQuery($query, $args = null) 
     {
-        $connect = PDOConnect::getPDOConnect();
-     
-        try {
-            if ($connect && !array_key_exists('error', $connect)) {
-                $q = $connect->prepare($query);
-                $q->setFetchMode(PDO::FETCH_ASSOC);
-                
-                $q->execute($args);
-                $errorInfo = $q->errorInfo();
-
-                if ($errorInfo[0] == "0000") {        
-                    return $q->fetchAll();
-
-                } else {
-                    throw new PDOException();
-                }   
-            } else {
-                throw new PDOException();
-            }
-            
-        } catch (PDOException $e) {
-            
-            if(array_key_exists('error', $connect)) {
-                return $connect;
-                
-            } elseif ($errorInfo !== '0000') {                
-                return [ "error" => [ 
-                    "message" => $errorInfo[2],
-                    "code" => $errorInfo[1],
-                    "query" => $query
-                ] ];
-            } else {
-                return [ "error" => [ 
-                    "message" => $e->getMessage(),
-                    "code" => $e->getCode()
-                ] ];
-            }
-        }
+        return PDOConnect::run($query, $args);
     }
 }
