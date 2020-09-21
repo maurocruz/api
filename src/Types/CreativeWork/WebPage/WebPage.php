@@ -3,6 +3,8 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
+use ReflectionException;
 
 class WebPage extends Entity implements TypeInterface
 {
@@ -33,36 +35,41 @@ class WebPage extends Entity implements TypeInterface
     {
         return parent::post($params);
     }
-    
+
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
     {
         return parent::put($params);
     }
-    
+
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {
         return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
-     */    
+     * @param null $type $type
+     * @return array|string[]
+     * @throws ReflectionException
+     */
     public function createSqlTable($type = null) 
     {
-        return parent::createSqlTable("WebPage");
+        $maintenance = new Maintenance();
+
+        $message[] = $maintenance->createSqlTable("propertyValue");
+        $message[] = parent::createSqlTable("webPage");
+        $message[] = $maintenance->createSqlTable("webPageElement");
+
+        return $message;
     }
 }
