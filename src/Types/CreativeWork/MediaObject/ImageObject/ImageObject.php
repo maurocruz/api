@@ -5,6 +5,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use Plinct\Tool\Thumbnail;
 use Plinct\Tool\StringTool;
+use ReflectionException;
 
 class ImageObject extends Entity implements TypeInterface
 {
@@ -21,20 +22,23 @@ class ImageObject extends Entity implements TypeInterface
      */
     public function get(array $params): array
     {
+        $dataThumb = null;
+        $dataSizes = null;
         $data = parent::getData($params);
-                
+
         // EXTRA PROPERTIES
-        if (isset($params['properties']) && !array_key_exists('error', $data)) {
+        if (!empty($data) && isset($params['properties']) && !array_key_exists('error', $data)) {
             
             // THUMBNAIL
             if (strpos($params['properties'], "thumbnail") !== false) {
                 
                 foreach ($data as $valueThumb) { 
-                    
-                    $thumbnail = new Thumbnail($valueThumb['contentUrl']);
-                    $valueThumb['thumbnail'] = $thumbnail->getThumbnail(200);
+                    if (file_exists($_SERVER['DOCUMENT_ROOT'].$valueThumb['contentUrl'])) {
+                        $thumbnail = new Thumbnail($valueThumb['contentUrl']);
+                        $valueThumb['thumbnail'] = $thumbnail->getThumbnail(200);
 
-                    $dataThumb[] = $valueThumb;
+                        $dataThumb[] = $valueThumb;
+                    }
                 }
                 $data = $dataThumb;
             }
@@ -102,6 +106,7 @@ class ImageObject extends Entity implements TypeInterface
      * CREATE SQL
      * @param null $type $type
      * @return string
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null)
     {
@@ -111,6 +116,8 @@ class ImageObject extends Entity implements TypeInterface
     
     public static function getRepresentativeImageOfPage($data, $mode = "string") 
     {
+        $array = [];
+
         if ($data) {
             foreach ($data as $valueImage) {
                 if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {
