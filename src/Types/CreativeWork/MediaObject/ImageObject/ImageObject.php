@@ -114,14 +114,16 @@ class ImageObject extends Entity implements TypeInterface
         return $message;
     }    
     
-    public static function getRepresentativeImageOfPage($data, $mode = "string") 
+    public static function getRepresentativeImageOfPage($data, $mode = "string", $restrict = false)
     {
-        $array = [];
+        $imageRep = null;
+        $array = null;
+        $arrayRep = null;
 
         if ($data) {
             foreach ($data as $valueImage) {
                 if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {
-                    $image =  $valueImage['contentUrl'];
+                    $imageRep =  $valueImage['contentUrl'];
                     $arrayRep = $valueImage;
                     break;
                     
@@ -130,14 +132,19 @@ class ImageObject extends Entity implements TypeInterface
                     $array[] = $valueImage;
                 }
             }   
-            
+
+            if ($restrict) {
+                return $mode == "string" ? $imageRep : $arrayRep;
+            }
+
             if ($mode == "string") {
-                return $image ?? $images[0] ?? null;
+                return $imageRep ?? $images[0] ?? null;
                 
             } else {
                 return $arrayRep ?? $array[0];
             }
         }
+
         return false;
     }
     
