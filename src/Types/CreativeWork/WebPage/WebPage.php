@@ -12,9 +12,9 @@ class WebPage extends Entity implements TypeInterface
     
     protected $type = "WebPage";
     
-    protected $properties = [ "name", "description", "url" ];
+    protected $properties = [ "name", "description", "url", "identifier" ];
     
-    protected $hasTypes = [ "hasPart" => "WebPageElement" ];
+    protected $hasTypes = [ "hasPart" => "WebPageElement", "identifier" => "PropertyValue" ];
 
     /**
      * GET
@@ -33,6 +33,8 @@ class WebPage extends Entity implements TypeInterface
      */
     public function post(array $params): array 
     {
+        $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         return parent::post($params);
     }
 
@@ -43,6 +45,8 @@ class WebPage extends Entity implements TypeInterface
      */
     public function put(array $params): array 
     {
+        $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
         return parent::put($params);
     }
 
