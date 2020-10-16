@@ -32,10 +32,14 @@ class Event extends Entity implements TypeInterface
     
     public function put(array $params): array 
     {
-        $params['startDate'] = $params['startDate']." ".$params['startTime'];
-        $params['endDate'] = $params['endDate']." ".$params['endTime'];
-        unset($params['startTime']);
-        unset($params['endTime']);
+        if (array_key_exists('startDate', $params)) {
+            $params['startDate'] = $params['startDate'] . " " . $params['startTime'];
+            unset($params['startTime']);
+        }
+        if (array_key_exists('endDate', $params)) {
+            $params['endDate'] = $params['endDate'] . " " . $params['endTime'];
+            unset($params['endTime']);
+        }
 
         return parent::put($params);
     }
