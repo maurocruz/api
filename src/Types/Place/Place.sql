@@ -1,4 +1,3 @@
-/*
 /**
  * Author:  Mauro Cruz <maurocruz@pirenopolis.tur.br>
  * Created: 25 de fev de 2020
