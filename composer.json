@@ -17,6 +17,6 @@
         "php": "^7.2",
         "slim/slim": "4.*",
         "slim/psr7": "^0.4.0",
-        "plinct/tool": "^0.1"
+        "plinct/tool": "0.*"
     }
 }
