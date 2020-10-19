@@ -3,22 +3,21 @@
 -- CREATE TABLE webPage
 -- --
 -- -- propertyValue
-
 CREATE TABLE `webPage` (
-  `idwebPage` int(10) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) DEFAULT NULL,
-  `name` varchar(255) NOT NULL,
-  `description` text NOT NULL,
-  `alternativeHeadline` varchar(50) DEFAULT NULL,
+  `idwebPage` int NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET latin1 NOT NULL,
+  `description` text CHARACTER SET latin1 NOT NULL,
+  `alternativeHeadline` varchar(50) CHARACTER SET latin1 DEFAULT NULL,
   `showtitle` tinyint(1) DEFAULT NULL,
   `showdescription` tinyint(1) DEFAULT NULL,
-  `breadcrumb` text,
+  `breadcrumb` text CHARACTER SET latin1,
   `jsonwebpage` json DEFAULT NULL,
   `dateCreated` datetime NOT NULL,
   `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idwebPage`)
-) ENGINE=InnoDB;
-
+  PRIMARY KEY (`idwebPage`),
+  KEY `date_modified` (`dateModified`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `webPage_has_propertyValue` (
   `idwebPage` INT(10) NOT NULL,
