@@ -5,6 +5,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Maintenance;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
 class LocalBusiness extends Entity implements TypeInterface
 {
@@ -40,8 +41,7 @@ class LocalBusiness extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
@@ -51,22 +51,23 @@ class LocalBusiness extends Entity implements TypeInterface
     
     /**
      * DELETE
-     * @param string $id
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {
         return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param $type
+     * @return string
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null) 
     {
-        $maintenance = (new Maintenance($this->request));
+        $maintenance = new Maintenance();
         
         $message[] = $maintenance->createSqlTable("ContactPoint");
         $message[] = $maintenance->createSqlTable("PostalAddress");
