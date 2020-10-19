@@ -16,7 +16,7 @@
     "require": {    
         "php": "^7.2",
         "slim/slim": "4.*",
-        "slim/psr7": "^0.4.0",
+        "slim/psr7": "1.*",
         "plinct/tool": "0.*"
     }
 }
