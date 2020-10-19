@@ -4,6 +4,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
+use ReflectionException;
 
 class Person extends Entity implements TypeInterface
 {
@@ -32,9 +33,13 @@ class Person extends Entity implements TypeInterface
      */
     public function post(array $params): array 
     {
-        if(isset($params['givenName']) && isset($params['familyName'])) {
+        if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
+            return parent::post($params);
+
+        } elseif (isset($params['givenName']) && isset($params['familyName'])) {
             $params['name'] = $params['givenName']." ".$params['familyName'];
             $params['dateRegistration'] = date('Y-m-d');
+
             return parent::post($params);
             
         } else {
@@ -61,11 +66,12 @@ class Person extends Entity implements TypeInterface
     {
         return parent::delete($params);        
     }
-    
+
     /**
      * Create table in sql driver
      * @param $type
      * @return bool
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null) 
     {         
