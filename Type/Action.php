@@ -2,7 +2,10 @@
 
 namespace Plinct\Api\Type;
 
-class Action extends TypeAbstract implements TypeInterface
+use Plinct\Api\Server\Entity;
+use ReflectionException;
+
+class Action extends Entity implements TypeInterface
 {
     protected $table = "action";
     
@@ -27,37 +30,35 @@ class Action extends TypeAbstract implements TypeInterface
     {
         return parent::post($params);
     }
-    
+
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
-    public function put(string $id, $params): array 
+    public function put(array $params): array
     {
-        return parent::put($id, $params);
+        return parent::put($params);
     }
-    
+
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
-    public function delete(string $id, $params): array 
+    public function delete(array $params): array
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param null $type $type
+     * @return array
+     * @throws ReflectionException
      */
-    protected function createSqlTable($type = null) 
+    public function createSqlTable($type = null)
     {
-        
         return parent::createSqlTable("Action");
     }
 }

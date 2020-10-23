@@ -3,21 +3,22 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class ContactPoint extends Entity implements TypeInterface
+class PostalAddress extends Entity implements TypeInterface
 {
-    protected $table = 'contactPoint';
+    protected $table = 'postalAddress';
     
-    protected $type = 'ContactPoint';
+    protected $type = 'PostalAddress';
     
-    protected $properties = [ "*", "telephone", "email" ];
-
+    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ];
+    
     /**
      * GET
      * @param array $params
      * @return array
      */
-    public function get(array $params): array
+    public function get(array $params): array 
     {
         return parent::get($params);
     }
@@ -54,11 +55,12 @@ class ContactPoint extends Entity implements TypeInterface
 
     /**
      * CREATE SQL
-     * @param string $type
-     * @return object
+     * @param null $type
+     * @return array|string[]
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null)
     {
-        return parent::createSqlTable("ContactPoint");
+        return parent::createSqlTable("PostalAddress");
     }
 }

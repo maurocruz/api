@@ -64,7 +64,7 @@ class PlinctApi
 
     public function run()
     {
-        $routers = require __DIR__.'/router.php';
+        $routers = require __DIR__ . '/router.php';
         return $routers($this->slimApp);
     }
 }

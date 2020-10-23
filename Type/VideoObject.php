@@ -3,14 +3,15 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class PostalAddress extends Entity implements TypeInterface
+class VideoObject extends Entity implements TypeInterface
 {
-    protected $table = 'postalAddress';
+    protected $table = "videoObject";
     
-    protected $type = 'PostalAddress';
+    protected $type = "VideoObject";
     
-    protected $properties = [ 'streetAddress', 'addressLocality', 'addressRegion', 'addressCountry', 'postalCode' ];
+    protected $properties = [ "name", "description", "url", "thumbnailUrl" ];
     
     /**
      * GET
@@ -34,8 +35,7 @@ class PostalAddress extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
@@ -45,22 +45,22 @@ class PostalAddress extends Entity implements TypeInterface
     
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {
         return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param null $type
+     * @return array|string[]
+     * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null) 
     {
-        return parent::createSqlTable("PostalAddress");
+        return parent::createSqlTable("VideoObject");
     }
 }

@@ -4,6 +4,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Auth\SessionUser;
+use ReflectionException;
 
 class Payment extends Entity implements TypeInterface
 {
@@ -39,11 +40,10 @@ class Payment extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
-    public function put($params): array 
+    public function put(array $params): array
     {   
         $params = self::setHistory("UPDATE", $params);
         unset($params['tableHasPart']);
@@ -64,24 +64,25 @@ class Payment extends Entity implements TypeInterface
         
         return parent::delete([ "idpayment" => $params['id'] ]);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param string|null $type
+     * @return array|string[]
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null) 
     {        
         return parent::createSqlTable("Payment");
     }
-    
+
     /**
      * SET HISTORY
-     * @param type $action
-     * @param type $params
-     * @return type
+     * @param string $action
+     * @param array $params
+     * @return array
      */
-    private static function setHistory($action, $params) 
+    private static function setHistory(string $action, array $params)
     {                        
         $paramsHistory["action"] = $action;
         $paramsHistory["summary"] = "Valor: ".number_format($params['valorparc'], 2, ",", ".")." / vencimento: ".$params['vencimentoparc']." / quitado: ".$params['quitado'];

@@ -3,21 +3,22 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class VideoObject extends Entity implements TypeInterface
+class ContactPoint extends Entity implements TypeInterface
 {
-    protected $table = "videoObject";
+    protected $table = 'contactPoint';
     
-    protected $type = "VideoObject";
+    protected $type = 'ContactPoint';
     
-    protected $properties = [ "name", "description", "url", "thumbnailUrl" ];
-    
+    protected $properties = [ "*", "telephone", "email" ];
+
     /**
      * GET
      * @param array $params
      * @return array
      */
-    public function get(array $params): array 
+    public function get(array $params): array
     {
         return parent::get($params);
     }
@@ -34,8 +35,7 @@ class VideoObject extends Entity implements TypeInterface
     
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function put(array $params): array 
@@ -45,22 +45,22 @@ class VideoObject extends Entity implements TypeInterface
     
     /**
      * DELETE
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
     public function delete(array $params): array 
     {
-        return parent::delete($id, $params);
+        return parent::delete($params);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
-     */    
-    public function createSqlTable($type = null) 
+     * @param null $type
+     * @return object
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null)
     {
-        return parent::createSqlTable("VideoObject");
+        return parent::createSqlTable("ContactPoint");
     }
 }

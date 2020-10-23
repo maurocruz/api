@@ -3,15 +3,17 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
 
-class PropertyValue extends Entity implements TypeInterface
+class Article extends Entity implements TypeInterface
 {
-    protected $table = "propertyValue";
+    protected $table = "article";
     
-    protected $type = "PropertyValue";
+    protected $type = "Article";
     
-    protected $properties = [ "name", "value" ];
+    protected $properties = [ "headline", "author", "datePublished", "publisher"];
     
+    protected $hasTypes = [ "image" => "ImageObject" ];
 
     public function get(array $params): array 
     {
@@ -35,17 +37,12 @@ class PropertyValue extends Entity implements TypeInterface
     
     public function createSqlTable($type = null) 
     {
-        return parent::createSqlTable("PropertyValue");
-    }
+        $maintenance = new Maintenance();
         
-    public static function extractValue($array, $name) 
-    {
-        if ($array) {
-            foreach ($array as $value) {
-                if ($value['name'] == $name) {
-                    return $value['value'] ?? $value['result'] ?? $value['description'] ?? null;
-                }
-            }
-        }
+        $maintenance->createSqlTable("Person");
+        $maintenance->createSqlTable("ImageObject");
+        $maintenance->createSqlTable("Organization");
+        
+        return parent::createSqlTable("Article");
     }
 }

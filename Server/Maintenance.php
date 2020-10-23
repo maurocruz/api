@@ -2,7 +2,7 @@
 
 namespace Plinct\Api\Server;
 
-use Plinct\Api\Type\User;
+use Plinct\Api\src\Types\Person\User;
 
 class Maintenance extends Crud
 {

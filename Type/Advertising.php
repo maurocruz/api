@@ -3,7 +3,6 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
-use Plinct\Api\Auth\SessionUser;
 
 class Advertising extends Entity implements TypeInterface
 {

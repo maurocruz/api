@@ -1,7 +1,7 @@
 <?php
 namespace Plinct\Api\Type;
 
-class index 
+class Index
 {
     public function index() 
     {

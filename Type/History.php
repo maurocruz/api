@@ -4,7 +4,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Auth\SessionUser;
-use Plinct\Api\Server\Relationships;
+
 
 class History extends Entity implements TypeInterface
 {
@@ -40,9 +40,13 @@ class History extends Entity implements TypeInterface
     {        
         return parent::createSqlTable("History");
     }
-           
+
     /**
      * SET Params
+     * @param $action
+     * @param $summary
+     * @param $tableHasPart
+     * @param $idHasPart
      */
     public function postHistory($action, $summary, $tableHasPart, $idHasPart) 
     {                        

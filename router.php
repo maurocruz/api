@@ -2,14 +2,13 @@
 
 namespace Plinct\Api;
 
-use Plinct\Api\Type\User;
+use Plinct\Api\Type\index;
+use Plinct\Api\Type\User\User;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 use Plinct\Api\Server\PDOConnect;
-use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Auth;
 use Plinct\Api\Auth\AuthMiddleware;
 
@@ -52,14 +51,14 @@ return function(App $slimApp)
             $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
 
             if (class_exists($className)) {
-                $data = (new $className($request))->get($params);
+                $data = (new $className())->get($params);
                 
             } else {
                  $data = [ "message" => "type not founded" ];
             }
             
         } else {
-            $data = (new Type\index())->index();
+            $data = (new Index())->index();
         }
 
         $response = $response->withHeader("Content-type", "application/json");
@@ -157,7 +156,7 @@ return function(App $slimApp)
             }        
         }
         
-        $response->getBody()->write(json_encode($data), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
             
         $response = $response->withHeader("Content-type", "application/json");        
         

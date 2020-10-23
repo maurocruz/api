@@ -2,7 +2,9 @@
 
 namespace Plinct\Api\Type;
 
+use Plinct\Api\Auth\SessionUser;
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
 class Banner extends Entity implements TypeInterface
 {
@@ -35,14 +37,13 @@ class Banner extends Entity implements TypeInterface
         
         return parent::post($params);
     }
-    
+
     /**
      * PUT
-     * @param string $id
-     * @param type $params
+     * @param array $params
      * @return array
      */
-    public function put($params): array 
+    public function put(array $params): array
     {   
         $params = self::setHistory("UPDATE", $params);
         unset($params['idadvertising']);
@@ -61,11 +62,12 @@ class Banner extends Entity implements TypeInterface
         
         return parent::delete([ "idbanner" => $params['idbanner'] ]);
     }
-    
+
     /**
      * CREATE SQL
-     * @param type $type
-     * @return type
+     * @param string|null $type
+     * @return array|string[]
+     * @throws ReflectionException
      */
     public function createSqlTable($type = null) 
     {        
@@ -74,18 +76,19 @@ class Banner extends Entity implements TypeInterface
     
     /**
      * SET HISTORY
-     * @param type $action
-     * @param type $params
-     * @return type
+     * @param string $action
+     * @param array $params
+     * @return array
      */
-    private static function setHistory($action, $params) 
-    {    
-        $idadvertising = $params['idadvertising'];
-                        
+    private static function setHistory(string $action, array $params)
+    {
         $paramsHistory["action"] = $action;
         $paramsHistory["summary"] = "Valor: ".number_format($params['valorparc'], 2, ",", ".")." / vencimento: ".$params['vencimentoparc']." / quitado: ".$params['quitado'];
-        
-        (new History())->setHistory("advertising", $idadvertising, $paramsHistory);
+        $paramsHistory['tableHasPart'] = $params['tableHasPart'];
+        $paramsHistory['idHasPart'] = $params['idHasPart'];
+        $paramsHistory['user'] = SessionUser::getName();
+
+        (new History())->post($paramsHistory);
         
         return $params;
     }

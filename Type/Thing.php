@@ -11,7 +11,7 @@ class Thing extends Entity implements TypeInterface
 
     public function get(array $params): array
     {
-        return parent::index();
+        return parent::get($params);
     }
     
     // create (INSERT)
