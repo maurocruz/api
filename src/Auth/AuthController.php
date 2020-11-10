@@ -22,8 +22,12 @@ class AuthController extends User
         $responseData = parent::post($params);
 
         // Init application
-        if (isset($responseData['error']) && $responseData['error']['code'] == "42S02") {
+        if (isset($responseData['error']['code']) && $responseData['error']['code'] == "42S02") {
             return false;
+
+        } elseif (isset($responseData['error']) && isset($responseData['error']['message'])) {
+            return $responseData['error']['message'];
+
         } else {
             return "userAdded";
         }
