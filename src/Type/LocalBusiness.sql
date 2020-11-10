@@ -5,7 +5,7 @@
 -- Relationships
 -- -- one to one
 -- -- -- postalAddress
--- -- -- orgatnization
+-- -- -- organization
 -- -- one to many
 -- -- -- place
 -- -- -- contactPoint
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `localBusiness_has_imageObject` (
   `representativeOfPage` TINYINT(1) NULL DEFAULT NULL,
   `caption` TEXT NULL DEFAULT NULL,
   PRIMARY KEY (`idlocalBusiness`, `idimageObject`),
-  INDEX `idx_1` (`cover` ASC, `idimageObject` ASC),
+  INDEX `idx_1` (`representativeOfPage` ASC, `idimageObject` ASC),
   INDEX `FK_localBusiness_has_imageObject_imageObject_idx` (`idimageObject` ASC),
   CONSTRAINT `FK_localBusiness_has_imageObject_imageObject` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `FK_localBusiness_has_imageObject_localBusiness` FOREIGN KEY (`idlocalBusiness`) REFERENCES `localBusiness` (`idlocalBusiness`) ON DELETE CASCADE ON UPDATE NO ACTION
@@ -87,9 +87,9 @@ DROP TRIGGER IF EXISTS `increment_position`;
 DELIMITER $$
 CREATE DEFINER = CURRENT_USER TRIGGER `increment_position` BEFORE INSERT ON `localBusiness_has_imageObject` FOR EACH ROW
 BEGIN
-  DECLARE countit INT;
-  SET countit = (SELECT COUNT(*) FROM `localBusiness_has_imageObject`);
-  IF NEW.`position`='' THEN SET NEW.`position`= countit+1;
+  DECLARE countIt INT;
+  SET countIt = (SELECT COUNT(*) FROM `localBusiness_has_imageObject`);
+  IF NEW.`position`='' THEN SET NEW.`position`= countIt+1;
   END IF;
 END$$
 DELIMITER ;

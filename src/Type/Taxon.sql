@@ -3,7 +3,7 @@
 -- -- relationships:
 -- -- -- imageObject
 
-CREATE TABLE `taxon` (
+CREATE TABLE IF NOT EXISTS `taxon` (
   `idtaxon` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT '',
   `description` text,
@@ -25,7 +25,7 @@ CREATE TABLE `taxon` (
   PRIMARY KEY (`idtaxon`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `taxon_has_imageObject` (
+CREATE TABLE IF NOT EXISTS `taxon_has_imageObject` (
   `idtaxon` int(10) unsigned NOT NULL,
   `idimageObject` int(10) NOT NULL,
   `caption` varchar(45) DEFAULT NULL,
@@ -37,8 +37,6 @@ CREATE TABLE `taxon_has_imageObject` (
   CONSTRAINT `FK_taxon_has_imageObject` FOREIGN KEY (`idtaxon`) REFERENCES `taxon` (`idtaxon`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
-DELIMITER
-CREATE TRIGGER `trg_taxon_has_images_insert` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW BEGIN
-	SET NEW.position = (SELECT COUNT(*) FROM taxon_has_images WHERE idtaxon=NEW.idtaxon)+1;
-END
-DELIMITER
+CREATE TRIGGER `trg_taxon_has_imageObject_insert` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW BEGIN
+	SET NEW.position = (SELECT COUNT(*) FROM taxon_has_imageObject WHERE idtaxon=NEW.idtaxon)+1;
+END;
