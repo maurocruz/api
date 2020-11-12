@@ -2,9 +2,12 @@
 
 namespace Plinct\Api\Type;
 
+use FilesystemIterator;
 use Plinct\Api\Server\Entity;
 use Plinct\Tool\Thumbnail;
 use Plinct\Tool\StringTool;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use ReflectionException;
 
 class ImageObject extends Entity implements TypeInterface
@@ -14,6 +17,8 @@ class ImageObject extends Entity implements TypeInterface
     protected $type = "ImageObject";
     
     protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href" ];
+
+    protected $hasTypes = [ "author" => "Person" ];
 
     /**
      * PUT
@@ -74,12 +79,42 @@ class ImageObject extends Entity implements TypeInterface
     public function post(array $params): array 
     {
         // upload image
-        if (isset($_FILES['imageupload']) && $_FILES['imageupload']['size'] > 0) {
-            $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . self::uploadImage($_FILES['imageupload'],$params['location']);
-            unset($params['location']);            
+        if (isset($_FILES['imageupload'])) {
+            foreach ($_FILES['imageupload'] as $keyImagesUploaded => $valueImagesUploaded) {
+                foreach ($valueImagesUploaded as  $keyImage => $valueImage) {
+                    $imagesUploaded[$keyImage][$keyImagesUploaded] = $valueImage;
+                }
+            }
+            foreach ($imagesUploaded as $keyForUpload => $valueForUpload) {
+                if ($valueForUpload['size'] > 0) {
+                    $params['contentUrl'] = $params['location'] . DIRECTORY_SEPARATOR . self::uploadImage($valueForUpload, $params['location']);
+                    $newParams[] = $params;
+                }
+            }
+            foreach ($newParams as $valueParams) {
+                unset($valueParams['location']);
+                $this->table = "imageObject";
+                parent::post($valueParams);
+            }
+
+            return [ "messagem" => "images uploaded" ];
+
+        } elseif(isset($params['id']) && is_array($params['id'])) {
+            foreach ($params['id'] as $valueParams) {
+                if (isset($params['tableHasPart'])) {
+                    $newParams['tableHasPart'] = $params['tableHasPart'];
+                    $newParams['idHasPart'] = $params['idHasPart'];
+                    $newParams['id'] = $valueParams;
+                }
+                $this->table = "imageObject";
+                parent::post($newParams);
+            }
+
+            return [ "messagem" => "images uploaded" ];
+
+        } else {
+            return parent::post($params);
         }
-        
-        return parent::post($params);
     }
 
     /**
@@ -98,8 +133,30 @@ class ImageObject extends Entity implements TypeInterface
      * @return array
      */
     public function delete(array $params): array 
-    {        
-        return parent::delete($params);
+    {
+        $message = parent::delete($params);
+
+        $imageFile = isset($params['contentUrl']) ? realpath($_SERVER['DOCUMENT_ROOT'].$params['contentUrl']) : null;
+        if ($imageFile && $message["message"] == "Deleted successfully" && file_exists($imageFile)) {
+            unlink($imageFile);
+            $this->deleteThumbs($imageFile);
+        }
+
+        return $message;
+    }
+
+    // unlike thumbs folder
+    private function deleteThumbs($file)
+    {
+        $folderThumbs = dirname($file)."/thumbs";
+        if (is_dir($folderThumbs)) {
+            $directory = new RecursiveDirectoryIterator($folderThumbs, FilesystemIterator::SKIP_DOTS);
+            $iterator = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::CHILD_FIRST);
+
+            foreach ($iterator as $file) {
+                $file->isDir() ? rmdir($file) : unlink($file);
+            }
+        }
     }
 
     /**
