@@ -11,7 +11,7 @@
 -- -- Organization
 --
 
-CREATE TABLE `article` (
+CREATE TABLE IF NOT EXISTS `article` (
   `idarticle` int(10) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `articleBody` text,
@@ -29,7 +29,7 @@ CREATE TABLE `article` (
   KEY `idx_1` (`name`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `article_has_imageObject` (
+CREATE TABLE IF NOT EXISTS `article_has_imageObject` (
   `idarticle` int(10) NOT NULL,
   `idimageObject` int(10) NOT NULL,
   `caption` varchar(255) DEFAULT NULL,

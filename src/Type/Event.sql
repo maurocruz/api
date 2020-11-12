@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   CONSTRAINT `fk_events_1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
-CREATE TABLE `event_has_imageObject` (
+CREATE TABLE IF NOT EXISTS `event_has_imageObject` (
   `idimageObject` int(10) NOT NULL,
   `idevent` int(10) NOT NULL,
   `caption` varchar(255) DEFAULT NULL,

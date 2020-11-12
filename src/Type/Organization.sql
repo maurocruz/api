@@ -27,11 +27,11 @@ CREATE TABLE IF NOT EXISTS `organization` (
   `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idorganization`),
   INDEX `fk_Organization_place1_idx` (`location` ASC),
-  INDEX `fk_Organization_postalAddres1_idx` (`address` ASC),
+  INDEX `fk_Organization_postalAddress1_idx` (`address` ASC),
   INDEX `fk_Organization_place2_idx` (`areaServed` ASC),
   CONSTRAINT `fk_Organization_place1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_Organization_place2` FOREIGN KEY (`areaServed`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Organization_postalAddres1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION
+  CONSTRAINT `fk_Organization_postalAddress1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
 --
