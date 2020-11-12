@@ -61,18 +61,17 @@ class Crud
             $bindValues[] = $value;
         }
         
-        $query = "UPDATE $this->table SET ";
+        $query = "UPDATE " . $this->table . " SET ";
         $query .= implode(",", $names);
         $query .= " WHERE $where;";
-        
+
         return self::execute($query, $bindValues, "Updated data successfully", $data);
     }
     
     // DELETE
     protected function erase(string $where, $limit = null): array 
     {    
-        $query = "DELETE FROM $this->table";
-        $query .= " WHERE $where";
+        $query = "DELETE FROM " . $this->table . " WHERE $where";
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
