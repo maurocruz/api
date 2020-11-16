@@ -30,18 +30,6 @@ CREATE TABLE IF NOT EXISTS `event` (
   CONSTRAINT `fk_events_1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS `event_has_imageObject` (
-  `idimageObject` int(10) NOT NULL,
-  `idevent` int(10) NOT NULL,
-  `caption` varchar(255) DEFAULT NULL,
-  `position` tinyint(4) DEFAULT NULL,
-  `cover` tinyint(1) DEFAULT NULL,
-  PRIMARY KEY (`idevent`,`idimageObject`),
-  KEY `FK_events_has_images_imageObject` (`idimageObject`),
-  CONSTRAINT `FK_event_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `fk_event_has_imageObject_event1` FOREIGN KEY (`idevent`) REFERENCES `event` (`idevent`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS `events_has_person` (
   `idevents` INT(10) NOT NULL,
   `idperson` INT(10) NOT NULL,
@@ -51,3 +39,27 @@ CREATE TABLE IF NOT EXISTS `events_has_person` (
   CONSTRAINT `fk_events_has_person_events1` FOREIGN KEY (`idevents`) REFERENCES `event` (`idevents`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_events_has_person_person1` FOREIGN KEY (`idperson`) REFERENCES `person` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `event_has_imageObject` (
+   `idimageObject` int NOT NULL,
+   `idevent` int NOT NULL,
+   `caption` varchar(255) DEFAULT NULL,
+   `position` tinyint DEFAULT NULL,
+   `cover` tinyint DEFAULT NULL,
+   PRIMARY KEY (`idevent`,`idimageObject`),
+   KEY `FK_events_has_images_imageObject` (`idimageObject`),
+   CONSTRAINT `FK_event_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION,
+   CONSTRAINT `fk_event_has_imageObject_event1` FOREIGN KEY (`idevent`) REFERENCES `event` (`idevent`) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB;
+
+DROP TRIGGER IF EXISTS `event_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `event_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `event_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `event_has_imageObject` WHERE `idevent`=NEW.`idevent`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;

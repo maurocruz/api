@@ -83,13 +83,14 @@ CREATE TABLE IF NOT EXISTS `localBusiness_has_imageObject` (
   CONSTRAINT `FK_localBusiness_has_imageObject_localBusiness` FOREIGN KEY (`idlocalBusiness`) REFERENCES `localBusiness` (`idlocalBusiness`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
-DROP TRIGGER IF EXISTS `increment_position`;
+DROP TRIGGER IF EXISTS `localBusiness_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `increment_position` BEFORE INSERT ON `localBusiness_has_imageObject` FOR EACH ROW
+CREATE DEFINER = CURRENT_USER TRIGGER `localBusiness_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `localBusiness_has_imageObject` FOR EACH ROW
 BEGIN
-  DECLARE countIt INT;
-  SET countIt = (SELECT COUNT(*) FROM `localBusiness_has_imageObject`);
-  IF NEW.`position`='' THEN SET NEW.`position`= countIt+1;
+  DECLARE count INT;
+  SET count = (SELECT COUNT(*) FROM `localBusiness_has_imageObject` WHERE `idlocalBusiness`=NEW.`idlocalBusiness`);
+  IF NEW.`position`='' OR NEW.`position` IS NULL
+      THEN SET NEW.`position`= count+1;
   END IF;
 END$$
 DELIMITER ;

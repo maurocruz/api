@@ -40,3 +40,15 @@ CREATE TABLE IF NOT EXISTS `article_has_imageObject` (
   CONSTRAINT `FK_news_has_images_news` FOREIGN KEY (`idarticle`) REFERENCES `article` (`idarticle`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_article_has_imageObject_1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
+
+DROP TRIGGER IF EXISTS `article_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `article_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `article_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `article_has_imageObject` WHERE `idarticle`=NEW.`idarticle`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;

@@ -37,6 +37,14 @@ CREATE TABLE IF NOT EXISTS `taxon_has_imageObject` (
   CONSTRAINT `FK_taxon_has_imageObject` FOREIGN KEY (`idtaxon`) REFERENCES `taxon` (`idtaxon`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
-CREATE TRIGGER `trg_taxon_has_imageObject_insert` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW BEGIN
-	SET NEW.position = (SELECT COUNT(*) FROM taxon_has_imageObject WHERE idtaxon=NEW.idtaxon)+1;
-END;
+DROP TRIGGER IF EXISTS `taxon_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `ptaxon_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `taxon_has_imageObject` WHERE `idtaxon`=NEW.`idtaxon`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;

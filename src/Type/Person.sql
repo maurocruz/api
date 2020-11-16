@@ -55,3 +55,15 @@ CREATE TABLE IF NOT EXISTS `person_has_imageObject` (
   CONSTRAINT `fk_person_has_imageObject_person1` FOREIGN KEY (`idperson`) REFERENCES `person` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_person_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+
+DROP TRIGGER IF EXISTS `person_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `person_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `person_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `person_has_imageObject` WHERE `idperson`=NEW.`idperson`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;

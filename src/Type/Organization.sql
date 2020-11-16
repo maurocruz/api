@@ -47,6 +47,18 @@ CREATE TABLE IF NOT EXISTS `organization_has_imageObject` (
   CONSTRAINT `fk_organization_has_imageObject_2` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
+DROP TRIGGER IF EXISTS `organization_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `organization_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `organization_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `organization_has_imageObject` WHERE `idorganization`=NEW.`idorganization`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;
+
 --
 -- relational table with person
 --

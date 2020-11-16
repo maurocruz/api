@@ -40,3 +40,15 @@ CREATE TABLE IF NOT EXISTS `webPageElement_has_imageObject` (
   CONSTRAINT `fk_webPageElement_has_imageObject_1` FOREIGN KEY (`idwebPageElement`) REFERENCES `webPageElement` (`idwebPageElement`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_webPageElement_has_imageObject_2` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE  ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
+
+
+DROP TRIGGER IF EXISTS `webPageElement_has_imageObject_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `webPageElement_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `webPageElement_has_imageObject` FOR EACH ROW BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `webPageElement_has_imageObject` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+        THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;
