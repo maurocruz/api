@@ -57,7 +57,7 @@ class FilterGet
                 $whereArray[] = "`$like` LIKE '%$value%'";
 
             } elseif (!in_array($key, $this->noWhere)) {
-                $whereArray[] = "`$key`='$value'"; 
+                $whereArray[] = "`$key`='".addslashes($value)."'";
 
             }
             
