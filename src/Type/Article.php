@@ -13,7 +13,7 @@ class Article extends Entity implements TypeInterface
     
     protected $properties = [ "headline", "author", "datePublished", "publisher"];
     
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject", "author" => "Person" ];
 
     public function get(array $params): array 
     {
@@ -22,11 +22,18 @@ class Article extends Entity implements TypeInterface
     
     public function post(array $params): array 
     {
+        $params['dateCreated'] = date("Y-m-d H:i:s");
+        $params['datePublished'] = $params['publishied'] == '1' ? date("Y-m-d H:i:s") : null;
+
         return parent::post($params);
     }
     
     public function put(array $params): array 
     {
+        if (isset($params['datePublished'])) {
+            $params['datePublished'] = $params['publishied'] == '1' && $params['datePublished'] == '' ? date("Y-m-d H:i:s") : null;
+        }
+
         return parent::put($params);
     }
     
