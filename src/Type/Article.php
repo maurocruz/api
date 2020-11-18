@@ -31,7 +31,10 @@ class Article extends Entity implements TypeInterface
     public function put(array $params): array 
     {
         if (isset($params['datePublished'])) {
-            $params['datePublished'] = $params['publishied'] == '1' && $params['datePublished'] == '' ? date("Y-m-d H:i:s") : null;
+            $params['datePublished'] =
+                $params['publishied'] == '1' && $params['datePublished'] == ''
+                    ? date("Y-m-d H:i:s")
+                    : ( $params['publishied'] == '0' ? null : $params['datePublished'] );
         }
 
         return parent::put($params);
