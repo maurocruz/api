@@ -12,7 +12,7 @@ class Person extends Entity implements TypeInterface
     
     protected $type = "Person";
     
-    protected $properties = [ "*" ];
+    protected $properties = [ "name" ];
     
     protected $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint" ];
 
