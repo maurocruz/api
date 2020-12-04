@@ -75,7 +75,7 @@ class Relationship extends Crud
     public function postRelationship(array $params): array
     {
         $this->setVars($params);
-        
+
         // created is part of
         if (isset($params['id'])) {
             $this->idIsPartOf = $params['id'];
@@ -87,9 +87,9 @@ class Relationship extends Crud
         // one to one relationship type 
         $propertyIsPartOf = $this->propertyIsPartOf();
         
-        if ($propertyIsPartOf) {            
+        if ($propertyIsPartOf) {
             // update has part
-            $this->table = $this->tableHasPart;            
+            $this->table = $this->tableHasPart;
             parent::update([ $propertyIsPartOf => $this->idIsPartOf ], "`id{$this->tableHasPart}`={$this->idHasPart}");
         } 
         
@@ -231,8 +231,7 @@ class Relationship extends Crud
                 }
                 // one to many
                 else {
-                    $idTableHasPartName = "id".$this->tableHasPart;
-                    return $typeIsPartOfObject->get([ $idTableHasPartName => $this->idHasPart ]);
+                    return $typeIsPartOfObject->get([ $this->tableHasPart => $this->idHasPart ]);
                 }
             }
         }

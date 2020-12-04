@@ -20,7 +20,7 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function get(array $params): array 
+    protected function get(array $params): array
     {
         $this->tableHasPart = $this->table;
         $this->params = $params;
@@ -67,7 +67,7 @@ abstract class Entity extends Relationship
         }
     }
     
-    public function post(array $params): array
+    protected function post(array $params): array
     {        
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
@@ -90,7 +90,7 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function put(array $params): array
+    protected function put(array $params): array
     {  
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
@@ -110,7 +110,7 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function delete(array $params): array
+    protected function delete(array $params): array
     {
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             return parent::deleteRelationship($params);            
@@ -131,7 +131,7 @@ abstract class Entity extends Relationship
      * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    protected function createSqlTable($type = null)
     {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);

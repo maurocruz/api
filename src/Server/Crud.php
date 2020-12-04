@@ -11,7 +11,7 @@ class Crud
     // READ
     protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null) 
     {        
-        $query = "SELECT $field FROM $this->table";
+        $query = "SELECT $field FROM `$this->table`";
         $query .= $where ? " WHERE $where" : null;
         $query .= $groupBy ? " GROUP BY $groupBy" : null;
         $query .= $orderBy ? " ORDER BY $orderBy" : null;
