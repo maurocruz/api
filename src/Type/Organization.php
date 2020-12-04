@@ -15,7 +15,7 @@ class Organization extends Entity implements TypeInterface
     
     protected $properties = [ "name", "description", "legalName", "taxId" ];
 
-    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject" ];
+    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject", "localBusiness" => "LocalBusiness" ];
 
     /**
      * GET
