@@ -8,16 +8,17 @@
 CREATE TABLE IF NOT EXISTS `order` (
     `idorder` INT NOT NULL AUTO_INCREMENT,
     `orderedItem` INT NULL,
+    `orderedItemType` VARCHAR(45) NULL,
     `customer` INT NOT NULL,
     `seller` INT NULL,
     `orderDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `orderStatus` VARCHAR(45) NULL DEFAULT NULL,
     `paymentDueDate` DATETIME NULL,
     `discount` INT NULL,
-    PRIMARY KEY (`idorder`),
-    INDEX `fk_order_service1_idx` (`seller` ASC),
-    CONSTRAINT `fk_order_service1` FOREIGN KEY (`seller`) REFERENCES `service` (`provider`) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (`idorder`)
 ) ENGINE = InnoDB;
+
+
 
 CREATE TABLE IF NOT EXISTS `order_has_offer` (
   `idorder` INT NOT NULL,
