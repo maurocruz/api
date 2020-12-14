@@ -88,7 +88,7 @@ class FilterGet
         }
     }
     
-    public function field() 
+    public function field(): string
     {
         return $this->fields;
     }
@@ -108,14 +108,14 @@ class FilterGet
         return $this->orderBy;
     }
     
-    public function ordering()
+    public function ordering(): string
     {
         return stripos($this->ordering,'asc') !== false ? "Ascending" : 
                 ( stripos($this->ordering,"desc") !== false ? "Descending" : 
                 (stripos($this->ordering, 'rand') !== false ? "Randomly" : "Unordering") );     
     }
     
-    public function limit()
+    public function limit(): int
     {    
         return $this->limit;
     }
@@ -125,7 +125,7 @@ class FilterGet
         return $this->offset;
     }
     
-    public function getProperties()
+    public function getProperties(): ?array
     {
         return $this->properties;
     }
@@ -137,8 +137,8 @@ class FilterGet
         foreach ($propArray as $value) {
             $array[] = trim($value);
         }
-        
-        $this->properties = array_merge($this->properties, $array);
+
+        $this->properties = $array ? array_merge($this->properties, $array) : $this->properties;
     }
     
 }

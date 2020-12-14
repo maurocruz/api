@@ -2,14 +2,12 @@
 
 namespace Plinct\Api\Server;
 
-use PDOException;
-
 class Crud
 {
     protected $table;
 
     // READ
-    protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null) 
+    protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null): array
     {        
         $query = "SELECT $field FROM `$this->table`";
         $query .= $where ? " WHERE $where" : null;
@@ -23,7 +21,7 @@ class Crud
     }
     
     // CREATED
-    protected function created(array $data) 
+    protected function created(array $data): array
     {
         $names = null;
         $values = null;
@@ -41,13 +39,13 @@ class Crud
         
         $columns = implode(",", $names);        
         $rows = implode(",", $values);
-        $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
-        
-        return self::execute($query, $bindValues, "Record in $this->table created successfully", $data);
+        $query = "INSERT INTO `$this->table` ($columns) VALUES ($rows)";
+
+        return PDOConnect::run($query, $bindValues);
     }    
 
     // UPDATE
-    protected function update(array $data, string $where) 
+    protected function update(array $data, string $where): array
     {
         $names = null;
         $bindValues = null;
@@ -61,17 +59,17 @@ class Crud
             $bindValues[] = $value;
         }
         
-        $query = "UPDATE " . $this->table . " SET ";
+        $query = "UPDATE `" . $this->table . "` SET ";
         $query .= implode(",", $names);
         $query .= " WHERE $where;";
 
-        return self::execute($query, $bindValues, "Updated data successfully", $data);
+        return PDOConnect::run($query, $bindValues);
     }
     
     // DELETE
     protected function erase(string $where, $limit = null): array 
     {    
-        $query = "DELETE FROM " . $this->table . " WHERE $where";
+        $query = "DELETE FROM `" . $this->table . "` WHERE $where";
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
@@ -85,7 +83,7 @@ class Crud
         }
     }
         
-    private static function execute($query, $bindValues, $message, $data)
+   /* private static function execute($query, $bindValues, $message, $data): array
     {
         $connect = PDOConnect::getPDOConnect();
         
@@ -113,7 +111,7 @@ class Crud
             "message" => $message,
             "data" => $data
         ];
-    }
+    }*/
     
     // LAST INSERT ID
     protected function lastInsertId(): string 
@@ -122,7 +120,7 @@ class Crud
     }
     
     // 
-    protected function getQuery($query, $args = null) 
+    protected function getQuery($query, $args = null): array
     {
         return PDOConnect::run($query, $args);
     }

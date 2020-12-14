@@ -11,9 +11,7 @@ class Order extends Entity implements TypeInterface
 
     protected $type = "Order";
 
-    protected $properties;
-
-    protected $hasTypes;
+    protected $hasTypes = [ "seller" => "Organization" ];
 
     public function get(array $params): array
     {
@@ -22,7 +20,7 @@ class Order extends Entity implements TypeInterface
 
     public function post(array $params): array
     {
-        return parent::post($params);
+        var_dump(parent::post($params));
     }
 
     public function put(array $params): array
@@ -35,7 +33,7 @@ class Order extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("Offer");

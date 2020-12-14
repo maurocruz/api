@@ -133,7 +133,7 @@ class PDOConnect
     }
 
 
-    public static function run($query, $args = NULL) 
+    public static function run($query, $args = NULL): array
     {
         $errorInfo = null;
         $connect = self::$PDOConnect;

@@ -7,10 +7,10 @@
 
 CREATE TABLE IF NOT EXISTS `order` (
     `idorder` INT NOT NULL AUTO_INCREMENT,
-    `orderedItem` INT NULL,
-    `orderedItemType` VARCHAR(45) NULL,
-    `customer` INT NOT NULL,
+    `orderedItem` INT NOT NULL,
+    `orderedItemType` VARCHAR(45) NOT NULL,
     `seller` INT NULL,
+    `customer` INT NULL,
     `orderDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `orderStatus` VARCHAR(45) NULL DEFAULT NULL,
     `paymentDueDate` DATETIME NULL,
