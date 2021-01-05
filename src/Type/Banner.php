@@ -33,8 +33,6 @@ class Banner extends Entity implements TypeInterface
      */
     public function post(array $params): array 
     {
-        $params = self::setHistory("CREATE", $params);
-        
         return parent::post($params);
     }
 
@@ -44,10 +42,8 @@ class Banner extends Entity implements TypeInterface
      * @return array
      */
     public function put(array $params): array
-    {   
-        $params = self::setHistory("UPDATE", $params);
+    {
         unset($params['idadvertising']);
-        
         return parent::put($params);
     }
     
@@ -57,9 +53,7 @@ class Banner extends Entity implements TypeInterface
      * @return array
      */
     public function delete(array $params): array 
-    {        
-        $params = self::setHistory("DELETE", $params);
-        
+    {
         return parent::delete([ "idbanner" => $params['idbanner'] ]);
     }
 
@@ -69,27 +63,8 @@ class Banner extends Entity implements TypeInterface
      * @return array|string[]
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null): array
     {        
         return parent::createSqlTable("Banner");
-    }
-    
-    /**
-     * SET HISTORY
-     * @param string $action
-     * @param array $params
-     * @return array
-     */
-    private static function setHistory(string $action, array $params)
-    {
-        $paramsHistory["action"] = $action;
-        $paramsHistory["summary"] = "Valor: ".number_format($params['valorparc'], 2, ",", ".")." / vencimento: ".$params['vencimentoparc']." / quitado: ".$params['quitado'];
-        $paramsHistory['tableHasPart'] = $params['tableHasPart'];
-        $paramsHistory['idHasPart'] = $params['idHasPart'];
-        $paramsHistory['user'] = SessionUser::getName();
-
-        (new History())->post($paramsHistory);
-        
-        return $params;
     }
 }
