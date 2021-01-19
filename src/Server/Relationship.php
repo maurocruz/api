@@ -51,7 +51,7 @@ class Relationship extends Crud
         $this->params = $params;
     }
     
-    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null)
+    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null): array
     {        
         $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
         
@@ -76,10 +76,7 @@ class Relationship extends Crud
     {
         $this->setVars($params);
 
-        // created is part of
-        if (isset($params['id'])) {
-            $this->idIsPartOf = $params['id'];
-        } else {
+        if (!$this->idIsPartOf) {
             parent::created($this->params);
             $this->idIsPartOf = parent::lastInsertId();
         }
@@ -102,7 +99,7 @@ class Relationship extends Crud
             if (self::table_exists($this->table_has_table)) {
                 $this->table = $this->table_has_table;
                 
-                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];            
+                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];
 
                return parent::created($paramCreate);
             } 
@@ -123,7 +120,7 @@ class Relationship extends Crud
         return $this->params;
     }
     
-    public function putRelationship($params) 
+    public function putRelationship($params): array
     {               
         $this->setVars($params);
         
@@ -137,7 +134,7 @@ class Relationship extends Crud
         return parent::update($this->params, $where);
     }
 
-    public function deleteRelationship($params)
+    /*public function deleteRelationship($params): array
     {      
         $this->setVars($params);
         
@@ -146,29 +143,27 @@ class Relationship extends Crud
         $idHasPartName = 'id'.$this->tableHasPart;
         $idIsPartOfName = 'id'.$this->tableIsPartOf;
         
-        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";  
-                
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
+
         return parent::erase($where);
-    }
+    }*/
     
     public function getHasTypes()
     {
         return $this->hasTypes;
     }       
     
-    private static function getTypeObject($type) 
+    private static function getTypeObject($type)
     {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
         
         if (class_exists($classname)) {
             return new $classname();
-            
-        } else {
-            return false;
         }
+        return false;
     }
     
-    private static function table_exists($table)
+    private static function table_exists($table): bool
     {
         return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
     }
@@ -176,8 +171,8 @@ class Relationship extends Crud
     private function propertyIsPartOf() 
     {        
         // check which properties exists in table
-        $columns = parent::getQuery("SHOW COLUMNS FROM $this->tableHasPart");
-                
+        $columns = parent::getQuery("SHOW COLUMNS FROM `$this->tableHasPart`");
+
         // fields columns bd        
         foreach ($columns as $valueColumns) {
             $propColumns[] = $valueColumns['Field'];
@@ -185,30 +180,31 @@ class Relationship extends Crud
         
         // has types of table has part
         $hasTypes = (self::getTypeObject($this->tableHasPart))->getHasTypes();
-        
-        // property is part type 
-        $propIsPartType = array_keys($hasTypes, $this->type);
-        
+
+        // property is part type
+        $propIsPartType = array_keys($hasTypes, $this->type, true);
+
         return in_array($propIsPartType[0], $propColumns) ? $propIsPartType[0] : null;
-        
     }
     
     protected function relationshipsInSchema($valueData, $valueProperty) 
     {
-        $typeIsPartOf = $this->hasTypes[$valueProperty];
-        
+        $typeIsPartOf = $this->hasTypes[$valueProperty] === true ? $valueData[$valueProperty.'Type'] : $this->hasTypes[$valueProperty];
         $this->tableIsPartOf = lcfirst($typeIsPartOf);
-        
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
-        
+
         if ($typeIsPartOfObject) {
 
             // one to one
             if (array_key_exists($valueProperty, $valueData)) {
 
-                if (is_numeric($this->idHasPart)) {
-                    $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
-                    return $resp[0] ?? null;
+                if (is_numeric($this->idHasPart) && is_numeric($valueData[$valueProperty])) {
+                    $data = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty], "limit" => "none" ]);
+                    if (empty($data)) {
+                        return null;
+                    } else {
+                        return $data[0];
+                    }
                 } else {
                     return null;
                 }
@@ -231,7 +227,19 @@ class Relationship extends Crud
                 }
                 // one to many
                 else {
-                    return $typeIsPartOfObject->get([ $this->tableHasPart => $this->idHasPart ]);
+                    if ($typeIsPartOf == "Offer") {
+                        $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
+                    } elseif ($typeIsPartOf == "Invoice") {
+                        $params = [ "referencesOrder" => $this->idHasPart ];
+                    } else {
+                        $params = [ $this->tableHasPart => $this->idHasPart ];
+                    }
+                    $data = $typeIsPartOfObject->get(array_merge($params, [ "limit" => "none" ]));
+                    if (empty($data)) {
+                        return null;
+                    } else {
+                        return $data;
+                    }
                 }
             }
         }

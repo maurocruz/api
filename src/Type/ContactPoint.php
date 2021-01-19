@@ -56,10 +56,10 @@ class ContactPoint extends Entity implements TypeInterface
     /**
      * CREATE SQL
      * @param null $type
-     * @return object
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         return parent::createSqlTable("ContactPoint");
     }

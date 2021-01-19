@@ -69,11 +69,11 @@ class Person extends Entity implements TypeInterface
 
     /**
      * Create table in sql driver
-     * @param $type
-     * @return bool
+     * @param null $type
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null) : array
     {         
         $maintenance = new Maintenance();
         

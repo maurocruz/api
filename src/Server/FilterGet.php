@@ -115,7 +115,7 @@ class FilterGet
                 (stripos($this->ordering, 'rand') !== false ? "Randomly" : "Unordering") );     
     }
     
-    public function limit(): int
+    public function limit(): ?int
     {    
         return $this->limit;
     }

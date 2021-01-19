@@ -21,7 +21,7 @@ trait SchemaTrait
      * @param array $data
      * @return array
      */
-    protected function getSchema($data) 
+    protected function getSchema(array $data): array
     {
         if (empty($data)) {
             return $data;
@@ -67,7 +67,7 @@ trait SchemaTrait
      * @return array
      */
     public function schema(array $valueData): array
-    {        
+    {
         $this->idHasPart = $valueData['id'.$this->table];
                 
         $schema = [
@@ -93,7 +93,7 @@ trait SchemaTrait
                 }
                 
                 // set relationships
-                if (array_key_exists($valueProperty, $this->hasTypes)) {                    
+                if (array_key_exists($valueProperty, $this->hasTypes)) {
                     $schema[$valueProperty] = parent::relationshipsInSchema($valueData, $valueProperty);
                 }
             }

@@ -13,7 +13,7 @@ class Service extends Entity implements TypeInterface
 
     protected $properties = [ "name" ];
 
-    protected $hasTypes = [ "provider" => "Organization", "offers" => "Offer" ];
+    protected $hasTypes = [ "offers" => "Offer", "provider" => true ];
 
     public function get(array $params): array
     {
@@ -35,7 +35,7 @@ class Service extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("Person");

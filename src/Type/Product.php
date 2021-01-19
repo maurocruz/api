@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
 
 class Product extends Entity implements TypeInterface
 {
@@ -35,8 +36,13 @@ class Product extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
-        return $this->createSqlTable("product");
+        $maintenance = new Maintenance();
+        $message[] = $maintenance->createSqlTable("ImageObject");
+
+        $message[] = parent::createSqlTable("Product");
+
+        return $message;
     }
 }

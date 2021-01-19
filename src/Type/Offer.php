@@ -11,7 +11,9 @@ class Offer extends Entity implements TypeInterface
 
     protected $type = "Offer";
 
-    protected $properties = [ "*" ];
+    protected $properties = [ "*", "itemOffered" ];
+
+    protected $hasTypes = [ "itemOffered" => true ];
 
     public function get(array $params): array
     {
@@ -33,7 +35,22 @@ class Offer extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function createSqlTable($type = null)
+    public function addInOrder($params): array
+    {
+        $itemOfferedTypeClassName = "\\Plinct\\Api\\Type\\".ucfirst($params['itemOfferedType']);
+        var_dump($params['itemOffered']);
+        var_dump($params['itemOfferedType']);
+        if (class_exists($itemOfferedTypeClassName)) {
+            $itemOfferedTypeClass = new $itemOfferedTypeClassName();
+            $itemOfferedTypeData = $itemOfferedTypeClass->get([ "id" => $params['itemOffered'], "properties" => "offers"]);
+            var_dump($itemOfferedTypeData[0]['offers']);
+            $params['idIsPartOf'] = $itemOfferedTypeData[0]['offers']['idoffer'];
+        }
+
+        return parent::postRelationship($params);
+    }
+
+    public function createSqlTable($type = null) : array
     {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("QuantitativeValue");

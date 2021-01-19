@@ -10,15 +10,14 @@ CREATE TABLE IF NOT EXISTS `order` (
     `orderedItem` INT NOT NULL,
     `orderedItemType` VARCHAR(45) NOT NULL,
     `seller` INT NULL,
-    `customer` INT NULL,
-    `orderDate` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `sellerType` VARCHAR(45) NULL,
+    `customerType` VARCHAR(45) NULL,
+    `orderDate` DATE NOT NULL,
     `orderStatus` VARCHAR(45) NULL DEFAULT NULL,
-    `paymentDueDate` DATETIME NULL,
+    `paymentDueDate` DATE NULL,
     `discount` INT NULL,
     PRIMARY KEY (`idorder`)
 ) ENGINE = InnoDB;
-
-
 
 CREATE TABLE IF NOT EXISTS `order_has_offer` (
   `idorder` INT NOT NULL,

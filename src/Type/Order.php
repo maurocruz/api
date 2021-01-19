@@ -11,7 +11,9 @@ class Order extends Entity implements TypeInterface
 
     protected $type = "Order";
 
-    protected $hasTypes = [ "seller" => "Organization" ];
+    protected $properties = [ "*" ];
+
+    protected $hasTypes = [ "offer" => "Offer", "partOfInvoice" => "Invoice", "seller" => true, "customer" => true ];
 
     public function get(array $params): array
     {
@@ -20,7 +22,7 @@ class Order extends Entity implements TypeInterface
 
     public function post(array $params): array
     {
-        var_dump(parent::post($params));
+        return parent::post($params);
     }
 
     public function put(array $params): array

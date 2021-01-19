@@ -49,7 +49,7 @@ class Event extends Entity implements TypeInterface
         return parent::delete([ "idevent" => $params['id'] ]);
     }
     
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null) : array
     {
         $maintenance = new Maintenance();
         

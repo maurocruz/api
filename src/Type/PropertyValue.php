@@ -33,7 +33,7 @@ class PropertyValue extends Entity implements TypeInterface
         return parent::delete($params);
     }
     
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null) : array
     {
         return parent::createSqlTable("PropertyValue");
     }

@@ -10,9 +10,9 @@ class Invoice extends Entity implements TypeInterface
 
     protected $type = "Invoice";
 
-    protected $properties;
+    protected $properties = [ "*" ];
 
-    protected $hasTypes;
+    protected $hasTypes = [ "referencesOrder" => "Order", "customer" => true, "provider" => true ];
 
     public function get(array $params): array
     {
@@ -34,7 +34,7 @@ class Invoice extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         // sql create statement
         $message[] = parent::createSqlTable("Invoice");

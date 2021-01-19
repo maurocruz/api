@@ -59,11 +59,11 @@ class Organization extends Entity implements TypeInterface
 
     /**
      * CREATE SQL
-     * @param $type
-     * @return string
+     * @param null $type
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null) : array
     {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("ContactPoint");

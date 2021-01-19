@@ -162,16 +162,16 @@ class ImageObject extends Entity implements TypeInterface
     /**
      * CREATE SQL
      * @param null $type $type
-     * @return string
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         $message[] =  parent::createSqlTable("ImageObject");
         return $message;
     }    
     
-    public static function getRepresentativeImageOfPage($data, $mode = "string", $restrict = false)
+    public static function getRepresentativeImageOfPage($data, $mode = "string", $restrict = false): ?bool
     {
         $imageRep = null;
         $array = null;
@@ -205,7 +205,7 @@ class ImageObject extends Entity implements TypeInterface
         return false;
     }
     
-    private static function uploadImage($imageUpload, $location) 
+    private static function uploadImage($imageUpload, $location): string
     {
         $dir = substr($location, 0, 1) == '/' ? $location : '/'.$location;
         

@@ -61,10 +61,10 @@ class Place extends Entity implements TypeInterface
     /**
      * CREATE SQL
      * @param ?string $type
-     * @return string
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {    
         $maintenance = new Maintenance();
         
