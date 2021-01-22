@@ -61,14 +61,16 @@ class Relationship extends Crud
         $idHasPartName = 'id'.$tableHasPart;
         $idIsPartOfName = 'id'.$tableIsPartOf;
         
-        $query = "SELECT * FROM $tableIsPartOf, $tableRel WHERE $tableIsPartOf.$idIsPartOfName=$tableRel.$idIsPartOfName AND $tableRel.$idHasPartName=$idHasPart";
+        $query = "SELECT * FROM `$tableIsPartOf`, `$tableRel` WHERE `$tableIsPartOf`.$idIsPartOfName=`$tableRel`.$idIsPartOfName AND `$tableRel`.$idHasPartName=$idHasPart";
         // representativeOfPage
         $query .= in_array('representativeOfPage',$this->properties) ? " AND `representativeOfPage` IS TRUE " : null;
-        //
+        // IMAGE OBJECT
         $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
-        
+        // HISTORY
+        $query .= $tableIsPartOf == "history" ? " ORDER BY datetime DESC" : ($orderBy ? " ORDER BY $orderBy" : null);
+
         $query .= ";";
-        
+
         return PDOConnect::run($query);
     }
     
@@ -133,34 +135,19 @@ class Relationship extends Crud
         
         return parent::update($this->params, $where);
     }
-
-    /*public function deleteRelationship($params): array
-    {      
-        $this->setVars($params);
-        
-        $this->table = $this->table_has_table;
-        
-        $idHasPartName = 'id'.$this->tableHasPart;
-        $idIsPartOfName = 'id'.$this->tableIsPartOf;
-        
-        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
-
-        return parent::erase($where);
-    }*/
     
     public function getHasTypes()
     {
         return $this->hasTypes;
     }       
     
-    private static function getTypeObject($type)
+    private static function getTypeObject($type): ?object
     {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
-        
         if (class_exists($classname)) {
             return new $classname();
         }
-        return false;
+        return null;
     }
     
     private static function table_exists($table): bool
