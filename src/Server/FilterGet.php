@@ -45,7 +45,7 @@ class FilterGet
             
             // ORDER BY
             if (stripos($key, "orderBy") !== false) {
-                $this->ordering = $queryParams['ordering'] ?? 'ASC';
+                $this->ordering = $queryParams['ordering'] ?? null;
                 $this->orderBy = stripos($this->ordering, 'rand') !== false ? "rand()" : $value." ".$this->ordering;
             }
             
