@@ -181,10 +181,8 @@ class Relationship extends Crud
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
 
         if ($typeIsPartOfObject) {
-
             // one to one
             if (array_key_exists($valueProperty, $valueData)) {
-
                 if (is_numeric($this->idHasPart) && is_numeric($valueData[$valueProperty])) {
                     $data = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty], "limit" => "none" ]);
                     if (empty($data)) {
@@ -196,7 +194,6 @@ class Relationship extends Crud
                     return null;
                 }
             }
-
             // manys
             else {
                 $this->table_has_table = $this->tableHasPart."_has_".$this->tableIsPartOf;
@@ -218,6 +215,8 @@ class Relationship extends Crud
                         $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
                     } elseif ($typeIsPartOf == "Invoice") {
                         $params = [ "referencesOrder" => $this->idHasPart ];
+                    } elseif ($typeIsPartOf == "OrderItem") {
+                        $params = [ "orderItemNumber" => $this->idHasPart ];
                     } else {
                         $params = [ $this->tableHasPart => $this->idHasPart ];
                     }

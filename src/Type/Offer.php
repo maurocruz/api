@@ -11,7 +11,7 @@ class Offer extends Entity implements TypeInterface
 
     protected $type = "Offer";
 
-    protected $properties = [ "*", "itemOffered" ];
+    protected $properties = [ "*" ];
 
     protected $hasTypes = [ "itemOffered" => true ];
 
@@ -22,7 +22,8 @@ class Offer extends Entity implements TypeInterface
 
     public function post(array $params): array
     {
-       return parent::post($params);
+        unset($params['tableHasPart']);
+        return parent::post($params);
     }
 
     public function put(array $params): array
@@ -38,12 +39,9 @@ class Offer extends Entity implements TypeInterface
     public function addInOrder($params): array
     {
         $itemOfferedTypeClassName = "\\Plinct\\Api\\Type\\".ucfirst($params['itemOfferedType']);
-        var_dump($params['itemOffered']);
-        var_dump($params['itemOfferedType']);
         if (class_exists($itemOfferedTypeClassName)) {
             $itemOfferedTypeClass = new $itemOfferedTypeClassName();
             $itemOfferedTypeData = $itemOfferedTypeClass->get([ "id" => $params['itemOffered'], "properties" => "offers"]);
-            var_dump($itemOfferedTypeData[0]['offers']);
             $params['idIsPartOf'] = $itemOfferedTypeData[0]['offers']['idoffer'];
         }
 

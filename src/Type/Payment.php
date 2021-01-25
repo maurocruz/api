@@ -14,7 +14,7 @@ class Payment extends Entity implements TypeInterface
     
     protected $properties = [ "*" ];
     
-    protected $hasTypes = [  ];
+    protected $hasTypes = [ "referencesOrder" => "Order" ];
 
     /**
      * GET
@@ -23,6 +23,9 @@ class Payment extends Entity implements TypeInterface
      */
     public function get(array $params): array 
     {
+        if (array_key_exists('orderBy',$params) === false) {
+            $params['orderBy'] = "paymentDate";
+        }
         return parent::get($params);
     }
     
@@ -71,7 +74,7 @@ class Payment extends Entity implements TypeInterface
      * @return array|string[]
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null): array
     {        
         return parent::createSqlTable("Payment");
     }
@@ -82,7 +85,7 @@ class Payment extends Entity implements TypeInterface
      * @param array $params
      * @return array
      */
-    private static function setHistory(string $action, array $params)
+    private static function setHistory(string $action, array $params): array
     {                        
         $paramsHistory["action"] = $action;
         $paramsHistory["summary"] = "Valor: ".number_format($params['valorparc'], 2, ",", ".")." / vencimento: ".$params['vencimentoparc']." / quitado: ".$params['quitado'];

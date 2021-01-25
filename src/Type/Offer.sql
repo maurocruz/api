@@ -11,10 +11,9 @@ CREATE TABLE IF NOT EXISTS `offer` (
     `priceCurrency` VARCHAR(45) NOT NULL DEFAULT 'R$',
     `validThrough` DATETIME NULL,
     `availability` VARCHAR(45) NULL,
-    `elegibleDuration` INT NULL,
     `elegibleQuantity` INT NULL,
-PRIMARY KEY (`idoffer`),
-    CONSTRAINT `fk_offer_quantitativeValue1` FOREIGN KEY (`elegibleDuration`) REFERENCES `quantitativeValue` (`idquantitativeValue`) ON DELETE CASCADE ON UPDATE NO ACTION
+    `elegibleDuration` VARCHAR(45) NULL,
+    PRIMARY KEY (`idoffer`)
 ) ENGINE = InnoDB;
 
 CREATE TABLE `quantitativeValue` (
