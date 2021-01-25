@@ -9,7 +9,7 @@ class Crud
     protected $table;
 
     // READ
-    protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null) 
+    protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null): array
     {        
         $query = "SELECT $field FROM $this->table";
         $query .= $where ? " WHERE $where" : null;
@@ -23,7 +23,7 @@ class Crud
     }
     
     // CREATED
-    protected function created(array $data) 
+    protected function created(array $data): array
     {
         $names = null;
         $values = null;
@@ -47,7 +47,7 @@ class Crud
     }    
 
     // UPDATE
-    protected function update(array $data, string $where) 
+    protected function update(array $data, string $where): array
     {
         $names = null;
         $bindValues = null;
@@ -85,7 +85,7 @@ class Crud
         }
     }
         
-    private static function execute($query, $bindValues, $message, $data)
+    private static function execute($query, $bindValues, $message, $data): array
     {
         $connect = PDOConnect::getPDOConnect();
         
@@ -122,7 +122,7 @@ class Crud
     }
     
     // 
-    protected function getQuery($query, $args = null) 
+    protected function getQuery($query, $args = null): array
     {
         return PDOConnect::run($query, $args);
     }
