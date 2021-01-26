@@ -35,16 +35,16 @@ abstract class Entity extends Relationship
         return $this->buildSchema($params, $data);
     }
     
-    protected function getData($params)
+    protected function getData($params): array
     {        
         $filterGet = new FilterGet($params, $this->table, $this->properties);
         
         $this->properties = $filterGet->getProperties();
-                
-        return parent::read($filterGet->field(), $filterGet->where(), $filterGet->groupBy(), $filterGet->orderBy(), $filterGet->limit(), $filterGet->offset());
+
+        return PDOConnect::run($filterGet->getSqlStatement());
     }
     
-    protected function buildSchema($params, $data) 
+    protected function buildSchema($params, $data): array
     {
          if (array_key_exists('error', $data)) {            
             return $data;
@@ -131,7 +131,7 @@ abstract class Entity extends Relationship
      * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);

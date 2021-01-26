@@ -51,7 +51,7 @@ class Relationship extends Crud
         $this->params = $params;
     }
     
-    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null)
+    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null): array
     {        
         $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
         
@@ -123,7 +123,7 @@ class Relationship extends Crud
         return $this->params;
     }
     
-    public function putRelationship($params) 
+    public function putRelationship($params): array
     {               
         $this->setVars($params);
         
@@ -137,7 +137,7 @@ class Relationship extends Crud
         return parent::update($this->params, $where);
     }
 
-    public function deleteRelationship($params)
+    public function deleteRelationship($params): array
     {      
         $this->setVars($params);
         
@@ -156,7 +156,7 @@ class Relationship extends Crud
         return $this->hasTypes;
     }       
     
-    private static function getTypeObject($type) 
+    private static function getTypeObject($type): ?object
     {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
         
@@ -164,11 +164,11 @@ class Relationship extends Crud
             return new $classname();
             
         } else {
-            return false;
+            return null;
         }
     }
     
-    private static function table_exists($table)
+    private static function table_exists($table): bool
     {
         return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
     }
@@ -202,16 +202,12 @@ class Relationship extends Crud
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
         
         if ($typeIsPartOfObject) {
-
             // one to one
             if (array_key_exists($valueProperty, $valueData)) {
-
-                if (is_numeric($this->idHasPart)) {
-                    $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
-                    return $resp[0] ?? null;
-                } else {
-                    return null;
-                }
+               if (is_numeric($this->idHasPart) && $valueData[$valueProperty]) {
+                   $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
+                   return $resp[0];
+               }
             }
 
             // manys

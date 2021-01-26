@@ -21,10 +21,10 @@ trait SchemaTrait
      * @param array $data
      * @return array
      */
-    protected function getSchema($data) 
+    protected function getSchema(array $data): array
     {
         if (empty($data)) {
-            return $data;
+            return [];
         } 
         
         foreach ($data as $value) {
@@ -34,7 +34,7 @@ trait SchemaTrait
         return $list;
     }
     
-    protected function listSchema($data, $numberOfList, $itemListOrder = "ascending")
+    protected function listSchema($data, $numberOfList, $itemListOrder = "ascending"): array
     {
         
         $itemList = [
@@ -66,7 +66,7 @@ trait SchemaTrait
      * @param array $valueData
      * @return array
      */
-    public function schema(array $valueData) 
+    public function schema(array $valueData): array
     {        
         $this->idHasPart = $valueData['id'.$this->table];
                 
@@ -77,7 +77,6 @@ trait SchemaTrait
                
         // add properties
         if (!empty($this->properties)) {
-            
             foreach ($this->properties as $valueProperty) {
                 $data = null;
                   
