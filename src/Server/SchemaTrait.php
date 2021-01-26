@@ -24,7 +24,7 @@ trait SchemaTrait
     protected function getSchema(array $data): array
     {
         if (empty($data)) {
-            return $data;
+            return [];
         } 
         
         foreach ($data as $value) {
@@ -67,7 +67,7 @@ trait SchemaTrait
      * @return array
      */
     public function schema(array $valueData): array
-    {
+    {        
         $this->idHasPart = $valueData['id'.$this->table];
                 
         $schema = [
@@ -77,7 +77,6 @@ trait SchemaTrait
                
         // add properties
         if (!empty($this->properties)) {
-
             foreach ($this->properties as $valueProperty) {
                 $data = null;
 

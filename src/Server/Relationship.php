@@ -135,6 +135,20 @@ class Relationship extends Crud
         
         return parent::update($this->params, $where);
     }
+
+    public function deleteRelationship($params): array
+    {      
+        $this->setVars($params);
+        
+        $this->table = $this->table_has_table;
+        
+        $idHasPartName = 'id'.$this->tableHasPart;
+        $idIsPartOfName = 'id'.$this->tableIsPartOf;
+        
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";  
+                
+        return parent::erase($where);
+    }
     
     public function getHasTypes()
     {
@@ -179,20 +193,14 @@ class Relationship extends Crud
         $typeIsPartOf = $this->hasTypes[$valueProperty] === true ? $valueData[$valueProperty.'Type'] : $this->hasTypes[$valueProperty];
         $this->tableIsPartOf = lcfirst($typeIsPartOf);
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
-
+        
         if ($typeIsPartOfObject) {
             // one to one
             if (array_key_exists($valueProperty, $valueData)) {
-                if (is_numeric($this->idHasPart) && is_numeric($valueData[$valueProperty])) {
-                    $data = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty], "limit" => "none" ]);
-                    if (empty($data)) {
-                        return null;
-                    } else {
-                        return $data[0];
-                    }
-                } else {
-                    return null;
-                }
+               if (is_numeric($this->idHasPart) && $valueData[$valueProperty]) {
+                   $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
+                   return $resp[0];
+               }
             }
             // manys
             else {

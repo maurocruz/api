@@ -39,8 +39,8 @@ abstract class Entity extends Relationship
         $filterGet = new FilterGet($params, $this->table, $this->properties);
         
         $this->properties = $filterGet->getProperties();
-                
-        return parent::read($filterGet->field(), $filterGet->where(), $filterGet->groupBy(), $filterGet->orderBy(), $filterGet->limit(), $filterGet->offset());
+
+        return PDOConnect::run($filterGet->getSqlStatement());
     }
     
     protected function buildSchema($params, $data): array

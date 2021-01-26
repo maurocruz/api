@@ -12,10 +12,9 @@ class FilterGet
     private $where;
     private $groupBy;
     private $orderBy;
-    private $limit = 200;
+    private $limit;
     private $offset;
-    private $ordering = "Unordering";
-    
+
     private $table;
     
     private $properties;
@@ -45,8 +44,8 @@ class FilterGet
             
             // ORDER BY
             if (stripos($key, "orderBy") !== false) {
-                $this->ordering = $queryParams['ordering'] ?? null;
-                $this->orderBy = stripos($this->ordering, 'rand') !== false ? "rand()" : $value." ".$this->ordering;
+                $ordering = $queryParams['ordering'] ?? 'ASC';
+                $this->orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ". $ordering;
             }
             
             // WHERE
@@ -92,42 +91,41 @@ class FilterGet
         }
     }
     
-    public function field(): string
+    /*public function field(): string
     {
         return $this->fields;
-    }
-    
+    }*/
+
     public function where()
     {
         return $this->where;
     }
     
-    public function groupBy()
+    /*public function groupBy()
     {
         return $this->groupBy;
-    }
+    }*/
     
     public function orderBy() 
     {
         return $this->orderBy;
     }
     
-    public function ordering(): string
+    /*public function ordering(): string
     {
         return stripos($this->ordering,'asc') !== false ? "Ascending" : 
                 ( stripos($this->ordering,"desc") !== false ? "Descending" : 
                 (stripos($this->ordering, 'rand') !== false ? "Randomly" : "Unordering") );     
-    }
+    }*/
     
     public function limit(): ?int
     {    
         return $this->limit;
     }
-
-    public function offset()
-    {
+/*
+    public function offset() {
         return $this->offset;
-    }
+    }*/
     
     public function getProperties(): ?array
     {
@@ -137,12 +135,37 @@ class FilterGet
     private function propertiesMerge(string $propertiesIncrement) 
     {
         $propArray = explode(",", $propertiesIncrement);
-                
         foreach ($propArray as $value) {
             $array[] = trim($value);
         }
 
         $this->properties = $array ? array_merge($this->properties, $array) : $this->properties;
     }
-    
+
+    public function getSqlStatement(): string
+    {
+        return "SELECT $this->fields FROM $this->table" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
+    }
+
+    private function stmtWhere(): ?string {
+        return $this->where ? " WHERE $this->where" : null;
+    }
+
+    private function stmtGroupBy(): ?string {
+        return $this->groupBy ? " GROUP BY $this->groupBy" : null;
+    }
+
+    private function stmtOrderBy(): ?string {
+        return $this->orderBy ? " ORDER BY $this->orderBy" : null;
+    }
+
+    private function stmtLimit(): ?string {
+        return $this->limit ? " LIMIT $this->limit" : null;
+    }
+
+    private function stmtOffset(): ?string {
+        return $this->offset ? " OFFSET $this->offset" : null;
+    }
+
+
 }
