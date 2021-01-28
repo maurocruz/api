@@ -44,7 +44,7 @@ class FilterGet
             
             // ORDER BY
             if (stripos($key, "orderBy") !== false) {
-                $ordering = $queryParams['ordering'] ?? 'ASC';
+                $ordering = $queryParams['ordering'] ?? null;
                 $this->orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ". $ordering;
             }
             
@@ -144,7 +144,7 @@ class FilterGet
 
     public function getSqlStatement(): string
     {
-        return "SELECT $this->fields FROM $this->table" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
+        return "SELECT $this->fields FROM `$this->table`" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
     }
 
     private function stmtWhere(): ?string {
