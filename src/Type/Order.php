@@ -3,6 +3,7 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\FilterGet;
 use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\PDOConnect;
 
@@ -42,12 +43,15 @@ class Order extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
-    public function search($params): array
+    public function search($params, $nameLike): array
     {
-        $nameLike = $params['nameLike'];
-        unset($params['nameLike']);
-        $query = "select * from `order` left join `localBusiness` on `order`.customer=localBusiness.idlocalBusiness AND `order`.customerType='LocalBusiness' left join `organization` on `order`.customer=`organization`.idorganization AND `order`.customerType='Organization' left join `person` on `order`.customer=`person`.idperson AND `order`.customerType='Person' where (`localBusiness`.`name` like '%$nameLike%' OR `organization`.`name` like '%$nameLike%' OR `person`.`name` like '%$nameLike%') GROUP BY `order`.customer;";
+        $orderBy = $params['orderBy'];
+        $query = "select `order`.* from `order` left join `localBusiness` on `order`.customer=localBusiness.idlocalBusiness AND `order`.customerType='LocalBusiness' left join `organization` on `order`.customer=`organization`.idorganization AND `order`.customerType='Organization' left join `person` on `order`.customer=`person`.idperson AND `order`.customerType='Person' where (`localBusiness`.`name` like '%$nameLike%' OR `organization`.`name` like '%$nameLike%' OR `person`.`name` like '%$nameLike%') order by $orderBy;";
         $data = PDOConnect::run($query);
+
+        $filterGet = new FilterGet($params, $this->table, $this->properties);
+        $this->properties = $filterGet->getProperties();
+
         return $this->buildSchema($params,$data);
     }
     
