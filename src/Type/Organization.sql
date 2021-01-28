@@ -40,8 +40,11 @@ CREATE TABLE IF NOT EXISTS `organization` (
 CREATE TABLE IF NOT EXISTS `organization_has_imageObject` (
   `idorganization` INT(10) NOT NULL,
   `idimageObject` INT(10) NOT NULL,
-  `position` INT(5) NULL DEFAULT NULL,
+  `position` INT NULL DEFAULT NULL,
+  `representativeOfPage` TINYINT NULL DEFAULT NULL,
+  `caption` TEXT NULL DEFAULT NULL,
   PRIMARY KEY (`idorganization`, `idimageObject`),
+  INDEX `idx_1` (`representativeOfPage`, `idimageObject` ASC),
   INDEX `fk_organization_has_imageObject_2_idx` (`idimageObject` ASC),
   CONSTRAINT `fk_organization_has_imageObject_1` FOREIGN KEY (`idorganization`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `fk_organization_has_imageObject_2` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE ON UPDATE NO ACTION

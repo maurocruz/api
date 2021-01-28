@@ -66,7 +66,7 @@ class WebPage extends Entity implements TypeInterface
      * @return array|string[]
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null): array
     {
         $maintenance = new Maintenance();
 

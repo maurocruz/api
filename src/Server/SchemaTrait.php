@@ -79,7 +79,7 @@ trait SchemaTrait
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
                 $data = null;
-                  
+
                 // added properties on schema array if $properties is defined with *
                 if ($valueProperty == "*") {
                     foreach ($valueData as $key => $valueValue) {
@@ -92,7 +92,7 @@ trait SchemaTrait
                 }
                 
                 // set relationships
-                if (array_key_exists($valueProperty, $this->hasTypes)) {                    
+                if (array_key_exists($valueProperty, $this->hasTypes)) {
                     $schema[$valueProperty] = parent::relationshipsInSchema($valueData, $valueProperty);
                 }
             }

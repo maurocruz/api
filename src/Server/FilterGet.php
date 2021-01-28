@@ -5,7 +5,7 @@ namespace Plinct\Api\Server;
 class FilterGet 
 {   
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "allDetails", "tableHasPart", "idHasPart" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
         
     // conditions sql
     private $fields = "*";
@@ -22,8 +22,7 @@ class FilterGet
     public function __construct($queryParams, $table, $properties) 
     {        
         $this->table = $table;
-                
-        $this->properties = isset($queryParams['allDetails']) ? ["*"] : $properties;
+        $this->properties = $properties;
         
         if (!empty($queryParams)) {
             $this->setQueries($queryParams);
@@ -45,7 +44,7 @@ class FilterGet
             
             // ORDER BY
             if (stripos($key, "orderBy") !== false) {
-                $ordering = $queryParams['ordering'] ?? 'ASC';
+                $ordering = $queryParams['ordering'] ?? null;
                 $this->orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ". $ordering;
             }
             
@@ -55,9 +54,14 @@ class FilterGet
             if ($like) {
                 $whereArray[] = "`$like` LIKE '%$value%'";
 
-            } elseif (!in_array($key, $this->noWhere)) {
-                $whereArray[] = "`$key`='".addslashes($value)."'";
-
+            }
+            //
+            elseif (!in_array($key, $this->noWhere)) {
+                if (strpos($value, "|") !== false) {
+                    $whereArray[] = "(`$key`='".str_replace("|","' OR `$key`='",addslashes($value))."')";
+                } else {
+                    $whereArray[] = "`$key`='".addslashes($value)."'";
+                }
             }
             
             if ($key == "id") {
@@ -114,7 +118,8 @@ class FilterGet
                 (stripos($this->ordering, 'rand') !== false ? "Randomly" : "Unordering") );     
     }*/
     
-    public function limit() {
+    public function limit(): ?int
+    {    
         return $this->limit;
     }
 /*
@@ -122,7 +127,7 @@ class FilterGet
         return $this->offset;
     }*/
     
-    public function getProperties(): array
+    public function getProperties(): ?array
     {
         return $this->properties;
     }
@@ -133,12 +138,13 @@ class FilterGet
         foreach ($propArray as $value) {
             $array[] = trim($value);
         }
-        $this->properties = array_merge($this->properties, $array);
+
+        $this->properties = $array ? array_merge($this->properties, $array) : $this->properties;
     }
 
     public function getSqlStatement(): string
     {
-        return "SELECT $this->fields FROM $this->table" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
+        return "SELECT $this->fields FROM `$this->table`" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
     }
 
     private function stmtWhere(): ?string {

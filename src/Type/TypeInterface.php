@@ -33,5 +33,5 @@ interface TypeInterface
      * @param null $type
      * @return mixed
      */
-    public function createSqlTable($type = null);
+    public function createSqlTable($type = null): array;
 }

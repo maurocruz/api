@@ -14,7 +14,7 @@ class Payment extends Entity implements TypeInterface
     
     protected $properties = [ "*" ];
     
-    protected $hasTypes = [  ];
+    protected $hasTypes = [ "referencesOrder" => "Order" ];
 
     /**
      * GET
@@ -23,6 +23,9 @@ class Payment extends Entity implements TypeInterface
      */
     public function get(array $params): array 
     {
+        if (array_key_exists('orderBy',$params) === false) {
+            $params['orderBy'] = "paymentDate";
+        }
         return parent::get($params);
     }
     

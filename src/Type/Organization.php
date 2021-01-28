@@ -15,7 +15,7 @@ class Organization extends Entity implements TypeInterface
     
     protected $properties = [ "name", "description", "legalName", "taxId" ];
 
-    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject" ];
+    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject", "localBusiness" => "LocalBusiness" ];
 
     /**
      * GET
@@ -59,11 +59,11 @@ class Organization extends Entity implements TypeInterface
 
     /**
      * CREATE SQL
-     * @param $type
-     * @return string
+     * @param null $type
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null) 
+    public function createSqlTable($type = null) : array
     {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("ContactPoint");

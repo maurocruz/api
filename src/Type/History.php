@@ -17,7 +17,7 @@ class History extends Entity implements TypeInterface
     protected $withTypes = [  ];
 
     public function get(array $params): array 
-    {   
+    {
         return parent::get($params);
     }
     
@@ -48,7 +48,7 @@ class History extends Entity implements TypeInterface
      * @param $tableHasPart
      * @param $idHasPart
      */
-    public function postHistory($action, $summary, $tableHasPart, $idHasPart) 
+    public function postHistory($action, $summary, $tableHasPart, $idHasPart): array
     {                        
         $paramsHistory["action"] = $action;
         $paramsHistory["summary"] = $summary;
@@ -56,6 +56,6 @@ class History extends Entity implements TypeInterface
         $paramsHistory['idHasPart'] = $idHasPart;
         $paramsHistory['user'] = SessionUser::getName();
         
-        $this->post($paramsHistory);
+        return $this->post($paramsHistory);
     }
 }

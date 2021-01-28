@@ -98,7 +98,7 @@ class User extends Entity implements TypeInterface
      * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null) : array
     {
         return parent::createSqlTable('User');
     }

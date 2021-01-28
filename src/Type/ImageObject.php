@@ -162,50 +162,29 @@ class ImageObject extends Entity implements TypeInterface
     /**
      * CREATE SQL
      * @param null $type $type
-     * @return string
+     * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null)
+    public function createSqlTable($type = null): array
     {
         $message[] =  parent::createSqlTable("ImageObject");
         return $message;
     }    
     
-    public static function getRepresentativeImageOfPage($data, $mode = "string", $restrict = false)
+    public static function getRepresentativeImageOfPage($data, $mode = "string")
     {
-        $imageRep = null;
-        $array = null;
-        $arrayRep = null;
-
         if ($data) {
             foreach ($data as $valueImage) {
                 if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {
-                    $imageRep =  $valueImage['contentUrl'];
-                    $arrayRep = $valueImage;
-                    break;
-                    
-                } else {
-                    $images[] = $valueImage['contentUrl'];
-                    $array[] = $valueImage;
+                    return $mode == "string" ? $valueImage['contentUrl'] : $valueImage;
                 }
-            }   
-
-            if ($restrict) {
-                return $mode == "string" ? $imageRep : $arrayRep;
             }
-
-            if ($mode == "string") {
-                return $imageRep ?? $images[0] ?? null;
-                
-            } else {
-                return $arrayRep ?? $array[0];
-            }
+            return $mode == "string" ? $data[0]['contentUrl'] : $data[0];
         }
-
-        return false;
+        return null;
     }
     
-    private static function uploadImage($imageUpload, $location) 
+    private static function uploadImage($imageUpload, $location): string
     {
         $dir = substr($location, 0, 1) == '/' ? $location : '/'.$location;
         

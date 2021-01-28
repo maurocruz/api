@@ -61,7 +61,7 @@ return function(App $slimApp)
             $data = (new Index())->index();
         }
 
-        $response = $response->withHeader("Content-type", "application/json");
+        //$response = $response->withHeader("Content-type", "application/json");
 
         $response = $response->withHeader('Access-Control-Allow-Origin', '*');
 

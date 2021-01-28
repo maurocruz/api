@@ -3,17 +3,12 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
-use Plinct\Api\Server\Maintenance;
 
-class Product extends Entity implements TypeInterface
+class QuantitativeValue extends Entity implements TypeInterface
 {
-    protected $table = "product";
+    protected $table = "quantitativeValue";
 
-    protected $type = "Product";
-
-    protected $properties = [ "name" ];
-
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $type = "QuantitativeValue";
 
     public function get(array $params): array
     {
@@ -22,7 +17,6 @@ class Product extends Entity implements TypeInterface
 
     public function post(array $params): array
     {
-        $params['dateCreated'] = date("Y-m-d H:i:s");
         return parent::post($params);
     }
 
@@ -38,11 +32,6 @@ class Product extends Entity implements TypeInterface
 
     public function createSqlTable($type = null): array
     {
-        $maintenance = new Maintenance();
-        $message[] = $maintenance->createSqlTable("ImageObject");
-
-        $message[] = parent::createSqlTable("Product");
-
-        return $message;
+        return parent::createSqlTable("QuantitativeValue");
     }
 }

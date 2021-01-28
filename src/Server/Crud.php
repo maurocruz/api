@@ -2,8 +2,6 @@
 
 namespace Plinct\Api\Server;
 
-use PDOException;
-
 class Crud
 {
     protected $table;
@@ -11,7 +9,7 @@ class Crud
     // READ
     protected function read(string $field = "*", string $where = null, string $groupBy = null, string $orderBy = null, $limit = null, $offset = null, array $args = null): array
     {        
-        $query = "SELECT $field FROM $this->table";
+        $query = "SELECT $field FROM `$this->table`";
         $query .= $where ? " WHERE $where" : null;
         $query .= $groupBy ? " GROUP BY $groupBy" : null;
         $query .= $orderBy ? " ORDER BY $orderBy" : null;
@@ -41,9 +39,9 @@ class Crud
         
         $columns = implode(",", $names);        
         $rows = implode(",", $values);
-        $query = "INSERT INTO $this->table ($columns) VALUES ($rows)";
-        
-        return self::execute($query, $bindValues, "Record in $this->table created successfully", $data);
+        $query = "INSERT INTO `$this->table` ($columns) VALUES ($rows)";
+
+        return PDOConnect::run($query, $bindValues);
     }    
 
     // UPDATE
@@ -61,17 +59,17 @@ class Crud
             $bindValues[] = $value;
         }
         
-        $query = "UPDATE " . $this->table . " SET ";
+        $query = "UPDATE `" . $this->table . "` SET ";
         $query .= implode(",", $names);
         $query .= " WHERE $where;";
 
-        return self::execute($query, $bindValues, "Updated data successfully", $data);
+        return PDOConnect::run($query, $bindValues);
     }
     
     // DELETE
     protected function erase(string $where, $limit = null): array 
     {    
-        $query = "DELETE FROM " . $this->table . " WHERE $where";
+        $query = "DELETE FROM `" . $this->table . "` WHERE $where";
         $query .= $limit ? " LIMIT $limit" : null;
         $query .= ";";
         
@@ -85,7 +83,7 @@ class Crud
         }
     }
         
-    private static function execute($query, $bindValues, $message, $data): array
+   /* private static function execute($query, $bindValues, $message, $data): array
     {
         $connect = PDOConnect::getPDOConnect();
         
@@ -113,7 +111,7 @@ class Crud
             "message" => $message,
             "data" => $data
         ];
-    }
+    }*/
     
     // LAST INSERT ID
     protected function lastInsertId(): string 

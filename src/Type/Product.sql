@@ -11,11 +11,13 @@ CREATE TABLE IF NOT EXISTS `product` (
   `description` text NOT NULL,
   `position` tinyint unsigned DEFAULT NULL,
   `availability` varchar(45) NOT NULL DEFAULT '',
+  `provider` INT NULL,
+  `offers` INT NULL,
   `dateCreated` timestamp NULL DEFAULT NULL,
   `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idproduct`),
   KEY `idx_1` (`idproduct`,`category`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB;
 
 
 CREATE TABLE IF NOT EXISTS `product_has_imageObject` (

@@ -5,15 +5,15 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 
-class Product extends Entity implements TypeInterface
+class Service extends Entity implements TypeInterface
 {
-    protected $table = "product";
+    protected $table = "service";
 
-    protected $type = "Product";
+    protected $type = "Service";
 
-    protected $properties = [ "name" ];
+    protected $properties = [ "*", "offers" ];
 
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "offers" => "Offer", "provider" => true ];
 
     public function get(array $params): array
     {
@@ -22,7 +22,6 @@ class Product extends Entity implements TypeInterface
 
     public function post(array $params): array
     {
-        $params['dateCreated'] = date("Y-m-d H:i:s");
         return parent::post($params);
     }
 
@@ -39,9 +38,13 @@ class Product extends Entity implements TypeInterface
     public function createSqlTable($type = null): array
     {
         $maintenance = new Maintenance();
-        $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("Person");
+        $message[] = $maintenance->createSqlTable("Organization");
 
-        $message[] = parent::createSqlTable("Product");
+        // sql create statement
+        $message[] = parent::createSqlTable("Service");
+
+        $message[] = $maintenance->createSqlTable("Offer");
 
         return $message;
     }

@@ -20,14 +20,13 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function get(array $params): array 
+    protected function get(array $params): array
     {
         $this->tableHasPart = $this->table;
         $this->params = $params;
         
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
-            
         } else {
             $data = $this->getData($params);
         }
@@ -50,7 +49,7 @@ abstract class Entity extends Relationship
             return $data;
             
         } else {    
-            // format ItemList            
+            // format ItemList
             if (isset($params['format']) && $params['format'] == "ItemList") {
                 if (isset($params['count']) && $params['count'] == "all") {
                     $countAll = parent::read("COUNT(*) as q");
@@ -67,7 +66,7 @@ abstract class Entity extends Relationship
         }
     }
     
-    public function post(array $params): array
+    protected function post(array $params): array
     {        
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
@@ -90,7 +89,7 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function put(array $params): array
+    protected function put(array $params): array
     {  
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
@@ -110,11 +109,11 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    public function delete(array $params): array
+    protected function delete(array $params): array
     {
-        if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
+        /*if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             return parent::deleteRelationship($params);            
-        }
+        }*/
                 
         $params = array_filter($params);
         
@@ -131,7 +130,7 @@ abstract class Entity extends Relationship
      * @return array
      * @throws ReflectionException
      */
-    public function createSqlTable($type = null): array
+    protected function createSqlTable($type = null): array
     {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);
