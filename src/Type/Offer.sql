@@ -16,12 +16,12 @@ CREATE TABLE IF NOT EXISTS `offer` (
     PRIMARY KEY (`idoffer`)
 ) ENGINE = InnoDB;
 
-CREATE TABLE `quantitativeValue` (
+CREATE TABLE  IF NOT EXISTS `quantitativeValue` (
      `idquantitativeValue` int NOT NULL AUTO_INCREMENT,
      `value` varchar(45) NOT NULL,
      `unitText` varchar(45) NOT NULL,
      `maxValue` varchar(45) DEFAULT NULL,
      `minValue` varchar(45) DEFAULT NULL,
      PRIMARY KEY (`idquantitativeValue`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB;
 
