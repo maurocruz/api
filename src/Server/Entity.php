@@ -49,7 +49,7 @@ abstract class Entity extends Relationship
             return $data;
             
         } else {    
-            // format ItemList            
+            // format ItemList
             if (isset($params['format']) && $params['format'] == "ItemList") {
                 if (isset($params['count']) && $params['count'] == "all") {
                     $countAll = parent::read("COUNT(*) as q");
