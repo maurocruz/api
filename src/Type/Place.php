@@ -12,7 +12,7 @@ class Place extends Entity implements TypeInterface
     
     protected $type = "Place";
     
-    protected $properties = [ "*", "address" ];
+    protected $properties = [ "*" ];
     
     protected $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
 
