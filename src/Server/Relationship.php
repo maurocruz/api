@@ -199,7 +199,7 @@ class Relationship extends Crud
             if (array_key_exists($valueProperty, $valueData)) {
                if (is_numeric($this->idHasPart) && $valueData[$valueProperty]) {
                    $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
-                   return $resp[0];
+                   return $resp[0] ?? null;
                }
             }
             // manys
