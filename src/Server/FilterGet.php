@@ -122,10 +122,10 @@ class FilterGet
     {    
         return $this->limit;
     }
-/*
+
     public function offset() {
         return $this->offset;
-    }*/
+    }
     
     public function getProperties(): ?array
     {
@@ -164,7 +164,7 @@ class FilterGet
     }
 
     private function stmtOffset(): ?string {
-        return $this->offset ? " OFFSET $this->offset" : null;
+        return $this->offset !== null ? " OFFSET $this->offset" : null;
     }
 
 
