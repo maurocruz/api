@@ -47,6 +47,7 @@ class History extends Entity implements TypeInterface
      * @param $summary
      * @param $tableHasPart
      * @param $idHasPart
+     * @return array
      */
     public function postHistory($action, $summary, $tableHasPart, $idHasPart): array
     {                        
