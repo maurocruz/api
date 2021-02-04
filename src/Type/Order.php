@@ -26,7 +26,7 @@ class Order extends Entity implements TypeInterface
     {        
         $data = parent::post($params);
         
-        (new History())->postHistory("CREATED", _("Create new order"), "advertising", $data['id']);
+        (new History())->postHistory("CREATED", _("Create new order"), "order", $data['id']);
         
         return $data;
     }
