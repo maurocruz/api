@@ -8,11 +8,8 @@ use ReflectionException;
 abstract class Entity extends Relationship
 {    
     protected $table;
-    
     protected $properties = [];
-    
     protected $hasTypes = [];
-    
     use SchemaTrait;
     
     /**
@@ -22,48 +19,18 @@ abstract class Entity extends Relationship
      */
     protected function get(array $params): array
     {
-        $this->tableHasPart = $this->table;
-        $this->params = $params;
-        
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
         } else {
             $data = $this->getData($params);
         }
-        
         return $this->buildSchema($params, $data);
     }
     
     protected function getData($params): array
     {        
         $filterGet = new FilterGet($params, $this->table, $this->properties);
-        
-        $this->properties = $filterGet->getProperties();
-
         return PDOConnect::run($filterGet->getSqlStatement());
-    }
-    
-    protected function buildSchema($params, $data): array
-    {
-         if (array_key_exists('error', $data)) {            
-            return $data;
-            
-        } else {    
-            // format ItemList
-            if (isset($params['format']) && $params['format'] == "ItemList") {
-                if (isset($params['count']) && $params['count'] == "all") {
-                    $countAll = parent::read("COUNT(*) as q");
-                    $numberOfItems = $countAll[0]['q'];
-                    
-                } else {
-                    $numberOfItems =  count($data);
-                }
-                
-                return $this->listSchema($data, $numberOfItems);
-            }
-            
-            return $this->getSchema($data);
-        }
     }
     
     protected function post(array $params): array
@@ -71,12 +38,9 @@ abstract class Entity extends Relationship
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::postRelationship($params);
-        }        
-        
+        }
         $message = parent::created($params);
-        
         $lastId = parent::lastInsertId();
-        
         if ($lastId == '0') {
             return $message;
         } else {
@@ -96,11 +60,9 @@ abstract class Entity extends Relationship
             return parent::putRelationship($params);
         } 
         unset($params['tableHasPart']);
-
         $idName = "id".$this->table;
         $idValue = $params['id'];
         unset($params['id']);
-        
         return parent::update($params, "`$idName`=$idValue");
     }
     
@@ -111,16 +73,9 @@ abstract class Entity extends Relationship
      */
     protected function delete(array $params): array
     {
-        /*if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
-            return parent::deleteRelationship($params);            
-        }*/
-                
         $params = array_filter($params);
-        
-        $filter = new FilterGet($params, $this->table, $this->properties); 
-        
+        $filter = new FilterGet($params, $this->table, $this->properties);
         $this->properties = $filter->getProperties();
-        
         return parent::erase($filter->where(), $filter->limit());
     }
 
@@ -135,17 +90,13 @@ abstract class Entity extends Relationship
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);
         $sqlFile = dirname($reflection->getFileName()) . "/" . ucfirst($type) . ".sql";
-
-        // run sql
+        // RUN SQL FILE
         if (file_exists($sqlFile)) {
             $data = PDOConnect::run(file_get_contents($sqlFile));
-
             if (array_key_exists("error", $data)) {
                 return $data;
             }
-
             return [ "message" => "Sql table for ".$type. " created successfully!" ];
-           
         } else {
             return [ "message" => "Sql table for ".$type." not created!" ];
         }
