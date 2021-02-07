@@ -9,11 +9,8 @@ use ReflectionException;
 class Place extends Entity implements TypeInterface
 {
     protected $table = "place";
-    
     protected $type = "Place";
-    
-    protected $properties = [ "*" ];
-    
+    protected $properties = [ "*","address" ];
     protected $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
 
     /**
@@ -34,7 +31,6 @@ class Place extends Entity implements TypeInterface
     public function post(array $params): array 
     {
         $params['dateCreated'] = date("Y-m-d H:i:s");
-        
         return parent::post($params);
     }
     
@@ -67,12 +63,9 @@ class Place extends Entity implements TypeInterface
     public function createSqlTable($type = null): array
     {    
         $maintenance = new Maintenance();
-        
-        $message[] = $maintenance->createSqlTable("ImageObject");        
-        $message[] = $maintenance->createSqlTable("PostalAddress");  
-        
-        $message[] =  parent::createSqlTable("Place");        
-        
+        $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("PostalAddress");
+        $message[] =  parent::createSqlTable("Place");
         return $message;
     }
 }
