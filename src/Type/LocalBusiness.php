@@ -59,6 +59,11 @@ class LocalBusiness extends Entity implements TypeInterface
         return parent::delete($params);
     }
 
+    public function buildSchema($params, $data): array
+    {
+        return parent::buildSchema($params, $data);
+    }
+
     /**
      * CREATE SQL
      * @param null $type
