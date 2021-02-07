@@ -3,6 +3,7 @@
 -- CREATED TABLE person
 -- -- address
 -- -- contactPoint
+-- -- imageObject
 --
 
 CREATE TABLE IF NOT EXISTS `person` (
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `person_has_imageObject` (
   INDEX `fk_person_has_imageObject_person1_idx` (`idperson` ASC),
   CONSTRAINT `fk_person_has_imageObject_person1` FOREIGN KEY (`idperson`) REFERENCES `person` (`idperson`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_person_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+) ENGINE = InnoDB;
 
 DROP TRIGGER IF EXISTS `person_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
