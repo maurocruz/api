@@ -15,8 +15,7 @@ class Relationship extends Crud
     protected $properties;
     protected $hasTypes;
 
-    public function setVars($params) 
-    {
+    public function setVars($params) {
         if ($params['tableHasPart']) { 
             $this->tableHasPart = lcfirst($params['tableHasPart']) ?? null;
             $this->idHasPart = $params['idHasPart'] ?? null;
@@ -32,28 +31,26 @@ class Relationship extends Crud
         $this->params = $params;
     }
     
-    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null): array
-    {        
+    public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null): array {
         $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
         $orderBy = $filterget->orderBy();
-        
         $tableRel = $tableHasPart.'_has_'.$tableIsPartOf;
         $idHasPartName = 'id'.$tableHasPart;
         $idIsPartOfName = 'id'.$tableIsPartOf;
-        
         $query = "SELECT * FROM `$tableIsPartOf`, `$tableRel` WHERE `$tableIsPartOf`.$idIsPartOfName=`$tableRel`.$idIsPartOfName AND `$tableRel`.$idHasPartName=$idHasPart";
         // representativeOfPage
         $query .= in_array('representativeOfPage',$this->properties) ? " AND `representativeOfPage` IS TRUE " : null;
         // IMAGE OBJECT
         $query .= $tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
+        // CONTACT POINT
+        $query .= $tableIsPartOf == "contactPoint" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
         // HISTORY
         $query .= $tableIsPartOf == "history" ? " ORDER BY datetime DESC" : ($orderBy ? " ORDER BY $orderBy" : null);
         $query .= ";";
         return PDOConnect::run($query);
     }
     
-    public function postRelationship(array $params): array
-    {
+    public function postRelationship(array $params): array {
         $this->setVars($params);
         if (!$this->idIsPartOf) {
             parent::created($this->params);
@@ -88,8 +85,7 @@ class Relationship extends Crud
         return $this->params;
     }
     
-    public function putRelationship($params): array
-    {               
+    public function putRelationship($params): array {
         $this->setVars($params);
         $this->table = $this->table_has_table;
         $idHasPartName = 'id'.$this->tableHasPart;
@@ -98,8 +94,7 @@ class Relationship extends Crud
         return parent::update($this->params, $where);
     }
 
-    public function deleteRelationship($params): array
-    {      
+    public function deleteRelationship($params): array {
         $this->setVars($params);
         $this->table = $this->table_has_table;
         $idHasPartName = 'id'.$this->tableHasPart;
@@ -108,13 +103,11 @@ class Relationship extends Crud
         return parent::erase($where);
     }
     
-    public function getHasTypes()
-    {
+    public function getHasTypes() {
         return $this->hasTypes;
     }       
     
-    private static function getTypeObject($type): ?object
-    {
+    private static function getTypeObject($type): ?object {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
         if (class_exists($classname)) {
             return new $classname();
@@ -122,13 +115,11 @@ class Relationship extends Crud
         return null;
     }
     
-    private static function table_exists($table): bool
-    {
+    private static function table_exists($table): bool {
         return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
     }
     
-    private function propertyIsPartOf() 
-    {        
+    private function propertyIsPartOf() {
         // check which properties exists in table
         $columns = parent::getQuery("SHOW COLUMNS FROM `$this->tableHasPart`");
         // fields columns bd
@@ -142,8 +133,7 @@ class Relationship extends Crud
         return in_array($propIsPartType[0], $propColumns) ? $propIsPartType[0] : null;
     }
     
-    protected function relationshipsInSchema($valueData, $valueProperty) 
-    {
+    protected function relationshipsInSchema($valueData, $valueProperty) {
         $typeIsPartOf = $this->hasTypes[$valueProperty] === true ? $valueData[$valueProperty.'Type'] : $this->hasTypes[$valueProperty];
         $this->tableIsPartOf = lcfirst($typeIsPartOf);
         $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
