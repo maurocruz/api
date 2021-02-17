@@ -8,7 +8,6 @@
 
 CREATE TABLE IF NOT EXISTS `person` (
   `idperson` INT(10) NOT NULL AUTO_INCREMENT,
-  `idplace` INT(10) NULL DEFAULT NULL,
   `name` VARCHAR(255) NULL,
   `givenName` VARCHAR(120) NOT NULL,
   `familyName` VARCHAR(120) NULL DEFAULT NULL,
