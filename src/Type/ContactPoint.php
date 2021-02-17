@@ -8,10 +8,8 @@ use ReflectionException;
 class ContactPoint extends Entity implements TypeInterface
 {
     protected $table = 'contactPoint';
-    
     protected $type = 'ContactPoint';
-    
-    protected $properties = [ "*", "telephone", "email" ];
+    protected $properties = [ "name", "telephone", "email", "whatsapp", "contactType", "position", "obs" ];
 
     /**
      * GET
