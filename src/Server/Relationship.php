@@ -65,7 +65,7 @@ class Relationship extends Crud
         }
         // with manys relationship type
         else {                         
-            $idHasPartName = 'id'.$this->tableHasPart;
+            $idHasPartName = array_key_exists($this->tableHasPart,$this->hasTypes) ? $this->tableHasPart : 'id'.$this->tableHasPart;
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
             // many to many
             if (self::table_exists($this->table_has_table)) {
@@ -79,6 +79,7 @@ class Relationship extends Crud
                 $params[$idHasPartName] = $params['idHasPart'];
                 unset($params['tableHasPart']);
                 unset($params['idHasPart']);
+                var_dump($params);
                 return parent::created($params);
             }
         }
