@@ -13,7 +13,7 @@ class ImageObject extends Entity implements TypeInterface
 {
     protected $table = "imageObject";
     protected $type = "ImageObject";
-    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license" ];
+    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
     protected $hasTypes = [ "author" => "Person" ];
 
     public function get(array $params): array {
