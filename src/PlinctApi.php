@@ -2,8 +2,9 @@
 namespace Plinct\Api;
 
 use Plinct\Api\Server\Maintenance;
+use Plinct\PDO\PDOConnect;
 use Slim\App;
-use Plinct\Api\Server\PDOConnect;
+
 
 class PlinctApi {
     protected $slimApp;

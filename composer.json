@@ -13,6 +13,7 @@
         "slim/slim": "4.*",
         "slim/psr7": "1.*",
         "plinct/tool": "0.*",
+        "plinct/pdo": "0.*",
         "tuupola/slim-jwt-auth": "3.*"
     },
     "autoload": {

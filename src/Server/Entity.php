@@ -1,12 +1,11 @@
 <?php
-
 namespace Plinct\Api\Server;
 
 use ReflectionClass;
 use ReflectionException;
+use Plinct\PDO\PDOConnect;
 
-abstract class Entity extends Relationship
-{    
+abstract class Entity extends Relationship {
     protected $table;
     protected $properties = [];
     protected $hasTypes = [];
@@ -17,8 +16,7 @@ abstract class Entity extends Relationship
      * @param array $params
      * @return array
      */
-    protected function get(array $params): array
-    {
+    protected function get(array $params): array {
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
         } else {
@@ -27,34 +25,30 @@ abstract class Entity extends Relationship
         return $this->buildSchema($params, $data);
     }
     
-    protected function getData($params): array
-    {        
+    protected function getData($params): array {
         $filterGet = new FilterGet($params, $this->table, $this->properties);
         return PDOConnect::run($filterGet->getSqlStatement());
     }
     
-    protected function post(array $params): array
-    {        
+    protected function post(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::postRelationship($params);
         }
         $message = parent::created($params);
-        $lastId = parent::lastInsertId();
+        $lastId = PDOConnect::lastInsertId();
         if ($lastId == '0') {
             return $message;
         } else {
             return [ "id" => $lastId ];
         }
     }
-    
     /**
      * PUT
      * @param array $params
      * @return array
      */
-    protected function put(array $params): array
-    {  
+    protected function put(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::putRelationship($params);
@@ -65,28 +59,24 @@ abstract class Entity extends Relationship
         unset($params['id']);
         return parent::update($params, "`$idName`=$idValue");
     }
-    
     /**
      * DELETE
      * @param array $params
      * @return array
      */
-    protected function delete(array $params): array
-    {
+    protected function delete(array $params): array {
         $params = array_filter($params);
         $filter = new FilterGet($params, $this->table, $this->properties);
         $this->properties = $filter->getProperties();
         return parent::erase($filter->where(), $filter->limit());
     }
-
     /**
      * CREATE SQL
      * @param null $type
      * @return array
      * @throws ReflectionException
      */
-    protected function createSqlTable($type = null): array
-    {
+    protected function createSqlTable($type = null): array {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);
         $sqlFile = dirname($reflection->getFileName()) . "/" . ucfirst($type) . ".sql";
