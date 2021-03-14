@@ -1,9 +1,10 @@
 <?php
-
 namespace Plinct\Api\Server;
 
-class Relationship extends Crud
-{
+use Plinct\PDO\PDOConnect;
+use Plinct\PDO\Crud;
+
+class Relationship extends Crud {
     protected $tableHasPart;
     protected $idHasPart;
     protected $tableIsPartOf;
@@ -54,7 +55,7 @@ class Relationship extends Crud
         $this->setVars($params);
         if (!$this->idIsPartOf) {
             parent::created($this->params);
-            $this->idIsPartOf = parent::lastInsertId();
+            $this->idIsPartOf = PDOConnect::lastInsertId();
         }
         // one to one relationship type 
         $propertyIsPartOf = $this->propertyIsPartOf();
@@ -122,7 +123,7 @@ class Relationship extends Crud
     
     private function propertyIsPartOf() {
         // check which properties exists in table
-        $columns = parent::getQuery("SHOW COLUMNS FROM `$this->tableHasPart`");
+        $columns = PDOConnect::run("SHOW COLUMNS FROM `$this->tableHasPart`");
         // fields columns bd
         foreach ($columns as $valueColumns) {
             $propColumns[] = $valueColumns['Field'];

@@ -1,9 +1,9 @@
 <?php
-
 namespace Plinct\Api\Server;
 
-trait SchemaTrait
-{
+use Plinct\PDO\PDOConnect;
+
+trait SchemaTrait {
     protected $tableHasPart;
     protected $idHasPart;
     protected $table;
@@ -11,12 +11,10 @@ trait SchemaTrait
     protected $properties = [];
     protected $hasTypes = [];
 
-    protected function buildSchema($params, $data): array
-    {
+    protected function buildSchema($params, $data): array {
         if(isset($params['properties'])) {
             $this->setProperties($params['properties']);
         }
-
         if (array_key_exists('error', $data)) {
             return $data;
         } else {
@@ -33,14 +31,12 @@ trait SchemaTrait
             return $this->getSchema($data);
         }
     }
-
     /**
      * GET SCHEMA WITH ARRAY ITEMS
      * @param array $data
      * @return array
      */
-    protected function getSchema(array $data): array
-    {
+    protected function getSchema(array $data): array {
         if (empty($data)) {
             return [];
         }
@@ -50,8 +46,7 @@ trait SchemaTrait
         return $list;
     }
     
-    protected function listSchema($data, $numberOfList, $itemListOrder = "ascending"): array
-    {
+    protected function listSchema($data, $numberOfList, $itemListOrder = "ascending"): array {
         $itemList = [
             "@context" => "http://schema.org",
             "@type" => "ItemList",
@@ -72,14 +67,12 @@ trait SchemaTrait
         $itemList["itemListElement"] = $listItem;
         return $itemList;
     }
-
     /**
      * SCHEMA
      * @param array $valueData
      * @return array
      */
-    public function schema(array $valueData): array
-    {        
+    public function schema(array $valueData): array {
         $this->idHasPart = $valueData['id'.$this->table];
         $this->tableHasPart = $this->table;
         $schema = [ "@context" => "https://schema.org", "@type" => $this->type ];
@@ -87,7 +80,6 @@ trait SchemaTrait
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
                 $data = null;
-
                 // added properties on schema array if $properties is defined with *
                 if ($valueProperty == "*") {
                     foreach ($valueData as $key => $valueValue) {
@@ -98,7 +90,6 @@ trait SchemaTrait
                 if (array_key_exists($valueProperty, $valueData)) {
                     $schema[$valueProperty] = $valueData[$valueProperty];
                 }
-                
                 // set relationships
                 if (array_key_exists($valueProperty, $this->hasTypes)) {
                     $schema[$valueProperty] = self::relationshipsInSchema($valueData, $valueProperty);
@@ -106,12 +97,10 @@ trait SchemaTrait
             }
         }
         $schema['identifier'][] = [ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ];
-        
         return $schema;
     }
 
-    private function setProperties(string $propertiesParams)
-    {
+    private function setProperties(string $propertiesParams) {
         $propArray = explode(",", $propertiesParams);
         foreach ($propArray as $value) {
             $array[] = trim($value);
