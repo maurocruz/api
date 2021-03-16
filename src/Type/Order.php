@@ -1,62 +1,46 @@
 <?php
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\FilterGet;
 use Plinct\Api\Server\Maintenance;
-use Plinct\Api\Server\PDOConnect;
+use Plinct\PDO\PDOConnect;
 
-class Order extends Entity implements TypeInterface
-{
+class Order extends Entity implements TypeInterface {
     protected $table = "order";
-    
     protected $type = "Order";
-    
     protected $properties = [ "*" ];
-    
     protected $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
 
-    public function get(array $params): array 
-    {
+    public function get(array $params): array {
         return parent::get($params);
     }
     
-    public function post(array $params): array 
-    {        
+    public function post(array $params): array {
         $data = parent::post($params);
-        
         (new History())->postHistory("CREATED", _("Create new order"), "order", $data['id']);
-        
         return $data;
     }
     
-    public function put($params): array 
-    {
+    public function put($params): array {
         (new History())->postHistory("UPDATE", filter_input(INPUT_GET, "summaryHistory"), "order", $params['id']);
-        
         return parent::put($params);
     }
     
-    public function delete(array $params): array 
-    {        
+    public function delete(array $params): array {
         return parent::delete($params);
     }
 
-    public function search($params, $nameLike): array
-    {
+    public function search($params, $nameLike): array {
         $orderBy = $params['orderBy'];
         $query = "select `order`.* from `order` left join `localBusiness` on `order`.customer=localBusiness.idlocalBusiness AND `order`.customerType='LocalBusiness' left join `organization` on `order`.customer=`organization`.idorganization AND `order`.customerType='Organization' left join `person` on `order`.customer=`person`.idperson AND `order`.customerType='Person' where (`localBusiness`.`name` like '%$nameLike%' OR `organization`.`name` like '%$nameLike%' OR `person`.`name` like '%$nameLike%') order by $orderBy;";
         $data = PDOConnect::run($query);
-
         $filterGet = new FilterGet($params, $this->table, $this->properties);
         $this->properties = $filterGet->getProperties();
-
         return $this->buildSchema($params,$data);
     }
     
-    public function createSqlTable($type = null): array
-    {
+    public function createSqlTable($type = null): array {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("Invoice");
         $message[] = parent::createSqlTable("Order");

@@ -1,5 +1,4 @@
 <?php
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;

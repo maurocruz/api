@@ -1,9 +1,7 @@
 <?php
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Maintenance;
-
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
