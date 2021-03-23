@@ -2,25 +2,12 @@
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
-use ReflectionException;
 
 class User extends Entity implements TypeInterface {
-    protected $table = "user";
-    protected $type = "User";
-    protected $properties = [ "name", "status" ];
-    /**
-     * GET
-     * @param array|null $params
-     * @return array
-     */
-    public function get(array $params = null): array {
-        return parent::get($params);
-    }
-    /**
-     * Create new user
-     * @param array $params
-     * @return array
-     */
+    protected string $table = "user";
+    protected string $type = "User";
+    protected array $properties = [ "name", "status" ];
+
     public function post(array $params): array {
         if (strlen($params['name']) < 2 ) {                      
             return [ "error" => [
@@ -55,27 +42,7 @@ class User extends Entity implements TypeInterface {
         $params['password'] = password_hash($params['password'], PASSWORD_DEFAULT);
         return parent::created($params);
     }
-    /**
-     * PUT
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array {
-        return parent::put($params);
-    }
-    /**
-     * DELETE
-     * @param array $params
-     * @return array
-     */
-    public function delete(array $params): array {
-        return parent::delete($params);
-    }
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
+
     public function createSqlTable($type = null) : array {
         return parent::createSqlTable('User');
     }

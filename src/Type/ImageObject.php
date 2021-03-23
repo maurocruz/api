@@ -1,5 +1,4 @@
 <?php
-
 namespace Plinct\Api\Type;
 
 use FilesystemIterator;
@@ -9,12 +8,11 @@ use Plinct\Tool\StringTool;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class ImageObject extends Entity implements TypeInterface
-{
-    protected $table = "imageObject";
-    protected $type = "ImageObject";
-    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
-    protected $hasTypes = [ "author" => "Person" ];
+class ImageObject extends Entity implements TypeInterface {
+    protected string $table = "imageObject";
+    protected string $type = "ImageObject";
+    protected array $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
+    protected array $hasTypes = [ "author" => "Person" ];
 
     public function get(array $params): array {
         $dataThumb = null;
@@ -52,6 +50,8 @@ class ImageObject extends Entity implements TypeInterface
     }
 
     public function post(array $params): array {
+        $imagesUploaded = null;
+        $newParams = null;
         // upload image
         if (isset($_FILES['imageupload'])) {
             foreach ($_FILES['imageupload'] as $keyImagesUploaded => $valueImagesUploaded) {
@@ -70,7 +70,7 @@ class ImageObject extends Entity implements TypeInterface
                 $this->table = "imageObject";
                 parent::post($valueParams);
             }
-            return [ "messagem" => "images uploaded" ];
+            return [ "message" => "images uploaded" ];
         } elseif(isset($params['id']) && is_array($params['id'])) {
             foreach ($params['id'] as $valueParams) {
                 if (isset($params['tableHasPart'])) {
@@ -81,7 +81,7 @@ class ImageObject extends Entity implements TypeInterface
                 $this->table = "imageObject";
                 parent::post($newParams);
             }
-            return [ "messagem" => "images uploaded" ];
+            return [ "message" => "images uploaded" ];
         } else {
             return parent::post($params);
         }
