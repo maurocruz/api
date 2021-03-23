@@ -1,25 +1,20 @@
 <?php
-
 namespace Plinct\Api\Server;
 
-class FilterGet 
-{   
+class FilterGet {
     // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
-        
+    private array $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
     // conditions sql
-    private $fields = "*";
-    private $where;
-    private $groupBy;
-    private $orderBy;
-    private $limit;
-    private $offset;
-
-    private $table;
-    private $properties;
+    private string $fields = "*";
+    private ?string $where = null;
+    private ?string $groupBy = null;
+    private ?string $orderBy = null;
+    private ?string $limit = null;
+    private ?string $offset = null;
+    private string $table;
+    private array $properties;
             
-    public function __construct($queryParams, $table, $properties) 
-    {        
+    public function __construct($queryParams, $table, $properties) {
         $this->table = $table;
         $this->properties = $properties;
         if (!empty($queryParams)) {
@@ -27,9 +22,8 @@ class FilterGet
         }
     }
     
-    private function setQueries($queryParams)
-    {   
-        // fieds
+    private function setQueries($queryParams) {
+        // fields
         $this->fields = $queryParams['fields'] ?? $this->fields;
         // query params        
         foreach ($queryParams as $key => $value) {
@@ -71,32 +65,27 @@ class FilterGet
         $this->offset = $queryParams['offset'] ?? null;
     }
     
-    public function where()
-    {
+    public function where(): ?string {
         return $this->where;
     }
     
-    public function orderBy() 
-    {
+    public function orderBy(): ?string {
         return $this->orderBy;
     }
     
-    public function limit(): ?int
-    {    
+    public function limit(): ?int {
         return $this->limit;
     }
 
-    public function offset() {
+    public function offset(): ?string {
         return $this->offset;
     }
     
-    public function getProperties(): ?array
-    {
+    public function getProperties(): array {
         return $this->properties;
     }
 
-    public function getSqlStatement(): string
-    {
+    public function getSqlStatement(): string {
         return "SELECT $this->fields FROM `$this->table`" . $this->stmtWhere() . $this->stmtGroupBy() . $this->stmtOrderBy(). $this->stmtLimit() . $this->stmtOffset();
     }
 
