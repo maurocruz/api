@@ -4,12 +4,12 @@ namespace Plinct\Api\Server;
 use Plinct\PDO\PDOConnect;
 
 trait SchemaTrait {
-    protected $tableHasPart;
-    protected $idHasPart;
-    protected $table;
-    protected $type;
-    protected $properties = [];
-    protected $hasTypes = [];
+    protected string $tableHasPart;
+    protected ?int $idHasPart;
+    protected string $table;
+    protected string $type;
+    protected array $properties = [];
+    protected array $hasTypes = [];
 
     protected function buildSchema($params, $data): array {
         if(isset($params['properties'])) {
@@ -37,6 +37,7 @@ trait SchemaTrait {
      * @return array
      */
     protected function getSchema(array $data): array {
+        $list = [];
         if (empty($data)) {
             return [];
         }
@@ -47,6 +48,7 @@ trait SchemaTrait {
     }
     
     protected function listSchema($data, $numberOfList, $itemListOrder = "ascending"): array {
+        $listItem = [];
         $itemList = [
             "@context" => "http://schema.org",
             "@type" => "ItemList",
@@ -101,6 +103,7 @@ trait SchemaTrait {
     }
 
     private function setProperties(string $propertiesParams) {
+        $array = null;
         $propArray = explode(",", $propertiesParams);
         foreach ($propArray as $value) {
             $array[] = trim($value);

@@ -3,42 +3,32 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 
-class PropertyValue extends Entity implements TypeInterface
-{
-    protected $table = "propertyValue";
-    
-    protected $type = "PropertyValue";
-    
-    protected $properties = [ "name", "value" ];
-    
+class PropertyValue extends Entity implements TypeInterface {
+    protected string $table = "propertyValue";
+    protected string $type = "PropertyValue";
+    protected array $properties = [ "name", "value" ];
 
-    public function get(array $params): array 
-    {
+    public function get(array $params): array {
         return parent::get($params);
     }
     
-    public function post(array $params): array 
-    {
+    public function post(array $params): array {
         return parent::post($params);
     }
     
-    public function put(array $params): array 
-    {
+    public function put(array $params): array {
         return parent::put($params);
     }
     
-    public function delete(array $params): array 
-    {
+    public function delete(array $params): array {
         return parent::delete($params);
     }
     
-    public function createSqlTable($type = null): array
-    {
+    public function createSqlTable($type = null): array {
         return parent::createSqlTable("PropertyValue");
     }
         
-    public static function extractValue($array, $name) 
-    {
+    public static function extractValue($array, $name): ?string {
         if ($array) {
             foreach ($array as $value) {
                 if ($value['name'] == $name) {

@@ -3,32 +3,14 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
-use ReflectionException;
 
-class Person extends Entity implements TypeInterface
-{
-    protected $table = "person";
-    protected $type = "Person";
-    protected $properties = [ "name" ];
-    protected $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject" ];
+class Person extends Entity implements TypeInterface {
+    protected string $table = "person";
+    protected string $type = "Person";
+    protected array $properties = [ "name" ];
+    protected array $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject" ];
 
-    /**
-     * GET
-     * @param array $params
-     * @return array
-     */
-    public function get(array $params): array 
-    {
-        return parent::get($params);
-    }
-    
-    /**
-     * POST
-     * @param array $params
-     * @return array
-     */
-    public function post(array $params): array 
-    {
+    public function post(array $params): array {
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::post($params);
         } elseif (isset($params['givenName']) && isset($params['familyName'])) {
@@ -38,36 +20,9 @@ class Person extends Entity implements TypeInterface
         } else {
             return [ "message" => "incomplete mandatory data" ];
         } 
-    } 
-    
-    /**
-     * PUT
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array
-    {
-        return parent::put($params);
-    }  
-    
-    /**
-     * DELETE
-     * @param array $params
-     * @return array
-     */
-    public function delete(array $params): array 
-    {
-        return parent::delete($params);        
     }
 
-    /**
-     * Create table in sql driver
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null) : array
-    {         
+    public function createSqlTable($type = null) : array {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("PostalAddress");        
         $message[] = $maintenance->createSqlTable("ContactPoint");         

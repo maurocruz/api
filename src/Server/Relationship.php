@@ -5,20 +5,20 @@ use Plinct\PDO\PDOConnect;
 use Plinct\PDO\Crud;
 
 class Relationship extends Crud {
-    protected $tableHasPart;
-    protected $idHasPart;
-    protected $tableIsPartOf;
-    protected $idIsPartOf;
-    protected $table_has_table;
-    protected $params;
-    protected $table;
-    protected $type;
-    protected $properties;
-    protected $hasTypes;
+    protected string $tableHasPart;
+    protected ?int $idHasPart;
+    protected string $tableIsPartOf;
+    protected ?int $idIsPartOf;
+    protected string $table_has_table;
+    protected array $params;
+    protected string $table;
+    protected string $type;
+    protected array $properties;
+    protected array $hasTypes;
 
     public function setVars($params) {
         if ($params['tableHasPart']) { 
-            $this->tableHasPart = lcfirst($params['tableHasPart']) ?? null;
+            $this->tableHasPart = lcfirst($params['tableHasPart']) ?? "";
             $this->idHasPart = $params['idHasPart'] ?? null;
             $this->tableIsPartOf = $params['tableIsPartOf'] ?? $this->table;
             $this->idIsPartOf = $params['idIsPartOf'] ?? $params['id'] ?? null;
@@ -62,7 +62,8 @@ class Relationship extends Crud {
         if ($propertyIsPartOf) {
             // update has part
             $this->table = $this->tableHasPart;
-            parent::update([ $propertyIsPartOf => $this->idIsPartOf ], "`id{$this->tableHasPart}`={$this->idHasPart}");
+            parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id{$this->tableHasPart}`={$this->idHasPart}");
+
         }
         // with manys relationship type
         else {                         
@@ -105,7 +106,7 @@ class Relationship extends Crud {
         return parent::erase($where);
     }
     
-    public function getHasTypes() {
+    public function getHasTypes(): array {
         return $this->hasTypes;
     }       
     
@@ -122,6 +123,7 @@ class Relationship extends Crud {
     }
     
     private function propertyIsPartOf() {
+        $propColumns = [];
         // check which properties exists in table
         $columns = PDOConnect::run("SHOW COLUMNS FROM `$this->tableHasPart`");
         // fields columns bd

@@ -7,7 +7,6 @@ use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
-use Plinct\Api\Server\PDOConnect;
 use Plinct\Api\Auth;
 use Plinct\Api\Auth\AuthMiddleware;
 
@@ -59,7 +58,6 @@ return function(App $slimApp) {
         $type = $args['type'];
         $params = $request->getParsedBody();
         if ($response->getStatusCode() === 200) {
-            PDOConnect::reconnectToAdmin();
             $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
             $action = $request->getParsedBody()['action'] ?? null;
             if (class_exists($className)) {
@@ -92,7 +90,6 @@ return function(App $slimApp) {
         if (!$params['id']) {
             $data = [ "message" => "missing data"];
         } elseif ($response->getStatusCode() === 200) {
-            PDOConnect::reconnectToAdmin();
             $className = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
             if (class_exists($className)) {
                 $data = (new $className())->put($params);
@@ -117,7 +114,6 @@ return function(App $slimApp) {
             if (!$params['id']) {
                 $data = [ "message" => "missing data"];
             } else {
-                PDOConnect::reconnectToAdmin();
                 $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
                 $data = (new $classname())->delete($params);
             }            

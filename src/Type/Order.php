@@ -7,15 +7,11 @@ use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
 
 class Order extends Entity implements TypeInterface {
-    protected $table = "order";
-    protected $type = "Order";
-    protected $properties = [ "*" ];
-    protected $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
+    protected string $table = "order";
+    protected string $type = "Order";
+    protected array $properties = [ "*" ];
+    protected array $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
 
-    public function get(array $params): array {
-        return parent::get($params);
-    }
-    
     public function post(array $params): array {
         $data = parent::post($params);
         (new History())->postHistory("CREATED", _("Create new order"), "order", $data['id']);
@@ -25,10 +21,6 @@ class Order extends Entity implements TypeInterface {
     public function put($params): array {
         (new History())->postHistory("UPDATE", filter_input(INPUT_GET, "summaryHistory"), "order", $params['id']);
         return parent::put($params);
-    }
-    
-    public function delete(array $params): array {
-        return parent::delete($params);
     }
 
     public function search($params, $nameLike): array {

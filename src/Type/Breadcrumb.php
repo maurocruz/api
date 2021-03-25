@@ -1,16 +1,12 @@
 <?php
-
 namespace Plinct\Api\Type;
 
 class Breadcrumb
 {
-    public function get($params)
-    {
+    public function get($params): array {
         $urlArray = array_filter(explode("/",$params['url']));
         $key = count($urlArray);
-
         $items[] = self::item($key, $params['url'], $params['alternativeHeadline']);
-
         if ($key > 1) {
             end($urlArray);
             while($val=current($urlArray)) {
@@ -23,19 +19,17 @@ class Breadcrumb
                 }
             }
         }
-
         return array_reverse($items);
     }
 
-    private static function getNewParams($urlArray) {
+    private static function getNewParams($urlArray): array {
         $parentUrl = DIRECTORY_SEPARATOR . implode("/", $urlArray);
         $newParams = ["url" => $parentUrl, "properties" => "alternativeHeadline"];
         $parentData = (new WebPage())->get($newParams);
-
         return self::item(count($urlArray), $parentUrl, $parentData[0]['alternativeHeadline']);
     }
 
-    private static function item($position, $url, $alternativeHeadline) {
+    private static function item($position, $url, $alternativeHeadline): array {
         return [
             "position" => $position,
             "item" => [
