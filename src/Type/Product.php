@@ -6,42 +6,20 @@ use Plinct\Api\Server\Maintenance;
 
 class Product extends Entity implements TypeInterface
 {
-    protected $table = "product";
+    protected string $table = "product";
+    protected string $type = "Product";
+    protected array $properties = [ "name" ];
+    protected array $hasTypes = [ "image" => "ImageObject" ];
 
-    protected $type = "Product";
-
-    protected $properties = [ "name" ];
-
-    protected $hasTypes = [ "image" => "ImageObject" ];
-
-    public function get(array $params): array
-    {
-        return parent::get($params);
-    }
-
-    public function post(array $params): array
-    {
+    public function post(array $params): array {
         $params['dateCreated'] = date("Y-m-d H:i:s");
         return parent::post($params);
     }
 
-    public function put(array $params): array
-    {
-        return parent::put($params);
-    }
-
-    public function delete(array $params): array
-    {
-        return parent::delete($params);
-    }
-
-    public function createSqlTable($type = null): array
-    {
+    public function createSqlTable($type = null): array {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("ImageObject");
-
         $message[] = parent::createSqlTable("Product");
-
         return $message;
     }
 }

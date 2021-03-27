@@ -6,9 +6,9 @@ use ReflectionException;
 use Plinct\PDO\PDOConnect;
 
 abstract class Entity extends Relationship {
-    protected $table;
-    protected $properties = [];
-    protected $hasTypes = [];
+    protected string $table;
+    protected array $properties = [];
+    protected array $hasTypes = [];
     use SchemaTrait;
     
     /**
@@ -16,7 +16,7 @@ abstract class Entity extends Relationship {
      * @param array $params
      * @return array
      */
-    protected function get(array $params): array {
+    public function get(array $params): array {
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
             $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
         } else {
@@ -30,7 +30,7 @@ abstract class Entity extends Relationship {
         return PDOConnect::run($filterGet->getSqlStatement());
     }
     
-    protected function post(array $params): array {
+    public function post(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::postRelationship($params);
@@ -48,7 +48,7 @@ abstract class Entity extends Relationship {
      * @param array $params
      * @return array
      */
-    protected function put(array $params): array {
+    public function put(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::putRelationship($params);
@@ -64,7 +64,7 @@ abstract class Entity extends Relationship {
      * @param array $params
      * @return array
      */
-    protected function delete(array $params): array {
+    public function delete(array $params): array {
         $params = array_filter($params);
         $filter = new FilterGet($params, $this->table, $this->properties);
         $this->properties = $filter->getProperties();
