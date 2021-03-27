@@ -15,15 +15,14 @@ class AuthController {
     public function login($params): array {
         $email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
         $password = $params['password'] ?? null;
+        // INVALID EMAIL
+        if ($email === false) return [ "data" => "Invalid email", "status" => "Access unauthorized" ];
+        // GET DATA
         $data = (new User())->get([ "properties" => "*", "email" => $email ]);
         // ERROR
-        if(isset($data['error'])) {
-            return [ "data" => $data['error']['message'], "status" => "Error" ];
-        }
+        if(isset($data['error'])) return [ "data" => $data['error']['message'], "status" => "Error" ];
         // USER NOT EXISTS
-        elseif (empty($data)) {
-            return [ "data" => "User not exists", "status" => "Access unauthorized" ];
-        }
+        elseif (empty($data)) return [ "data" => "User not exists", "status" => "Access unauthorized" ];
         // USER AUTHORIZED
         elseif (password_verify($password, $data[0]['password'])) {
             $value = $data[0];
@@ -37,9 +36,7 @@ class AuthController {
             return [ "data" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY), "status" => "Access authorized" ];
         }
         // USER NOT AUTHORIZED
-        else {
-            return [ "data" => "User exists", "status" => "Access unauthorized" ];
-        }
+        else return [ "data" => "User exists", "status" => "Access unauthorized" ];
     }
 
     /**
