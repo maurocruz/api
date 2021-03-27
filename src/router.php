@@ -46,7 +46,7 @@ return function(App $slimApp) {
      * LOGIN
      */
     $slimApp->post('/api/login', function (Request $request, Response $response) {
-        $data = (new Auth\AuthController())->token($request->getParsedBody());
+        $data = (new Auth\AuthController())->login($request->getParsedBody());
         $newResponse = $response->withHeader("Content-type", "'application/json'");        
         $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         return $response;
