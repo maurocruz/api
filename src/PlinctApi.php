@@ -9,7 +9,7 @@ class PlinctApi {
     protected App $slimApp;
     public static string $ISSUER = "https://plinct.com.br";
     public static string $JWT_SECRET_API_KEY = "202103emplenapandemia";
-    public static string $JWT_EXPIRE = 60*60*24;
+    public static int $JWT_EXPIRE = 60*60*24;
 
     public function __construct(App $slimApp) {
         $this->slimApp = $slimApp;

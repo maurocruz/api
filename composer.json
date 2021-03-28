@@ -14,7 +14,7 @@
         "slim/psr7": "1.*",
         "tuupola/slim-jwt-auth": "3.*",
         "plinct/pdo": "0.*",
-        "plinct/tool": "0.1.*"
+        "plinct/tool": "0.*"
     },
     "autoload": {
         "psr-4": {
