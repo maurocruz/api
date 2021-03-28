@@ -1,14 +1,12 @@
 <?php
 namespace Plinct\Api;
 
-use Plinct\Api\Type\index;
-use Plinct\Api\Type\User;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-
 use Plinct\Api\Auth;
 use Plinct\Api\Auth\AuthMiddleware;
+use Plinct\Api\Type\User;
 
 return function(App $slimApp) {
     /**
@@ -35,7 +33,7 @@ return function(App $slimApp) {
                  $data = [ "message" => "type not founded" ];
             }
         } else {
-            $data = (new Index())->index();
+            $data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
         }
         $response = $response->withHeader("Content-type", "application/json");
         $response = $response->withHeader('Access-Control-Allow-Origin', '*');
