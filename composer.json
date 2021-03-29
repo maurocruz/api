@@ -12,9 +12,7 @@
         "php": "^7.2",
         "slim/slim": "4.*",
         "slim/psr7": "1.*",
-        "tuupola/slim-jwt-auth": "3.*",
-        "plinct/pdo": "0.*",
-        "plinct/tool": "0.*"
+        "tuupola/slim-jwt-auth": "3.*"
     },
     "autoload": {
         "psr-4": {
