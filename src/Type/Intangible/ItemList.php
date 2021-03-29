@@ -1,5 +1,5 @@
 <?php
-namespace fwc\Thing;
+namespace Plinct\Api\Type\Intangible;
 /**
  * ItemList
  *
@@ -7,7 +7,7 @@ namespace fwc\Thing;
  */
 class ItemList {
     
-    static public function list(int $numberOfItems = 0, array $itemListElement = null, $itemListOrder = null, $name = null, $type = "ItemList") {
+    static public function list(int $numberOfItems = 0, array $itemListElement = null, $itemListOrder = null, $name = null, $type = "ItemList"): array {
         if ($itemListElement) {
             $i = 1;
             foreach ($itemListElement as $value) {

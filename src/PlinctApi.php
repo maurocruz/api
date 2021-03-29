@@ -1,31 +1,24 @@
 <?php
 namespace Plinct\Api;
 
+use Slim\App;
 use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
-use Slim\App;
-
 
 class PlinctApi {
-    protected $slimApp;
-    public static $ISSUER = "https://plinct.com.br";
-    public static $JWT_SECRET_API_KEY = "202103emplenapandemia";
-    public static $JWT_EXPIRE = 60*60*24;
+    protected App $slimApp;
+    public static string $ISSUER = "https://plinct.com.br";
+    public static string $JWT_SECRET_API_KEY = "202103emplenapandemia";
+    public static int $JWT_EXPIRE = 60*60*24;
 
     public function __construct(App $slimApp) {
         $this->slimApp = $slimApp;
     }
 
-    public function connect($driver, $host, $dbname, $userPublic, $passwordPublic, $options = []) {
-        PDOConnect::setUserPublic($userPublic);
-        PDOConnect::setPasswordPublic($passwordPublic);
-        PDOConnect::connect($driver, $host, $dbname, $userPublic, $passwordPublic, $options);
-    }
-
-    public function setAdminData($usernameAdmin, $emailAdmin, $passwordAdmin) {
-        PDOConnect::setUsernameAdmin($usernameAdmin);
-        PDOConnect::setemailAdmin($emailAdmin);
-        PDOConnect::setPasswordAdmin($passwordAdmin);
+    public function connect($driver, $host, $dbname, $username, $password, $options = []) {
+        PDOConnect::setUsername($username);
+        PDOConnect::setPassword($password);
+        PDOConnect::connect($driver, $host, $dbname, $username, $password, $options);
     }
 
     public static function starApplication($params) {

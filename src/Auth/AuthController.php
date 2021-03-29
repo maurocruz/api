@@ -6,17 +6,25 @@ use Plinct\Api\PlinctApi;
 use Plinct\Api\Type\PropertyValue;
 use Plinct\Api\Type\User;
 
-class AuthController
-{
-    public function token($params): ?string {
-        $email = $params['email'];
-        $password = $params['password'];
+class AuthController {
+
+    /**
+     * @param $params
+     * @return array|string[]
+     */
+    public function login($params): array {
+        $email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
+        $password = $params['password'] ?? null;
+        // INVALID EMAIL
+        if ($email === false) return [ "data" => "Invalid email", "status" => "Access unauthorized" ];
+        // GET DATA
         $data = (new User())->get([ "properties" => "*", "email" => $email ]);
-        if(isset($data['error'])) {
-            return $data['error']['message'];
-        } elseif (empty($data)) {
-            return null;
-        } elseif (password_verify($password, $data[0]['password'])) {
+        // ERROR
+        if(isset($data['error'])) return [ "data" => $data['error']['message'], "status" => "Error" ];
+        // USER NOT EXISTS
+        elseif (empty($data)) return [ "data" => "User not exists", "status" => "Access unauthorized" ];
+        // USER AUTHORIZED
+        elseif (password_verify($password, $data[0]['password'])) {
             $value = $data[0];
             $payload = [
                 "iss" => PlinctApi::$ISSUER,
@@ -25,12 +33,16 @@ class AuthController
                 "admin" => $value['status'] == 1,
                 "uid" => PropertyValue::extractValue($value['identifier'], "id")
             ];
-            return JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY);
-        } else {
-            return false;
+            return [ "data" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY), "status" => "Access authorized" ];
         }
+        // USER NOT AUTHORIZED
+        else return [ "data" => "User exists", "status" => "Access unauthorized" ];
     }
 
+    /**
+     * @param array $params
+     * @return false|string
+     */
     public function register(array $params) {
         $responseData = (new User())->post($params);
         // Init application

@@ -1,7 +1,7 @@
 {
     "name": "plinct/api",
-    "description": "Api for Plinct app",
-    "license": "MIT",
+    "description": "API for the Plinct App modeled with the scheme proposed by Schema.org",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Mauro Cruz",
@@ -12,7 +12,9 @@
         "php": "^7.2",
         "slim/slim": "4.*",
         "slim/psr7": "1.*",
-        "tuupola/slim-jwt-auth": "3.*"
+        "tuupola/slim-jwt-auth": "3.*",
+        "plinct/pdo": "0.*",
+        "plinct/tool": "0.*"
     },
     "autoload": {
         "psr-4": {
