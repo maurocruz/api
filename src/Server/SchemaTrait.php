@@ -4,12 +4,12 @@ namespace Plinct\Api\Server;
 use Plinct\PDO\PDOConnect;
 
 trait SchemaTrait {
-    protected string $tableHasPart;
-    protected ?int $idHasPart;
-    protected string $table;
-    protected string $type;
-    protected array $properties = [];
-    protected array $hasTypes = [];
+    protected $tableHasPart;
+    protected $idHasPart;
+    protected $table;
+    protected $type;
+    protected $properties = [];
+    protected $hasTypes = [];
 
     protected function buildSchema($params, $data): array {
         if(isset($params['properties'])) {

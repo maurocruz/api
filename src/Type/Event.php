@@ -5,10 +5,10 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 
 class Event extends Entity implements TypeInterface {
-    protected string $table = "event";
-    protected string $type = "Event";
-    protected array $properties = [ "name", "startDate" ];
-    protected array $hasTypes = [ "location" => "Place", "image" => "ImageObject" ];
+    protected $table = "event";
+    protected $type = "Event";
+    protected $properties = [ "name", "startDate" ];
+    protected $hasTypes = [ "location" => "Place", "image" => "ImageObject" ];
 
     public function post(array $params): array {
         $params['startDate'] = $params['startDate']." ".$params['startTime'];

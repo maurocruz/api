@@ -5,10 +5,10 @@ use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
 
 class Organization extends Entity implements TypeInterface {
-    protected string $table = "organization";
-    protected string $type = "Organization";
-    protected array $properties = [ "name", "description", "legalName", "taxId" ];
-    protected array $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject", "localBusiness" => "LocalBusiness" ];
+    protected $table = "organization";
+    protected $type = "Organization";
+    protected $properties = [ "name", "description", "legalName", "taxId" ];
+    protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject", "localBusiness" => "LocalBusiness" ];
 
     public function createSqlTable($type = null) : array {
         $maintenance = new Maintenance();

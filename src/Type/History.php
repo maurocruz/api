@@ -4,10 +4,10 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 
 class History extends Entity implements TypeInterface {
-    protected string $table = "history";
-    protected string $type = "History";
-    protected array $properties = [ "*" ];
-    protected array $withTypes = [];
+    protected $table = "history";
+    protected $type = "History";
+    protected $properties = [ "*" ];
+    protected $withTypes = [];
     
     public function createSqlTable($type = null): array {
         return parent::createSqlTable("History");

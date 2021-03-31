@@ -4,10 +4,10 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 
 class Invoice extends Entity implements TypeInterface {
-    protected string $table = "invoice";
-    protected string $type = "Invoice";
-    protected array $properties = [ "*" ];
-    protected array $hasTypes = [ "referencesOrder" => "Order", "customer" => true, "provider" => true ];
+    protected $table = "invoice";
+    protected $type = "Invoice";
+    protected $properties = [ "*" ];
+    protected $hasTypes = [ "referencesOrder" => "Order", "customer" => true, "provider" => true ];
 
     public function get(array $params): array {
         if (array_key_exists('orderBy',$params) === false) {

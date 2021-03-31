@@ -6,9 +6,9 @@ use ReflectionException;
 use Plinct\PDO\PDOConnect;
 
 abstract class Entity extends Relationship {
-    protected string $table;
-    protected array $properties = [];
-    protected array $hasTypes = [];
+    protected $table;
+    protected $properties = [];
+    protected $hasTypes = [];
     use SchemaTrait;
     
     /**

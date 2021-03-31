@@ -4,9 +4,9 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 
 class User extends Entity implements TypeInterface {
-    protected string $table = "user";
-    protected string $type = "User";
-    protected array $properties = [ "name", "status" ];
+    protected $table = "user";
+    protected $type = "User";
+    protected $properties = [ "name", "status" ];
 
     public function post(array $params): array {
         if (strlen($params['name']) < 2 ) {                      

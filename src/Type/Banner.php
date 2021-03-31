@@ -4,10 +4,10 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 
 class Banner extends Entity implements TypeInterface {
-    protected string $table = "banner";
-    protected string $type = "Banner";
-    protected array $properties = [ "*","image" ];
-    protected array $hasTypes = [ "image" => "ImageObject" ];
+    protected $table = "banner";
+    protected $type = "Banner";
+    protected $properties = [ "*","image" ];
+    protected $hasTypes = [ "image" => "ImageObject" ];
 
     public function put(array $params): array {
         unset($params['idadvertising']);

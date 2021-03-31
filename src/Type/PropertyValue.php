@@ -4,9 +4,9 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 
 class PropertyValue extends Entity implements TypeInterface {
-    protected string $table = "propertyValue";
-    protected string $type = "PropertyValue";
-    protected array $properties = [ "name", "value" ];
+    protected $table = "propertyValue";
+    protected $type = "PropertyValue";
+    protected $properties = [ "name", "value" ];
 
     public function get(array $params): array {
         return parent::get($params);

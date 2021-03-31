@@ -7,10 +7,10 @@ use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
 
 class Order extends Entity implements TypeInterface {
-    protected string $table = "order";
-    protected string $type = "Order";
-    protected array $properties = [ "*" ];
-    protected array $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
+    protected $table = "order";
+    protected $type = "Order";
+    protected $properties = [ "*" ];
+    protected $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
 
     public function post(array $params): array {
         $data = parent::post($params);

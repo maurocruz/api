@@ -5,10 +5,10 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 
 class Person extends Entity implements TypeInterface {
-    protected string $table = "person";
-    protected string $type = "Person";
-    protected array $properties = [ "name" ];
-    protected array $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject" ];
+    protected $table = "person";
+    protected $type = "Person";
+    protected $properties = [ "name" ];
+    protected $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject" ];
 
     public function post(array $params): array {
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {

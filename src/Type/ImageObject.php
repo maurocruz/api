@@ -9,10 +9,10 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
 class ImageObject extends Entity implements TypeInterface {
-    protected string $table = "imageObject";
-    protected string $type = "ImageObject";
-    protected array $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
-    protected array $hasTypes = [ "author" => "Person" ];
+    protected $table = "imageObject";
+    protected $type = "ImageObject";
+    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
+    protected $hasTypes = [ "author" => "Person" ];
 
     public function get(array $params): array {
         $dataThumb = null;

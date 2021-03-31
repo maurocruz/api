@@ -3,16 +3,16 @@ namespace Plinct\Api\Server;
 
 class FilterGet {
     // properties not exists
-    private array $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
+    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
     // conditions sql
-    private string $fields = "*";
-    private ?string $where = null;
-    private ?string $groupBy = null;
-    private ?string $orderBy = null;
-    private ?string $limit = null;
-    private ?string $offset = null;
-    private string $table;
-    private array $properties;
+    private $fields = "*";
+    private $where = null;
+    private $groupBy = null;
+    private $orderBy = null;
+    private $limit = null;
+    private $offset = null;
+    private $table;
+    private $properties;
             
     public function __construct($queryParams, $table, $properties) {
         $this->table = $table;

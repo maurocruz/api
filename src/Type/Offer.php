@@ -5,10 +5,10 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 
 class Offer extends Entity implements TypeInterface {
-    protected string $table = "offer";
-    protected string $type = "Offer";
-    protected array $properties = [ "*" ];
-    protected array $hasTypes = [ "itemOffered" => true ];
+    protected $table = "offer";
+    protected $type = "Offer";
+    protected $properties = [ "*" ];
+    protected $hasTypes = [ "itemOffered" => true ];
 
     public function post(array $params): array {
         unset($params['tableHasPart']);

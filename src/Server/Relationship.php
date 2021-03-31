@@ -5,16 +5,16 @@ use Plinct\PDO\PDOConnect;
 use Plinct\PDO\Crud;
 
 class Relationship extends Crud {
-    protected string $tableHasPart;
-    protected ?int $idHasPart;
-    protected string $tableIsPartOf;
-    protected ?int $idIsPartOf;
-    protected string $table_has_table;
-    protected array $params;
-    protected string $table;
-    protected string $type;
-    protected array $properties;
-    protected array $hasTypes;
+    protected $tableHasPart;
+    protected $idHasPart;
+    protected $tableIsPartOf;
+    protected $idIsPartOf;
+    protected $table_has_table;
+    protected $params;
+    protected $table;
+    protected $type;
+    protected $properties;
+    protected $hasTypes;
 
     public function setVars($params) {
         if ($params['tableHasPart']) { 

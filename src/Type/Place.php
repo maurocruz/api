@@ -5,10 +5,10 @@ use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
 
 class Place extends Entity implements TypeInterface {
-    protected string $table = "place";
-    protected string $type = "Place";
-    protected array $properties = [ "*","address" ];
-    protected array $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
+    protected $table = "place";
+    protected $type = "Place";
+    protected $properties = [ "*","address" ];
+    protected $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
 
     public function post(array $params): array {
         $params['dateCreated'] = date("Y-m-d H:i:s");
