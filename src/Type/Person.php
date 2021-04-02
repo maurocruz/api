@@ -22,6 +22,11 @@ class Person extends Entity implements TypeInterface {
         } 
     }
 
+    public function put(array $params): array {
+        $params['name'] = $params['givenName']." ".$params['familyName'];
+        return parent::put($params);
+    }
+
     public function createSqlTable($type = null) : array {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("PostalAddress");        
