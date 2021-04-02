@@ -16,9 +16,7 @@ class ImageObject extends Entity implements TypeInterface {
     protected $hasTypes = [ "author" => "Person" ];
 
     public function get(array $params): array {
-        $dataThumb = null;
-        $dataSizes = null;
-        $postParams = null;
+        $newData = null;
         $data = parent::getData($params);
         // IF NOT EXISTS THUMBNAIL AND SIZES
         if (!empty($data)) {
@@ -38,10 +36,10 @@ class ImageObject extends Entity implements TypeInterface {
                     if (!$value['encodingFormat']) $value['encodingFormat'] = $IMAGE->getMimeType();
                     $this->put($value);
                 }
-                $data[] = $value;
+                $newData[] = $value;
             }
         }
-        return parent::buildSchema($params, $data);
+        return parent::buildSchema($params, $newData);
     }
 
     public function post(array $params): array {
