@@ -3,6 +3,7 @@ namespace Plinct\Api\Type;
 
 use FilesystemIterator;
 use Plinct\Api\Server\Entity;
+use Plinct\Tool\Image;
 use Plinct\Tool\Thumbnail;
 use Plinct\Tool\StringTool;
 use RecursiveDirectoryIterator;
@@ -17,33 +18,27 @@ class ImageObject extends Entity implements TypeInterface {
     public function get(array $params): array {
         $dataThumb = null;
         $dataSizes = null;
+        $postParams = null;
         $data = parent::getData($params);
-        // EXTRA PROPERTIES
-        if (!empty($data) && isset($params['properties']) && !array_key_exists('error', $data)) {
-            // THUMBNAIL
-            if (strpos($params['properties'], "thumbnail") !== false) {
-                foreach ($data as $valueThumb) { 
-                    if (file_exists($_SERVER['DOCUMENT_ROOT'].$valueThumb['contentUrl'])) {
-                        $thumbnail = new Thumbnail($valueThumb['contentUrl']);
-                        $valueThumb['thumbnail'] = $thumbnail->getThumbnail(200);
-
-                        $dataThumb[] = $valueThumb;
-                    }
+        // IF NOT EXISTS THUMBNAIL AND SIZES
+        if (!empty($data)) {
+            foreach ($data as $value) {
+                if (!$value['thumbnail'] || !$value['width'] || !$value['height'] || !$value['contentSize'] || !$value['encodingFormat']) {
+                    $value['id'] = $value['idimageObject'];
+                    $IMAGE = !$value['thumbnail'] ? new Thumbnail($value['contentUrl']) : new Image($value['contentUrl']);
+                    // THUMBNAIL
+                    if (!$value['thumbnail']) $value['thumbnail'] = $IMAGE->getThumbnail(200);
+                    // WIDTH
+                    if (!$value['width']) $value['width'] = $IMAGE->getWidth();
+                    // HEIGHT
+                    if (!$value['height']) $value['height'] = $IMAGE->getHeight();
+                    // CONTENT SIZE
+                    if (!$value['contentSize']) $value['contentSize'] = $IMAGE->getFileSize();
+                    // ENCONDING FORMAT
+                    if (!$value['encodingFormat']) $value['encodingFormat'] = $IMAGE->getMimeType();
+                    $this->put($value);
                 }
-                $data = $dataThumb;
-            }
-            // SIZES
-            if (strpos($params['properties'], 'sizes') !== false) {
-                foreach ($data as $valueSizes) {
-                    $imagePath = $_SERVER['DOCUMENT_ROOT'].$valueSizes['contentUrl'];
-                    if (file_exists($imagePath) && is_file($imagePath)) {
-                        list( $width, $height) = getimagesize($imagePath);
-                        $valueSizes['width'] = $width;
-                        $valueSizes['height'] = $height;
-                        $dataSizes[] = $valueSizes;
-                    }
-                }
-                $data = $dataSizes;
+                $data[] = $value;
             }
         }
         return parent::buildSchema($params, $data);
@@ -71,7 +66,7 @@ class ImageObject extends Entity implements TypeInterface {
                 parent::post($valueParams);
             }
             return [ "message" => "images uploaded" ];
-        } elseif(isset($params['id']) && is_array($params['id'])) {
+        } elseif (isset($params['id']) && is_array($params['id'])) {
             foreach ($params['id'] as $valueParams) {
                 if (isset($params['tableHasPart'])) {
                     $newParams['tableHasPart'] = $params['tableHasPart'];
@@ -85,10 +80,6 @@ class ImageObject extends Entity implements TypeInterface {
         } else {
             return parent::post($params);
         }
-    }
-
-    public function put(array $params = null): array {
-        return parent::put($params);
     }
 
     public function delete(array $params): array {
