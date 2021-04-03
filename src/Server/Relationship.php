@@ -10,11 +10,19 @@ class Relationship extends Crud {
     protected $tableIsPartOf;
     protected $idIsPartOf;
     protected $table_has_table;
-    protected $params;
+    private $params;
     protected $table;
     protected $type;
     protected $properties;
     protected $hasTypes;
+
+    public function setParams($params): void {
+        $this->params = $params;
+    }
+
+    public function getParams() {
+        return $this->params;
+    }
 
     public function setVars($params) {
         if ($params['tableHasPart']) { 
