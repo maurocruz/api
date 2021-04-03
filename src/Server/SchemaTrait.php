@@ -77,7 +77,16 @@ trait SchemaTrait {
     public function schema(array $valueData): array {
         $this->idHasPart = $valueData['id'.$this->table];
         $this->tableHasPart = $this->table;
-        $schema = [ "@context" => "https://schema.org", "@type" => $this->type ];
+        $fields = $this->getParams()['fields'] ?? null;
+        $type = $this->type;
+        $schema = new Schema($type);
+        // FIELDS
+        if ($fields) {
+            $fieldsExplode = explode(",", $fields);
+            foreach ($fieldsExplode as $fieldsValue) {
+                $schema->addProperty($fieldsValue, $valueData[$fieldsValue]);
+            }
+        }
         // PROPERTIES
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
@@ -85,21 +94,21 @@ trait SchemaTrait {
                 // added properties on schema array if $properties is defined with *
                 if ($valueProperty == "*") {
                     foreach ($valueData as $key => $valueValue) {
-                         $schema[$key] = $valueValue;
+                        $schema->addProperty($key, $valueValue);
                     }                    
                 } 
                 // add properties defined others type $properties
                 if (array_key_exists($valueProperty, $valueData)) {
-                    $schema[$valueProperty] = $valueData[$valueProperty];
+                    $schema->addProperty($valueProperty, $valueData[$valueProperty]);
                 }
                 // set relationships
                 if (array_key_exists($valueProperty, $this->hasTypes)) {
-                    $schema[$valueProperty] = self::relationshipsInSchema($valueData, $valueProperty);
+                    $schema->addProperty($valueProperty, self::relationshipsInSchema($valueData, $valueProperty));
                 }
             }
         }
-        $schema['identifier'][] = [ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ];
-        return $schema;
+        $schema->addProperty("identifier", [ [ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ] ]);
+        return $schema->getSchema();
     }
 
     private function setProperties(string $propertiesParams) {
