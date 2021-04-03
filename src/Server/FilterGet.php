@@ -24,7 +24,8 @@ class FilterGet {
     
     private function setQueries($queryParams) {
         // fields
-        $this->fields = $queryParams['fields'] ?? $this->fields;
+        $fields = $queryParams['fields'] ?? null;
+        $this->fields = $fields ? $this->fields.",".$fields : $this->fields;
         // query params        
         foreach ($queryParams as $key => $value) {
             $idname = "id".$this->table;
