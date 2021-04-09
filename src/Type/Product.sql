@@ -11,13 +11,13 @@ CREATE TABLE IF NOT EXISTS `product` (
   `description` text NOT NULL,
   `position` tinyint unsigned DEFAULT NULL,
   `availability` varchar(45) NOT NULL DEFAULT '',
-  `provider` INT NULL,
+  `manufacturer` INT NULL,
   `offers` INT NULL,
   `dateCreated` timestamp NULL DEFAULT NULL,
   `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idproduct`),
   KEY `idx_1` (`idproduct`,`category`)
-) ENGINE=InnoDB;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `product_has_imageObject` (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `product_has_imageObject` (
   KEY `FK_product_has_images_images` (`idimageObject`),
   CONSTRAINT `fk_product_has_imageObject_imageObject1` FOREIGN KEY (`idimageObject`) REFERENCES `imageObject` (`idimageObject`) ON DELETE CASCADE,
   CONSTRAINT `fk_product_has_imageObject_product1` FOREIGN KEY (`idproduct`) REFERENCES `product` (`idproduct`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 DROP TRIGGER IF EXISTS `product_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
