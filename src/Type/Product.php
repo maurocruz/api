@@ -8,7 +8,7 @@ class Product extends Entity implements TypeInterface {
     protected $table = "product";
     protected $type = "Product";
     protected $properties = [ "name" ];
-    protected $hasTypes = [ "image" => "ImageObject" ];
+    protected $hasTypes = [ "image" => "ImageObject", "manufacturer" => "Organization", "offers" => "Offer" ];
 
     public function post(array $params): array {
         $params['dateCreated'] = date("Y-m-d H:i:s");
