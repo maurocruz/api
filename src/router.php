@@ -15,8 +15,7 @@ return function(App $slimApp) {
     $slimApp->post('/api/start', function(Request $request, Response $response) {
         $data = PlinctApi::starApplication($request->getParsedBody());
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        $response = $response->withHeader("Content-type", "application/json");
-        return $response;        
+        return $response->withHeader("Content-type", "application/json");
     });
     
     /**
@@ -74,15 +73,13 @@ return function(App $slimApp) {
         } else {
             $data = null;
         }
-        $data ? $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) : null;
-        $response = $response->withHeader("Content-type", "application/json");
-        return $response;
+        if($data) $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        return $response->withHeader("Content-type", "application/json");
     })->addMiddleware(new AuthMiddleware());
     /**
      * PUT
      */
     $slimApp->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args) {
-        $data = null;
         $params = $request->getParsedBody() ?? null;
         $params['id'] = $args['id'] ?? $params['id'] ?? null;
         if (!$params['id']) {
@@ -98,8 +95,7 @@ return function(App $slimApp) {
             $data = [ "message" => "Unauthorized" ];
         }
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
-        $response = $response->withHeader("Content-type", "application/json");
-        return $response;
+        return $response->withHeader("Content-type", "application/json");
     })->addMiddleware(new AuthMiddleware());
     /**
      * DELETE
@@ -119,7 +115,6 @@ return function(App $slimApp) {
             $data = null;
         }
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        $response = $response->withHeader("Content-type", "application/json");
-        return $response;
+        return $response->withHeader("Content-type", "application/json");
     })->addMiddleware(new AuthMiddleware()); 
 };
