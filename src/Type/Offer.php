@@ -10,11 +10,6 @@ class Offer extends Entity implements TypeInterface {
     protected $properties = [ "*" ];
     protected $hasTypes = [ "itemOffered" => true ];
 
-    public function post(array $params): array {
-        unset($params['tableHasPart']);
-        return parent::post($params);
-    }
-
     public function addInOrder($params): array {
         $itemOfferedTypeClassName = "\\Plinct\\Api\\Type\\".ucfirst($params['itemOfferedType']);
         if (class_exists($itemOfferedTypeClassName)) {
