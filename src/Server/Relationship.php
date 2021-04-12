@@ -70,7 +70,7 @@ class Relationship extends Crud {
         if ($propertyIsPartOf) {
             // update has part
             $this->table = $this->tableHasPart;
-            parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id{$this->tableHasPart}`={$this->idHasPart}");
+            parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
 
         }
         // with manys relationship type
@@ -127,7 +127,7 @@ class Relationship extends Crud {
     }
     
     private static function table_exists($table): bool {
-        return empty(PDOConnect::run("SHOW tables like '$table';")) ? false : true;    
+        return !empty(PDOConnect::run("SHOW tables like '$table';"));
     }
     
     private function propertyIsPartOf() {
