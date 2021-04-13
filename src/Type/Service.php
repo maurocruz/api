@@ -8,7 +8,7 @@ class Service extends Entity implements TypeInterface {
     protected $table = "service";
     protected $type = "Service";
     protected $properties = [ "*", "offers" ];
-    protected $hasTypes = [ "offers" => "Offer", "provider" => true ];
+    protected $hasTypes = [ "offers" => "Offer", "provider" => "Orgnization" ];
 
     public function createSqlTable($type = null): array {
         $maintenance = new Maintenance();
