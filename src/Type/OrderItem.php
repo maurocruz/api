@@ -8,7 +8,7 @@ class OrderItem extends Entity implements TypeInterface {
     protected $table = "orderItem";
     protected $type = "OrderItem";
     protected $properties = [ "*", "orderedItem" ];
-    protected $hasTypes = [ "orderItemNumber" => "Order", "orderedItem" => true ];
+    protected $hasTypes = [ "referencesOrder" => "Order", "orderedItem" => true ];
 
     public function post(array $params): array {
         unset($params['tableHasPart']);
@@ -18,7 +18,7 @@ class OrderItem extends Entity implements TypeInterface {
     public function createSqlTable($type = null): array {
         $maintenance = (new Maintenance());
         $message[] = $maintenance->createSqlTable("Order");
-        $messagem[] = parent::createSqlTable("OrderItem");
+        $message[] = parent::createSqlTable("OrderItem");
         return $message;
     }
 }
