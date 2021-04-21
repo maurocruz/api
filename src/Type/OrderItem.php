@@ -8,7 +8,7 @@ class OrderItem extends Entity implements TypeInterface {
     protected $table = "orderItem";
     protected $type = "OrderItem";
     protected $properties = [ "*", "orderedItem" ];
-    protected $hasTypes = [ "referencesOrder" => "Order", "orderedItem" => true ];
+    protected $hasTypes = [ "referencesOrder" => "Order", "offer" => "Offer", "orderedItem" => true ];
 
     public function post(array $params): array {
         unset($params['tableHasPart']);
