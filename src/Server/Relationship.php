@@ -173,10 +173,8 @@ class Relationship extends Crud {
                 else {
                     if ($typeIsPartOf == "Offer") {
                         $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
-                    } elseif ($typeIsPartOf == "Invoice") {
+                    } elseif ($typeIsPartOf == "Invoice" || $typeIsPartOf == "OrderItem") {
                         $params = [ "referencesOrder" => $this->idHasPart ];
-                    } elseif ($typeIsPartOf == "OrderItem") {
-                        $params = [ "orderItemNumber" => $this->idHasPart ];
                     } else {
                         $params = [ $this->tableHasPart => $this->idHasPart ];
                     }
