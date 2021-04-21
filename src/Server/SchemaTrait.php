@@ -50,7 +50,7 @@ trait SchemaTrait {
     protected function listSchema($data, $numberOfList, $itemListOrder = "ascending"): array {
         $listItem = [];
         $itemList = [
-            "@context" => "http://schema.org",
+            "@context" => "https://schema.org",
             "@type" => "ItemList",
             "numberOfItems" => $numberOfList,
             "itemListOrder" => $itemListOrder
@@ -90,7 +90,6 @@ trait SchemaTrait {
         // PROPERTIES
         if (!empty($this->properties)) {
             foreach ($this->properties as $valueProperty) {
-                $data = null;
                 // added properties on schema array if $properties is defined with *
                 if ($valueProperty == "*") {
                     foreach ($valueData as $key => $valueValue) {
