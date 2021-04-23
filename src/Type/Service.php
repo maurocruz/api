@@ -7,7 +7,7 @@ use Plinct\Api\Server\Maintenance;
 class Service extends Entity implements TypeInterface {
     protected $table = "service";
     protected $type = "Service";
-    protected $properties = [ "*", "offers" ];
+    protected $properties = [ "name" ];
     protected $hasTypes = [ "image" => "ImageObject", "offers" => "Offer", "provider" => "Organization" ];
 
     public function createSqlTable($type = null): array {
