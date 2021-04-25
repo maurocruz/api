@@ -16,38 +16,9 @@ class Invoice extends Entity implements TypeInterface {
         return parent::get($params);
     }
 
-    public function post(array $params): array {
-        self::setHistory("CREATE", $params);
-        unset($params['tableHasPart']);
-        return parent::post($params);
-    }
-
-    public function put(array $params): array {
-        self::setHistory("UPDATE", $params);
-        return parent::put($params);
-    }
-
-    public function delete(array $params): array {
-        self::setHistory("DELETE", $params);
-        return parent::delete($params);
-    }
-
     public function createSqlTable($type = null): array {
         // sql create statement
         $message[] = parent::createSqlTable("Invoice");
         return $message;
-    }
-
-    /**
-     * SET HISTORY
-     * @param string $action
-     * @param array $params
-     * @return array
-     */
-    private static function setHistory(string $action, array $params): array {
-        $summary = "Valor: ".number_format($params['totalPaymentDue'], 2, ",", ".")." / vencimento: ".$params['paymentDueDate']." / quitado: ".$params['paymentDate'];
-        $tableHasPart = $params['tableHasPart'];
-        $idHasPart = $params['referencesOrder'];
-        return (new History())->postHistory($action, $summary, $tableHasPart, $idHasPart);
     }
 }
