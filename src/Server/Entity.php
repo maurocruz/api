@@ -9,6 +9,7 @@ abstract class Entity extends Relationship {
     protected $table;
     protected $properties = [];
     protected $hasTypes = [];
+
     use SchemaTrait;
     
     /**
