@@ -89,7 +89,6 @@ class Relationship extends Crud {
                 $params[$idHasPartName] = $params['idHasPart'];
                 unset($params['tableHasPart']);
                 unset($params['idHasPart']);
-                var_dump($params);
                 return parent::created($params);
             }
         }

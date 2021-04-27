@@ -3,8 +3,7 @@ namespace Plinct\Api\Type;
 
 use FilesystemIterator;
 use Plinct\Api\Server\Entity;
-use Plinct\Tool\Image;
-use Plinct\Tool\Thumbnail;
+use Plinct\Tool\Image\Thumbnail;
 use Plinct\Tool\StringTool;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -12,14 +11,14 @@ use RecursiveIteratorIterator;
 class ImageObject extends Entity implements TypeInterface {
     protected $table = "imageObject";
     protected $type = "ImageObject";
-    protected $properties = [ "contentUrl", "caption", "keywords", "representativeOfPage", "position", "width", "height", "href", "license", "acquireLicensePage" ];
+    protected $properties = [ "*" ];
     protected $hasTypes = [ "author" => "Person" ];
 
     public function get(array $params): array {
-        $newData = null;
+        //$newData = null;
         $data = parent::getData($params);
         // IF NOT EXISTS THUMBNAIL AND SIZES
-        if (!empty($data)) {
+        /*if (!empty($data)) {
             foreach ($data as $value) {
                 if (!$value['thumbnail'] || !$value['width'] || !$value['height'] || !$value['contentSize'] || !$value['encodingFormat']) {
                     $value['id'] = $value['idimageObject'];
@@ -38,12 +37,12 @@ class ImageObject extends Entity implements TypeInterface {
                 }
                 $newData[] = $value;
             }
-        }
-        return parent::buildSchema($params, $newData);
+        }*/
+        return parent::buildSchema($params, $data);
     }
 
     public function post(array $params): array {
-        $imagesUploaded = null;
+        /*$imagesUploaded = null;
         $newParams = null;
         // upload image
         if (isset($_FILES['imageupload'])) {
@@ -75,9 +74,9 @@ class ImageObject extends Entity implements TypeInterface {
                 parent::post($newParams);
             }
             return [ "message" => "images uploaded" ];
-        } else {
+        } else {*/
             return parent::post($params);
-        }
+        //}
     }
 
     public function delete(array $params): array {
@@ -125,5 +124,5 @@ class ImageObject extends Entity implements TypeInterface {
         $path = $dir."/".$filename;
         (new Thumbnail($imageUpload['tmp_name']))->uploadImage($path);
         return $filename;
-    }  
+    }
 }
