@@ -3,7 +3,6 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
-use Plinct\Cms\View\Types\Product\ProductView;
 
 class Organization extends Entity implements TypeInterface {
     protected $table = "organization";
