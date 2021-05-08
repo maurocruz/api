@@ -106,7 +106,7 @@ trait SchemaTrait {
                 }
             }
         }
-        $schema->addProperty("identifier", [ [ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ] ]);
+        $schema->setIdentifier([ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ]);
         return $schema->getSchema();
     }
 

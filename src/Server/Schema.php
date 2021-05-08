@@ -12,6 +12,9 @@ class Schema {
         $this->schema = [ "@context" => "https://schema.org", "@type" => $type ];
     }
 
+    public function setIdentifier(array $item): void {
+        $this->schema['identifier'][] = $item;
+    }
     public function addProperty($property, $value) {
         $this->schema[$property] = $value;
     }
