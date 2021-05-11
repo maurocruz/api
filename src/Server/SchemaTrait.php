@@ -107,7 +107,7 @@ trait SchemaTrait {
             }
         }
         $schema->setIdentifier([ "@type" => "PropertyValue", "name" => "id", "value" => $this->idHasPart ]);
-        return $schema->getSchema();
+        return $schema->ready();
     }
 
     private function setProperties(string $propertiesParams) {
