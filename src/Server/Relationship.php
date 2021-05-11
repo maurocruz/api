@@ -62,7 +62,10 @@ class Relationship extends Crud {
     public function postRelationship(array $params): array {
         $this->setVars($params);
         if (!$this->idIsPartOf) {
-            parent::created($this->params);
+            $data = parent::created($this->params);
+            if (isset($data['error'])) {
+                return $data;
+            }
             $this->idIsPartOf = PDOConnect::lastInsertId();
         }
         // one to one relationship type 
