@@ -9,9 +9,9 @@ class User extends Entity implements TypeInterface {
     protected $properties = [ "name", "status" ];
 
     public function post(array $params): array {
-        if (strlen($params['name']) < 2 ) {                      
+        if (strlen($params['name']) < 5 ) {
             return [ "error" => [
-                "message" => "The name must be longer than 2 characters"
+                "message" => "The name must be longer than 4 characters"
             ]];
         }
         if (filter_var($params['email'], FILTER_VALIDATE_EMAIL) === false) {
