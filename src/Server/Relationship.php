@@ -41,8 +41,8 @@ class Relationship extends Crud {
     }
     
     public function getRelationship($tableHasPart, $idHasPart, $tableIsPartOf, $params = null): array {
-        $filterget = new FilterGet($params, $this->table, $this->properties ?? []);
-        $orderBy = $filterget->orderBy();
+        $filter = new FilterGet($params, $this->table, $this->properties ?? []);
+        $orderBy = $filter->orderBy();
         $tableRel = $tableHasPart.'_has_'.$tableIsPartOf;
         $idHasPartName = 'id'.$tableHasPart;
         $idIsPartOfName = 'id'.$tableIsPartOf;
@@ -76,7 +76,7 @@ class Relationship extends Crud {
             parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
 
         }
-        // with manys relationship type
+        // with many relationship type
         else {                         
             $idHasPartName = array_key_exists($this->tableHasPart,$this->hasTypes) ? $this->tableHasPart : 'id'.$this->tableHasPart;
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
@@ -107,18 +107,18 @@ class Relationship extends Crud {
         return parent::update($this->params, $where);
     }
 
-    public function deleteRelationship($params): array {
+    /*public function deleteRelationship($params): array {
         $this->setVars($params);
         $this->table = $this->table_has_table;
         $idHasPartName = 'id'.$this->tableHasPart;
         $idIsPartOfName = 'id'.$this->tableIsPartOf;
         $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
         return parent::erase($where);
-    }
+    }*/
     
-    public function getHasTypes(): array {
+    /*public function getHasTypes(): array {
         return $this->hasTypes;
-    }       
+    } */
     
     private static function getTypeObject($type): ?object {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
@@ -159,7 +159,7 @@ class Relationship extends Crud {
                    return $resp[0] ?? null;
                }
             }
-            // manys
+            // many
             else {
                 $this->table_has_table = $this->tableHasPart."_has_".$this->tableIsPartOf;
                 // many to many
@@ -177,10 +177,12 @@ class Relationship extends Crud {
                         $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
                     } elseif ($typeIsPartOf == "Invoice" || $typeIsPartOf == "OrderItem") {
                         $params = [ "referencesOrder" => $this->idHasPart ];
+                    } elseif ($typeIsPartOf == "WebPageElement") {
+                        $params = [ "isPartOf" => $this->idHasPart ];
                     } else {
                         $params = [ $this->tableHasPart => $this->idHasPart ];
                     }
-                    $data = $typeIsPartOfObject->get(array_merge($params, [ "limit" => "none" ]));
+                    $data = $typeIsPartOfObject->get($params);
                     if (empty($data)) {
                         return null;
                     } else {
