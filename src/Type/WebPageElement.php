@@ -8,7 +8,7 @@ class WebPageElement extends Entity implements TypeInterface {
     protected $table = "webPageElement";
     protected $type = "WebPageElement";
     protected $properties = [ "name", "text", "position", "image", "identifier" ];
-    protected $hasTypes = [ "image" => "ImageObject", "identifier" => "PropertyValue", "webPage" => "WebPage" ];
+    protected $hasTypes = [ "image" => "ImageObject", "identifier" => "PropertyValue", "isPartOf" => "WebPage" ];
 
     public function get(array $params): array {
         $params['orderBy'] = $params['orderBy'] ?? "position";
