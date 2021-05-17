@@ -7,7 +7,7 @@ use Plinct\Api\Server\Maintenance;
 class Person extends Entity implements TypeInterface {
     protected $table = "person";
     protected $type = "Person";
-    protected $properties = [ "name" ];
+    protected $properties = [ "*" ];
     protected $hasTypes = [ "address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject" ];
 
     public function post(array $params): array {

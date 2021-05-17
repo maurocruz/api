@@ -3,7 +3,6 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
-use Plinct\Cms\View\Types\Product\ProductView;
 
 class Organization extends Entity implements TypeInterface {
     protected $table = "organization";
@@ -16,7 +15,7 @@ class Organization extends Entity implements TypeInterface {
         // GET DATA ORGANIZATION
         $data = parent::get($params);
         // GET OFFERS
-        if (strpos($params['properties'], "hasOfferCatalog") !== false) {
+        if (isset($params['properties']) && strpos($params['properties'], "hasOfferCatalog") !== false) {
             $offerCatalog = (new Offer())->get([ "format" => "ItemList", "offeredBy" => $params['id'], "offeredByType" => "Organization" ]);
             $data[0]['hasOfferCatalog'] = $offerCatalog;
         }

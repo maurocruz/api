@@ -90,9 +90,9 @@ return function(App $slimApp) {
      */
     $slimApp->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args) {
         $params = $request->getParsedBody() ?? null;
-        $params['id'] = $args['id'] ?? $params['id'] ?? null;
+        $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? null;
         if (!$params['id']) {
-            $data = [ "message" => "missing data"];
+            $data = [ "message" => "missing data (router.php on line 86)"];
         } elseif ($response->getStatusCode() === 200) {
             $className = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
             if (class_exists($className)) {
@@ -111,11 +111,11 @@ return function(App $slimApp) {
      */
     $slimApp->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args) {
         $params = $request->getParsedBody() ?? null;
-        $params['id'] = $args['id'] ?? $params['id'] ?? null;
+        $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? null;
         $type = $args['type'];
         if ($response->getStatusCode() === 200) {
             if (!$params['id']) {
-                $data = [ "message" => "missing data"];
+                $data = [ "message" => "missing data (router.php on delele - line 109)"];
             } else {
                 $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
                 $data = (new $classname())->delete($params);
@@ -124,6 +124,6 @@ return function(App $slimApp) {
             $data = null;
         }
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        return $response->withHeader("Content-type", "application/json");
+        return $response;// $response->withHeader("Content-type", "application/json");
     })->addMiddleware(new AuthMiddleware()); 
 };
