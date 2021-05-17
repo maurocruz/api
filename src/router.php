@@ -49,6 +49,15 @@ return function(App $slimApp) {
         return $response;
     });
     /**
+     * REGISTER
+     */
+    $slimApp->post('/api/register', function (Request $request, Response $response) {
+        $data = (new Auth\AuthController())->register($request->getParsedBody());
+        $newResponse = $response->withHeader("Content-type", "'application/json'");
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        return $response;
+    });
+    /**
      * POST
     */
     $slimApp->post('/api/{type}', function(Request $request, Response $response, $args) {
