@@ -93,4 +93,11 @@ abstract class Entity extends Relationship {
             return [ "message" => "Sql table for ".$type." not created!" ];
         }
     }
+
+    /**
+     * @return array
+     */
+    public function getHasTypes(): array {
+        return $this->hasTypes;
+    }
 }
