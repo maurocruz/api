@@ -67,10 +67,14 @@ abstract class Entity extends Relationship {
      * @return array
      */
     public function delete(array $params): array {
-        $params = array_filter($params);
-        $filter = new FilterGet($params, $this->table, $this->properties);
-        $this->properties = $filter->getProperties();
-        return parent::erase($filter->where(), $filter->limit());
+        if (isset($params['tableHasPart']) && isset($params['idHasPart']) && isset($params['tableIsPartOf']) && isset($params['idIsPartOf'])) {
+            return parent::deleteRelationship($params);
+        } else {
+            $params = array_filter($params);
+            $filter = new FilterGet($params, $this->table, $this->properties);
+            $this->properties = $filter->getProperties();
+            return parent::erase($filter->where(), $filter->limit());
+        }
     }
     /**
      * CREATE SQL
