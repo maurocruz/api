@@ -106,7 +106,16 @@ class Relationship extends Crud {
         $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
         return parent::update($this->params, $where);
     }
-    
+
+    public function deleteRelationship($params): array {
+        $this->setVars($params);
+        $this->table = $this->table_has_table;
+        $idHasPartName = 'id'.$this->tableHasPart;
+        $idIsPartOfName = 'id'.$this->tableIsPartOf;
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
+        return parent::erase($where,1);
+    }
+
     private static function getTypeObject($type): ?object {
         $classname = "\\Plinct\\Api\\Type\\". ucfirst($type);
         if (class_exists($classname)) {
