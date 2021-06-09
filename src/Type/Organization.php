@@ -7,7 +7,7 @@ use Plinct\Api\Server\Entity;
 class Organization extends Entity implements TypeInterface {
     protected $table = "organization";
     protected $type = "Organization";
-    protected $properties = [ "name", "description", "legalName", "taxId" ];
+    protected $properties = [];
     protected $hasTypes = [ "address" => "PostalAddress", "contactPoint" => "ContactPoint", "member" => "Person", "location" => "Place", "image" => "ImageObject", "localBusiness" => "LocalBusiness" ];
 
 
