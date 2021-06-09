@@ -5,12 +5,13 @@ use Plinct\PDO\PDOConnect;
 
 class Schema {
     private $schema;
-    private $context = "https://schema.org";
     private $type;
     private $properties;
     private $data = [];
 
-    public function __construct($type) {
+    public function __construct($type, $context = "https://schema.org") {
+        $this->schema['@context'] = $context;
+        $this->schema['@type'] = $type;
         $this->type = $type;
     }
 
@@ -31,8 +32,6 @@ class Schema {
     }
 
     public function responseSingle(): array {
-        $this->schema['@context'] = $this->context;
-        $this->schema['@type'] = $this->type;
         if (isset($this->data[0])) {
             foreach ($this->data[0] as $key => $value) {
                 $this->schema[$key] = $value;
@@ -49,8 +48,6 @@ class Schema {
     }
 
     public function ready(): array {
-        $this->schema['@context'] = $this->context;
-        $this->schema['@type'] = $this->type;
         return $this->schema;
     }
 }
