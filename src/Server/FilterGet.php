@@ -1,17 +1,13 @@
 <?php
 namespace Plinct\Api\Server;
 
-class FilterGet {
-    // properties not exists
-    private $noWhere = [ "orderBy", "ordering", "limit", "groupBy", "offset", "id", "properties", "where", "format", "count", "fields", "tableHasPart", "idHasPart" ];
+class FilterGet extends sqlBuilderAbstract {
     // conditions sql
     private $fields = "*";
-    private $where = null;
     private $groupBy = null;
     private $orderBy = null;
     private $limit = null;
     private $offset = null;
-    private $table;
     private $properties;
             
     public function __construct($queryParams, $table, $properties) {
@@ -26,7 +22,7 @@ class FilterGet {
         // fields
         $fields = $queryParams['fields'] ?? null;
         $this->fields = $fields ? $this->fields.",".$fields : $this->fields;
-        // query params        
+        // query params
         foreach ($queryParams as $key => $value) {
             $idname = "id".$this->table;
             if ($value == "id") {
@@ -38,26 +34,8 @@ class FilterGet {
                 $this->orderBy = stripos($ordering, 'rand') !== false ? "rand()" : $value." ". $ordering;
             }
             // WHERE
-            $like = stristr($key,"like", true) !== false ? stristr($key,"like", true) : ($key == "q" || $key == "search" ? "name" : null);
-            if ($like) {
-                $whereArray[] = "`$like` LIKE '%$value%'";
-
-            } elseif (!in_array($key, $this->noWhere)) {
-                if (strpos($value, "|") !== false) {
-                    $whereArray[] = "(`$key`='".str_replace("|","' OR `$key`='",addslashes($value))."')";
-                } else {
-                    $whereArray[] = "`$key`='".addslashes($value)."'";
-                }
-            }
-            if ($key == "id") {
-                $whereArray[] = "`$idname`=$value";
-            }
-            if (stripos($key, "where") !== false) {
-                $whereArray[] = "$value";
-            }
+            parent::setWhere($key,$value);
         }
-        // WHERE
-        $this->where = isset($whereArray) ? implode(" AND ", $whereArray) : null;        
         // groupBy
         $this->groupBy = $queryParams['groupBy'] ?? null;
         // limit
