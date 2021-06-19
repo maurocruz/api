@@ -82,7 +82,7 @@ abstract class Entity extends Relationship {
      * @return array
      * @throws ReflectionException
      */
-    protected function createSqlTable($type = null): array {
+    public function createSqlTable($type = null): array {
         $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $reflection = new ReflectionClass($className);
         $sqlFile = dirname($reflection->getFileName()) . "/" . ucfirst($type) . ".sql";
