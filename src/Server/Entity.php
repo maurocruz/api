@@ -1,30 +1,31 @@
 <?php
 namespace Plinct\Api\Server;
 
+use Plinct\Api\Server\Relationship\Relationship;
+use Plinct\Api\Server\Schema\Schema;
+use Plinct\PDO\Crud;
 use ReflectionClass;
 use ReflectionException;
 use Plinct\PDO\PDOConnect;
 
-abstract class Entity extends Relationship {
+abstract class Entity extends Crud {
     protected $table;
+    protected $type;
     protected $properties = [];
     protected $hasTypes = [];
 
-    use SchemaTrait;
-    
     /**
      * GET
      * @param array $params
      * @return array
      */
     public function get(array $params): array {
-        $this->setParams($params);
         if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
-            $data = parent::getRelationship($params['tableHasPart'], $params['idHasPart'], $this->table, $params);
+            $data = (new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table))->getRelationship($params);
         } else {
             $data = $this->getData($params);
         }
-        return $this->buildSchema($params, $data);
+        return (new Schema($this->type, $this->properties, $this->hasTypes))->buildSchema($params, $data);
     }
     
     protected function getData($params): array {
@@ -35,7 +36,9 @@ abstract class Entity extends Relationship {
     public function post(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
-            return parent::postRelationship($params);
+            $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+            unset($params['tableHasPart'],$params['idHasPart']);
+            return $relationship->postRelationship($params);
         }
         $message = parent::created($params);
         $lastId = PDOConnect::lastInsertId();
@@ -53,7 +56,9 @@ abstract class Entity extends Relationship {
     public function put(array $params): array {
         // if relationship
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
-            return parent::putRelationship($params);
+            $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+            unset($params['tableHasPart'],$params['idHasPart']);
+            return $relationship->putRelationship($params);
         } 
         unset($params['tableHasPart']);
         $idName = "id".$this->table;
@@ -68,7 +73,9 @@ abstract class Entity extends Relationship {
      */
     public function delete(array $params): array {
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) && isset($params['tableIsPartOf']) && isset($params['idIsPartOf'])) {
-            return parent::deleteRelationship($params);
+            $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+            unset($params['tableHasPart'],$params['idHasPart']);
+            return $relationship->deleteRelationship($params);
         } else {
             $params = array_filter($params);
             $filter = new FilterGet($params, $this->table, $this->properties);
@@ -98,10 +105,7 @@ abstract class Entity extends Relationship {
         }
     }
 
-    /**
-     * @return array
-     */
-    public function getHasTypes(): array {
+    public function getHasType(): array {
         return $this->hasTypes;
     }
 }
