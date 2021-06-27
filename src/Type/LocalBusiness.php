@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Type;
 
-use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
 
 class LocalBusiness extends Entity implements TypeInterface {
@@ -19,7 +18,7 @@ class LocalBusiness extends Entity implements TypeInterface {
         return parent::buildSchema($params, $data);
     }
 
-    public function createSqlTable($type = null): array {
+    /*public function createSqlTable($type = null): array {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("ContactPoint");
         $message[] = $maintenance->createSqlTable("PostalAddress");
@@ -29,5 +28,5 @@ class LocalBusiness extends Entity implements TypeInterface {
         $message[] = $maintenance->createSqlTable("Organization");
         $message[] = parent::createSqlTable("LocalBusiness");
         return $message;
-    }
+    }*/
 }

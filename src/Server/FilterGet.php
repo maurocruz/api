@@ -10,7 +10,7 @@ class FilterGet extends sqlBuilderAbstract {
     private $offset = null;
     private $properties;
             
-    public function __construct($queryParams, $table, $properties) {
+    public function __construct($queryParams, $table, $properties = []) {
         $this->table = $table;
         $this->properties = $properties;
         if (!empty($queryParams)) {
