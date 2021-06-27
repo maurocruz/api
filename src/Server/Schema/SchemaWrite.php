@@ -7,6 +7,11 @@ class SchemaWrite {
     private $properties = [];
     private $schema = null;
 
+    /**
+     * SchemaWrite constructor.
+     * @param $context
+     * @param $type
+     */
     public function __construct($context, $type) {
         $this->context = $context;
         $this->type = $type;
@@ -23,6 +28,9 @@ class SchemaWrite {
         }
     }
 
+    /**
+     * @return array|null
+     */
     public function ready(): ?array {
         if (!empty($this->properties)) {
             $this->schema['@context'] = $this->context;

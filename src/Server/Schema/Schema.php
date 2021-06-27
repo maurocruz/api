@@ -20,10 +20,10 @@ class Schema extends SchemaTrait {
         parent::setHasTypes();
         // IF LIST
         if (isset($params['format']) && $params['format'] == 'ItemList') {
-            self::listSchema($data);
+            parent::listSchema($data);
         } else {
             foreach ($data as $value) {
-                $this->schema[] = self::newSchema($value);
+                $this->schema[] = parent::newSchema($value);
             }
         }
         return $this->schema;

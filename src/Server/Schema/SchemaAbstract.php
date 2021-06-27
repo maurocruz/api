@@ -24,6 +24,7 @@ abstract class SchemaAbstract {
     }
 
     /**
+     *
      */
     public function setHasTypes(): void {
         $enabledHasType = [];
@@ -35,6 +36,10 @@ abstract class SchemaAbstract {
         $this->hasTypes = $enabledHasType;
     }
 
+    /**
+     * @param $columnName
+     * @return bool
+     */
     protected function ifExistsColumn($columnName): bool {
         $columns = PDOConnect::run("SHOW COLUMNS FROM `$this->tableHasPart`");
         foreach ($columns as $value) {

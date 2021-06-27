@@ -14,6 +14,10 @@ class RelationshipAbstract extends Crud {
     protected $properties;
     protected $hasTypes;
 
+    /**
+     * @param $table
+     * @return bool
+     */
     protected static function table_exists($table): bool {
         return !empty(PDOConnect::run("SHOW tables like '$table';"));
     }
@@ -38,6 +42,11 @@ class RelationshipAbstract extends Crud {
         return false;
     }
 
+    /**
+     * @param $table
+     * @param $number
+     * @return mixed
+     */
     protected function getColumnName($table, $number) {
         $data = PDOConnect::run("SHOW COLUMNS FROM $table");
         $key = $number -1;
