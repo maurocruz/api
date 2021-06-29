@@ -40,6 +40,9 @@ class SchemaTrait extends  SchemaAbstract {
         }
         // RELATIONSHIP HAS PART OF
         foreach ($this->hasTypes as $propertyIsPartOf => $tableIsPartOf) {
+            if ($tableIsPartOf === true) {
+                $tableIsPartOf = $data[$propertyIsPartOf.'Type'];
+            }
             $className = "Plinct\\Api\\Type\\".ucfirst($tableIsPartOf);
             if (class_exists($className)) {
                 $class = new $className();
@@ -52,7 +55,16 @@ class SchemaTrait extends  SchemaAbstract {
                 }
                 // ONE TO MANY
                 else {
-                    $dataIsPartOf = $class->get(['tableHasPart' => $this->tableHasPart, 'idHasPart' => $this->idHasPart]);
+                    if ($tableIsPartOf == "Offer") {
+                        $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
+                    } elseif ($tableIsPartOf == "Invoice" || $tableIsPartOf == 'OrderItem') {
+                        $params = ['referencesOrder'=>$this->idHasPart];
+                    } elseif ($tableIsPartOf == "WebPageElement") {
+                        $params = ['isPartOf'=>$this->idHasPart];
+                    } else {
+                        $params = ['tableHasPart'=>$this->tableHasPart,'idHasPart'=>$this->idHasPart];
+                    }
+                    $dataIsPartOf = $class->get($params);
                     if (empty($dataIsPartOf) || is_null($dataIsPartOf[0])) $dataIsPartOf = null;
                     $schema->addProperty($propertyIsPartOf, $dataIsPartOf);
                 }
