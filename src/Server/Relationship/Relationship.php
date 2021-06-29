@@ -20,7 +20,7 @@ class Relationship extends RelationshipAbstract {
             $idIsPartOfName = 'id'.$this->tableIsPartOf;
             $idHasPartRelName = parent::getColumnName($this->table_has_table,1);
             $idIsPartOfRelName = parent::getColumnName($this->table_has_table,2);
-            $query = "SELECT * FROM $this->tableIsPartOf, $this->table_has_table WHERE $this->tableIsPartOf.$idIsPartOfName = $this->table_has_table.$idIsPartOfRelName AND $this->table_has_table.$idHasPartRelName = $this->idHasPart";
+            $query = "SELECT * FROM $this->tableIsPartOf, $this->table_has_table WHERE $this->table_has_table.$idHasPartRelName=$this->idHasPart AND $this->tableIsPartOf.$idIsPartOfName=$this->table_has_table.$idIsPartOfRelName";
             // IMAGE OBJECT
             $query .= $this->tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
             // CONTACT POINT
@@ -101,53 +101,4 @@ class Relationship extends RelationshipAbstract {
         }
         return null;
     }
-    
-    /*protected function relationshipsInSchema($valueData, $valueProperty) {
-        // VERIFY IS CLASS OBJECT IS PART OF TYPE EXISTS
-        $typeIsPartOf = $this->hasTypes[$valueProperty] === true ? $valueData[$valueProperty.'Type'] : $this->hasTypes[$valueProperty];
-        $this->tableIsPartOf = lcfirst($typeIsPartOf);
-        $typeIsPartOfObject = self::getTypeObject($typeIsPartOf);
-        // IF EXISTS
-        if ($typeIsPartOfObject) {
-            // one to one
-            if (array_key_exists($valueProperty, $valueData)) {
-               if (is_numeric($this->idHasPart) && $valueData[$valueProperty]) {
-                   $resp = $typeIsPartOfObject->get([ "id" => $valueData[$valueProperty] ]);
-                   return $resp[0] ?? null;
-               }
-            }
-            // many
-            else {
-                $this->table_has_table = $this->tableHasPart."_has_".$this->tableIsPartOf;
-                // many to many
-                if (self::table_exists($this->table_has_table)) {
-                    $rel = $this->getRelationship($this->table, $this->idHasPart, $this->tableIsPartOf);
-                    $data = null;
-                    foreach ($rel as $valueRel) {
-                       $data[] = $typeIsPartOfObject->schema($valueRel);
-                    }
-                    return $data;
-                }
-                // one to many
-                else {
-                    if ($typeIsPartOf == "Offer") {
-                        $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
-                    } elseif ($typeIsPartOf == "Invoice" || $typeIsPartOf == "OrderItem") {
-                        $params = [ "referencesOrder" => $this->idHasPart ];
-                    } elseif ($typeIsPartOf == "WebPageElement") {
-                        $params = [ "isPartOf" => $this->idHasPart ];
-                    } else {
-                        $params = [ $this->tableHasPart => $this->idHasPart ];
-                    }
-                    $data = $typeIsPartOfObject->get($params);
-                    if (empty($data)) {
-                        return null;
-                    } else {
-                        return $data;
-                    }
-                }
-            }
-        }
-        return false;
-    }*/
 }
