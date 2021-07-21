@@ -38,28 +38,30 @@ class SchemaTrait extends  SchemaAbstract {
                 }
             }
         }
-        // RELATIONSHIP HAS PART OF
+        // RELATIONSHIP IS PART OF
         foreach ($this->hasTypes as $propertyIsPartOf => $tableIsPartOf) {
+            // IF TYPE IS PART OF IS DEFINED WITH FIELD TYPE BD
             if ($tableIsPartOf === true) {
                 $tableIsPartOf = $data[$propertyIsPartOf.'Type'];
             }
+            // GET OBJECT TYPT PART OF
             $className = "Plinct\\Api\\Type\\".ucfirst($tableIsPartOf);
             if (class_exists($className)) {
                 $class = new $className();
-                // ONE TO ONE
+                // RELATIONSHIP ONE TO ONE
                 if (self::ifExistsColumn($propertyIsPartOf)) {
                     if ($data[$propertyIsPartOf]) {
                         $dataIsPartOf = $class->get(['id'=>$data[$propertyIsPartOf]]);
                         $schema->addProperty($propertyIsPartOf, $dataIsPartOf[0]);
                     }
                 }
-                // ONE TO MANY
+                // RELATIONSHIP ONE TO MANY
                 else {
                     if ($tableIsPartOf == "Offer") {
                         $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
                     } elseif ($tableIsPartOf == "Invoice" || $tableIsPartOf == 'OrderItem') {
                         $params = ['referencesOrder'=>$this->idHasPart];
-                    } elseif ($tableIsPartOf == "WebPageElement") {
+                    } elseif (isset($class->getHasType()['isPartOf']) && $class->getHasType()['isPartOf']==ucfirst($this->tableHasPart)) {
                         $params = ['isPartOf'=>$this->idHasPart];
                     } else {
                         $params = ['tableHasPart'=>$this->tableHasPart,'idHasPart'=>$this->idHasPart];

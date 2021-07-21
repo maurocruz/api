@@ -7,8 +7,8 @@ use Plinct\Api\Server\Maintenance;
 class WebPage extends Entity implements TypeInterface {
     protected $table = "webPage";
     protected $type = "WebPage";
-    protected $properties = [ "name", "description", "url", "identifier" ];
-    protected $hasTypes = [ "hasPart" => "WebPageElement", "identifier" => "PropertyValue" ];
+    protected $properties = [ "name", "description", "url", "identifier","isPartOf" ];
+    protected $hasTypes = [ "hasPart" => "WebPageElement", "identifier" => "PropertyValue", "isPartOf"=>'WebSite'];
 
     public function post(array $params): array {
         $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

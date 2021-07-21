@@ -10,15 +10,17 @@ class Schema extends SchemaTrait {
     }
 
     public function buildSchema(array $params,array $data): array {
+        // VARS
         $this->tableHasPart = lcfirst($this->type);
         $this->params = $params;
         $paramsProperties = $this->params['properties'] ?? null;
-        // SET PROPERTIES and HAS TYPES
+        // SET PROPERTIES
         if ($paramsProperties) {
             parent::setProperties($paramsProperties);
         }
+        // SET HAS TYPES
         parent::setHasTypes();
-        // IF LIST
+        // IF FORMAT ITEM LIST
         if (isset($params['format']) && $params['format'] == 'ItemList') {
             parent::listSchema($data);
         } else {
