@@ -9,7 +9,7 @@ class Breadcrumb
         $items[] = self::item($key, $params['url'], $params['alternativeHeadline']);
         if ($key > 1) {
             end($urlArray);
-            while($val=current($urlArray)) {
+            while(current($urlArray)) {
                 array_pop($urlArray);
                 if(!empty($urlArray)) {
                     $items[] = self::getNewParams($urlArray);
