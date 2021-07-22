@@ -63,7 +63,7 @@ class Relationship extends RelationshipAbstract {
                return parent::created($paramCreate);
             }
             // many to many
-            else {
+            elseif($this->tableHasPart) {
                 $this->table = $this->tableIsPartOf;
                 $idHasPartName = parent::getColumnName('hasPart', $this->tableHasPart);
                 $params[$idHasPartName] = $params['idHasPart'];
