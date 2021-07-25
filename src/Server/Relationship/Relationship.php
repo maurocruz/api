@@ -52,25 +52,13 @@ class Relationship extends RelationshipAbstract {
             parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
 
         }
-        // with many relationship type
-        else {
-            // many to many
-            if (self::table_exists($this->table_has_table)) {
-                $idHasPartName = parent::getColumnName($this->table_has_table,1);
-                $idIsPartOfName = parent::getColumnName($this->table_has_table,2);
-                $this->table = $this->table_has_table;
-                $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];
-               return parent::created($paramCreate);
-            }
-            // many to many
-            elseif($this->tableHasPart) {
-                $this->table = $this->tableIsPartOf;
-                $idHasPartName = parent::getColumnName('hasPart', $this->tableHasPart);
-                $params[$idHasPartName] = $params['idHasPart'];
-                unset($params['tableHasPart']);
-                unset($params['idHasPart']);
-                return parent::created($params);
-            }
+        // many to many relationship type with table_has_table
+        elseif (self::table_exists($this->table_has_table)) {
+            $idHasPartName = parent::getColumnName($this->table_has_table,1);
+            $idIsPartOfName = parent::getColumnName($this->table_has_table,2);
+            $this->table = $this->table_has_table;
+            $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];
+           return parent::created($paramCreate);
         }
         return $params;
     }
