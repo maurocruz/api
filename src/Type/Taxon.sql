@@ -39,12 +39,12 @@ CREATE TABLE IF NOT EXISTS `taxon_has_imageObject` (
 
 DROP TRIGGER IF EXISTS `taxon_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `ptaxon_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW
+CREATE DEFINER = CURRENT_USER TRIGGER `taxon_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `taxon_has_imageObject` FOR EACH ROW
 BEGIN
     DECLARE count INT;
     SET count = (SELECT COUNT(*) FROM `taxon_has_imageObject` WHERE `idtaxon`=NEW.`idtaxon`);
     IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
+        THEN SET NEW.`position`= count+1;
     END IF;
 END$$
 DELIMITER ;

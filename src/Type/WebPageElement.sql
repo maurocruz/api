@@ -5,18 +5,30 @@
 
 CREATE TABLE IF NOT EXISTS `webPageElement` (
   `idwebPageElement` INT NOT NULL AUTO_INCREMENT,
-  `idwebPage` INT NOT NULL DEFAULT '0',
+  `isPartOf` INT NOT NULL,
   `name` VARCHAR(255) NULL DEFAULT NULL,
   `text` TEXT NULL DEFAULT NULL,
   `position` TINYINT UNSIGNED NULL DEFAULT NULL,
-  `author` VARCHAR(50) NULL DEFAULT NULL,
-  `dateCreated` DATETIME NOT NULL,
+  `author` INT NULL DEFAULT NULL,
+  `dateCreated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dateModified` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idwebPageElement`),
-  INDEX `FK_webPageElement_webPage` (`idwebPage`),
-  CONSTRAINT `fk_webPageElement_webPage1` FOREIGN KEY (`idwebPage`) REFERENCES `webPage` (`idwebPage`) ON DELETE CASCADE ON UPDATE NO ACTION
+  INDEX `FK_webPageElement_webPage` (`isPartOf`),
+  CONSTRAINT `fk_webPageElement_webPage1` FOREIGN KEY (`isPartOf`) REFERENCES `webPage` (`idwebPage`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
 
+
+DROP TRIGGER IF EXISTS `webPageElement_BEFORE_INSERT`;
+DELIMITER $$
+CREATE DEFINER = CURRENT_USER TRIGGER `plinct`.`webPageElement_BEFORE_INSERT` BEFORE INSERT ON `webPageElement` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `webPageElement` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END$$
+DELIMITER ;
 
 CREATE TABLE IF NOT EXISTS `webPageElement_has_propertyValue` (
   `idwebPageElement` INT NOT NULL,
@@ -44,7 +56,8 @@ CREATE TABLE IF NOT EXISTS `webPageElement_has_imageObject` (
 
 DROP TRIGGER IF EXISTS `webPageElement_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `webPageElement_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `webPageElement_has_imageObject` FOR EACH ROW BEGIN
+CREATE DEFINER = CURRENT_USER TRIGGER `webPageElement_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `webPageElement_has_imageObject` FOR EACH ROW
+BEGIN
     DECLARE count INT;
     SET count = (SELECT COUNT(*) FROM `webPageElement_has_imageObject` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
     IF NEW.`position`='' OR NEW.`position` IS NULL
