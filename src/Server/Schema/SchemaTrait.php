@@ -32,10 +32,10 @@ class SchemaTrait extends  SchemaAbstract {
             // IF '*' with property
             if (array_search('*',$this->properties) !== false) {
                 $schema->addProperty($property, $valueProperty);
+            } elseif (array_search($property,$this->properties) !== false) {
+                $schema->addProperty($property, $valueProperty);
             } else {
-                if (array_search($property,$this->properties) !== false) {
-                    $schema->addProperty($property, $valueProperty);
-                }
+                $schema->addProperty($property, $valueProperty);
             }
         }
         // RELATIONSHIP IS PART OF
