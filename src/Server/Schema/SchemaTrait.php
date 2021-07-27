@@ -50,7 +50,7 @@ class SchemaTrait extends  SchemaAbstract {
                 $class = new $className();
                 // RELATIONSHIP ONE TO ONE
                 if (self::ifExistsColumn($propertyIsPartOf)) {
-                    if ($data[$propertyIsPartOf]) {
+                    if (isset($data[$propertyIsPartOf])) {
                         $dataIsPartOf = $class->get(['id'=>$data[$propertyIsPartOf]]);
                         $schema->addProperty($propertyIsPartOf, $dataIsPartOf[0]);
                     }
