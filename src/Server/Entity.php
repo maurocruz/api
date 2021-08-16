@@ -25,7 +25,11 @@ abstract class Entity extends Crud {
         } else {
             $data = $this->getData($params);
         }
-        return (new Schema($this->type, $this->properties, $this->hasTypes))->buildSchema($params, $data);
+        if (isset($data['error'])) {
+            return $data;
+        } else {
+            return (new Schema($this->type, $this->properties, $this->hasTypes))->buildSchema($params, $data);
+        }
     }
     
     protected function getData($params): array {
