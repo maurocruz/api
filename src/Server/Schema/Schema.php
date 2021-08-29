@@ -1,15 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Server\Schema;
 
-class Schema extends SchemaTrait {
-
-    public function __construct($type, $properties, $hasTypes) {
+class Schema extends SchemaTrait
+{
+    /**
+     * @param $type
+     * @param $properties
+     * @param $hasTypes
+     */
+    public function __construct($type, $properties, $hasTypes)
+    {
         $this->type = $type;
         $this->properties = $properties;
         $this->hasTypes = $hasTypes;
     }
 
-    public function buildSchema(array $params,array $data): array {
+    /**
+     * @param array $params
+     * @param array $data
+     * @return array
+     */
+    public function buildSchema(array $params,array $data): array
+    {
         // VARS
         $this->tableHasPart = lcfirst($this->type);
         $this->params = $params;
