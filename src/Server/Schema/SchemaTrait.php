@@ -1,10 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Server\Schema;
 
+use Plinct\Web\Debug\Debug;
 
-class SchemaTrait extends  SchemaAbstract {
-    
-    protected function listSchema(array $data) {
+class SchemaTrait extends  SchemaAbstract
+{
+    /**
+     * @param array $data
+     */
+    protected function listSchema(array $data)
+    {
         $listItem=[];
         $this->schema['@context'] = $this->context;
         $this->schema['@type'] = "ItemList";
@@ -23,20 +31,18 @@ class SchemaTrait extends  SchemaAbstract {
         $this->schema["itemListElement"] = $listItem;
     }
 
-    protected function newSchema(array $data): ?array {
+    /**
+     * @param array $data
+     * @return array|null
+     */
+    protected function newSchema(array $data): ?array
+    {
         $this->idHasPart = $data['id'] ?? $data["id$this->tableHasPart"] ?? null;
         // SCHEMA WRITE
         $schema = new SchemaWrite($this->context, $this->type);
         // ADD SELECTED PROPERTIES
         foreach ($data as $property => $valueProperty) {
-            // IF '*' with property
-            if (array_search('*',$this->properties) !== false) {
-                $schema->addProperty($property, $valueProperty);
-            } elseif (array_search($property,$this->properties) !== false) {
-                $schema->addProperty($property, $valueProperty);
-            } else {
-                $schema->addProperty($property, $valueProperty);
-            }
+            $schema->addProperty($property, $valueProperty);
         }
         // RELATIONSHIP IS PART OF
         foreach ($this->hasTypes as $propertyIsPartOf => $tableIsPartOf) {
@@ -52,7 +58,7 @@ class SchemaTrait extends  SchemaAbstract {
                 if (self::ifExistsColumn($propertyIsPartOf)) {
                     if (isset($data[$propertyIsPartOf])) {
                         $dataIsPartOf = $class->get(['id'=>$data[$propertyIsPartOf]]);
-                        $schema->addProperty($propertyIsPartOf, $dataIsPartOf[0]);
+                        $schema->addProperty($propertyIsPartOf, $dataIsPartOf[0] ?? null);
                     }
                 }
                 // RELATIONSHIP ONE TO MANY
