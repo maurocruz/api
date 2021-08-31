@@ -1,14 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class User extends Entity implements TypeInterface {
+class User extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "user";
-    protected $type = "User";
-    protected $properties = [ "name", "status" ];
+    /**
+     * @var string
+     */
+    protected string $type = "User";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "name", "status" ];
 
-    public function post(array $params): array {
+    /**
+     * @param array $params
+     * @return string[][]
+     */
+    public function post(array $params): array
+    {
         if (strlen($params['name']) < 5 ) {
             return [ "error" => [
                 "message" => "The name must be longer than 4 characters"
@@ -43,7 +62,13 @@ class User extends Entity implements TypeInterface {
         return parent::created($params);
     }
 
-    public function createSqlTable($type = null) : array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null) : array
+    {
         return parent::createSqlTable('User');
     }
 }

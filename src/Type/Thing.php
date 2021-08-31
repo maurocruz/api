@@ -1,13 +1,30 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class Thing extends Entity implements TypeInterface {
+class Thing extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "thing";
-    protected $type = "Thing";
+    /**
+     * @var string
+     */
+    protected string $type = "Thing";
 
-    public function createSqlTable($type = null): array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null): array
+    {
         return parent::createSqlTable('Thing');
     }
 }

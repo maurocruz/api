@@ -1,16 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
+use ReflectionException;
 
-class Order extends Entity implements TypeInterface {
+class Order extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "order";
-    protected $type = "Order";
-    protected $properties = [ "*" ];
-    protected $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
+    /**
+     * @var string
+     */
+    protected string $type = "Order";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "*" ];
+    /**
+     * @var array
+     */
+    protected array $hasTypes = [ "history" => "History", "partOfInvoice" => "Invoice", "orderedItem" => "OrderItem", "customer" => true, "seller" => true ];
 
-    public function createSqlTable($type = null): array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null): array
+    {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("Invoice");
         $message[] = parent::createSqlTable("Order");

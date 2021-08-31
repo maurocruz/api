@@ -1,26 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
+use ReflectionException;
 
-class Offer extends Entity implements TypeInterface {
+class Offer extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "offer";
-    protected $type = "Offer";
-    protected $properties = [ "*" ];
-    protected $hasTypes = [ "itemOffered" => true ];
+    /**
+     * @var string
+     */
+    protected string $type = "Offer";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "*" ];
+    /**
+     * @var array|bool[]
+     */
+    protected array $hasTypes = [ "itemOffered" => true ];
 
-    public function addInOrder($params): array {
-        $itemOfferedTypeClassName = "\\Plinct\\Api\\Type\\".ucfirst($params['itemOfferedType']);
-        if (class_exists($itemOfferedTypeClassName)) {
-            $itemOfferedTypeClass = new $itemOfferedTypeClassName();
-            $itemOfferedTypeData = $itemOfferedTypeClass->get([ "id" => $params['itemOffered'], "properties" => "offers"]);
-            $params['idIsPartOf'] = $itemOfferedTypeData[0]['offers']['idoffer'];
-        }
-        return parent::postRelationship($params);
-    }
-
-    public function createSqlTable($type = null) : array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null) : array
+    {
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("QuantitativeValue");
         // sql create statement

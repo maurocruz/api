@@ -1,29 +1,57 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
+use Exception;
 use Plinct\Api\Server\Entity;
 use Plinct\Tool\ArrayTool;
 use Plinct\Tool\Image\Image;
+use ReflectionException;
 
-class ImageObject extends Entity implements TypeInterface {
+class ImageObject extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "imageObject";
-    protected $type = "ImageObject";
-    protected $properties = [ "*" ];
-    protected $hasTypes = [ "author" => "Person" ];
+    /**
+     * @var string
+     */
+    protected string $type = "ImageObject";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "*" ];
+    /**
+     * @var array|string[]
+     */
+    protected array $hasTypes = [ "author" => "Person" ];
 
-    public function get(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     * @throws Exception
+     */
+    public function get(array $params): array
+    {
         // vars
         $thumbnail = $params['thumbnail'] ?? null;
         $format = $params['format'] ?? null;
         if ($thumbnail == "on") $params['properties'] = "*";
         unset($params['thumbnail']);
+
         // GET
         $data = parent::get($params);
+
         // THUMBNAIL ON
         if ($thumbnail=='on') {
             $itemList = $data['itemListElement'] ?? $data;
+
             foreach ($itemList as $key => $value) {
                 $item = $format ? $value['item'] : $value;
+
                 if (!$item['thumbnail']) {
                     $image = new Image($item['contentUrl']);
                     $image->thumbnail("200");
@@ -47,17 +75,34 @@ class ImageObject extends Entity implements TypeInterface {
         return $data;
     }
 
-    public function put(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function put(array $params): array
+    {
         unset($params['contentUrl']);
         return parent::put($params);
     }
 
-    public function createSqlTable($type = null): array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null): array
+    {
         $message[] =  parent::createSqlTable("ImageObject");
         return $message;
-    }    
-    
-    public static function getRepresentativeImageOfPage($data, $mode = "string") {
+    }
+
+    /**
+     * @param $data
+     * @param string $mode
+     * @return null
+     */
+    public static function getRepresentativeImageOfPage($data, string $mode = "string")
+    {
         if ($data) {
             foreach ($data as $valueImage) {
                 if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {

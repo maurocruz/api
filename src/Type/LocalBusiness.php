@@ -1,21 +1,48 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Schema\Schema;
 
-class LocalBusiness extends Entity implements TypeInterface {
+class LocalBusiness extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "localBusiness";
-    protected $type = "LocalBusiness";
-    protected $properties = [ "name" ];
-    protected $hasTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "member" => "Person", "image" => "ImageObject" ];
+    /**
+     * @var string
+     */
+    protected string $type = "LocalBusiness";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "name" ];
+    /**
+     * @var array|string[]
+     */
+    protected array $hasTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "member" => "Person", "image" => "ImageObject" ];
 
-    public function post(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function post(array $params): array
+    {
         $params['dateCreated'] = date("Y-m-d");
         return parent::post($params);
     }
 
-    public function buildSchema($params, $data): array {
+    /**
+     * @param $params
+     * @param $data
+     * @return array
+     */
+    public function buildSchema($params, $data): array
+    {
         return (new Schema($this->type, $this->properties, $this->hasTypes))->buildSchema($params, $data);
     }
 }

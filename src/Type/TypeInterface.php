@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 interface TypeInterface 
@@ -29,8 +32,8 @@ interface TypeInterface
     public function put(array $params): array;
 
     /**
-     * @param null $type
+     * @param string|null $type
      * @return mixed
      */
-    public function createSqlTable($type = null): array;
+    public function createSqlTable(string $type = null): array;
 }

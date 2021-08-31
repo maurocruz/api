@@ -1,13 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 
-class Trip extends Entity implements TypeInterface {
+class Trip extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = 'trip';
-    protected $type = 'Trip';
-    protected $properties = ['name'];
-    protected $hasTypes = ['provider'=>'Organization','image'=>'ImageObject','identifier'=>'PropertyValue','subTrip'=>'Trip'];
-
+    /**
+     * @var string
+     */
+    protected string $type = 'Trip';
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = ['name'];
+    /**
+     * @var array|string[]
+     */
+    protected array $hasTypes = ['provider'=>'Organization','image'=>'ImageObject','identifier'=>'PropertyValue','subTrip'=>'Trip'];
 }

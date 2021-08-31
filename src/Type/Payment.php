@@ -1,27 +1,60 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
+use ReflectionException;
 
-class Payment extends Entity implements TypeInterface {
+class Payment extends Entity implements TypeInterface
+{
+    /**
+     * @var string
+     */
     protected $table = "payment";
-    protected $type = "Payment";
-    protected $properties = [ "*" ];
-    protected $hasTypes = [ "referencesOrder" => "Order" ];
+    /**
+     * @var string
+     */
+    protected string $type = "Payment";
+    /**
+     * @var array|string[]
+     */
+    protected array $properties = [ "*" ];
+    /**
+     * @var array|string[]
+     */
+    protected array $hasTypes = [ "referencesOrder" => "Order" ];
 
-    public function get(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function get(array $params): array
+    {
         if (array_key_exists('orderBy',$params) === false) {
             $params['orderBy'] = "paymentDate";
         }
+
         return parent::get($params);
     }
 
-    public function post(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function post(array $params): array
+    {
         $params = self::setHistory("CREATE", $params);
         return parent::post($params);
     }
 
-    public function put(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function put(array $params): array
+    {
         $params = self::setHistory("UPDATE", $params);
         unset($params['tableHasPart']);
         unset($params['idHasPart']);
@@ -29,12 +62,23 @@ class Payment extends Entity implements TypeInterface {
         return parent::put($params);
     }
 
-    public function delete(array $params): array {
+    /**
+     * @param array $params
+     * @return array
+     */
+    public function delete(array $params): array
+    {
         $params = self::setHistory("DELETE", $params);
         return parent::delete([ "idpayment" => $params['id'] ]);
     }
 
-    public function createSqlTable($type = null): array {
+    /**
+     * @param null $type
+     * @return array
+     * @throws ReflectionException
+     */
+    public function createSqlTable($type = null): array
+    {
         return parent::createSqlTable("Payment");
     }
 
