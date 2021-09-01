@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server;
 
+use Plinct\Api\PlinctApi;
 use Plinct\Api\Server\Relationship\Relationship;
 use Plinct\Api\Server\Schema\Schema;
 use Plinct\PDO\Crud;
+use Plinct\Soloine\Factory\SoloineFactory;
+use Plinct\Tool\Curl;
 use ReflectionClass;
 use ReflectionException;
 use Plinct\PDO\PDOConnect;
@@ -52,6 +55,18 @@ abstract class Entity extends Crud
      */
     protected function getData($params): array
     {
+        // obter opção se houver subClassOf como parâmetro;
+        if (isset($params['subClassOf'])) {
+            $whereArray = null;
+            $class = $params['subClassOf'];
+            $soloData = json_decode(Curl::getUrlContents(PlinctApi::$soloineApi . "?class=$class&format=hierarchyText&subClass=true"), true);
+
+            foreach ($soloData['@graph'] as $key => $value) {
+                $whereArray[] = "`additionalType`='$key'";
+            }
+            $params['where'] = "(".implode(" OR ", $whereArray).")";
+        }
+
         $data = new GetData\GetData($this->table);
         $data->setParams($params);
         return $data->render();
