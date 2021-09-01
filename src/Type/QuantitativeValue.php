@@ -12,7 +12,7 @@ class QuantitativeValue extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "quantitativeValue";
+    protected string $table = "quantitativeValue";
     /**
      * @var string
      */

@@ -11,7 +11,7 @@ class Trip extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = 'trip';
+    protected string $table = 'trip';
     /**
      * @var string
      */

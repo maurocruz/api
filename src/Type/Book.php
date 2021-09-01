@@ -12,7 +12,7 @@ class Book extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "book";
+    protected string $table = "book";
     /**
      * @var string
      */

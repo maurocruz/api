@@ -12,7 +12,7 @@ class History extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "history";
+    protected string $table = "history";
     /**
      * @var string
      */

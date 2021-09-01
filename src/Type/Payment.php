@@ -12,7 +12,7 @@ class Payment extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "payment";
+    protected string $table = "payment";
     /**
      * @var string
      */

@@ -13,7 +13,7 @@ class Offer extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "offer";
+    protected string $table = "offer";
     /**
      * @var string
      */

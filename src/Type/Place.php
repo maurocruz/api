@@ -13,7 +13,7 @@ class Place extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "place";
+    protected string $table = "place";
     /**
      * @var string
      */

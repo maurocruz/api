@@ -13,7 +13,7 @@ class Service extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "service";
+    protected string $table = "service";
     /**
      * @var string
      */

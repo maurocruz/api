@@ -13,7 +13,7 @@ class Article extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "article";
+    protected string $table = "article";
     /**
      * @var string
      */

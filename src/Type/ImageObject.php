@@ -15,7 +15,7 @@ class ImageObject extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "imageObject";
+    protected string $table = "imageObject";
     /**
      * @var string
      */

@@ -12,7 +12,7 @@ class PropertyValue extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "propertyValue";
+    protected string $table = "propertyValue";
     /**
      * @var string
      */

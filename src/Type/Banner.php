@@ -12,7 +12,7 @@ class Banner extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "banner";
+    protected string $table = "banner";
     /**
      * @var string
      */

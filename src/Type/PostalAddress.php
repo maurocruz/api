@@ -12,7 +12,7 @@ class PostalAddress extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = 'postalAddress';
+    protected string $table = 'postalAddress';
     /**
      * @var string
      */

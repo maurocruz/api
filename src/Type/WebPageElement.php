@@ -13,7 +13,7 @@ class WebPageElement extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "webPageElement";
+    protected string $table = "webPageElement";
     /**
      * @var string
      */

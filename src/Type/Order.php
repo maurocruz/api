@@ -13,7 +13,7 @@ class Order extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "order";
+    protected string $table = "order";
     /**
      * @var string
      */

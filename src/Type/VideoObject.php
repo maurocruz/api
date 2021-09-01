@@ -12,7 +12,7 @@ class VideoObject extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "videoObject";
+    protected string $table = "videoObject";
     /**
      * @var string
      */

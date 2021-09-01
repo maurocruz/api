@@ -13,7 +13,7 @@ class WebSite extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = 'webSite';
+    protected string $table = 'webSite';
     /**
      * @var string
      */

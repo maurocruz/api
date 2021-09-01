@@ -13,7 +13,7 @@ class Organization extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "organization";
+    protected string $table = "organization";
     /**
      * @var string
      */

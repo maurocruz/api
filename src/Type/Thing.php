@@ -12,7 +12,7 @@ class Thing extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "thing";
+    protected string $table = "thing";
     /**
      * @var string
      */

@@ -12,7 +12,7 @@ class LocalBusiness extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "localBusiness";
+    protected string $table = "localBusiness";
     /**
      * @var string
      */

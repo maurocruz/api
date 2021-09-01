@@ -13,7 +13,7 @@ class Event extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "event";
+    protected string $table = "event";
     /**
      * @var string
      */

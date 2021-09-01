@@ -13,7 +13,7 @@ class Taxon extends Entity implements TypeInterface
     /**
      * @var
      */
-    protected $table = "taxon";
+    protected string $table = "taxon";
     /**
      * @var string
      */

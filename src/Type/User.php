@@ -12,7 +12,7 @@ class User extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "user";
+    protected string $table = "user";
     /**
      * @var string
      */

@@ -12,7 +12,7 @@ class Action extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "action";
+    protected string $table = "action";
     /**
      * @var string
      */

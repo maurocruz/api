@@ -13,7 +13,7 @@ class Product extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = "product";
+    protected string $table = "product";
     /**
      * @var string
      */

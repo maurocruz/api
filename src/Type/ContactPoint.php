@@ -12,7 +12,7 @@ class ContactPoint extends Entity implements TypeInterface
     /**
      * @var string
      */
-    protected $table = 'contactPoint';
+    protected string $table = 'contactPoint';
     /**
      * @var string
      */
