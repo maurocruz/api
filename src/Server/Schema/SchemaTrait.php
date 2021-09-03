@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server\Schema;
 
-use Plinct\Web\Debug\Debug;
-
 class SchemaTrait extends  SchemaAbstract
 {
     /**
@@ -38,22 +36,29 @@ class SchemaTrait extends  SchemaAbstract
     protected function newSchema(array $data): ?array
     {
         $this->idHasPart = $data['id'] ?? $data["id$this->tableHasPart"] ?? null;
+
         // SCHEMA WRITE
         $schema = new SchemaWrite($this->context, $this->type);
+
         // ADD SELECTED PROPERTIES
         foreach ($data as $property => $valueProperty) {
             $schema->addProperty($property, $valueProperty);
         }
+
         // RELATIONSHIP IS PART OF
         foreach ($this->hasTypes as $propertyIsPartOf => $tableIsPartOf) {
+
             // IF TYPE IS PART OF IS DEFINED WITH FIELD TYPE BD
             if ($tableIsPartOf === true) {
                 $tableIsPartOf = $data[$propertyIsPartOf.'Type'];
             }
+
             // GET OBJECT TYPT PART OF
             $className = "Plinct\\Api\\Type\\".ucfirst($tableIsPartOf);
+
             if (class_exists($className)) {
                 $class = new $className();
+
                 // RELATIONSHIP ONE TO ONE
                 if (self::ifExistsColumn($propertyIsPartOf)) {
                     if (isset($data[$propertyIsPartOf])) {
@@ -61,27 +66,36 @@ class SchemaTrait extends  SchemaAbstract
                         $schema->addProperty($propertyIsPartOf, $dataIsPartOf[0] ?? null);
                     }
                 }
+
                 // RELATIONSHIP ONE TO MANY
                 else {
                     if ($tableIsPartOf == "Offer") {
                         $params = [ "itemOfferedType" => $this->tableHasPart, "itemOffered" => $this->idHasPart ];
+
                     } elseif ($tableIsPartOf == "Invoice" || $tableIsPartOf == 'OrderItem') {
                         $params = ['referencesOrder'=>$this->idHasPart];
+
                     } elseif (isset($class->getHasType()['isPartOf']) && $class->getHasType()['isPartOf']==ucfirst($this->tableHasPart)) {
                         $params = ['isPartOf'=>$this->idHasPart];
+
                     } else {
                         $params = ['tableHasPart'=>$this->tableHasPart,'idHasPart'=>$this->idHasPart];
                     }
+
                     $dataIsPartOf = $class->get($params);
+
                     if (empty($dataIsPartOf) || is_null($dataIsPartOf[0])) $dataIsPartOf = null;
+
                     $schema->addProperty($propertyIsPartOf, $dataIsPartOf);
                 }
             }
         }
+
         // IDENTIFIER
         if ($this->idHasPart) {
             $schema->addProperty('identifier', ["@type"=>"PropertyValue", "name" => "id", "value" => $this->idHasPart]);
         }
+
         return $schema->ready();
     }
 }

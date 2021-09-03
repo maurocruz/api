@@ -8,7 +8,6 @@ use Plinct\Api\PlinctApi;
 use Plinct\Api\Server\Relationship\Relationship;
 use Plinct\Api\Server\Schema\Schema;
 use Plinct\PDO\Crud;
-use Plinct\Soloine\Factory\SoloineFactory;
 use Plinct\Tool\Curl;
 use ReflectionClass;
 use ReflectionException;
@@ -59,12 +58,20 @@ abstract class Entity extends Crud
         if (isset($params['subClassOf'])) {
             $whereArray = null;
             $class = $params['subClassOf'];
-            $soloData = json_decode(Curl::getUrlContents(PlinctApi::$soloineApi . "?class=$class&format=hierarchyText&subClass=true"), true);
+            $queryStringArray = ['class'=>$class,'format'=>'hierarchyText','subClass'=>'true'];
 
-            foreach ($soloData['@graph'] as $key => $value) {
-                $whereArray[] = "`additionalType`='$key'";
+            if($this->table == 'service') {
+                $queryStringArray['source'] = 'serviceCategory';
             }
-            $params['where'] = "(".implode(" OR ", $whereArray).")";
+
+            $soloData = json_decode(Curl::getUrlContents(PlinctApi::$soloineApi . "?" . http_build_query($queryStringArray)), true);
+
+            if (isset($soloData['@graph'])) {
+                foreach ($soloData['@graph'] as $key => $value) {
+                    $whereArray[] = $this->table == 'service' ? "`category`='$key'" : "`additionalType`='$key'";
+                }
+                $params['where'] = "(" . implode(" OR ", $whereArray) . ")";
+            }
         }
 
         $data = new GetData\GetData($this->table);
