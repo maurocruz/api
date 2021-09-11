@@ -85,21 +85,19 @@ class GetDataAbstract
     {
         $where = null;
 
-        if (isset($this->params['where'])) {
-            $where[] = $this->params['where'];
-        }
-
-        if (isset($this->params['id'])) {
-            $idname = "id$this->table";
-            $where[] = "`$idname`={$this->params['id']}";
-        }
-
-        if(isset($this->params['nameLike'])) {
-            $where[] = "`name` LIKE '%{$this->params['nameLike']}%'";
-        }
-
-        if(isset($this->params['headlineLike'])) {
-            $where[] = "`headline` LIKE '%{$this->params['headlineLike']}%'";
+        foreach ($this->params as $key => $value) {
+            // WHERE
+            if ($key == 'where') $where[] = $value;
+            // ID
+            if ($key == 'id') {
+                $idname = "id$this->table";
+                $where[] = "`$idname`=$value";
+            }
+            // LIKE
+            $like = stristr($key,"like", true);
+            if ($like) {
+                $where[] = "LOWER(REPLACE(`$like`,' ','')) LIKE LOWER(REPLACE('%$value%',' ',''))";
+            }
         }
 
         //
