@@ -9,21 +9,21 @@ use Plinct\PDO\PDOConnect;
 class GetDataAbstract
 {
     /**
-     * @var
+     * @var string
      */
-    protected $query;
+    protected string $query;
     /**
      * @var string
      */
-    protected $fields = '*';
+    protected string $fields = '*';
     /**
-     * @var
+     * @var string
      */
-    protected $table;
+    protected string $table;
     /**
      * @var array
      */
-    protected $params = [];
+    protected array $params = [];
 
     /**
      *
@@ -106,8 +106,9 @@ class GetDataAbstract
         $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
         foreach ($columnsTable as $value) {
             $field = $value['Field'];
-            if (isset($this->params[$field])) {
-                $fieldValue = addslashes($this->params[$field]);
+            $valueField = $this->params[$field] ?? null;
+            if ($valueField) {
+                $fieldValue = is_string($valueField) ? addslashes($valueField) : $valueField;
                 $where[] = "`$field`='$fieldValue'";
             }
         }
