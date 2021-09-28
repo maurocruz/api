@@ -102,6 +102,7 @@ class GetDataAbstract
 
         //
         $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
+
         foreach ($columnsTable as $value) {
             $field = $value['Field'];
             $valueField = $this->params[$field] ?? null;

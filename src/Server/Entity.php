@@ -113,7 +113,7 @@ abstract class Entity extends Crud
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
             unset($params['tableHasPart'],$params['idHasPart']);
-            return $relationship->putRelationship($params);
+            return $relationship->putRelationship($params) ?? [];
         } 
         unset($params['tableHasPart']);
 

@@ -39,6 +39,7 @@ class Relationship extends RelationshipAbstract {
         if (!$this->idIsPartOf) {
             $this->table = $this->tableIsPartOf;
             $data = parent::created($params);
+
             if (isset($data['error'])) {
                 return $data;
             }
@@ -52,7 +53,7 @@ class Relationship extends RelationshipAbstract {
             parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
 
         }
-        // many to many relationship type with table_has_table
+        // many-to-many relationship type with table_has_table
         elseif (self::table_exists($this->table_has_table)) {
             $idHasPartName = parent::getColumnName($this->table_has_table,1);
             $idIsPartOfName = parent::getColumnName($this->table_has_table,2);
@@ -63,7 +64,8 @@ class Relationship extends RelationshipAbstract {
         return $params;
     }
     
-    public function putRelationship($params): ?array {
+    public function putRelationship($params): ?array
+    {
         $this->idIsPartOf = $params['idIsPartOf'] ?? null;
         unset($params['tableIsPartOf']);
         unset($params['idIsPartOf']);

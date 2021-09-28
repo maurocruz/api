@@ -33,7 +33,9 @@ class WebPage extends Entity implements TypeInterface
      */
     public function post(array $params): array
     {
-        $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if (isset($params['url']) && isset($params['alternativeHeadline'])) {
+            $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
         return parent::post($params);
     }
 
@@ -43,7 +45,9 @@ class WebPage extends Entity implements TypeInterface
      */
     public function put(array $params): array
     {
-        $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if (isset($params['url']) && isset($params['alternativeHeadline'])) {
+            $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
         return parent::put($params);
     }
 
