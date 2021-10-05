@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server\Schema;
 
-use Plinct\Web\Debug\Debug;
-
 class SchemaTrait extends  SchemaAbstract
 {
     /**
@@ -56,7 +54,7 @@ class SchemaTrait extends  SchemaAbstract
             }
 
             if ($tableIsPartOf) {
-                // GET OBJECT TYPT PART OF
+                // GET OBJECT TYPE PART OF
                 $className = "Plinct\\Api\\Type\\" . ucfirst($tableIsPartOf);
 
                 if (class_exists($className)) {
@@ -85,7 +83,7 @@ class SchemaTrait extends  SchemaAbstract
 
                         $dataIsPartOf = $class->get($params);
 
-                        if (empty($dataIsPartOf) || is_null($dataIsPartOf[0])) $dataIsPartOf = null;
+                        if (empty($dataIsPartOf) || !isset($dataIsPartOf[0]) || is_null($dataIsPartOf[0])) $dataIsPartOf = null;
 
                         $schema->addProperty($propertyIsPartOf, $dataIsPartOf);
                     }
