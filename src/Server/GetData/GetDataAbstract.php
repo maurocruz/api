@@ -24,6 +24,10 @@ class GetDataAbstract
      * @var array
      */
     protected array $params = [];
+    /**
+     * @var bool|array
+     */
+    protected $error = false;
 
     /**
      *
@@ -103,15 +107,20 @@ class GetDataAbstract
         //
         $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
 
-        foreach ($columnsTable as $value) {
-            $field = $value['Field'];
-            $valueField = $this->params[$field] ?? null;
-            if ($valueField) {
-                $fieldValue = is_string($valueField) ? addslashes($valueField) : $valueField;
-                $where[] = "`$field`='$fieldValue'";
-            }
-        }
+        if (isset($columnsTable['error'])) {
+            $this->error = $columnsTable;
 
-        $this->query .= $where ? " WHERE ". implode(" AND ", $where) : null;
+        } else {
+            foreach ($columnsTable as $value) {
+                $field = $value['Field'];
+                $valueField = $this->params[$field] ?? null;
+                if ($valueField) {
+                    $fieldValue = is_string($valueField) ? addslashes($valueField) : $valueField;
+                    $where[] = "`$field`='$fieldValue'";
+                }
+            }
+
+            $this->query .= $where ? " WHERE " . implode(" AND ", $where) : null;
+        }
     }
 }

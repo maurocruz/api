@@ -32,6 +32,10 @@ class GetData extends GetDataAbstract
         // WHERE
         $this->parseWhereClause();
 
+        if($this->error) {
+            return $this->error;
+        }
+
         // PARAMS
         if ($this->params) {
             parent::parseParams();
