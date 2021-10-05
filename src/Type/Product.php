@@ -45,7 +45,10 @@ class Product extends Entity implements TypeInterface
     public function createSqlTable($type = null): array
     {
         $maintenance = new Maintenance();
+        $message[] = $maintenance->createSqlTable("Person");
+        $message[] = $maintenance->createSqlTable("Organization");
         $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("Offer");
         $message[] = parent::createSqlTable("Product");
         return $message;
     }

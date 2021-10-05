@@ -11,28 +11,24 @@
 -- -- place
 -- -- imageObject
 -- -- person
-
-CREATE TABLE IF NOT EXISTS `organization` (
-  `idorganization` INT(10) NOT NULL AUTO_INCREMENT,
-  `additionalType` VARCHAR(255) NULL,
-  `name` VARCHAR(120) NOT NULL,
-  `description` TEXT NULL DEFAULT NULL,
-  `legalName` VARCHAR(124) NULL DEFAULT NULL,
-  `taxId` VARCHAR(24) NULL DEFAULT NULL,
-  `url` VARCHAR(255) NULL DEFAULT NULL,
-  `location` INT(10) NULL DEFAULT NULL,
-  `address` INT(10) NULL DEFAULT NULL,
-  `areaServed` INT(10) NULL DEFAULT NULL,
-  `create_time` DATETIME NULL DEFAULT NULL,
-  `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idorganization`),
-  INDEX `fk_Organization_place1_idx` (`location` ASC),
-  INDEX `fk_Organization_postalAddress1_idx` (`address` ASC),
-  INDEX `fk_Organization_place2_idx` (`areaServed` ASC),
-  CONSTRAINT `fk_Organization_place1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Organization_place2` FOREIGN KEY (`areaServed`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Organization_postalAddress1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+CREATE TABLE IF NOT EXISTS `organization`
+(
+    `idorganization`            INT          NOT NULL AUTO_INCREMENT,
+    `additionalType`            VARCHAR(255) NULL     DEFAULT NULL,
+    `name`                      VARCHAR(255) NOT NULL,
+    `description`               TEXT         NULL     DEFAULT NULL,
+    `disambiguatingDescription` TEXT         NULL,
+    `legalName`                 VARCHAR(255) NULL     DEFAULT NULL,
+    `taxId`                     VARCHAR(24)  NULL     DEFAULT NULL,
+    `url`                       VARCHAR(255) NULL     DEFAULT NULL,
+    `hasOfferCatalog`           TEXT         NULL     DEFAULT NULL,
+    `location`                  INT          NULL     DEFAULT NULL,
+    `dateCreated`               DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `dateModified`              TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`idorganization`),
+    INDEX `fk_organization_1_idx` (`location` ASC),
+    CONSTRAINT `fk_organization_1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE SET NULL ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 --
 -- relational table with ImageObject

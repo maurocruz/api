@@ -1,24 +1,27 @@
 --
 -- TABLE product
--- -- relational dependencies
+-- Relationships: ImageObject, Offer
 --
 
 CREATE TABLE IF NOT EXISTS `product` (
-  `idproduct` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
-  `additionalType` varchar(45) DEFAULT NULL,
-  `category` varchar(64) NOT NULL DEFAULT '',
-  `description` text NOT NULL,
-  `position` tinyint unsigned DEFAULT NULL,
-  `availability` varchar(45) NOT NULL DEFAULT '',
-  `manufacturer` INT NULL,
-  `offers` INT NULL,
-  `dateCreated` timestamp NULL DEFAULT NULL,
-  `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idproduct`),
-  KEY `idx_1` (`idproduct`,`category`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    `idproduct` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `additionalType` VARCHAR(45) NULL DEFAULT NULL,
+    `category` VARCHAR(64) NULL,
+    `manufacturer` INT NOT NULL,
+    `manufacturerType` VARCHAR(45) NOT NULL,
+    `description` TEXT NOT NULL,
+    `disambiguatingDescription` TEXT NULL,
+    `dateCreated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`idproduct`),
+    INDEX `fk_product_organization_1_idx` (`manufacturer` ASC),
+    CONSTRAINT `fk_product_organization_1` FOREIGN KEY (`manufacturer`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB;
 
+--
+-- IMAGE OBJECT RELATIONSHIP
+--
 
 CREATE TABLE IF NOT EXISTS `product_has_imageObject` (
   `idproduct` int NOT NULL,
@@ -32,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `product_has_imageObject` (
   CONSTRAINT `fk_product_has_imageObject_product1` FOREIGN KEY (`idproduct`) REFERENCES `product` (`idproduct`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
 DROP TRIGGER IF EXISTS `product_has_imageObject_BEFORE_INSERT`;
 DELIMITER $$
 CREATE DEFINER = CURRENT_USER TRIGGER `product_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `product_has_imageObject` FOR EACH ROW
@@ -43,3 +47,18 @@ BEGIN
     END IF;
 END$$
 DELIMITER ;
+
+
+--
+-- OFFER
+--
+
+CREATE TABLE IF NOT EXISTS `product_has_offer` (
+    `idproduct` INT NOT NULL,
+    `idoffer` INT NOT NULL,
+    PRIMARY KEY (`idproduct`, `idoffer`),
+    INDEX `fk_product_has_offer_1_idx` (`idoffer` ASC) VISIBLE,
+    INDEX `fk_product_has_offer_2_idx` (`idproduct` ASC) VISIBLE,
+    CONSTRAINT `fk_product_has_offer_1` FOREIGN KEY (`idoffer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE RESTRICT,
+    CONSTRAINT `fk_product_has_offer_2` FOREIGN KEY (`idproduct`) REFERENCES `product` (`idproduct`)
+) ENGINE = InnoDB;

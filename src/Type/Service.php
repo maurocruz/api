@@ -37,9 +37,10 @@ class Service extends Entity implements TypeInterface
         $maintenance = new Maintenance();
         $message[] = $maintenance->createSqlTable("Person");
         $message[] = $maintenance->createSqlTable("Organization");
+        $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("Offer");
         // sql create statement
         $message[] = parent::createSqlTable("Service");
-        $message[] = $maintenance->createSqlTable("Offer");
         return $message;
     }
 }
