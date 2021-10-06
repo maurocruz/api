@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Plinct\Api\Server\Search;
 
 use Plinct\PDO\PDOConnect;
-use Plinct\Web\Debug\Debug;
 
 abstract class SearchAbstract
 {
     protected array $clause;
 
-    protected ?string $properties;
+    protected ?string $properties = null;
 
     protected ?array $source;
 
@@ -42,7 +41,7 @@ abstract class SearchAbstract
     /**
      * @param string|null $properties
      */
-    protected function setProperties(?string $properties): void
+    protected function setProperties(string $properties): void
     {
         $propertiesArray = [];
 
@@ -55,6 +54,9 @@ abstract class SearchAbstract
         unset($this->clause['properties']);
     }
 
+    /**
+     * @param $source
+     */
     protected function setSource($source): void
     {
         $this->source = explode(',', $source);
@@ -62,9 +64,9 @@ abstract class SearchAbstract
     }
 
     /**
-     * @param string|null $inputValue
+     * @param string $inputValue
      */
-    protected function setInputValue(?string $inputValue): void
+    protected function setInputValue(string $inputValue): void
     {
         $this->inputValue = $inputValue;
         unset($this->clause['q']);

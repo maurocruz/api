@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api;
 
+use Plinct\Api\Server\Format;
 use Plinct\Api\Server\Search\Search;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -49,10 +50,20 @@ return function(App $slimApp)
         $type = $args['type'] ?? null;
         $params = $request->getQueryParams() ?? null;
 
-        if ($type) {        
+        $format = $params['format'] ?? null;
+
+        if ($type) {
             $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
+
             if (class_exists($className)) {
-                $data = (new $className())->get($params);
+                //  CLASS HIERARCHY
+                if ($format == "classHierarchy") {
+                    $data = (Format::classHierarchy($type, $params))->ready();
+                }
+                //
+                else {
+                    $data = (new $className())->get($params);
+                }
 
             } else {
                  $data = [ "message" => "type not founded" ];

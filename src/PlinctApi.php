@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api;
 
+use PDO;
 use Slim\App;
 use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
@@ -54,7 +55,7 @@ class PlinctApi
 
     /**
      * @param $params
-     * @return array|array[]|\PDO|string[]|null
+     * @return array|array[]|PDO|string[]|null
      */
     public static function starApplication($params)
     {
@@ -72,7 +73,7 @@ class PlinctApi
             PDOConnect::disconnect();
             $pdo = PDOConnect::connect($driver, $host, $dbName, $dbUserName, $dbPassword);
 
-            if (array_key_exists('error', $pdo)) {
+            if (array_key_exists('error', (array)$pdo)) {
                 $data = $pdo;
 
             } elseif (is_object($pdo)) {

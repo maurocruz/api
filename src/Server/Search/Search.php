@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server\Search;
 
-use Plinct\PDO\PDOConnect;
 
 class Search extends SearchAbstract
 {
     /**
+     * @param $params
+     * @return array
      */
     public function getData($params): array
     {
         $this->setClause($params);
 
-        $this->setProperties($params['properties'] ?? null);
+        if (isset($params['properties'])) $this->setProperties($params['properties']);
 
-        $this->setSource($params['source'] ?? null);
+        if (isset($params['source'])) $this->setSource($params['source']);
 
-        $this->setInputValue($params['q'] ?? null);
+        if (isset($params['q'])) $this->setInputValue($params['q']);
 
         $this->setTarget($params['target'] ?? 'name');
 
         $this->setOrderby($params['orderby'] ?? null);
 
-        $this->setLimit(isset($params['limit']) ? (int)$params['limit'] : null);
+        if (isset($params['limit'])) $this->setLimit((int)$params['limit']);
 
-        $this->setOffset(isset($params['offset']) ? (int)$params['offset'] : null);
+        if (isset($params['offset'])) $this->setOffset((int)$params['offset']);
 
         $this->setFormat($params['format'] ?? null);
 
@@ -41,7 +42,7 @@ class Search extends SearchAbstract
     protected function ready(): array
     {
         // GET LIST ELEMENTS
-        $this->itemListElement();
+        if ($this->properties) $this->itemListElement();
 
         // GET COUNTS
         if ($this->format == 'ItemList') {
