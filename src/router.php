@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api;
 
-use Plinct\Api\Server\Format;
+use Plinct\Api\Server\Format\Format;
 use Plinct\Api\Server\Search\Search;
 use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;

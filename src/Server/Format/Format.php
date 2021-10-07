@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Server;
+namespace Plinct\Api\Server\Format;
 
-use Plinct\Api\Server\ClassHierarchy\ClassHierarchy;
+use Plinct\Api\Server\Format\ClassHierarchy\ClassHierarchy;
 
 class Format
 {

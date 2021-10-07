@@ -2,23 +2,19 @@
 
 Php api for schema.org modelling
 
-**UNDER DEVELOPMENT**
+**\### UNDER DEVELOPMENT \###**
+
+API to handle data stored in a database modeled according to schema.org standards
 
 ## Depedencies
 - composer
-- php7+
-- slim/slim 4.0
-- slim/psr7 0.4+
-
-## Install dependencies
-
-  ```composer require slim/slim:"4.*"```
-
-  ```composer require slim/psr7```
-
-  ```composer require plinct/api```
+- php 7.4 | 8.0
+- slim/slim 4
+- slim/psr7
 
 ## Getting Start
+
+For install in your website
 
 > Create mysql schema;
 
@@ -79,8 +75,37 @@ $slimApp->run();
 - Person
 - Place
 - PostalAddress
+- Product
 - PropertyValue
+- Service
 - Taxon
 - VideoObject
+- WebSite
 - WebPage
+- WebPageElement
+
+## Api access
+
+> Use https://yourdomain.dpn/api with base url
+
+> Get all items for a type
+>``` 
+> Https://yourdomain.dpn/api/[typename]
+>```
+
+> Get type and subClass of type with additionalType properties
+> ```
+> https://yourdomain.dpn/api/[type]?format=classHierarchy&subClass=[additionalType]
+>```
+
+### properties from use in query strings
+
+> format=
+> >   ItemList: 
+> >   - return a ItemList type with **numberOfItems** and **ItemListElement** properties
+> >
+> > classHierarchy
+> >   - return data with type, class (subClass of type) and subClass (subClasses of subClass)
+> 
+
 

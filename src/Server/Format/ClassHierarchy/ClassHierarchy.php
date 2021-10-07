@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Server\ClassHierarchy;
+namespace Plinct\Api\Server\Format\ClassHierarchy;
 
 use Plinct\Api\PlinctApiFactory;
 use Plinct\Soloine\Factory\SoloineFactory;
@@ -12,20 +12,20 @@ class ClassHierarchy implements ClassHierarchyInterface
     /**
      * @var string
      */
-    private string $class;
+    private string $type;
     /**
-     * @var string
+     * @var ?string
      */
-    private string $subClass;
+    private ?string $subClass;
 
     /**
-     * @param string $class
+     * @param string $type
      * @param array $params
      */
-    public function __construct(string $class, array $params)
+    public function __construct(string $type, array $params)
     {
-        $this->class = $class;
-        $this->subClass = $params['subClass'];
+        $this->type = $type;
+        $this->subClass = $params['subClass'] ?? $params['class'] ?? $type;
     }
 
     /**
@@ -39,7 +39,7 @@ class ClassHierarchy implements ClassHierarchyInterface
 
         // PLINCT
         $paramsPlinct = ['groupBy' => 'additionalType', 'orderBy' => 'dateModified desc'];
-        $dataPlinct = PlinctApiFactory::request($this->class)->get($paramsPlinct)->ready();
+        $dataPlinct = PlinctApiFactory::request($this->type)->get($paramsPlinct)->ready();
 
         //
         $newData = null;
@@ -61,7 +61,7 @@ class ClassHierarchy implements ClassHierarchyInterface
 
             return [ "data" => [
                 'format' => 'ClassHierarchy',
-                'type' => $this->class,
+                'type' => $this->type,
                 'class' => $this->subClass,
                 'subClass' => array_values(array_unique($newData))
             ]];
