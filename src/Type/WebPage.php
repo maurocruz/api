@@ -21,7 +21,7 @@ class WebPage extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $properties = [ "name", "description", "url", "identifier","isPartOf" ];
+    protected array $properties = [];
     /**
      * @var array|string[]
      */
