@@ -11,7 +11,7 @@ use ReflectionException;
 class Taxon extends Entity implements TypeInterface
 {
     /**
-     * @var
+     * @var string
      */
     protected string $table = "taxon";
     /**
@@ -21,7 +21,7 @@ class Taxon extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $properties = [ "name", "taxonRank", "parentTaxon", "url" ];
+    protected array $properties = [];
     /**
      * @var array|string[]
      */

@@ -58,28 +58,23 @@ class GetDataAbstract
      */
     protected function parseParams()
     {
-        foreach ($this->params as $key => $value) {
+        $orderBy = $this->params['orderBy'] ?? null;
+        $ordering = $this->params['ordering'] ?? null;
+        $groupBy = $this->params['groupBy'] ?? null;
+        $limit = $this->params['limit'] ?? null;
+        $offset = $this->params['offset'] ?? null;
 
-            switch ($key) {
-                case 'offset':
-                    $this->query .= " OFFSET $value";
-                    unset($this->params['offset']);
-                    break;
-                case 'groupBy':
-                    $this->query .= " GROUP BY $value";
-                    unset($this->params['groupBy']);
-                    break;
-                case 'orderBy':
-                    $ordering = $this->params['ordering'] ?? null;
-                    $this->query .= " ORDER BY $value $ordering";
-                    unset($this->params['orderBy']);
-                    break;
-                case 'limit':
-                    $this->query .= $value != 'none' ? " LIMIT $value" : null;
-                    unset($this->params['limit']);
-                    break;
-            }
-        }
+        // ORDER BY
+        if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
+
+        // GROUP BY
+        if ($groupBy) $this->query .= " GROUP BY $groupBy";
+
+        // LIMIT
+        if ($limit)  $this->query .= $limit != 'none' ? " LIMIT $limit" : null;
+
+        // OFFSET
+        if ($offset) $this->query .= " OFFSET $offset";
     }
 
     /**
