@@ -58,17 +58,17 @@ class GetDataAbstract
      */
     protected function parseParams()
     {
+        $groupBy = $this->params['groupBy'] ?? null;
         $orderBy = $this->params['orderBy'] ?? null;
         $ordering = $this->params['ordering'] ?? null;
-        $groupBy = $this->params['groupBy'] ?? null;
         $limit = $this->params['limit'] ?? null;
         $offset = $this->params['offset'] ?? null;
 
-        // ORDER BY
-        if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
-
         // GROUP BY
         if ($groupBy) $this->query .= " GROUP BY $groupBy";
+
+        // ORDER BY
+        if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
 
         // LIMIT
         if ($limit)  $this->query .= $limit != 'none' ? " LIMIT $limit" : null;
