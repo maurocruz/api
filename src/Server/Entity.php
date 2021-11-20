@@ -142,9 +142,15 @@ abstract class Entity extends Crud
 
         } else {
             $params = array_filter($params);
-            $filter = new FilterGet($params, $this->table, $this->properties);
-            $this->properties = $filter->getProperties();
-            return parent::erase($filter->where(), $filter->limit());
+            $whereArray = [];
+
+            foreach ($params as $key => $value) {
+                $whereArray[] = "`$key`='$value'";
+            }
+
+            $where = implode(" AND ", $whereArray);
+
+            return PDOConnect::run("DELETE FROM `$this->table` WHERE $where");
         }
     }
 
