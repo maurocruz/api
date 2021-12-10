@@ -61,15 +61,6 @@ class Event extends Entity implements TypeInterface
     }
 
     /**
-     * @param array $params
-     * @return array
-     */
-    public function delete(array $params): array
-    {
-        return parent::delete([ "idevent" => $params['id'] ]);
-    }
-
-    /**
      * @param null $type
      * @return array
      * @throws ReflectionException
