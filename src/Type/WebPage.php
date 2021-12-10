@@ -28,30 +28,6 @@ class WebPage extends Entity implements TypeInterface
     protected array $hasTypes = [ "hasPart" => "WebPageElement", "identifier" => "PropertyValue", "isPartOf"=>'WebSite'];
 
     /**
-     * @param array $params
-     * @return array
-     */
-    public function post(array $params): array
-    {
-        if (isset($params['url']) && isset($params['alternativeHeadline'])) {
-            $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        }
-        return parent::post($params);
-    }
-
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array
-    {
-        if (isset($params['url']) && isset($params['alternativeHeadline'])) {
-            $params['breadcrumb'] = json_encode((new Breadcrumb())->get($params), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        }
-        return parent::put($params);
-    }
-
-    /**
      * @param null $type
      * @return array
      * @throws ReflectionException
