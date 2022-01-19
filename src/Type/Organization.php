@@ -21,7 +21,7 @@ class Organization extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $properties = ['name','taxId'];
+    protected array $properties = ['name','idorganization'];
     /**
      * @var array|string[]
      */
