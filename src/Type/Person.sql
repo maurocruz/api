@@ -57,13 +57,12 @@ CREATE TABLE IF NOT EXISTS `person_has_imageObject` (
 ) ENGINE = InnoDB;
 
 DROP TRIGGER IF EXISTS `person_has_imageObject_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `person_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `person_has_imageObject` FOR EACH ROW
+
+CREATE TRIGGER `person_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `person_has_imageObject` FOR EACH ROW
 BEGIN
     DECLARE count INT;
     SET count = (SELECT COUNT(*) FROM `person_has_imageObject` WHERE `idperson`=NEW.`idperson`);
     IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
+        THEN SET NEW.`position`= count+1;
     END IF;
-END$$
-DELIMITER ;
+END;

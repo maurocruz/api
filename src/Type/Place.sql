@@ -43,13 +43,12 @@ CREATE TABLE IF NOT EXISTS `place_has_imageObject` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
 DROP TRIGGER IF EXISTS `place_has_imageObject_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `place_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `place_has_imageObject` FOR EACH ROW
+
+CREATE TRIGGER `place_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `place_has_imageObject` FOR EACH ROW
 BEGIN
     DECLARE count INT;
     SET count = (SELECT COUNT(*) FROM `place_has_imageObject` WHERE `idplace`=NEW.`idplace`);
     IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
+        THEN SET NEW.`position`= count+1;
     END IF;
-END$$
-DELIMITER ;
+END;
