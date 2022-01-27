@@ -38,6 +38,7 @@ class WebSite extends Entity implements TypeInterface
         $message[] = $maintenance->createSqlTable("organization");
         $message[] = $maintenance->createSqlTable("person");
         $message[] = $maintenance->createSqlTable("ImageObject");
+        $message[] = $maintenance->createSqlTable("PropertyValue");
         $message[] =  parent::createSqlTable("WebSite");
         $message[] = $maintenance->createSqlTable('WebPage');
         $message[] = $maintenance->createSqlTable('WebPageElement');
