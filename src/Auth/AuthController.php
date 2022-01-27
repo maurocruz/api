@@ -72,16 +72,14 @@ class AuthController {
             return [
                 "status" => "success",
                 "message" => "Access authorized",
-                "token" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY),
-                "data" => $data,
-                "payload" => $payload
+                "token" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY)
             ];
         }
 
         // USER NOT AUTHORIZED
         return [
             "status" => "fail",
-            "message" => "User exists - Access unauthorized",
+            "message" => "The user exists but has not logged in. Check your password!",
             "data" => $data
         ];
     }
