@@ -10,23 +10,54 @@ class AuthController {
 
     /**
      * @param $params
-     * @return array|string[]
+     * @return array
      */
-    public function login($params): array {
+    public function login($params): array
+    {
+        // NO DATA RECEIVED
+        if (!isset($params['email']) || !isset($params['password'])) {
+            return [
+                "status" => "fail",
+                "message" => "Access rejected - Incomplete data received",
+                "data" => $params
+            ];
+        }
+
         $email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
         $password = $params['password'] ?? null;
         $iss = $params['iss'] ?? PlinctApi::$ISSUER;
         $exp = $params['exp'] ?? PlinctApi::$JWT_EXPIRE;
+
         // INVALID EMAIL
-        if ($email === false) return [ "data" => "Invalid email", "status" => "Access unauthorized" ];
+        if ($email === false) {
+            return [
+                "status" => "fail",
+                "message" => "Invalid email - Access unauthorized",
+                "data" => $params
+            ];
+        }
+
         // GET DATA
         $data = (new User())->get([ "properties" => "*", "email" => $email ]);
+
         // ERROR
-        if(isset($data['error'])) return [ "data" => $data['error']['message'], "status" => "Error" ];
+        if(isset($data['error'])) {
+            return [
+                "status" => "error",
+                "message" => $data['error']['message'],
+                "data" => $data
+            ];
+        }
+
         // USER NOT EXISTS
-        if (empty($data)) return [ "data" => "User not exists", "status" => "Access unauthorized" ];
-        // USER EXISTS BUT NOT ADMIN
-        if ($data[0]['status'] != 1) return [ "data" => "User exists but not admin", "status" => "Access unauthorized" ];
+        if (empty($data)) {
+            return [
+                "status" => "fail",
+                "message" => "User not exists - Access unauthorized",
+                "data" => $data
+            ];
+        }
+
         // USER EXISTS
         if (password_verify($password, $data[0]['password'])) {
             $value = $data[0];
@@ -37,17 +68,28 @@ class AuthController {
                 "admin" => $value['status'] == 1,
                 "uid" => ArrayTool::searchByValue($value['identifier'], "id")['value']
             ];
-            return [ "data" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY), "status" => "Access authorized" ];
+
+            return [
+                "status" => "success",
+                "message" => "Access authorized",
+                "token" => JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY)
+            ];
         }
+
         // USER NOT AUTHORIZED
-        return [ "data" => "User exists", "status" => "Access unauthorized" ];
+        return [
+            "status" => "fail",
+            "message" => "The user exists but has not logged in. Check your password!",
+            "data" => $data
+        ];
     }
 
     /**
      * @param array $params
      * @return false|string
      */
-    public function register(array $params) {
+    public function register(array $params)
+    {
         $responseData = (new User())->post($params);
         // Init application
         if (isset($responseData['error']['code']) && $responseData['error']['code'] == "42S02") {

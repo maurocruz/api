@@ -33,19 +33,6 @@ CREATE TABLE IF NOT EXISTS `service_has_imageObject` (
     CONSTRAINT `fk_service_has_imageObject_2` FOREIGN KEY (`idservice`) REFERENCES `service` (`idservice`)
 ) ENGINE = InnoDB;
 
-
-DROP TRIGGER IF EXISTS `service_has_imageObject_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `service_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `service_has_imageObject` FOR EACH ROW
-BEGIN
-    DECLARE count INT;
-    SET count = (SELECT COUNT(*) FROM `service_has_imageObject` WHERE `idservice`=NEW.`idservice`);
-    IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
-    END IF;
-END $$
-DELIMITER ;
-
 --
 -- OFFER
 --
@@ -59,3 +46,15 @@ CREATE TABLE IF NOT EXISTS `service_has_offer` (
     CONSTRAINT `fk_service_has_offer_1` FOREIGN KEY (`idoffer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE RESTRICT,
     CONSTRAINT `fk_service_has_offer_2` FOREIGN KEY (`idservice`) REFERENCES `service` (`idservice`) ON DELETE CASCADE
 )ENGINE = InnoDB;
+
+
+DROP TRIGGER IF EXISTS `service_has_imageObject_BEFORE_INSERT`;
+
+CREATE TRIGGER `service_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `service_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `service_has_imageObject` WHERE `idservice`=NEW.`idservice`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END;

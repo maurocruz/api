@@ -25,7 +25,8 @@ class ClassHierarchy implements ClassHierarchyInterface
     public function __construct(string $type, array $params)
     {
         $this->type = $type;
-        $this->subClass = $params['subClass'] ?? $params['class'] ?? $type;
+        $this->subClass = isset($params['subClass']) && $params['subClass'] != '' ? $params['subClass']
+            : (isset($params['class']) && $params['class'] != '' ? $params['class'] : $type);
     }
 
     /**
@@ -42,7 +43,7 @@ class ClassHierarchy implements ClassHierarchyInterface
         $dataPlinct = PlinctApiFactory::request($this->type)->get($paramsPlinct)->ready();
 
         //
-        $newData = null;
+        $newData = [];
 
         if ($dataPlinct) {
             foreach ($dataPlinct as $item) {
@@ -59,12 +60,12 @@ class ClassHierarchy implements ClassHierarchyInterface
                 }
             }
 
-            return [ "data" => [
+            return [
                 'format' => 'ClassHierarchy',
                 'type' => $this->type,
                 'class' => $this->subClass,
                 'subClass' => array_values(array_unique($newData))
-            ]];
+            ];
         }
 
         return null;

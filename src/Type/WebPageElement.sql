@@ -19,19 +19,6 @@ CREATE TABLE IF NOT EXISTS `webPageElement` (
 ) ENGINE = InnoDB;
 
 
-DROP TRIGGER IF EXISTS `webPageElement_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `plinct`.`webPageElement_BEFORE_INSERT` BEFORE INSERT ON `webPageElement` FOR EACH ROW
-BEGIN
-    DECLARE count INT;
-    SET count = (SELECT COUNT(*) FROM `webPageElement` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
-    IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
-    END IF;
-END$$
-DELIMITER ;
-
-
 CREATE TABLE IF NOT EXISTS `webPageElement_has_propertyValue` (
     `idwebPageElement` INT NOT NULL,
     `idpropertyValue` INT NOT NULL,
@@ -44,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `webPageElement_has_propertyValue` (
 
 
 CREATE TABLE IF NOT EXISTS `webPageElement_has_imageObject` (
-    `idwebPageElement_has_imageObject` INT NOT NULL AUTO_INCREMENT,
     `idwebPageElement` INT NOT NULL,
     `idimageObject` INT NOT NULL,
     `width` FLOAT UNSIGNED NOT NULL DEFAULT '1',
@@ -53,9 +39,7 @@ CREATE TABLE IF NOT EXISTS `webPageElement_has_imageObject` (
     `caption` VARCHAR(255) NULL DEFAULT NULL,
     `position` INT(10) UNSIGNED NULL DEFAULT NULL,
     `representativeOfPage` TINYINT(1) NULL DEFAULT NULL,
-    `ingallery` TINYINT(1) NULL DEFAULT NULL,
-    `incontent` TINYINT(1) NULL DEFAULT '1',
-    PRIMARY KEY (`idwebPageElement_has_imageObject`, `idwebPageElement`, `idimageObject`),
+    PRIMARY KEY (`idwebPageElement`, `idimageObject`),
     INDEX `fk_webPageElement_has_images_1_idx` (`idwebPageElement` ASC),
     INDEX `fk_webPageElement_has_images_2_idx` (`idimageObject` ASC),
     CONSTRAINT `fk_webPageElement_has_imageObject_1` FOREIGN KEY (`idwebPageElement`) REFERENCES `webPageElement` (`idwebPageElement`) ON DELETE CASCADE ON UPDATE NO ACTION,
@@ -63,14 +47,24 @@ CREATE TABLE IF NOT EXISTS `webPageElement_has_imageObject` (
 ) ENGINE = InnoDB;
 
 
+DROP TRIGGER IF EXISTS `webPageElement_BEFORE_INSERT`;
+
+CREATE TRIGGER `webPageElement_BEFORE_INSERT` BEFORE INSERT ON `webPageElement` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `webPageElement` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+        THEN SET NEW.`position`= count+1;
+    END IF;
+END;
+
 DROP TRIGGER IF EXISTS `webPageElement_has_imageObject_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `webPageElement_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `webPageElement_has_imageObject` FOR EACH ROW
+
+CREATE TRIGGER `webPageElement_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `webPageElement_has_imageObject` FOR EACH ROW
 BEGIN
     DECLARE count INT;
     SET count = (SELECT COUNT(*) FROM `webPageElement_has_imageObject` WHERE `idwebPageElement`=NEW.`idwebPageElement`);
     IF NEW.`position`='' OR NEW.`position` IS NULL
         THEN SET NEW.`position`= count+1;
     END IF;
-END$$
-DELIMITER ;
+END;

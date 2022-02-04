@@ -36,19 +36,6 @@ CREATE TABLE IF NOT EXISTS `product_has_imageObject` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-DROP TRIGGER IF EXISTS `product_has_imageObject_BEFORE_INSERT`;
-DELIMITER $$
-CREATE DEFINER = CURRENT_USER TRIGGER `product_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `product_has_imageObject` FOR EACH ROW
-BEGIN
-    DECLARE count INT;
-    SET count = (SELECT COUNT(*) FROM `product_has_imageObject` WHERE `idproduct`=NEW.`idproduct`);
-    IF NEW.`position`='' OR NEW.`position` IS NULL
-    THEN SET NEW.`position`= count+1;
-    END IF;
-END$$
-DELIMITER ;
-
-
 --
 -- OFFER
 --
@@ -62,3 +49,15 @@ CREATE TABLE IF NOT EXISTS `product_has_offer` (
     CONSTRAINT `fk_product_has_offer_1` FOREIGN KEY (`idoffer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE RESTRICT,
     CONSTRAINT `fk_product_has_offer_2` FOREIGN KEY (`idproduct`) REFERENCES `product` (`idproduct`)
 ) ENGINE = InnoDB;
+
+
+DROP TRIGGER IF EXISTS `product_has_imageObject_BEFORE_INSERT`;
+
+CREATE TRIGGER `product_has_imageObject_BEFORE_INSERT` BEFORE INSERT ON `product_has_imageObject` FOR EACH ROW
+BEGIN
+    DECLARE count INT;
+    SET count = (SELECT COUNT(*) FROM `product_has_imageObject` WHERE `idproduct`=NEW.`idproduct`);
+    IF NEW.`position`='' OR NEW.`position` IS NULL
+    THEN SET NEW.`position`= count+1;
+    END IF;
+END;

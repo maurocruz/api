@@ -14,7 +14,6 @@ class GetData extends GetDataAbstract
     public function __construct($table)
     {
         $this->table = $table;
-
     }
 
     /**
@@ -23,9 +22,8 @@ class GetData extends GetDataAbstract
     public function render(): array
     {
         // FIELDS
-        if (isset($this->params['fields'])) {
-            $this->setFields();
-        }
+        $this->setFields();
+
         // QUERY
         $this->setQuery();
 
@@ -39,6 +37,10 @@ class GetData extends GetDataAbstract
         // PARAMS
         if ($this->params) {
             parent::parseParams();
+        }
+
+        if ($this->limit != 'none' && $this->limit != '') {
+            $this->query .= " LIMIT $this->limit";
         }
 
         $this->query .= ";";

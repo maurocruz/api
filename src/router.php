@@ -24,7 +24,9 @@ return function(App $slimApp)
         $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         return $response->withHeader("Content-type", "application/json");
     });
-
+    /**
+     * SEARCH
+     */
     $slimApp->get('/api/search', function(Request $request, Response $response)
     {
         $queryParams = $request->getQueryParams();
@@ -41,7 +43,6 @@ return function(App $slimApp)
 
         return $response;
     });
-
     /**
      * Generic GET
      */
@@ -78,18 +79,23 @@ return function(App $slimApp)
 
         return $response;
     });
-
     /**
      * LOGIN
      */
-    $slimApp->post('/api/login', function (Request $request, Response $response)
+    $slimApp->map(['OPTIONS','POST'],'/api/login', function (Request $request, Response $response)
     {
+        //$data = Auth\Authentication::login($request->getParsedBody()); // ERRO COM CORS
         $data = (new Auth\AuthController())->login($request->getParsedBody());
-        $newResponse = $response->withHeader("Content-type", "'application/json'");        
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        return $response;
-    });
 
+        $newResponse = $response->withHeader("Content-type", "'application/json'")
+            ->withHeader('Access-Control-Allow-Origin','*')
+            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return $newResponse;
+    });
     /**
      * REGISTER
      */
@@ -98,9 +104,36 @@ return function(App $slimApp)
         $data = (new Auth\AuthController())->register($request->getParsedBody());
         $newResponse = $response->withHeader("Content-type", "'application/json'");
         $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        return $response;
+        return $newResponse;
     });
+    /**
+     * RESET PASSWORD
+     */
+    $slimApp->post('/api/auth[/{action}]', function (Request $request, Response $response, $args)
+    {
+        $action = $args['action'] ?? null;
 
+        switch ($action) {
+            case 'reset_password':
+                $email = $request->getParsedBody()['email'] ?? null;
+                $data = $email ? Auth\Authentication::resetPassword($email) : ["status" => "fail", "message" => "No email received"];
+                break;
+            case 'change_password':
+                $data = Auth\Authentication::changePassword($request->getParsedBody());
+                break;
+            default:
+                $data = ["status" => "fail", "message" => "No action recognized"];
+        }
+
+        $newResponse = $response->withHeader("Content-type", "'application/json'")
+            ->withHeader('Access-Control-Allow-Origin','*')
+            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+        return $newResponse;
+    });
     /**
      * POST
     */

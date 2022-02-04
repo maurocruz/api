@@ -28,6 +28,18 @@ class GetDataAbstract
      * @var bool|array
      */
     protected $error = false;
+    /**
+     * @var string
+     */
+    protected string $limit = '200';
+
+    /**
+     * @param string $limit
+     */
+    public function setLimit(string $limit)
+    {
+        $this->limit = $limit;
+    }
 
     /**
      *
@@ -42,15 +54,21 @@ class GetDataAbstract
      */
     public function setParams($params): void
     {
+        if (isset($params['limit'])) {
+            $this->limit = $params['limit'];
+            unset($params['limit']);
+        }
         $this->params = $params;
     }
 
     /**
      */
-    protected function setFields(): void
+    protected function setFields()
     {
-        $this->fields = $this->params['fields'];
-        unset($this->params['fields']);
+        if (isset($this->params['fields'])) {
+            $this->fields = $this->params['fields'];
+            unset($this->params['fields']);
+        }
     }
 
     /**
@@ -61,7 +79,6 @@ class GetDataAbstract
         $groupBy = $this->params['groupBy'] ?? null;
         $orderBy = $this->params['orderBy'] ?? null;
         $ordering = $this->params['ordering'] ?? null;
-        $limit = $this->params['limit'] ?? null;
         $offset = $this->params['offset'] ?? null;
 
         // GROUP BY
@@ -69,9 +86,6 @@ class GetDataAbstract
 
         // ORDER BY
         if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
-
-        // LIMIT
-        if ($limit)  $this->query .= $limit != 'none' ? " LIMIT $limit" : null;
 
         // OFFSET
         if ($offset) $this->query .= " OFFSET $offset";
