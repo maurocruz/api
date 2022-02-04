@@ -7,6 +7,8 @@ namespace Plinct\Api\Auth;
 use DateInterval;
 use DateTime;
 use Exception;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use Plinct\Api\Type\User;
 use Plinct\PDO\PDOConnect;
 
@@ -43,6 +45,8 @@ class ResetPassword
             'token' => hash('sha256', $token),
             'expires' => $expires->format('Y-m-d\TH:i:s')
         ]);
+
+        // TODO colocar aqui o envio de email usando a função sendEmailForResetPassword() que está nesta class, lá no final
 
         // RETORNA SUCESSO
         return [ "status" => "success", "message" => "Saved token", "data" => [ "selector" => $selector, "validator" => $validator ] ];
@@ -93,5 +97,39 @@ class ResetPassword
 
         // TOKEN INVALID OR DATE EXPIRED
         return [ "status" => "fail", "message" => "Token invalid or date expired" ];
+    }
+
+
+    private static function sendEmailForResetPassword($email, $data)
+    {
+        $phpMail = new PHPMailer(true);
+
+        try {
+            $phpMail->SMTPDebug = SMTP::DEBUG_SERVER;
+            $phpMail->isSMTP();
+            $phpMail->Host = "smtp.gmail.com";
+            $phpMail->SMTPAuth   = true;
+            $phpMail->Username = "maurocruzpiri@gmail.com";
+            $phpMail->Password = "uwkpcjrufgfvnczr";
+            $phpMail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            $phpMail->Port = 465;
+
+            $phpMail->setFrom("maurocruzpiri@gmail.com", "No replay");
+
+            $phpMail->addAddress($email);
+
+            $phpMail->isHTML();
+            $phpMail->Subject = "Teste reset password";
+            $phpMail->Body = "Você ";
+
+            $phpMail->send();
+
+        } catch (\PHPMailer\PHPMailer\Exception $e) {
+            $data = null;
+            $data['status'] = 'fail';
+            $data['message'] = $phpMail->ErrorInfo;
+        }
+
+        return $data;
     }
 }
