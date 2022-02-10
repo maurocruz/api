@@ -37,18 +37,8 @@ class User extends Entity implements TypeInterface
             return [ "status" => 'fail', "message" => "Invalid email" ];
         }
 
-        if(strlen($params['password']) < 8) {
-            return [ "status" => 'fail', "message" => "Password must be a minimum of 8 characters" ];
-        }
-
-        if(preg_match('@[A-Z]@', $params['password']) === 0) {
-            return [ "status" => 'fail', "message" => "Password must contain at least one uppercase character" ];
-        }
-        if(preg_match('@[a-z]@', $params['password']) === 0) {  
-            return [ "status" => 'fail', "message" => "Password must contain at least one lowercase character" ];
-        }
-        if(preg_match('@[0-9]@', $params['password']) === 0) {  
-            return [ "status" => 'fail', "message" => "Password must contain at least 1 number" ];
+        if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W).*$#", $params['password'])) {
+            return [ "status" => "fail", "message" => "Password must be at least 8 characters in length and must contain at least one number, one upper case letter, one lower case letter and one special character" ];
         }
 
         $params['password'] = password_hash($params['password'], PASSWORD_DEFAULT);
@@ -56,7 +46,9 @@ class User extends Entity implements TypeInterface
         $data = parent::created($params);
 
         if (isset($data['error']) || (isset($data['status']) && $data['status'] == 'error')) {
-            return [ 'status' => 'error', 'data' => $data ];
+                $code = $data['error']['code'];
+                $message = $code == "23000" ? "Duplicate entry for key 'email'" : "Unknown error";
+            return [ 'status' => 'error', 'message'=>$message, 'data' => $data ];
         } else {
             $id = PDOConnect::lastInsertId();
             return ['id'=>$id];
