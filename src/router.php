@@ -6,28 +6,66 @@ namespace Plinct\Api;
 
 use Plinct\Api\Server\Format\Format;
 use Plinct\Api\Server\Search\Search;
-use Slim\App;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Routing\RouteCollectorProxy as Route;
 use Plinct\Api\Auth;
 use Plinct\Api\Auth\AuthMiddleware;
 use Plinct\Api\Type\User;
 
-return function(App $slimApp)
+return function(Route $route)
 {
-    /**
-     * Init application
-     */
-    $slimApp->post('/api/start', function(Request $request, Response $response)
+    $route->group('/api', function (Route $route)
     {
-        $data = PlinctApi::starApplication($request->getParsedBody());
-        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        return $response->withHeader("Content-type", "application/json");
+        /**
+         * Init application
+         */
+        $route->post('/start', function(Request $request, Response $response)
+        {
+            $data = PlinctApi::starApplication($request->getParsedBody());
+            $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+            return $response->withHeader("Content-type", "application/json");
+        });
+
+        /**
+         * AUTHENTICATION
+         */
+        $route->group('/auth', function (Route $route)
+        {
+            $route->post('/reset_password', function (Request $request, Response $response)
+            {
+                $data = Auth\Authentication::resetPassword($request->getParsedBody());
+
+                $response = $response->withHeader("Content-type", "'application/json'")
+                    ->withHeader('Access-Control-Allow-Origin', '*')
+                    ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                    ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+                $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                return $response;
+            });
+
+            $route->post('/change_password', function (Request $request, Response $response)
+            {
+               $data = Auth\Authentication::changePassword($request->getParsedBody());
+
+               $newResponse = $response->withHeader("Content-type", "'application/json'")
+                   ->withHeader('Access-Control-Allow-Origin', '*')
+                   ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+                   ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+               $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+
+               return $newResponse;
+            });
+       }) ;
     });
+
+
     /**
      * SEARCH
      */
-    $slimApp->get('/api/search', function(Request $request, Response $response)
+    $route->get('/api/search', function(Request $request, Response $response)
     {
         $queryParams = $request->getQueryParams();
 
@@ -43,10 +81,11 @@ return function(App $slimApp)
 
         return $response;
     });
+
     /**
      * Generic GET
      */
-    $slimApp->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args)
+    $route->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args)
     {
         $type = $args['type'] ?? null;
         $params = $request->getQueryParams() ?? null;
@@ -79,10 +118,11 @@ return function(App $slimApp)
 
         return $response;
     });
+
     /**
      * LOGIN
      */
-    $slimApp->map(['OPTIONS','POST'],'/api/login', function (Request $request, Response $response)
+    $route->map(['OPTIONS','POST'],'/api/login', function (Request $request, Response $response)
     {
         //$data = Auth\Authentication::login($request->getParsedBody()); // ERRO COM CORS
         $data = (new Auth\AuthController())->login($request->getParsedBody());
@@ -96,48 +136,22 @@ return function(App $slimApp)
 
         return $newResponse;
     });
+
     /**
      * REGISTER
      */
-    $slimApp->post('/api/register', function (Request $request, Response $response)
+    $route->post('/api/register', function (Request $request, Response $response)
     {
         $data = (new Auth\AuthController())->register($request->getParsedBody());
         $newResponse = $response->withHeader("Content-type", "'application/json'");
         $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         return $newResponse;
     });
-    /**
-     * RESET PASSWORD
-     */
-    $slimApp->post('/api/auth[/{action}]', function (Request $request, Response $response, $args)
-    {
-        $action = $args['action'] ?? null;
 
-        switch ($action) {
-            case 'reset_password':
-                $email = $request->getParsedBody()['email'] ?? null;
-                $data = $email ? Auth\Authentication::resetPassword($email) : ["status" => "fail", "message" => "No email received"];
-                break;
-            case 'change_password':
-                $data = Auth\Authentication::changePassword($request->getParsedBody());
-                break;
-            default:
-                $data = ["status" => "fail", "message" => "No action recognized"];
-        }
-
-        $newResponse = $response->withHeader("Content-type", "'application/json'")
-            ->withHeader('Access-Control-Allow-Origin','*')
-            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-        return $newResponse;
-    });
     /**
      * POST
     */
-    $slimApp->post('/api/{type}', function(Request $request, Response $response, $args)
+    $route->post('/api/{type}', function(Request $request, Response $response, $args)
     {
         $type = $args['type'];
         $params = $request->getParsedBody();
@@ -173,7 +187,7 @@ return function(App $slimApp)
     /**
      * PUT
      */
-    $slimApp->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args)
+    $route->put('/api/{type}[/{id}]', function (Request $request, Response $response, $args)
     {
         $params = $request->getParsedBody() ?? null;
         $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? null;
@@ -201,7 +215,7 @@ return function(App $slimApp)
     /**
      * DELETE
      */
-    $slimApp->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args)
+    $route->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args)
     {
         $params = $request->getParsedBody() ?? null;
         $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? null;

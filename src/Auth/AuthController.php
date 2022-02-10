@@ -86,18 +86,10 @@ class AuthController {
 
     /**
      * @param array $params
-     * @return false|string
+     * @return array
      */
-    public function register(array $params)
+    public function register(array $params): array
     {
-        $responseData = (new User())->post($params);
-        // Init application
-        if (isset($responseData['error']['code']) && $responseData['error']['code'] == "42S02") {
-            return false;
-        } elseif (isset($responseData['error']) && isset($responseData['error']['message'])) {
-            return $responseData['error']['message'];
-        } else {
-            return "userAdded";
-        }
+        return (new User())->post($params);
     }
 }

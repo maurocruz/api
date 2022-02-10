@@ -16,9 +16,9 @@ class Authentication
     /**
      * @throws Exception
      */
-    public static function resetPassword(string $email): array
+    public static function resetPassword(array $parseBody): array
     {
-        return ResetPassword::resetPassword($email);
+        return ResetPassword::resetPassword($parseBody);
     }
 
     /**
