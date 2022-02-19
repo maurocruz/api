@@ -55,7 +55,7 @@ class GetDataAbstract
     public function setParams($params): void
     {
         if (isset($params['limit'])) {
-            $this->limit = $params['limit'];
+            $this->limit = (string) $params['limit'];
             unset($params['limit']);
         }
         $this->params = $params;
