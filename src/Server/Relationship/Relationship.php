@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server\Relationship;
 
-use Plinct\Api\Server\FilterGet;
 use Plinct\PDO\PDOConnect;
 
 class Relationship extends RelationshipAbstract
@@ -38,10 +37,8 @@ class Relationship extends RelationshipAbstract
 
             // IMAGE OBJECT
             $query .= $this->tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
-
             // CONTACT POINT
             $query .= $this->tableIsPartOf == "contactPoint" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
-
             // HISTORY
             $query .= $this->tableIsPartOf == "history" ? " ORDER BY datetime DESC" : ($orderBy ? " ORDER BY $orderBy" : null);
             $query .= ";";
@@ -58,7 +55,7 @@ class Relationship extends RelationshipAbstract
      */
     public function postRelationship(array $params): array
     {
-        $this->idIsPartOf = $params['id'] ?? null;
+        $this->idIsPartOf = $params['id'] ?? $params['idIsPartOf'] ?? null;
 
         // CREATE NEW REGISTER ON TABLE IS PART OF
         if (!$this->idIsPartOf) {
