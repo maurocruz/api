@@ -18,8 +18,7 @@ class AuthController {
         if (!isset($params['email']) || !isset($params['password'])) {
             return [
                 "status" => "fail",
-                "message" => "Access rejected - Incomplete data received",
-                "data" => $params
+                "message" => "Access rejected - Incomplete data received"
             ];
         }
 
@@ -32,8 +31,7 @@ class AuthController {
         if ($email === false) {
             return [
                 "status" => "fail",
-                "message" => "Invalid email - Access unauthorized",
-                "data" => $params
+                "message" => "Invalid email - Access unauthorized"
             ];
         }
 
@@ -44,8 +42,7 @@ class AuthController {
         if(isset($data['error'])) {
             return [
                 "status" => "error",
-                "message" => $data['error']['message'],
-                "data" => $data
+                "message" => $data['error']['message']
             ];
         }
 
@@ -53,8 +50,7 @@ class AuthController {
         if (empty($data)) {
             return [
                 "status" => "fail",
-                "message" => "User not exists - Access unauthorized",
-                "data" => $data
+                "message" => "User not exists - Access unauthorized"
             ];
         }
 
@@ -79,8 +75,7 @@ class AuthController {
         // USER NOT AUTHORIZED
         return [
             "status" => "fail",
-            "message" => "The user exists but has not logged in. Check your password!",
-            "data" => $data
+            "message" => "The user exists but has not logged in. Check your password!"
         ];
     }
 
