@@ -121,6 +121,7 @@ return function(Route $route)
     {
         $type = $args['type'];
         $params = $request->getParsedBody();
+				unset($params['token']);
 
         if ($response->getStatusCode() === 200) {
             $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
