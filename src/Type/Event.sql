@@ -27,6 +27,15 @@ CREATE TABLE IF NOT EXISTS `event` (
   CONSTRAINT `fk_events_1` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS `event_has_event` (
+  `idHasPart` INT NOT NULL,
+  `idIsPartOf` INT NOT NULL,
+  PRIMARY KEY (`idHasPart`, `idIsPartOf`),
+  INDEX `fk_event_has_event_event2_idx` (`idIsPartOf` ASC),
+  INDEX `fk_event_has_event_event1_idx` (`idHasPart` ASC),
+  CONSTRAINT `fk_event_has_event_event1` FOREIGN KEY (`idHasPart`) REFERENCES `event` (`idevent`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_event_has_event_event2` FOREIGN KEY (`idIsPartOf`) REFERENCES `event` (`idevent`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS `events_has_person` (
   `idevents` INT(10) NOT NULL,
