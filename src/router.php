@@ -32,32 +32,9 @@ return function(Route $route)
          */
         $route->group('/auth', function (Route $route)
         {
-            $route->post('/reset_password', function (Request $request, Response $response)
-            {
-                $data = Auth\Authentication::resetPassword($request->getParsedBody());
+            $authRoutes = require __DIR__.'/Auth/authRoutes.php';
+            return $authRoutes($route);
 
-                $response = $response->withHeader("Content-type", "'application/json'")
-                    ->withHeader('Access-Control-Allow-Origin', '*')
-                    ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-                    ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-                $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-                return $response;
-            });
-
-            $route->post('/change_password', function (Request $request, Response $response)
-            {
-               $data = Auth\Authentication::changePassword($request->getParsedBody());
-
-               $newResponse = $response->withHeader("Content-type", "'application/json'")
-                   ->withHeader('Access-Control-Allow-Origin', '*')
-                   ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-                   ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-               $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-               return $newResponse;
-            });
        }) ;
     });
 
@@ -85,7 +62,7 @@ return function(Route $route)
     /**
      * Generic GET
      */
-    $route->get('/api[/{type}[/{id}]]', function (Request $request, Response $response, $args)
+    $route->map(['OPTIONS','GET'],'/api[/{type}[/{id}]]', function (Request $request, Response $response, $args)
     {
         $type = $args['type'] ?? null;
         $params = $request->getQueryParams() ?? null;
@@ -99,6 +76,9 @@ return function(Route $route)
                 //  CLASS HIERARCHY
                 if ($format == "classHierarchy") {
                     $data = (Format::classHierarchy($type, $params))->ready();
+
+                } elseif ($format == "geojson") {
+                    $data = Format::geojson(new $className(), $params)->ready();
                 }
                 //
                 else {
@@ -106,36 +86,22 @@ return function(Route $route)
                 }
 
             } else {
-                 $data = [ "message" => "type not founded" ];
+                 $data = ['status'=>'fail', 'message'=>'type not found!' ];
             }
         } else {
             $data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
         }
 
-        $response = $response->withHeader("Content-type", "application/json");
-        $response = $response->withHeader('Access-Control-Allow-Origin', '*');
-        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
-
-        return $response;
-    });
-
-    /**
-     * LOGIN
-     */
-    $route->map(['OPTIONS','POST'],'/api/login', function (Request $request, Response $response)
-    {
-        //$data = Auth\Authentication::login($request->getParsedBody()); // ERRO COM CORS
-        $data = (new Auth\AuthController())->login($request->getParsedBody());
-
-        $newResponse = $response->withHeader("Content-type", "'application/json'")
+        $newResponse = $response->withHeader("Content-type", "application/json")
             ->withHeader('Access-Control-Allow-Origin','*')
-            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            ->withHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
 
         return $newResponse;
     });
+
 
     /**
      * REGISTER
@@ -155,6 +121,7 @@ return function(Route $route)
     {
         $type = $args['type'];
         $params = $request->getParsedBody();
+				unset($params['token']);
 
         if ($response->getStatusCode() === 200) {
             $className = "\\Plinct\\Api\\Type\\".ucfirst($type);

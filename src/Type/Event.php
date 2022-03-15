@@ -6,6 +6,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
+use Plinct\Web\Debug\Debug;
 use ReflectionException;
 
 class Event extends Entity implements TypeInterface
@@ -25,21 +26,28 @@ class Event extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $hasTypes = [ "location" => "Place", "image" => "ImageObject" ];
+    protected array $hasTypes = [ "location" => "Place", "image" => "ImageObject", "subEvent"=>'Event' ];
 
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function post(array $params): array
-    {
-        $params['startDate'] = $params['startDate']." ".$params['startTime'];
-        $params['endDate'] = $params['endDate']." ".$params['endTime'];
-        unset($params['startTime']);
-        unset($params['endTime']);
+  /**
+   * @param array $params
+   * @return array
+   */
+  public function post(array $params): array
+  {
+	  if (isset($params['tableHasPart']) && isset($params['idHasPart']) && (isset($params['id']) || isset($params['idIsPartOf']))) {
+		  return parent::post($params);
 
-        return parent::post($params);
-    }
+    } elseif (!isset($params['name']) || !isset($params['startDate']) || !isset($params['endDate'])) {
+			return ['status'=>'fail','message'=>'Missing mandatory values!'];
+
+		} else {
+			$params['startDate'] = $params['startDate'] . " " . ($params['startTime'] ?? "00:00:00");
+			$params['endDate'] = $params['endDate'] . " " . ($params['endTime'] ?? "00:00:00");
+			unset($params['startTime']);
+			unset($params['endTime']);
+			return parent::post($params);
+		}
+  }
 
     /**
      * @param array $params
