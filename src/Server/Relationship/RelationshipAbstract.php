@@ -39,7 +39,7 @@ abstract class RelationshipAbstract extends Crud
         // compare with colunm of table
         foreach ($columns as $valueColumn) {
             $field = $valueColumn['Field'];
-            if (array_key_exists($field,$tableHasPartHasTypes) && $this->tableIsPartOf == lcfirst($tableHasPartHasTypes[$field])) {
+            if (array_key_exists($field,$tableHasPartHasTypes) && is_string($tableHasPartHasTypes[$field]) && $this->tableIsPartOf == lcfirst($tableHasPartHasTypes[$field])) {
                 return $field;
             }
         }
