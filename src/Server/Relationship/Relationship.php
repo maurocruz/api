@@ -19,6 +19,7 @@ class Relationship extends RelationshipAbstract
         $this->idHasPart = $idHasPart;
         $this->tableIsPartOf = lcfirst($tableIsPartOf);
         $this->table_has_table = lcfirst($tableHasPart).'_has_'.lcfirst($tableIsPartOf);
+				$this->table = $this->tableIsPartOf;
     }
 
     /**
@@ -68,22 +69,22 @@ class Relationship extends RelationshipAbstract
             $this->idIsPartOf = PDOConnect::lastInsertId();
         }
 
-        // one to one relationship type
         $propertyIsPartOf = $this->propertyIsPartOf();
-        if ($propertyIsPartOf) {
-            // update has part
-            $this->table = $this->tableHasPart;
-            parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
-
-        }
-
         // many-to-many relationship type with table_has_table
-        elseif (self::table_exists($this->table_has_table)) {
+        if (self::table_exists($this->table_has_table) && $this->idHasPart) {
             $idHasPartName = parent::getColumnName($this->table_has_table,1);
             $idIsPartOfName = parent::getColumnName($this->table_has_table,2);
             $this->table = $this->table_has_table;
             $paramCreate = [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ];
            return parent::created($paramCreate);
+
+        }
+	      // one to one relationship type
+	      elseif ($propertyIsPartOf) {
+	        // update has part
+	        $this->table = $this->tableHasPart;
+	        parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
+
         }
 
         return $params;
@@ -112,24 +113,29 @@ class Relationship extends RelationshipAbstract
         return null;
     }
 
-    /**
-     * @param $params
-     * @return array|null
-     */
-    public function deleteRelationship($params): ?array
-    {
-        $this->idIsPartOf = $params['idIsPartOf'] ?? null;
+  /**
+   * @param $params
+   * @return array|null
+   */
+  public function deleteRelationship($params): ?array
+  {
+    $this->idIsPartOf = $params['idIsPartOf'] ?? null;
 
-        if ($this->idIsPartOf) {
-            $this->table = $this->table_has_table;
-            $idHasPartName = 'id' . $this->tableHasPart;
-            $idIsPartOfName = 'id' . $this->tableIsPartOf;
+    if ($this->idIsPartOf) {
+      $this->table = $this->table_has_table;
 
-            $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
+      if ($this->tableHasPart == $this->tableIsPartOf) {
+	      $idHasPartName = 'idHasPart';
+	      $idIsPartOfName = 'idIsPartOf';
+      } else {
+        $idHasPartName = 'id' . $this->tableHasPart;
+        $idIsPartOfName = 'id' . $this->tableIsPartOf;
+      }
 
-            return parent::erase($where, 1);
-        }
+        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
+        return parent::erase($where, 1);
+      }
 
-        return null;
-    }
+      return null;
+  }
 }

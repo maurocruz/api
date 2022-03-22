@@ -6,7 +6,6 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
-use Plinct\Web\Debug\Debug;
 use ReflectionException;
 
 class Event extends Entity implements TypeInterface
@@ -26,7 +25,7 @@ class Event extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $hasTypes = [ "location" => "Place", "image" => "ImageObject", "subEvent"=>'Event' ];
+    protected array $hasTypes = ['location'=>'Place','image'=>'ImageObject','superEvent'=>'Event','subEvent'=>'Event'];
 
   /**
    * @param array $params

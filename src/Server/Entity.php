@@ -118,8 +118,9 @@ abstract class Entity extends Crud
         unset($params['tableHasPart']);
 
         $idName = "id".$this->table;
-        $idValue = $params['id'] ?? $params[$idName] ?? null;
+        $idValue = $params['id'] ?? $params['idHasPart'] ?? $params[$idName] ?? null;
         unset($params['id']);
+        unset($params['idHasPart']);
 
         if ($idValue) {
             return parent::update($params, "`$idName`=$idValue");

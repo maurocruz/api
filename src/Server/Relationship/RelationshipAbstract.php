@@ -1,18 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Plinct\Api\Server\Relationship;
 
 use Plinct\PDO\Crud;
 use Plinct\PDO\PDOConnect;
 
-class RelationshipAbstract extends Crud {
-    protected $tableHasPart;
-    protected $idHasPart;
-    protected $tableIsPartOf;
-    protected $idIsPartOf;
-    protected $table_has_table;
-    protected $params;
-    protected $properties;
-    protected $hasTypes;
+abstract class RelationshipAbstract extends Crud
+{
+	protected ?string $tableHasPart;
+  protected ?string $idHasPart;
+  protected ?string $tableIsPartOf;
+	protected ?string $idIsPartOf;
+  protected ?string $table_has_table;
+  protected array $params;
+  protected array $properties;
+  protected array $hasTypes;
 
     /**
      * @param $table
@@ -23,7 +27,7 @@ class RelationshipAbstract extends Crud {
     }
 
     /**
-     * check which properties exists in table
+     * Check which properties exist in table
      * @return mixed
      */
     protected function propertyIsPartOf() {
