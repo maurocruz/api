@@ -20,11 +20,11 @@ class LocalBusiness extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $properties = [ "name" ];
+    protected array $properties = [];
     /**
      * @var array|string[]
      */
-    protected array $hasTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "address" => "PostalAddress", "member" => "Person", "image" => "ImageObject" ];
+    protected array $hasTypes = [ "location" => "Place", "organization" => "Organization", "contactPoint" => "ContactPoint", "member" => "Person", "image" => "ImageObject" ];
 
     /**
      * @param array $params

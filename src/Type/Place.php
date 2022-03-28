@@ -21,7 +21,7 @@ class Place extends Entity implements TypeInterface
     /**
      * @var array|string[]
      */
-    protected array $properties = [ "*","address" ];
+    protected array $properties = [];
     /**
      * @var array|string[]
      */
