@@ -19,14 +19,13 @@ class Format
         return new ClassHierarchy($type, $params);
     }
 
-
-	/**
-	 * @param object $objectType
-	 * @param array $params
-	 * @return Geojson
-	 */
-	public static function geojson(object $objectType, array $params): Geojson
-	{
-		return new Geojson($objectType, $params);
-	}
+    /**
+     * @param object $objectType
+     * @param array $params
+     * @return Geojson
+     */
+    public static function geojson(object $objectType, array $params): Geojson
+    {
+        return new Geojson($objectType, $params);
+    }
 }
