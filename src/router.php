@@ -96,7 +96,7 @@ return function(Route $route)
 			$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
 
 			return $response;
-		})->addMiddleware(new AuthMiddleware());
+		});
 
   })->add(function(Request $request, RequestHandlerInterface $handler): Response {
 	  $response = $handler->handle($request);
