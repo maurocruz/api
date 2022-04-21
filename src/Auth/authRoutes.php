@@ -6,52 +6,54 @@ use Plinct\Api\Auth\AuthController;
 use Plinct\Api\Auth\Authentication;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteCollectorProxy;
+use Slim\Routing\RouteCollectorProxy as Route;
 
-return function (RouteCollectorProxy $route)
+return function (Route $route)
 {
-    /**
-     * LOGIN
-     */
-    $route->map(['OPTIONS','POST'],'/login', function (Request $request, Response $response)
-    {
-        //$data = Auth\Authentication::login($request->getParsedBody()); // ERRO COM CORS
-        $data = (new AuthController())->login($request->getParsedBody());
+  /**
+   * LOGIN
+   */
+  $route->map(['OPTIONS','POST'],'/login', function (Request $request, Response $response)
+  {
+    //$data = Authentication::login($request->getParsedBody()); // ERRO COM CORS
+    $data = (new AuthController())->login($request->getParsedBody());
 
-        $newResponse = $response->withHeader("Content-type", "'application/json'")
-            ->withHeader('Access-Control-Allow-Origin','*')
-            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+    $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    return $response;
+  });
 
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+	/**
+	 * REGISTER
+	 */
+	$route->map(['OPTIONS','POST'], '/register', function (Request $request, Response $response)
+	{
+		//$data = Authentication::register($request->getParsedBody());
+		$data = (new AuthController())->register($request->getParsedBody());
 
-        return $newResponse;
-    });
+		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		return $response;
+	});
 
-    $route->post('/reset_password', function (Request $request, Response $response)
-    {
-        $data = Authentication::resetPassword($request->getParsedBody());
+	/**
+	 * RESET PASSWORD
+	 */
+  $route->post('/reset_password', function (Request $request, Response $response)
+  {
+    $data = Authentication::resetPassword($request->getParsedBody());
 
-        $response = $response->withHeader("Content-type", "'application/json'")
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
+    $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    return $response;
+  });
 
-        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        return $response;
-    });
+	/**
+	 * CHANGE PASSWORD
+	 */
+  $route->post('/change_password', function (Request $request, Response $response)
+  {
+    $data = Authentication::changePassword($request->getParsedBody());
 
-    $route->post('/change_password', function (Request $request, Response $response)
-    {
-        $data = Authentication::changePassword($request->getParsedBody());
+    $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
-        $newResponse = $response->withHeader("Content-type", "'application/json'")
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-            ->withHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-        $newResponse->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
-        return $newResponse;
-    });
+    return $response;
+  });
 };
