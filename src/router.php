@@ -175,13 +175,14 @@ return function(Route $route)
    */
   $route->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args)
   {
-    $params = $request->getParsedBody() ?? null;
-    $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? null;
-    $type = $args['type'];
+	  $type = $args['type'];
+	  $params = $request->getParsedBody() ?? $request->getQueryParams() ?? null;
+	  $params["id$type"] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
+		unset($params['id']);
 
     if ($response->getStatusCode() === 200) {
-      if (!$params['id']) {
-        $data = [ "message" => "missing data (router.php on delele - line 109)"];
+      if (!$params["id$type"]) {
+        $data = [ "message" => "missing data (".__FILE__." on ".__LINE__.")"];
       } else {
         $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
         $data = (new $classname())->delete($params);
@@ -191,7 +192,7 @@ return function(Route $route)
     }
 
     $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-    return $response;// $response->withHeader("Content-type", "application/json");
+    return $response;
 
   })->addMiddleware(new AuthMiddleware());
 };
