@@ -151,7 +151,7 @@ return function(Route $route)
     $params['id'] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
 
     if (!$params['id']) {
-      $data = [ "message" => "missing data (router.php on line 152)",'params'=>$params];
+      $data = [ "message" => "missing data (".__FILE__." on line ".__LINE__.")",'params'=>$params];
 
     } elseif ($response->getStatusCode() === 200) {
       $className = "\\Plinct\\Api\\Type\\".ucfirst($args['type']);
