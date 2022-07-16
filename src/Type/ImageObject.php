@@ -6,111 +6,146 @@ namespace Plinct\Api\Type;
 
 use Exception;
 use Plinct\Api\Server\Entity;
+use Plinct\Api\Server\Maintenance;
+use Plinct\PDO\PDOConnect;
 use Plinct\Tool\ArrayTool;
 use Plinct\Tool\Image\Image;
 use ReflectionException;
 
 class ImageObject extends Entity implements TypeInterface
 {
-    /**
-     * @var string
-     */
-    protected string $table = "imageObject";
-    /**
-     * @var string
-     */
-    protected string $type = "ImageObject";
-    /**
-     * @var array|string[]
-     */
-    protected array $properties = [ "*" ];
-    /**
-     * @var array|string[]
-     */
-    protected array $hasTypes = [ "author" => "Person" ];
+  /**
+   * @var string
+   */
+  protected string $table = "imageObject";
+  /**
+   * @var string
+   */
+  protected string $type = "ImageObject";
+  /**
+   * @var array|string[]
+   */
+  protected array $properties = [ "*" ];
+  /**
+   * @var array|string[]
+   */
+  protected array $hasTypes = [ "author" => "Person" ];
 
-    /**
-     * @param array $params
-     * @return array
-     * @throws Exception
-     */
-    public function get(array $params): array
-    {
-        // vars
-        $thumbnail = $params['thumbnail'] ?? null;
-        $format = $params['format'] ?? null;
-        if ($thumbnail == "on") $params['properties'] = "*";
-        unset($params['thumbnail']);
+  /**
+   * @param array $params
+   * @return array
+   * @throws Exception
+   */
+  public function get(array $params): array
+  {
+		// IMAGES IS PART OF
+    if (isset($params['isPartOf'])) Return $this->getImageIsPartOf($params['isPartOf']);
 
-        // GET
-        $data = parent::get($params);
+    // vars
+    $thumbnail = $params['thumbnail'] ?? null;
+    $format = $params['format'] ?? null;
+    if ($thumbnail == "on") $params['properties'] = "*";
+    unset($params['thumbnail']);
 
-        // THUMBNAIL ON
-        if ($thumbnail=='on') {
-            $itemList = $data['itemListElement'] ?? $data;
+    // GET
+    $data = parent::get($params);
 
-            foreach ($itemList as $key => $value) {
-                $item = $format ? $value['item'] : $value;
+    // THUMBNAIL ON
+    if ($thumbnail=='on') {
+      $itemList = $data['itemListElement'] ?? $data;
 
-                if (!$item['thumbnail']) {
-                    $image = new Image($item['contentUrl']);
-                    $image->thumbnail("200");
-                    $contentSize = $image->getFileSize();
-                    $width = $image->getWidth();
-                    $height = $image->getHeight();
-                    $encodingFormat = $image->getEncodingFormat();
-                    $thumbnailData = $image->getThumbSrc();
-                    $data['itemListElement'][$key]['item']['contentSize'] = $contentSize;
-                    $data['itemListElement'][$key]['item']['width'] = $width;
-                    $data['itemListElement'][$key]['item']['height'] = $height;
-                    $data['itemListElement'][$key]['item']['encodingFormat'] = $encodingFormat;
-                    $data['itemListElement'][$key]['item']['thumbnail'] = $thumbnailData;
-                    // save data
-                    $id = ArrayTool::searchByValue($item['identifier'], "id")['value'];
-                    $newParams = [ "id" => $id, "contentSize" => $contentSize, "width" => $width, "height" => $height, "encodingFormat" => $encodingFormat, "thumbnail" => $thumbnailData ];
-                    parent::put($newParams);
-                }
-            }
+      foreach ($itemList as $key => $value) {
+        $item = $format ? $value['item'] : $value;
+
+        if (!$item['thumbnail']) {
+          $image = new Image($item['contentUrl']);
+          $image->thumbnail("200");
+          $contentSize = $image->getFileSize();
+          $width = $image->getWidth();
+          $height = $image->getHeight();
+          $encodingFormat = $image->getEncodingFormat();
+          $thumbnailData = $image->getThumbSrc();
+          $data['itemListElement'][$key]['item']['contentSize'] = $contentSize;
+          $data['itemListElement'][$key]['item']['width'] = $width;
+          $data['itemListElement'][$key]['item']['height'] = $height;
+          $data['itemListElement'][$key]['item']['encodingFormat'] = $encodingFormat;
+          $data['itemListElement'][$key]['item']['thumbnail'] = $thumbnailData;
+          // save data
+          $id = ArrayTool::searchByValue($item['identifier'], "id")['value'];
+          $newParams = [ "id" => $id, "contentSize" => $contentSize, "width" => $width, "height" => $height, "encodingFormat" => $encodingFormat, "thumbnail" => $thumbnailData ];
+          parent::put($newParams);
         }
-        return $data;
+      }
     }
 
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array
-    {
-        unset($params['contentUrl']);
-        return parent::put($params);
-    }
+    return $data;
+  }
 
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        $message[] =  parent::createSqlTable("ImageObject");
-        return $message;
-    }
+  /**
+   * @param array $params
+   * @return array
+   */
+  public function put(array $params): array
+  {
+    unset($params['contentUrl']);
+    return parent::put($params);
+  }
 
-    /**
-     * @param $data
-     * @param string $mode
-     * @return null
-     */
-    public static function getRepresentativeImageOfPage($data, string $mode = "string")
-    {
-        if ($data) {
-            foreach ($data as $valueImage) {
-                if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] == true) {
-                    return $mode == "string" ? $valueImage['contentUrl'] : $valueImage;
-                }
-            }
-            return $mode == "string" ? $data[0]['contentUrl'] : $data[0];
+  /**
+   * @param null $type
+   * @return array
+   * @throws ReflectionException
+   */
+  public function createSqlTable($type = null): array
+  {
+    $message[] =  parent::createSqlTable("ImageObject");
+    return $message;
+  }
+
+  /**
+   * @param $data
+   * @param string $mode
+   * @return null
+   */
+  public static function getRepresentativeImageOfPage($data, string $mode = "string")
+  {
+    if ($data) {
+      foreach ($data as $valueImage) {
+        if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] === true) {
+          return $mode == "string" ? $valueImage['contentUrl'] : $valueImage;
         }
-        return null;
+      }
+      return $mode == "string" ? $data[0]['contentUrl'] : $data[0];
     }
+    return null;
+  }
+
+	/**
+	 * @param $idIsPartOf
+	 * @return array
+	 */
+	private function getImageIsPartOf($idIsPartOf): array
+	{
+		$info = [];
+		$tablesHasPart = Maintenance::setTableHasImageObject();
+
+		foreach ($tablesHasPart as $value) {
+			$tableHasName = $value['tableName'];
+			$tableHasPart = strstr($value['tableName'], "_", true);
+
+			if ($tableHasPart !== 'group') {
+				$query = "select * from `$tableHasName`, `$tableHasPart` WHERE `idimageObject`=$idIsPartOf AND $tableHasPart.id$tableHasPart=$tableHasName.id$tableHasPart;";
+				$data = PDOConnect::run($query);
+
+				if (!isset($data['error']) && count($data) > 0) {
+					foreach ($data as $valueTableIspartOf) {
+						$id = $valueTableIspartOf["id$tableHasPart"];
+						$info[] = ["tableHasPart" => $tableHasPart, "idHasPart" => $id, "values" => $valueTableIspartOf];
+					}
+				}
+			}
+		}
+
+		return $info;
+	}
 }
