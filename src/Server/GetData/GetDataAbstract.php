@@ -87,7 +87,6 @@ class GetDataAbstract
     $groupBy = $this->params['groupBy'] ?? null;
     $orderBy = $this->params['orderBy'] ?? null;
     $ordering = $this->params['ordering'] ?? null;
-    $offset = $this->params['offset'] ?? null;
 
     // GROUP BY
     if ($groupBy) $this->query .= " GROUP BY $groupBy";
@@ -95,8 +94,6 @@ class GetDataAbstract
     // ORDER BY
     if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
 
-    // OFFSET
-    if ($offset) $this->query .= " OFFSET $offset";
   }
 
   /**
@@ -131,12 +128,11 @@ class GetDataAbstract
       foreach ($columnsTable as $value) {
         $field = $value['Field'];
         $valueField = $this->params[$field] ?? null;
-        if ($valueField) {
+        if ($valueField !== null) {
           $fieldValue = is_string($valueField) ? addslashes($valueField) : $valueField;
           $where[] = "`$field`='$fieldValue'";
         }
       }
-
       $this->query .= $where ? " WHERE " . implode(" AND ", $where) : null;
     }
   }

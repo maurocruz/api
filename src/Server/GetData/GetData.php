@@ -40,7 +40,10 @@ class GetData extends GetDataAbstract
         }
 
         if ($this->limit != 'none' && $this->limit != '') {
-            $this->query .= " LIMIT $this->limit";
+					// LIMIT
+					$this->query .= " LIMIT $this->limit";
+	        // OFFSET
+	        if (isset($this->params['offset'])) $this->query .= " OFFSET {$this->params['offset']}";
         }
 
         $this->query .= ";";

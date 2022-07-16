@@ -16,9 +16,7 @@ class SchemaTrait extends  SchemaAbstract
         $this->schema['@type'] = "ItemList";
         $this->schema['numberOfItems'] = count($data);
         $this->schema['itemListOrder'] = $this->params['ordering'] ?? 'ascending';
-        if (empty($data)) {
-            $listItem = [];
-        } else {
+        if (!empty($data)) {
             foreach ($data as $key => $value) {
                 $item['@type'] = "ListItem";
                 $item['position'] = ($key + 1);

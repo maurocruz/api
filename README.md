@@ -1,10 +1,8 @@
 # Plinct Api
 
-Php api for schema.org modelling
+Interface for manipulating data in an SQL database modeled according to schema.org standards.
 
 **\### UNDER DEVELOPMENT \###**
-
-API to handle data stored in a database modeled according to schema.org standards
 
 ## Depedencies
 - composer
