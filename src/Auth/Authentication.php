@@ -33,13 +33,4 @@ class Authentication
   {
     return ResetPassword::changePassword($bodyParams);
   }
-
-	/**
-	 * @param array $bodyParams
-	 * @return array
-	 */
-	public static function register(array $bodyParams): array
-	{
-		return (new AuthController())->register($bodyParams);
-	}
 }

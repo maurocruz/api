@@ -11,7 +11,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Routing\RouteCollectorProxy as Route;
 use Plinct\Api\Auth\AuthMiddleware;
-use Plinct\Api\Type\User;
 
 return function(Route $route)
 {
@@ -23,6 +22,15 @@ return function(Route $route)
       $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
       return $response->withHeader("Content-type", "application/json");
     });
+
+	  /**
+	   * USER
+	   */
+		$route->group('/user', function(Route $route)
+		{
+			$userRoutes = require __DIR__.'/User/userRoutes.php';
+			return $userRoutes($route);
+		});
 
     /**
      * AUTHENTICATION
@@ -127,10 +135,6 @@ return function(Route $route)
       } else {
         $data = [ "message" => "Type not founded" ];
       }
-    } elseif ($type == "user") {
-      unset($params['status']);
-      $data = (new User())->post($params);
-
     } else {
       $data = null;
     }

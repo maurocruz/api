@@ -6,8 +6,7 @@ namespace Plinct\Api\Auth;
 
 use Firebase\JWT\JWT;
 use Plinct\Api\PlinctApi;
-use Plinct\Api\Type\User;
-use Plinct\Tool\ArrayTool;
+use Plinct\Api\User\User;
 
 class AuthController
 {
@@ -65,7 +64,7 @@ class AuthController
         "exp" => time() + $exp,
         "name" => $value['name'],
         "admin" => $value['status'] == 1,
-        "uid" => ArrayTool::searchByValue($value['identifier'], "id")['value']
+        "uid" => $value['iduser']
       ];
 
       return [
@@ -80,18 +79,5 @@ class AuthController
       "status" => "fail",
       "message" => "The user exists but has not logged in. Check your password!"
     ];
-  }
-
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-  public function register(array $params): array
-  {
-		if ($params['password'] !== $params['repeatPassword']) {
-	    return [ "status" => 'fail', "message" => "Password repeat is incorrect" ];
-    }
-		unset($params['repeatPassword']);
-		return (new User())->post($params);
   }
 }
