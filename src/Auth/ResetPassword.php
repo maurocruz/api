@@ -8,7 +8,8 @@ use DateInterval;
 use DateTime;
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-use Plinct\Api\Type\User;
+use Plinct\Api\Response\Message\Message;
+use Plinct\Api\User\User;
 use Plinct\PDO\PDOConnect;
 
 class ResetPassword
@@ -20,35 +21,57 @@ class ResetPassword
      */
     public static function resetPassword(array $parseBody): array
     {
-        // VERIFICAR SE É EMAIL VÁLIDO
-        $email = filter_var($parseBody['email'], FILTER_VALIDATE_EMAIL, FILTER_SANITIZE_EMAIL);
-        if (!$email) return [ "status" => "fail", "message" => "Invalid email" ];
+	    $email = Validator::index($parseBody,'email');
+	    $mailHost = Validator::index($parseBody,'mailHost');
+	    $mailUsername = Validator::index($parseBody,'mailUsername');
+	    $mailPassword = Validator::index($parseBody,'mailPassword');
+	    $urlToResetPassword = Validator::index($parseBody,'urlToResetPassword');
 
-        // VERIFICAR SE EXISTE EMAIL
-        $resultBd = PDOConnect::run("SELECT * FROM `user` WHERE `email`='$email'");
-        if (empty($resultBd)) return ['status' => 'fail', "message" => "Email not registered" ];
+			// VERIFICA SE EXISTEM TODOS OS DADOS
+			if (!$email || !$mailHost || !$mailUsername || !$mailPassword || ! $urlToResetPassword)
+				return Message::fail()->inputDataIsMissing();
 
-        // SE EXISTE GERAR UM TOKEN E SALVAR NO BD
-        $selector = bin2hex(random_bytes(8));
-        $token = random_bytes(32);
-        $validator = bin2hex($token);
+	    // VERIFICAR SE OS DADOS SÃO VÁLIDOS
+			if (!Validator::isEmail($email) || !Validator::isEmail($mailUsername))
+				return Message::fail()->invalidEmail();
 
-        $expires = new DateTime('NOW');
-        $expires->add(new DateInterval('PT01H')); // 1 hour
+			if (!Validator::isDomain($mailHost))
+				return Message::fail()->invalidDomain();
 
-        $iduser = $resultBd[0]['iduser'];
+	    if (!Validator::isUrl($urlToResetPassword))
+				return Message::fail()->invalidUrl();
 
-        PDOConnect::run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
-            'iduser' => $iduser,
-            'selector' => $selector,
-            'token' => hash('sha256', $token),
-            'expires' => $expires->format('Y-m-d\TH:i:s')
-        ]);
+      // VERIFICAR SE EXISTE O EMAIL DO USUÁRIO NO BANCO DE DADOS
+      $resultBd = PDOConnect::run("SELECT * FROM `user` WHERE `email`='$email'");
+			// SE NÃO EXISTE EMAIL
+      if (empty($resultBd))
+				return Message::fail()->notFoundInDatabase('email');
 
-        $mail = self::sendEmailForResetPassword($parseBody, $selector, $validator);
+      $now = new DateTime('NOW');
+      $iduser = $resultBd[0]['iduser'];
 
-        // RETORNA SUCESSO
-        return [ "status" => "success", "message" => "Saved token", "data" => [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] ];
+			// VERIFICA SE EXISTE UM TOKEN NO BD, SE HOUVER DELETA
+	    $dataSelect = PDOConnect::run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
+			if (isset($dataSelect[0])) {
+					PDOConnect::run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
+			}
+
+			// GERAR UM NOVO TOKEN E SALVAR NO BD
+			$selector = bin2hex(random_bytes(8));
+			$token = random_bytes(32);
+			$validator = bin2hex($token);
+			$now->add(new DateInterval('PT01H')); // 1 hour
+			PDOConnect::run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
+				'iduser' => $iduser,
+				'selector' => $selector,
+				'token' => hash('sha256', $token),
+				'expires' => $now->format('Y-m-d\TH:i:s')
+			]);
+
+			$mail = self::sendEmailForResetPassword($parseBody, $selector, $validator);
+
+      // RETORNA SUCESSO
+      return Message::success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
     }
 
     /**
@@ -69,7 +92,7 @@ class ResetPassword
         if (!$selector || !$validator || !$password || !$repeatPassword) return [ "status" => "fail", "message" => "Missing data"];
 
         // INVALID DATAS
-        if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W).*$#", $password))  return [ "status" => "fail", "message" => "Password must be at least 8 characters in length and must contain at least one number, one upper case letter, one lower case letter and one special character" ];
+        if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password))  return [ "status" => "fail", "message" => "Password must be at least 8 characters in length and must contain at least one number, one upper case letter, one lower case letter and one special character" ];
         //
         if (strlen($selector) !== 16 || strlen($validator) !== 64) return [ "status" => "fail", "message" => "Invalid data" ];
 
@@ -80,13 +103,15 @@ class ResetPassword
         if ($dataPasswordReset['status']=='success') {
             $data = $dataPasswordReset['data'];
             $calc = hash('sha256', hex2bin($validator));
+
             if (hash_equals($calc, $data['token'])) {
                 $iduser = $data['iduser'];
                 $newPassword = password_hash($password, PASSWORD_DEFAULT);
-                (new User())->put([ "id" => $iduser, "password" => $newPassword ]);
-
-                $id = $data['id'];
-                PDOConnect::run("DELETE FROM `passwordReset` WHERE `id`='$id' OR `expires` < CURRENT_TIMESTAMP()");
+                $putData = (new User())->put([ "iduser" => $iduser, "new_password" => $newPassword ]);
+								if ($putData['status'] == 'fail') {
+									return [ "status" => "fail", "message" => $data['message'] ];
+								}
+                PDOConnect::run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
 
                 return [ "status" => "success", "message" => "Changed password" ];
 
@@ -106,9 +131,9 @@ class ResetPassword
     {
         $result = PDOConnect::run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
         if (!empty($result)) {
-            return ['status'=>'success','message'=>_("Selector found!"),'data'=>$result[0]];
+            return ['status'=>'success','message'=>"Selector found!",'data'=>$result[0]];
         } else {
-            return ['status'=>'fail','message'=>_("Token invalid or date expired")];
+            return ['status'=>'fail','message'=>"Token invalid or date expired"];
         }
     }
 
@@ -149,7 +174,7 @@ class ResetPassword
 
             return ['status'=>'success','message'=> sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername'])];
 
-        } catch (\PHPMailer\PHPMailer\Exception $e) {
+        } catch (Exception $e) {
             return [ 'status' => 'fail', 'message' => $phpMail->ErrorInfo ];
         }
 

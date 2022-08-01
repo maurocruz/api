@@ -17,12 +17,12 @@ class Authentication
     return (new AuthController())->login($bodyParams);
   }
 
-  /**
-   * @throws Exception
-   */
-  public static function resetPassword(array $parseBody): array
+	/**
+	 * @throws Exception
+	 */
+	public static function resetPassword(array $parseBody): array
   {
-    return ResetPassword::resetPassword($parseBody);
+    return (new ResetPassword)->resetPassword($parseBody);
   }
 
   /**

@@ -108,6 +108,9 @@ return function(Route $route)
 
   })->add(function(Request $request, RequestHandlerInterface $handler): Response {
 	  $response = $handler->handle($request);
+	  $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+	  $response = $response->withHeader('Access-Control-Allow-Headers', 'origin, x-requested-with, content-type, Authorization');
+	  $response = $response->withHeader('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
 	  return $response->withHeader("Content-type", "application/json");
   });
 
@@ -140,6 +143,7 @@ return function(Route $route)
     }
 
     if($data) $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+	  $response = $response->withHeader('Access-Control-Allow-Origin', '*');
     return $response->withHeader("Content-type", "application/json");
 
   })->addMiddleware(new AuthMiddleware());

@@ -19,7 +19,6 @@ return function (Route $route)
 			->setMethodRequest('get')
 			->setParams($request->getQueryParams());
 
-		$response = $response->withHeader('Access-Control-Allow-Headers', 'Authorization');
 		$response->getBody()->write(json_encode($db->ready(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	});
@@ -76,5 +75,4 @@ return function (Route $route)
 		$response->getBody()->write(json_encode(['status'=>$status,'message'=>$message,'data'=>$data], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		return $response;
 	});
-
 };

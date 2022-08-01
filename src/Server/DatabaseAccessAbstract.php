@@ -30,6 +30,12 @@ abstract class DatabaseAccessAbstract
 			$getData->setParams($this->params);
 			$data = $getData->render();
 			if (!empty($data)) {
+
+				if (isset($data['error'])) {
+					if (isset($data['error']['code']) && $data['error']['code'] == "42S02") return ['status'=>'fail','message'=>$data['error']['message']];
+					return ['status'=>'fail','message'=>'Something went wrong!'];
+				}
+
 				foreach ($data as $value) {
 					$value['viewport'] = json_decode($value['viewport'], true);
 					$returnData[] = $value;

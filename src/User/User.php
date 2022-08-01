@@ -92,15 +92,21 @@ class User extends Crud
 	{
 		$iduser = $params['iduser'] ?? null;
 		if ($iduser) {
-			unset($params['password']);
+			if ($params['new_password']) {
+				$params['password'] = $params['new_password'];
+				unset($params['new_password']);
+			} else {
+				unset($params['password']);
+			}
+
 			$data = parent::update($params, "`iduser`=$iduser");
+
 			if ($data == []) {
 				return ['status'=>'success','message'=>'Your PUT request has be attend', 'data'=>$data];
 			} else {
 				return ['status'=>'fail','data'=>$data];
 			}
 		}
-
 		return ['status'=>'fail','message'=>'Sorry! Your PUT request could not be performed.'];
 	}
 
