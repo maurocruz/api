@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE INDEX `email` (`email`)
 ) ENGINE = InnoDB;
 
+-- PASSWORD RESET
 CREATE TABLE IF NOT EXISTS `passwordReset` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `iduser` INT NOT NULL,
@@ -29,24 +30,6 @@ CREATE TABLE IF NOT EXISTS `passwordReset` (
     CONSTRAINT `fk_passwordReset_1` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
-CREATE TABLE `user_privileges` (
-   `iduser_privileges` int NOT NULL AUTO_INCREMENT,
-   `code` varchar(16) DEFAULT NULL,
-   `name` varchar(45) DEFAULT NULL,
-   `description` text,
-   PRIMARY KEY (`iduser_privileges`)
-) ENGINE=InnoDB;
-
-
-CREATE TABLE `user_has_user_privileges` (
-    `iduser` int NOT NULL,
-    `iduser_privileges` int NOT NULL,
-    PRIMARY KEY (`iduser`,`iduser_privileges`),
-    KEY `fk_user_has_user_privilegies_user_privilegies1_idx` (`iduser_privileges`),
-    KEY `fk_user_has_user_privilegies_user1_idx` (`iduser`),
-    CONSTRAINT `fk_user_has_user_privileges_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`),
-    CONSTRAINT `fk_user_has_user_privileges_user_privileges` FOREIGN KEY (`iduser_privileges`) REFERENCES `user_privileges` (`iduser_privileges`)
-) ENGINE=InnoDB;
 
 CREATE TABLE `user_history` (
     `iduser_history` int NOT NULL AUTO_INCREMENT,
@@ -58,4 +41,16 @@ CREATE TABLE `user_history` (
     PRIMARY KEY (`iduser_history`),
     KEY `fk_user_history_user_idx` (`iduser`),
     CONSTRAINT `fk_user_history_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`)
+) ENGINE=InnoDB;
+
+
+CREATE TABLE `user_permissions` (
+    `iduser_permissions` int NOT NULL AUTO_INCREMENT,
+    `iduser` int NOT NULL,
+    `function` varchar(45) NOT NULL,
+    `namespace` varchar(45) NOT NULL,
+    `actions` char(4) NOT NULL,
+    PRIMARY KEY (`iduser_permissions`,`iduser`),
+    KEY `fk_user_permissions_1_idx` (`iduser`),
+    CONSTRAINT `fk_user_permissions_1` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE
 ) ENGINE=InnoDB;

@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace Plinct\Api;
 
+use Plinct\Api\Middleware\CorsMiddleware;
+use Plinct\Api\Response\ResponseApi;
 use Plinct\Api\Server\Format\Format;
 use Plinct\Api\Server\Search\Search;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Routing\RouteCollectorProxy as Route;
-use Plinct\Api\Auth\AuthMiddleware;
+
+use Plinct\Api\Middleware\AuthMiddleware;
+use Plinct\Api\Request\RequestApi;
 
 return function(Route $route)
 {
@@ -19,26 +22,22 @@ return function(Route $route)
 		/** Init application */
     $route->post('/start', function(Request $request, Response $response) {
       $data = PlinctApi::starApplication($request->getParsedBody());
-      $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-      return $response->withHeader("Content-type", "application/json");
+      return $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     });
+
+	  /**
+	   * AUTHENTICATION
+	   */
+	  $route->group('/auth', function (Route $route) {
+			return RequestApi::routes()->auth($route);
+	  });
 
 	  /**
 	   * USER
 	   */
-		$route->group('/user', function(Route $route)
-		{
-			$userRoutes = require __DIR__.'/User/userRoutes.php';
-			return $userRoutes($route);
-		});
-
-    /**
-     * AUTHENTICATION
-     */
-    $route->group('/auth', function (Route $route) {
-      $authRoutes = require __DIR__.'/Auth/authRoutes.php';
-      return $authRoutes($route);
-    });
+		$route->group('/user', function(Route $route) {
+			return RequestApi::routes()->user($route);
+		})->addMiddleware(new AuthMiddleware());
 
 	  /**
 	   * SEARCH
@@ -64,14 +63,14 @@ return function(Route $route)
 		 * MAP
 		 */
 	  $route->group('/map', function (Route $route)	{
-			$mapRoutes = require __DIR__ . '/Map/mapRoutes.php';
+			$mapRoutes = require __DIR__ . '/mapRoutes.php';
 			return $mapRoutes($route);
-	  })->addMiddleware(new AuthMiddleware());
+	  });
 
 	  /**
 	   * Generic GET
 	   */
-		$route->map(['OPTIONS','GET'],'/{type}', function (Request $request, Response $response, $args)
+		$route->get('/{type}', function (Request $request, Response $response, $args)
 		{
 			$type = $args['type'] ?? null;
 			$params = $request->getQueryParams() ?? null;
@@ -101,18 +100,16 @@ return function(Route $route)
 				$data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 			}
 
-			$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
+			return ResponseApi::write($response, $data);
+		});
 
+		// HOME
+		$route->get('', function(Request $request, Response $response) {
+			ResponseApi::write($response, ['status'=>'success', 'message'=>'Welcome to Plinct API']);
 			return $response;
 		});
 
-  })->add(function(Request $request, RequestHandlerInterface $handler): Response {
-	  $response = $handler->handle($request);
-	  $response = $response->withHeader('Access-Control-Allow-Origin', '*');
-	  $response = $response->withHeader('Access-Control-Allow-Headers', 'origin, x-requested-with, content-type, Authorization');
-	  $response = $response->withHeader('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-	  return $response->withHeader("Content-type", "application/json");
-  });
+  })->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json"]));
 
   /**
    * POST

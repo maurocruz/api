@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Plinct\Api\Middleware\AuthMiddleware;
 use Plinct\Api\Server\DatabaseAccess;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,7 +37,7 @@ return function (Route $route)
 		$response = $response->withHeader('Access-Control-Allow-Headers', 'Authorization');
 		$response->getBody()->write(json_encode($db->ready(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
-	});
+	})->addMiddleware(new AuthMiddleware());
 
 	/**
 	 * PUT
@@ -51,7 +52,7 @@ return function (Route $route)
 		$response = $response->withHeader('Access-Control-Allow-Headers', 'Authorization');
 		$response->getBody()->write(json_encode($db->ready(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
-	});
+	})->addMiddleware(new AuthMiddleware());
 
 	/**
 	 * DELETE
@@ -66,9 +67,9 @@ return function (Route $route)
 		$response = $response->withHeader('Access-Control-Allow-Headers', 'Authorization');
 		$response->getBody()->write(json_encode($db->ready(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
-	});
+	})->addMiddleware(new AuthMiddleware());
 
-	$route->map(['OPTIONS'], '[/{a}]', function (Request $request, Response $response, $args)
+	$route->options('[/{a}]', function (Request $request, Response $response, $args)
 	{
 		$status = 'fail'; $message = 'Nothing happened, OPTIONS request disabled.'; $data = null;
 

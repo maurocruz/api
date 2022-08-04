@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Auth;
+namespace Plinct\Api\User\Auth;
 
 use DateInterval;
 use DateTime;
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-use Plinct\Api\Response\Message\Message;
-use Plinct\Api\User\User;
-use Plinct\PDO\PDOConnect;
+
+use Plinct\Api\Request\RequestApi;
+use Plinct\Api\Response\ResponseApi;
 
 class ResetPassword
 {
@@ -29,31 +29,31 @@ class ResetPassword
 
 			// VERIFICA SE EXISTEM TODOS OS DADOS
 			if (!$email || !$mailHost || !$mailUsername || !$mailPassword || ! $urlToResetPassword)
-				return Message::fail()->inputDataIsMissing();
+				return ResponseApi::message()->fail()->inputDataIsMissing();
 
 	    // VERIFICAR SE OS DADOS SÃO VÁLIDOS
 			if (!Validator::isEmail($email) || !Validator::isEmail($mailUsername))
-				return Message::fail()->invalidEmail();
+				return ResponseApi::message()->fail()->invalidEmail();
 
 			if (!Validator::isDomain($mailHost))
-				return Message::fail()->invalidDomain();
+				return ResponseApi::message()->fail()->invalidDomain();
 
 	    if (!Validator::isUrl($urlToResetPassword))
-				return Message::fail()->invalidUrl();
+				return ResponseApi::message()->fail()->invalidUrl();
 
       // VERIFICAR SE EXISTE O EMAIL DO USUÁRIO NO BANCO DE DADOS
-      $resultBd = PDOConnect::run("SELECT * FROM `user` WHERE `email`='$email'");
+	    $resultBd = RequestApi::server()->connectBd('user')->run("SELECT * FROM `user` WHERE `email`='$email'");
 			// SE NÃO EXISTE EMAIL
       if (empty($resultBd))
-				return Message::fail()->notFoundInDatabase('email');
+				return ResponseApi::message()->fail()->propertyNotFoundInDatabase('email');
 
       $now = new DateTime('NOW');
       $iduser = $resultBd[0]['iduser'];
 
 			// VERIFICA SE EXISTE UM TOKEN NO BD, SE HOUVER DELETA
-	    $dataSelect = PDOConnect::run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
+	    $dataSelect = RequestApi::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
 			if (isset($dataSelect[0])) {
-					PDOConnect::run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
+					RequestApi::server()->connectBd('user')->run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
 			}
 
 			// GERAR UM NOVO TOKEN E SALVAR NO BD
@@ -61,7 +61,7 @@ class ResetPassword
 			$token = random_bytes(32);
 			$validator = bin2hex($token);
 			$now->add(new DateInterval('PT01H')); // 1 hour
-			PDOConnect::run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
+			RequestApi::server()->connectBd('user')->run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
 				'iduser' => $iduser,
 				'selector' => $selector,
 				'token' => hash('sha256', $token),
@@ -71,7 +71,7 @@ class ResetPassword
 			$mail = self::sendEmailForResetPassword($parseBody, $selector, $validator);
 
       // RETORNA SUCESSO
-      return Message::success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
+      return ResponseApi::message()->success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
     }
 
     /**
@@ -86,15 +86,19 @@ class ResetPassword
         $repeatPassword = $params['repeatPassword'] ?? null;
 
         // PASSWORD DOES NOT EQUAL A THE REPEAT
-        if ($password !== $repeatPassword) return [ "status" => "fail", "message" => "Password does not equal repeat" ];
+        if ($password !== $repeatPassword)
+					return ResponseApi::message()->fail()->passwordRepeatIsIncorrect();
 
         // MISSING DATA
-        if (!$selector || !$validator || !$password || !$repeatPassword) return [ "status" => "fail", "message" => "Missing data"];
+        if (!$selector || !$validator || !$password || !$repeatPassword)
+					return ResponseApi::message()->fail()->inputDataIsMissing();
 
         // INVALID DATAS
-        if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password))  return [ "status" => "fail", "message" => "Password must be at least 8 characters in length and must contain at least one number, one upper case letter, one lower case letter and one special character" ];
+        if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password))
+					return ResponseApi::message()->fail()->passwordLeastLength();
         //
-        if (strlen($selector) !== 16 || strlen($validator) !== 64) return [ "status" => "fail", "message" => "Invalid data" ];
+        if (strlen($selector) !== 16 || strlen($validator) !== 64)
+					return ResponseApi::message()->fail()->invalidData();
 
         // CHECK SELECTOR AND EXPIRES
         $dataPasswordReset = self::getDataPasswordReset($selector);
@@ -107,16 +111,16 @@ class ResetPassword
             if (hash_equals($calc, $data['token'])) {
                 $iduser = $data['iduser'];
                 $newPassword = password_hash($password, PASSWORD_DEFAULT);
-                $putData = (new User())->put([ "iduser" => $iduser, "new_password" => $newPassword ]);
+								$putData = RequestApi::server()->user()->httpRequest()->put([ "iduser" => $iduser, "password" => $newPassword ]);
 								if ($putData['status'] == 'fail') {
 									return [ "status" => "fail", "message" => $data['message'] ];
 								}
-                PDOConnect::run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
+								RequestApi::server()->connectBd('passwordReset')->delete(['iduser'=>$iduser]);
 
-                return [ "status" => "success", "message" => "Changed password" ];
+                return ResponseApi::message()->success()->success("Changed password");
 
             } else {
-                return [ "status" => "fail", "message" => "Token invalid" ];
+                return ResponseApi::message()->fail()->invalidToken();
             }
         } else {
             return $dataPasswordReset;
@@ -129,11 +133,11 @@ class ResetPassword
      */
     public static function getDataPasswordReset($selector): array
     {
-        $result = PDOConnect::run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
+        $result = RequestApi::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
         if (!empty($result)) {
-            return ['status'=>'success','message'=>"Selector found!",'data'=>$result[0]];
+            return ResponseApi::message()->success()->success("Selector found!",$result[0]);
         } else {
-            return ['status'=>'fail','message'=>"Token invalid or date expired"];
+            return ResponseApi::message()->fail()->invalidToken();
         }
     }
 
@@ -172,10 +176,11 @@ class ResetPassword
 
             $phpMail->send();
 
-            return ['status'=>'success','message'=> sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername'])];
+						$message = sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername']);
+            return ResponseApi::message()->success()->success($message);
 
         } catch (Exception $e) {
-            return [ 'status' => 'fail', 'message' => $phpMail->ErrorInfo ];
+            return ResponseApi::message()->error()->anErrorHasOcurred($phpMail->ErrorInfo);
         }
 
     }

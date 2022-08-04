@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Plinct\Api;
 
 use PDO;
+use Plinct\Api\Middleware\LoggedUserMiddleware;
+use Plinct\Api\Request\RequestApi;
 use Slim\App;
 use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
@@ -93,7 +95,8 @@ class PlinctApi
      */
     public function run()
     {
-        $routers = require __DIR__ . '/router.php';
-        return $routers($this->slimApp);
+			$this->slimApp->addMiddleware(new LoggedUserMiddleware());
+
+			return RequestApi::routes()->home($this->slimApp);
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Auth;
+namespace Plinct\Api\User\Auth;
 
 class Validator
 {

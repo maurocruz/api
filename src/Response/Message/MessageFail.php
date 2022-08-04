@@ -10,9 +10,9 @@ class MessageFail extends MessageAbstract
 		parent::setStatus('fail');
 	}
 
-	/** VALIDATE GROUP**/
+	/** VALIDATE DATA**/
 	public function inputDataIsMissing(): array	{
-		return parent::getReturns('FV001', 'input data is missing');
+		return parent::getReturns('FV001', 'incomplete input data');
 	}
 
 	public function invalidData(): array	{
@@ -31,9 +31,34 @@ class MessageFail extends MessageAbstract
 	}
 
 	/** DATABASE CHECK */
-	public function notFoundInDatabase(string $property, $data = null): array	{
+	public function propertyNotFoundInDatabase(string $property, $data = null): array	{
 		return parent::getReturns('FD001', "$property not found in database", $data);
 	}
+	public function returnIsEmpty(): array {
+		return parent::withCode('FD002');
+	}
 
-
+	/** USER */
+	public function userDoesNotExist(): array {
+		return parent::getReturns('FU001','user does not exist');
+	}
+	public function userExistsButNotLogged(): array {
+		return parent::getReturns('FU002','The user exists but has not logged in. Check your password!');
+	}
+	public function userNotAuthorizedForThisAction(): array	{
+		return parent::getReturns('FU003', 'user logged is not authorized for this action');
+	}
+	/** AUTHENTICATION */
+	public function passwordRepeatIsIncorrect(): array {
+		return parent::withCode('FA001');
+	}
+	public function nameLonger4Char(): array {
+		return parent::withCode('FA002');
+	}
+	public function passwordLeastLength(): array {
+		return parent::withCode('FA003');
+	}
+	public function invalidToken(): array {
+		return parent::withCode('FA004');
+	}
 }

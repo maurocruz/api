@@ -6,7 +6,7 @@ namespace Plinct\Api\Server\GetData;
 
 use Plinct\PDO\PDOConnect;
 
-class GetDataAbstract
+abstract class GetDataAbstract
 {
   /**
    * @var string
