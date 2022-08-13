@@ -7,10 +7,11 @@ namespace Plinct\Api\User;
 use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\Request\RequestApi;
 use Plinct\Api\Response\ResponseApi;
+use Plinct\Api\User\Privileges\Privileges;
+use Plinct\Api\User\Privileges\PrivilegesActions;
 
 class UserActions implements HttpRequestInterface
 {
-
 	public function get(array $params = []): array
 	{
 		$dataUser = RequestApi::server()->getDataInBd('user');
@@ -18,10 +19,17 @@ class UserActions implements HttpRequestInterface
 		$data = $dataUser->render();
 
 		// GET PERMISSIONS
-		if (isset($params['properties']) && strpos($params['properties'],'permissions') !== false) {
+		if (isset($params['properties']) && strpos($params['properties'], 'privileges') !== false) {
 			foreach ($data as $key => $valueData) {
 				$iduser = $valueData['iduser'];
-				$valueData['permissions'] = RequestApi::server()->user()->permissions()->get([`iduser`=>$iduser]);
+				$dataPrivileges = (new PrivilegesActions())->get(['iduser' => $iduser]);
+				//
+				foreach($dataPrivileges as $value) {
+					if (Privileges::grantedPrivileges($value)) {
+						$valueData['privileges'][] = $value;
+					}
+				}
+
 				$data[$key] = $valueData;
 			}
 		}
@@ -38,7 +46,7 @@ class UserActions implements HttpRequestInterface
 		if ($password !== $repeatPassword) {
 			return ResponseApi::message()->fail()->passwordRepeatIsIncorrect();
 		}
-		if (strlen($name) < 5 ) {
+		if (strlen($name) < 5) {
 			return ResponseApi::message()->fail()->nameLonger4Char();
 		}
 		if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
@@ -57,11 +65,11 @@ class UserActions implements HttpRequestInterface
 			return ResponseApi::message()->error()->anErrorHasOcurred($data);
 		} else {
 			$id = RequestApi::server()->connectBd('user')->lastInsertId();
-			return ResponseApi::message()->success()->success('User registered successfully', ['iduser' => $id] );
+			return ResponseApi::message()->success()->success('User registered successfully', ['iduser' => $id]);
 		}
 	}
 
-	public function put(array $params): array
+	public function put(array $params = null): array
 	{
 		return RequestApi::server()->connectBd('user')->update($params);
 	}
@@ -69,29 +77,5 @@ class UserActions implements HttpRequestInterface
 	public function delete($params): array
 	{
 		return RequestApi::server()->connectBd('user')->delete($params);
-	}
-
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-	protected function addPermission(array $params): array
-	{
-		if (UserLogged::isSuperUser()) {
-			$iduser = $params['iduser'] ?? null;
-			$function = $params['function'] ?? null;
-			$namespace = $params['namespace'] ?? null;
-			$actions = $params['actions'] ?? null;
-			if ($iduser && $function && $namespace && $actions) {
-				$returns = RequestApi::server()->connectBd('user_permissions')->created(['iduser'=>$iduser,'function'=>$function,'namespace'=>$namespace,'actions'=>$actions]);
-				if (isset($returns['error'])) {
-					return ResponseApi::message()->error()->anErrorHasOcurred($returns['error']);
-				} else {
-					return ResponseApi::message()->success()->success("Permissions added", $returns);
-				}
-			}
-			return ResponseApi::message()->fail()->inputDataIsMissing();
-		}
-		return ResponseApi::message()->fail()->userNotAuthorizedForThisAction();
 	}
 }

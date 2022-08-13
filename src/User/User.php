@@ -4,27 +4,38 @@ declare(strict_types=1);
 
 namespace Plinct\Api\User;
 
+use Plinct\Api\Request\Actions\Actions;
+use Plinct\Api\Request\HttpRequest;
+use Plinct\Api\User\Privileges\Privileges;
 use Plinct\Api\User\Auth\Authentication;
-use Plinct\Api\Interfaces\HttpRequestInterface;
-
+use Plinct\Api\User\Permission\Permissions;
 use Plinct\PDO\PDOConnect;
 
 class User
 {
-
-
 	public function authentication(): Authentication
 	{
 		return new Authentication();
 	}
 
-	public function httpRequest(): HttpRequestInterface
+	public function actions(): Actions
 	{
-		return new UserActions();
+		return new Actions();
 	}
-	public function permissions(): HttpRequestInterface
+
+	public function httpRequest(): HttpRequest
+	{
+		return new HttpRequest(new UserActions());
+	}
+
+	public function permissions(): Permissions
 	{
 		return new Permissions();
+	}
+
+	public function privileges(): Privileges
+	{
+		return new Privileges();
 	}
 
 	public static function userLogged(): UserLogged

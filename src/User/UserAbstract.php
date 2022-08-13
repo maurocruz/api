@@ -8,10 +8,10 @@ abstract class UserAbstract
 {
 	private static ?string $iduser = null;
 	private static ?int $exp = null;
-	private static string $name;
-	private static string $email;
-	private static string $password;
-	private static array $permission;
+	private static ?string $name = null;
+	private static ?string $email = null;
+	private static ?string $password = null;
+	private static ?array $privileges = null;
 
 	/**
 	 * @param ?string $iduser
@@ -54,9 +54,9 @@ abstract class UserAbstract
 	}
 
 	/**
-	 * @return string
+	 * @return ?string
 	 */
-	public static function getName(): string
+	public static function getName(): ?string
 	{
 		return self::$name;
 	}
@@ -94,40 +94,36 @@ abstract class UserAbstract
 	}
 
 	/**
-	 * @param array $permission
+	 * @param array $privileges
 	 */
-	protected static function setPermission(array $permission): void
+	protected static function setPrivileges(array $privileges): void
 	{
-		self::$permission = $permission;
+		self::$privileges = $privileges;
 	}
 
 	/**
 	 *
 	 */
-	public static function getPermission(): array
+	public static function getPrivileges(): ?array
 	{
-		return self::$permission;
-	}
-
-	/**
-	 * @param bool $expiredToken
-	 */
-	public static function setExpiredToken(bool $expiredToken): void
-	{
-		self::$expiredToken = $expiredToken;
+		return self::$privileges;
 	}
 
 	/**
 	 * @return bool
 	 */
 	public static function isSuperUser(): bool {
-		foreach (self::$permission as $value) {
-			if ($value['function'] == 5
-				&& strpos($value['actions'],'c') !== false
-				&& strpos($value['actions'],'r') !== false
-				&& strpos($value['actions'],'u') !== false
-				&& strpos($value['actions'],'d') !== false
-			) return true;
+		$privilegess = self::$privileges;
+		 if ($privilegess) {
+			foreach ($privilegess as $value) {
+				if ($value['function'] == 5
+					&& strpos($value['actions'], 'c') !== false
+					&& strpos($value['actions'], 'r') !== false
+					&& strpos($value['actions'], 'u') !== false
+					&& strpos($value['actions'], 'd') !== false
+					&& (isset($value['namespace']) && strpos($value['namespace'], 'all') !== false)
+				) return true;
+			}
 		}
 		return false;
 	}

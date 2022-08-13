@@ -45,8 +45,8 @@ class MessageFail extends MessageAbstract
 	public function userExistsButNotLogged(): array {
 		return parent::getReturns('FU002','The user exists but has not logged in. Check your password!');
 	}
-	public function userNotAuthorizedForThisAction(): array	{
-		return parent::getReturns('FU003', 'user logged is not authorized for this action');
+	public function userNotAuthorizedForThisAction($data = null): array	{
+		return parent::getReturns('FU003', 'user logged is not authorized for this action', $data);
 	}
 	/** AUTHENTICATION */
 	public function passwordRepeatIsIncorrect(): array {

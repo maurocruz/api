@@ -9,6 +9,7 @@ use Firebase\JWT\JWT;
 use Plinct\Api\PlinctApi;
 use Plinct\Api\Request\RequestApi;
 use Plinct\Api\Response\ResponseApi;
+use Plinct\Api\User\UserActions;
 
 class Authentication
 {
@@ -34,7 +35,7 @@ class Authentication
 
 
 		// GET DATA
-		$data = RequestApi::server()->user()->httpRequest()->get([ "properties" => "permissions", "email" => $email ]);
+		$data = (new UserActions())->get(["email" => $email ]);
 
 		// ERROR
 		if(isset($data['error'])) {
@@ -53,7 +54,6 @@ class Authentication
 				"iss" => $iss,
 				"exp" => time() + $exp,
 				"name" => $value['name'],
-				"admin" => $value['status'] == 1,
 				"uid" => $value['iduser']
 			];
 

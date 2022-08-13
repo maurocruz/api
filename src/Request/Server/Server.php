@@ -9,6 +9,8 @@ use Plinct\Api\User\User;
 
 class Server
 {
+	public static bool $isPermitted = false;
+
 	public function getDataInBd(string $table): GetData
 	{
 		return new GetData($table);
@@ -22,5 +24,14 @@ class Server
 	public function connectBd(string $table): ConnectBd
 	{
 		return new ConnectBd($table);
+	}
+
+	public function needsPermission(int $userFunction, string $userAction): Server
+	{
+		if($userFunction === 5) {
+			self::$isPermitted = true;
+		}
+
+		return $this;
 	}
 }

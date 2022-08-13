@@ -32,8 +32,8 @@ class Routes
 	 * @param $route
 	 * @return mixed
 	 */
-	public function userPermissions($route) {
-		$routePermissions = require __DIR__.'/userPermissionsRoutes.php';
+	public function userPrivileges($route) {
+		$routePermissions = require __DIR__.'/userPrivilegesRoutes.php';
 		return $routePermissions($route);
 	}
 }

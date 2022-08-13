@@ -17,6 +17,8 @@ use Plinct\Api\Request\RequestApi;
 
 return function(Route $route)
 {
+
+
   $route->group('/api', function (Route $route)
   {
 		/** Init application */
