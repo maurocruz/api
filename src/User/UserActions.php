@@ -41,9 +41,9 @@ class UserActions implements HttpRequestInterface
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;
 		$password = $params['password'] ?? null;
-		$repeatPassword = $params['repeatPassword'] ?? null;
+		$passwordRepeat = $params['passwordRepeat'] ?? null;
 
-		if ($password !== $repeatPassword) {
+		if ($password !== $passwordRepeat) {
 			return ResponseApi::message()->fail()->passwordRepeatIsIncorrect();
 		}
 		if (strlen($name) < 5) {

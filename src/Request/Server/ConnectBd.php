@@ -49,14 +49,14 @@ class ConnectBd implements CrudInterface
 				return ResponseApi::message()->error()->anErrorHasOcurred($data);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing();
+			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
 	}
 
 	public function delete(array $params): array
 	{
 		if (empty($params)) {
-			return ResponseApi::message()->fail()->inputDataIsMissing();
+			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		} else {
 			$data = PDOConnect::crud()->setTable($this->table)->erase($params);
 

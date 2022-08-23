@@ -43,7 +43,7 @@ class PermissionActions implements HttpRequestInterface
 				return ResponseApi::message()->success()->success("Permissions added", $returns);
 			}
 		}
-		return ResponseApi::message()->fail()->inputDataIsMissing();
+		return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 	}
 
 	public function put(array $params = null): array
@@ -58,7 +58,7 @@ class PermissionActions implements HttpRequestInterface
 				return ResponseApi::message()->success()->success("Permission updated", $returns);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing();
+			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
 	}
 
@@ -73,7 +73,7 @@ class PermissionActions implements HttpRequestInterface
 				return ResponseApi::message()->success()->success("Permission deleted", $returns);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing();
+			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
 	}
 }

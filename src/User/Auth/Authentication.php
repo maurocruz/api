@@ -7,7 +7,6 @@ namespace Plinct\Api\User\Auth;
 use Exception;
 use Firebase\JWT\JWT;
 use Plinct\Api\PlinctApi;
-use Plinct\Api\Request\RequestApi;
 use Plinct\Api\Response\ResponseApi;
 use Plinct\Api\User\UserActions;
 
@@ -64,6 +63,14 @@ class Authentication
 		return ResponseApi::message()->fail()->userExistsButNotLogged();
 	}
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
+	public function register($params): array
+	{
+		return (new UserActions())->post($params);
+	}
 	/**
 	 * @throws Exception
 	 */

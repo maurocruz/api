@@ -11,8 +11,8 @@ class MessageFail extends MessageAbstract
 	}
 
 	/** VALIDATE DATA**/
-	public function inputDataIsMissing(): array	{
-		return parent::getReturns('FV001', 'incomplete input data');
+	public function inputDataIsMissing($data = null): array	{
+		return parent::getReturns('FV001', 'incomplete input data', $data);
 	}
 
 	public function invalidData(): array	{

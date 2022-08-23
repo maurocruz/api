@@ -115,17 +115,17 @@ class Privileges extends PrivilegesAbstract
 	}
 
 	/**
-	 * @param string $needle
-	 * @param string $haystack
+	 * @param string $needled
+	 * @param string $haystacked
 	 * @return bool
 	 */
-	public static function permittedActions(string $needle, string $haystack): bool
+	public static function permittedActions(string $needled, string $haystacked): bool
 	{
 		$returns = false;
-		if (strpos($needle,'c') !== false) $returns = strpos($haystack,'c') !== false;
-		if (strpos($needle,'r') !== false) $returns = strpos($haystack,'r') !== false;
-		if (strpos($needle,'u') !== false) $returns = strpos($haystack,'u') !== false;
-		if (strpos($needle,'d') !== false) $returns = strpos($haystack,'d') !== false;
+		if (strpos($needled,'c') !== false) $returns = strpos($haystacked,'c') !== false;
+		if (strpos($needled,'r') !== false) $returns = strpos($haystacked,'r') !== false;
+		if (strpos($needled,'u') !== false) $returns = strpos($haystacked,'u') !== false;
+		if (strpos($needled,'d') !== false) $returns = strpos($haystacked,'d') !== false;
 		return $returns;
 	}
 }

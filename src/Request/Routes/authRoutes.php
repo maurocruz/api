@@ -32,7 +32,7 @@ return function (Route $route)
 			return $response;
 		});
 		$route->post('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->post($request->getParsedBody());
+			$data = RequestApi::server()->user()->authentication()->register($request->getParsedBody());
 			return ResponseApi::write($response, $data);
 		});
 	});

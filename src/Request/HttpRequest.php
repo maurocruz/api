@@ -62,7 +62,7 @@ class HttpRequest implements HttpRequestInterface
 	public function post(array $params): array {
 		return Permissions::isRequiresSubscription()
 			? $this->classActions->post($params)
-			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction();
+			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
 	/**
@@ -72,7 +72,7 @@ class HttpRequest implements HttpRequestInterface
 	public function put(array $params = null): array {
 		return Permissions::isRequiresSubscription()
 			? Privileges::filter($this->classActions->put($params), 'put')
-			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction();
+			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
 	/**

@@ -17,7 +17,7 @@ return function(Route $route)
 		 * GET
 		 */
 		$route->get('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->withPrivileges('r','user_admin')->get($request->getQueryParams());
+			$data = RequestApi::server()->user()->httpRequest()->setPermission()->get($request->getQueryParams());
 			return ResponseApi::write($response, $data);
 		});
 		/**
