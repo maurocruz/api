@@ -9,6 +9,12 @@ class MessageFail extends MessageAbstract
 	public function __construct()	{
 		parent::setStatus('fail');
 	}
+	/** GENERIC */
+	public function generic(array $data = null, string $message = 'Something has failed!'): array {
+		$this->setMessage($message);
+		$this->setData($data);
+		return $this->returns;
+	}
 
 	/** VALIDATE DATA**/
 	public function inputDataIsMissing($data = null): array	{
@@ -60,5 +66,9 @@ class MessageFail extends MessageAbstract
 	}
 	public function invalidToken(): array {
 		return parent::withCode('FA004');
+	}
+	/** TYPE */
+	public function thisTypeNotExists(): array {
+		return parent::withCode('FT001');
 	}
 }

@@ -8,7 +8,7 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use ReflectionException;
 
-class Article extends Entity implements TypeInterface
+class Article extends Entity
 {
     /**
      * @var string
@@ -38,11 +38,11 @@ class Article extends Entity implements TypeInterface
         return parent::post($params);
     }
 
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+    public function put(array $params = null): array
     {
         if (isset($params['datePublished'])) {
             $params['datePublished'] =

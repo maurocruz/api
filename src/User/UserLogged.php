@@ -30,7 +30,6 @@ class UserLogged extends UserAbstract
 		}
 		$idUserLogged = $payload->uid;
 		parent::setIduser($idUserLogged);
-		self::setExp((int)$payload->exp);
 
 		$userData = (new UserActions())->get(['iduser'=>$idUserLogged]);
 
@@ -45,8 +44,8 @@ class UserLogged extends UserAbstract
 
 	public static function getProperties(): ?array
 	{
-		return self::getIduser() ? [
-			"iduser" => self::getIduser(),
+		return self::$iduser ? [
+			"iduser" => self::$iduser,
 			"name" => self::getName(),
 			"privileges" => self::getPrivileges()
 		] : null;
@@ -62,7 +61,7 @@ class UserLogged extends UserAbstract
 
 		foreach($userInvestigated as $valueInvestigated) {
 			// SE FOR DO MESMO USUARIO
-			if (self::getIduser() == $valueInvestigated['iduser']) {
+			if (self::$iduser == $valueInvestigated['iduser']) {
 				$permissions[] = $valueInvestigated;
 			} else {
 				$permitted = false;
@@ -76,5 +75,19 @@ class UserLogged extends UserAbstract
 			}
 		}
 		return $permissions;
+	}
+
+	/**
+	 * @param int|null $function
+	 * @param string|null $actions
+	 * @param string|null $namespace
+	 * @return bool
+	 */
+	public function isPermitted(?int $function = null, string $actions = null, string $namespace = null): bool {
+			foreach (self::getPrivileges() as $value) {
+				$returns =  $function >= $value['function'] && strpos($value['actions'], $actions) !== false && $namespace == $value['namespace'];
+				if ($returns === true) return true;
+			}
+			return false;
 	}
 }

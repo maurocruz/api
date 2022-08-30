@@ -6,44 +6,57 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteCollectorProxy as Route;
 
-use Plinct\Api\Request\RequestApi;
-use Plinct\Api\Response\ResponseApi;
-
+use Plinct\Api\ApiFactory;
 
 return function(Route $route)
 {
 	$route->group('', function (Route $route) {
+
 		/**
 		 * GET
 		 */
 		$route->get('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->setPermission()->get($request->getQueryParams());
-			return ResponseApi::write($response, $data);
+			$data = ApiFactory::server()->user()->httpRequest()->setPermission()->get($request->getQueryParams());
+			return ApiFactory::response()->write($response, $data);
 		});
+
 		/**
 		 * POST
 		 */
 		$route->post('', function (Request $request, response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
-			return ResponseApi::write($response, $data);
+			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
+			return ApiFactory::response()->write($response, $data);
 		});
+
 		/**
 		 * PUT
 		 */
-		$route->put('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->withPrivileges('u','user_admin')->put($request->getParsedBody());
-			return ResponseApi::write($response, $data);
+		$route->put('', function (Request $request, Response $response)
+		{
+			$params = $request->getParsedBody();
+			$httpRequest = ApiFactory::server()->user()->httpRequest();
+			if (isset($params['iduser'])) {
+				if ($params['iduser'] == ApiFactory::user()->userLogged()->getIduser()) {
+					$data = $httpRequest->setPermission()->put($params);
+				} else {
+					$data = $httpRequest->withPrivileges('u', 'user_admin')->put($params);
+				}
+			} else {
+				$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			}
+			return ApiFactory::response()->write($response, $data);
 		});
+
 		/**
 		 * DELETE
 		 */
 		$route->delete('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
-			return ResponseApi::write($response, $data);
+			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
+			return ApiFactory::response()->write($response, $data);
 		});
 	});
 
 	$route->group('/privileges', function(Route $route) {
-		return RequestApi::routes()->userPrivileges($route);
+		return ApiFactory::request()->routes()->userPrivileges($route);
 	});
 };

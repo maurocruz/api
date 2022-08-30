@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Request\Server;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\CrudInterface;
-use Plinct\Api\Response\ResponseApi;
 use Plinct\PDO\PDOConnect;
 
 class ConnectBd implements CrudInterface
@@ -42,28 +42,28 @@ class ConnectBd implements CrudInterface
 		if($idvalue) {
 			$data = PDOConnect::crud()->setTable($this->table)->update($params, "`$idname`='$idvalue'");
 			if (empty($data)) {
-				return ResponseApi::message()->success()->success("The $this->table table was updated");
+				return ApiFactory::response()->message()->success()->success("The $this->table table was updated");
 			} elseif (isset($data['error'])) {
-				return ResponseApi::message()->error()->anErrorHasOcurred($data['error']);
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data['error']);
 			} else {
-				return ResponseApi::message()->error()->anErrorHasOcurred($data);
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
 	}
 
 	public function delete(array $params): array
 	{
 		if (empty($params)) {
-			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		} else {
 			$data = PDOConnect::crud()->setTable($this->table)->erase($params);
 
 			if (isset($data['status']) && $data['status'] == 'success') {
-				return ResponseApi::message()->success()->success("Item deleted",$data);
+				return ApiFactory::response()->message()->success()->success("Item deleted",$data);
 			}
-			return ResponseApi::message()->error()->anErrorHasOcurred($data);
+			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		}
 	}
 

@@ -12,7 +12,7 @@ use Plinct\Tool\ArrayTool;
 use Plinct\Tool\Image\Image;
 use ReflectionException;
 
-class ImageObject extends Entity implements TypeInterface
+class ImageObject extends Entity
 {
   /**
    * @var string
@@ -36,7 +36,7 @@ class ImageObject extends Entity implements TypeInterface
    * @return array
    * @throws Exception
    */
-  public function get(array $params): array
+  public function get(array $params = []): array
   {
 		// IMAGES IS PART OF
     if (isset($params['isPartOf'])) Return $this->getImageIsPartOf($params['isPartOf']);
@@ -82,10 +82,10 @@ class ImageObject extends Entity implements TypeInterface
   }
 
   /**
-   * @param array $params
+   * @param ?array $params
    * @return array
    */
-  public function put(array $params): array
+  public function put(array $params = null): array
   {
     unset($params['contentUrl']);
     return parent::put($params);

@@ -9,8 +9,7 @@ use DateTime;
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
-use Plinct\Api\Request\RequestApi;
-use Plinct\Api\Response\ResponseApi;
+use Plinct\Api\ApiFactory;
 
 class ResetPassword
 {
@@ -29,31 +28,31 @@ class ResetPassword
 
 			// VERIFICA SE EXISTEM TODOS OS DADOS
 			if (!$email || !$mailHost || !$mailUsername || !$mailPassword || ! $urlToResetPassword)
-				return ResponseApi::message()->fail()->inputDataIsMissing();
+				return ApiFactory::response()->message()->fail()->inputDataIsMissing();
 
 	    // VERIFICAR SE OS DADOS SÃO VÁLIDOS
 			if (!Validator::isEmail($email) || !Validator::isEmail($mailUsername))
-				return ResponseApi::message()->fail()->invalidEmail();
+				return ApiFactory::response()->message()->fail()->invalidEmail();
 
 			if (!Validator::isDomain($mailHost))
-				return ResponseApi::message()->fail()->invalidDomain();
+				return ApiFactory::response()->message()->fail()->invalidDomain();
 
 	    if (!Validator::isUrl($urlToResetPassword))
-				return ResponseApi::message()->fail()->invalidUrl();
+				return ApiFactory::response()->message()->fail()->invalidUrl();
 
       // VERIFICAR SE EXISTE O EMAIL DO USUÁRIO NO BANCO DE DADOS
-	    $resultBd = RequestApi::server()->connectBd('user')->run("SELECT * FROM `user` WHERE `email`='$email'");
+	    $resultBd = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `user` WHERE `email`='$email'");
 			// SE NÃO EXISTE EMAIL
       if (empty($resultBd))
-				return ResponseApi::message()->fail()->propertyNotFoundInDatabase('email');
+				return ApiFactory::response()->message()->fail()->propertyNotFoundInDatabase('email');
 
       $now = new DateTime('NOW');
       $iduser = $resultBd[0]['iduser'];
 
 			// VERIFICA SE EXISTE UM TOKEN NO BD, SE HOUVER DELETA
-	    $dataSelect = RequestApi::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
+	    $dataSelect = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
 			if (isset($dataSelect[0])) {
-					RequestApi::server()->connectBd('user')->run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
+					ApiFactory::server()->connectBd('user')->run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
 			}
 
 			// GERAR UM NOVO TOKEN E SALVAR NO BD
@@ -61,7 +60,7 @@ class ResetPassword
 			$token = random_bytes(32);
 			$validator = bin2hex($token);
 			$now->add(new DateInterval('PT01H')); // 1 hour
-			RequestApi::server()->connectBd('user')->run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
+			ApiFactory::server()->connectBd('user')->run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
 				'iduser' => $iduser,
 				'selector' => $selector,
 				'token' => hash('sha256', $token),
@@ -71,7 +70,7 @@ class ResetPassword
 			$mail = self::sendEmailForResetPassword($parseBody, $selector, $validator);
 
       // RETORNA SUCESSO
-      return ResponseApi::message()->success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
+      return ApiFactory::response()->message()->success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
     }
 
     /**
@@ -87,18 +86,18 @@ class ResetPassword
 
         // PASSWORD DOES NOT EQUAL A THE REPEAT
         if ($password !== $repeatPassword)
-					return ResponseApi::message()->fail()->passwordRepeatIsIncorrect();
+					return ApiFactory::response()->message()->fail()->passwordRepeatIsIncorrect();
 
         // MISSING DATA
         if (!$selector || !$validator || !$password || !$repeatPassword)
-					return ResponseApi::message()->fail()->inputDataIsMissing();
+					return ApiFactory::response()->message()->fail()->inputDataIsMissing();
 
         // INVALID DATAS
         if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password))
-					return ResponseApi::message()->fail()->passwordLeastLength();
+					return ApiFactory::response()->message()->fail()->passwordLeastLength();
         //
         if (strlen($selector) !== 16 || strlen($validator) !== 64)
-					return ResponseApi::message()->fail()->invalidData();
+					return ApiFactory::response()->message()->fail()->invalidData();
 
         // CHECK SELECTOR AND EXPIRES
         $dataPasswordReset = self::getDataPasswordReset($selector);
@@ -111,16 +110,16 @@ class ResetPassword
             if (hash_equals($calc, $data['token'])) {
                 $iduser = $data['iduser'];
                 $newPassword = password_hash($password, PASSWORD_DEFAULT);
-								$putData = RequestApi::server()->user()->httpRequest()->put([ "iduser" => $iduser, "password" => $newPassword ]);
-								if ($putData['status'] == 'fail') {
-									return [ "status" => "fail", "message" => $data['message'] ];
+								$putData = ApiFactory::server()->user()->httpRequest()->setPermission()->put([ "iduser" => $iduser, "password" => $newPassword ]);
+								if (isset($putData['status']) && $putData['status'] == 'fail') {
+									return ApiFactory::response()->message()->fail()->generic($data);
 								}
-								RequestApi::server()->connectBd('passwordReset')->delete(['iduser'=>$iduser]);
+								ApiFactory::server()->connectBd('passwordReset')->delete(['iduser'=>$iduser]);
 
-                return ResponseApi::message()->success()->success("Changed password");
+                return ApiFactory::response()->message()->success()->success("Changed password");
 
             } else {
-                return ResponseApi::message()->fail()->invalidToken();
+                return ApiFactory::response()->message()->fail()->invalidToken();
             }
         } else {
             return $dataPasswordReset;
@@ -133,11 +132,11 @@ class ResetPassword
      */
     public static function getDataPasswordReset($selector): array
     {
-        $result = RequestApi::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
+        $result = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
         if (!empty($result)) {
-            return ResponseApi::message()->success()->success("Selector found!",$result[0]);
+            return ApiFactory::response()->message()->success()->success("Selector found!",$result[0]);
         } else {
-            return ResponseApi::message()->fail()->invalidToken();
+            return ApiFactory::response()->message()->fail()->invalidToken();
         }
     }
 
@@ -177,10 +176,10 @@ class ResetPassword
             $phpMail->send();
 
 						$message = sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername']);
-            return ResponseApi::message()->success()->success($message);
+            return ApiFactory::response()->message()->success()->success($message);
 
         } catch (Exception $e) {
-            return ResponseApi::message()->error()->anErrorHasOcurred($phpMail->ErrorInfo);
+            return ApiFactory::response()->message()->error()->anErrorHasOcurred($phpMail->ErrorInfo);
         }
 
     }

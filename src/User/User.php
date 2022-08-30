@@ -38,8 +38,10 @@ class User
 		return new Privileges();
 	}
 
-	public static function userLogged(): UserLogged
-	{
+	/**
+	 * @return UserLogged
+	 */
+	public function userLogged(): UserLogged {
 		return new UserLogged();
 	}
 

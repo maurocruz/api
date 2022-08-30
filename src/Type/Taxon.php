@@ -8,7 +8,7 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use ReflectionException;
 
-class Taxon extends Entity implements TypeInterface
+class Taxon extends Entity
 {
     /**
      * @var string

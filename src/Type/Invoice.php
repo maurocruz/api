@@ -7,7 +7,8 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class Invoice extends Entity implements TypeInterface
+
+class Invoice extends Entity
 {
     /**
      * @var string
@@ -30,7 +31,7 @@ class Invoice extends Entity implements TypeInterface
      * @param array $params
      * @return array
      */
-    public function get(array $params): array
+    public function get(array $params = []): array
     {
         if (array_key_exists('orderBy',$params) === false) {
             $params['orderBy'] = "paymentDueDate DESC";

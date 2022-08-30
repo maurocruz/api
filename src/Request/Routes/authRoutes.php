@@ -6,8 +6,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteCollectorProxy as Route;
 
-use Plinct\Api\Request\RequestApi;
-use Plinct\Api\Response\ResponseApi;
+use Plinct\Api\ApiFactory;
 
 return function (Route $route)
 {
@@ -19,8 +18,8 @@ return function (Route $route)
 			return $response;
 		});
 		$route->post('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->authentication()->login($request->getParsedBody());
-			return ResponseApi::write($response, $data);
+			$data = ApiFactory::server()->user()->authentication()->login($request->getParsedBody());
+			return ApiFactory::response()->write($response, $data);
 		});
 	});
 
@@ -32,8 +31,8 @@ return function (Route $route)
 			return $response;
 		});
 		$route->post('', function (Request $request, Response $response) {
-			$data = RequestApi::server()->user()->authentication()->register($request->getParsedBody());
-			return ResponseApi::write($response, $data);
+			$data = ApiFactory::server()->user()->authentication()->register($request->getParsedBody());
+			return ApiFactory::response()->write($response, $data);
 		});
 	});
 
@@ -44,8 +43,8 @@ return function (Route $route)
 
   $route->post('/reset_password', function (Request $request, Response $response)
   {
-		$data = RequestApi::server()->user()->authentication()->resetPassword($request->getParsedBody());
-		return ResponseApi::write($response, $data);
+		$data = ApiFactory::server()->user()->authentication()->resetPassword($request->getParsedBody());
+		return ApiFactory::response()->write($response, $data);
   });
 
 
@@ -54,7 +53,7 @@ return function (Route $route)
 	 */
   $route->post('/change_password', function (Request $request, Response $response)
   {
-		$data = RequestApi::server()->user()->authentication()->changePassword($request->getParsedBody());
-		return ResponseApi::write($response, $data);
+		$data = ApiFactory::server()->user()->authentication()->changePassword($request->getParsedBody());
+		return ApiFactory::response()->write($response, $data);
   });
 };

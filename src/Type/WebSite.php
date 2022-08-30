@@ -8,7 +8,7 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use ReflectionException;
 
-class WebSite extends Entity implements TypeInterface
+class WebSite extends Entity
 {
     /**
      * @var string

@@ -6,7 +6,7 @@ namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
 
-class Trip extends Entity implements TypeInterface
+class Trip extends Entity
 {
     /**
      * @var string

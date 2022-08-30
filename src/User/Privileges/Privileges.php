@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Plinct\Api\User\Privileges;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Permissions;
 use Plinct\Api\Request\HttpRequest;
-use Plinct\Api\Response\ResponseApi;
 use Plinct\Api\User\UserLogged;
 
 class Privileges extends PrivilegesAbstract
@@ -25,10 +25,11 @@ class Privileges extends PrivilegesAbstract
 	 * @param int|null $function
 	 * @return void
 	 */
-	public static function withPrivileges(string $action, string $namespace, int $function = null)
+	public function withPrivileges(string $action, string $namespace, int $function = null)
 	{
+		// IF SUPERUSER
 		if (UserLogged::isSuperUser()) Permissions::setRequiresSubscription(true);
-
+		// GET USERLOGGED PRIVILEGES
 		$permissions = UserLogged::getPrivileges();
 		if ($permissions) {
 			foreach ($permissions as $value) {
@@ -49,25 +50,28 @@ class Privileges extends PrivilegesAbstract
 	 * @param string $method
 	 * @return array
 	 */
-	public static function filter(array $data, string $method = 'get'): array
+	public function filterGet(array $data, string $method = 'get'): array
 	{
 		// se for super usuário
 		if(UserLogged::isSuperUser()) return $data;
 
 		$newData = null;
 		$permission = false;
+		$itemList = isset($data['@type']) && $data['@type'] == 'ItemList';
 
-		foreach ($data as $value) {
+		// se estiver em formato ItemList
+		$itemListElement = $itemList ? $data['itemListElement'] : $data;
+
+		foreach ($itemListElement as $value) {
 			$iduser_privileges = $value['iduser_privileges'] ?? null;
-			$idUserCreator = $value['userCreator'];
+			$idUserCreator = $value['userCreator'] ?? null;
 			// SE OS DADOS FOREM PRIVILEGIOS
 			if ($iduser_privileges) {
 				$permission = self::grantedPrivileges($value, $method);
-			}
-			// SE HOUVER NOS DADOS INFORMAÇÃO DO CRIADOR
+			} // SE HOUVER NOS DADOS INFORMAÇÃO DO CRIADOR
 			elseif ($idUserCreator) {
 				// obtem permissões do criador
-				$dataPermissions = (new PrivilegesActions())->get(['iduser'=>$idUserCreator]);
+				$dataPermissions = (new PrivilegesActions())->get(['iduser' => $idUserCreator]);
 
 				// se o privilegio for vazio
 				if (empty($dataPermissions)) $permission = true;
@@ -83,7 +87,14 @@ class Privileges extends PrivilegesAbstract
 			if ($permission) $newData[] = $value;
 		}
 
-		return $newData ?? ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+		if ($itemList) {
+			$data['itemListElement'] = $newData;
+			return $data;
+		} elseif ($newData) {
+			return $newData;
+		} else {
+			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+		}
 	}
 
 	/**
@@ -93,12 +104,12 @@ class Privileges extends PrivilegesAbstract
 	 * @param string $method
 	 * @return bool
 	 */
-	public static function grantedPrivileges(array $valuePrivileges, string $method = 'get'): bool
+	public function grantedPrivileges(array $valuePrivileges, string $method = 'get'): bool
 	{
 		// SE FOR SUPER USUARIO
 		if (UserLogged::isSuperUser()) return true;
 		// se for o mesmo usuario
-		if ($valuePrivileges['iduser'] === UserLogged::getIduser()) return true;
+		if ($valuePrivileges['iduser'] === ApiFactory::user()->userLogged()->getIduser()) return true;
 
 		foreach (UserLogged::getPrivileges() as $userLoggedPrivileges) {
 			$compareFunction = (
@@ -119,7 +130,7 @@ class Privileges extends PrivilegesAbstract
 	 * @param string $haystacked
 	 * @return bool
 	 */
-	public static function permittedActions(string $needled, string $haystacked): bool
+	public function permittedActions(string $needled, string $haystacked): bool
 	{
 		$returns = false;
 		if (strpos($needled,'c') !== false) $returns = strpos($haystacked,'c') !== false;

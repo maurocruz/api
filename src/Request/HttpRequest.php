@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Request;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\Request\Actions\Permissions;
-use Plinct\Api\User\Privileges\Privileges;
-use Plinct\Api\Response\ResponseApi;
 
 class HttpRequest implements HttpRequestInterface
 {
@@ -21,6 +20,11 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function __construct(HttpRequestInterface $classActions) {
 		$this->classActions = $classActions;
+	}
+
+	public function getTable(): string
+	{
+		return $this->classActions->getTable();
 	}
 
 	/**
@@ -41,7 +45,7 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function withPrivileges(string $actions = 'r', string $namespace = '', int $function = null): HttpRequest
 	{
-		Privileges::withPrivileges($actions, $namespace, $function);
+		ApiFactory::user()->privileges()->withPrivileges($actions, $namespace, $function);
 		return $this;
 	}
 
@@ -51,18 +55,22 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array {
 		return Permissions::isRequiresSubscription()
-			? Privileges::filter($this->classActions->get($params))
-			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+			? ApiFactory::user()->privileges()->filterGet($this->classActions->get($params))
+			: ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
 	/**
 	 * @param array $params
 	 * @return array
 	 */
-	public function post(array $params): array {
-		return Permissions::isRequiresSubscription()
-			? $this->classActions->post($params)
-			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+	public function post(array $params): array
+	{
+		if(Permissions::isRequiresSubscription()) {
+			$data = $this->classActions->post($params);
+			return empty($data) ? ApiFactory::response()->message()->success()->success('Item added') : $data;
+		} else {
+			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
+		}
 	}
 
 	/**
@@ -70,9 +78,28 @@ class HttpRequest implements HttpRequestInterface
 	 * @return array
 	 */
 	public function put(array $params = null): array {
-		return Permissions::isRequiresSubscription()
-			? Privileges::filter($this->classActions->put($params), 'put')
-			: ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+		if (Permissions::isRequiresSubscription()) {
+			$idname = "id".$this->classActions->getTable();
+			$idvalue = $params[$idname] ?? null;
+			if ($idvalue) {
+				$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
+				if(isset($filter['status']) && $filter['status'] == 'fail') {
+					return $filter;
+				} else {
+					$putdata = $this->classActions->put($params);
+					if (empty($putdata)) {
+						return ApiFactory::response()->message()->success()->success('Updated data', $putdata);
+					} elseif ( isset($putdata['status']) && $putdata['status'] == 'success') {
+						return  $putdata;
+					}
+					return ApiFactory::response()->message()->fail()->generic();
+				}
+			}
+
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+		}
+
+		return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
 	/**
@@ -82,7 +109,7 @@ class HttpRequest implements HttpRequestInterface
 	public function delete(array $params): array
 	{
 		if (Permissions::isRequiresSubscription()) {
-			$filter = Privileges::filter($this->classActions->get($params),'delete');
+			$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get($params),'delete');
 
 			if(isset($filter['status']) && $filter['status'] == 'fail') {
 				return $filter;
@@ -91,6 +118,6 @@ class HttpRequest implements HttpRequestInterface
 			}
 		}
 
-		return  ResponseApi::message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+		return  ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 }

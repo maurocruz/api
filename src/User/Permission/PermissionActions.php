@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Plinct\Api\User\Permission;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
-use Plinct\Api\Request\RequestApi;
-use Plinct\Api\Response\ResponseApi;
 use Plinct\Api\Server\GetData\GetData;
-use Plinct\Api\User\UserLogged;
 
 class PermissionActions implements HttpRequestInterface
 {
@@ -33,32 +31,32 @@ class PermissionActions implements HttpRequestInterface
 	{
 		if (isset($params['iduser'])) {
 			// seta o criador da permissão
-			$params['userCreator'] = UserLogged::getIduser();
+			$params['userCreator'] = ApiFactory::user()->userLogged()->getIduser();
 			// salva no bd
-			$returns = RequestApi::server()->connectBd(self::TABLENAME)->created($params);
+			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->created($params);
 			// returns
 			if (isset($returns['error'])) {
-				return ResponseApi::message()->error()->anErrorHasOcurred($returns['error']);
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ResponseApi::message()->success()->success("Permissions added", $returns);
+				return ApiFactory::response()->message()->success()->success("Permissions added", $returns);
 			}
 		}
-		return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+		return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 	}
 
 	public function put(array $params = null): array
 	{
 		if (isset($params['iduser_permission']) && isset($params['iduser'])) {
 			// salva no bd
-			$returns = RequestApi::server()->connectBd(self::TABLENAME)->update($params);
+			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->update($params);
 
 			if (isset($returns['error'])) {
-				return ResponseApi::message()->error()->anErrorHasOcurred($returns['error']);
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ResponseApi::message()->success()->success("Permission updated", $returns);
+				return ApiFactory::response()->message()->success()->success("Permission updated", $returns);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
 	}
 
@@ -66,14 +64,19 @@ class PermissionActions implements HttpRequestInterface
 	{
 		if (isset($params['iduser_permission']) && isset($params['iduser'])) {
 			$newParams = ['iduser_permission'=>$params['iduser_permission'], 'iduser'=>$params['iduser']];
-			$returns = RequestApi::server()->connectBd(self::TABLENAME)->delete($newParams);
+			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->delete($newParams);
 			if (isset($returns['error'])) {
-				return ResponseApi::message()->error()->anErrorHasOcurred($returns['error']);
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ResponseApi::message()->success()->success("Permission deleted", $returns);
+				return ApiFactory::response()->message()->success()->success("Permission deleted", $returns);
 			}
 		} else {
-			return ResponseApi::message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}
+	}
+
+	public function getTable(): string
+	{
+		return self::TABLENAME;
 	}
 }

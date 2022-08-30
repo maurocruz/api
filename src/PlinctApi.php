@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Plinct\Api;
 
+use Slim\App;
 use PDO;
 use Plinct\Api\Middleware\LoggedUserMiddleware;
-use Plinct\Api\Request\RequestApi;
-use Slim\App;
 use Plinct\Api\Server\Maintenance;
 use Plinct\PDO\PDOConnect;
 
@@ -97,6 +96,6 @@ class PlinctApi
     {
 			$this->slimApp->addMiddleware(new LoggedUserMiddleware());
 
-			return RequestApi::routes()->home($this->slimApp);
+			return ApiFactory::request()->routes()->home($this->slimApp);
     }
 }

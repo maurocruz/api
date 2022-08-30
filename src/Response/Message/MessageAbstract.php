@@ -11,13 +11,14 @@ abstract class MessageAbstract
 		'FA002' => "The name must be longer than 4 characters",
 		'FA003' => "Password must be at least 8 characters in length and must contain at least one number, one upper case letter, one lower case letter and one special character",
 		'FA004' => "invalid token",
-		'FD002' => "the return is empty"
+		'FD002' => "the return is empty",
+		'FT001' => 'this type not exists'
 	];
 
 	/**
 	 * @var array
 	 */
-	private array $returns;
+	protected array $returns;
 
 	/**
 	 * @param string $status
@@ -38,7 +39,7 @@ abstract class MessageAbstract
 	/**
 	 * @param string $message
 	 */
-	private function setMessage(string $message): void
+	protected function setMessage(string $message): void
 	{
 		$this->returns['message'] = $message;
 	}
@@ -46,7 +47,7 @@ abstract class MessageAbstract
 	/**
 	 * @param mixed $data
 	 */
-	private function setData($data): void
+	protected function setData($data): void
 	{
 		$this->returns['data'] = $data;
 	}

@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class PropertyValue extends Entity implements TypeInterface
+class PropertyValue extends Entity
 {
     /**
      * @var string

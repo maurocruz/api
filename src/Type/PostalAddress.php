@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class PostalAddress extends Entity implements TypeInterface
+class PostalAddress extends Entity
 {
     /**
      * @var string

@@ -8,7 +8,7 @@ use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class Organization extends Entity implements TypeInterface
+class Organization extends Entity
 {
     /**
      * @var string
@@ -31,7 +31,7 @@ class Organization extends Entity implements TypeInterface
      * @param array $params
      * @return array
      */
-    public function get(array $params): array
+    public function get(array $params = []): array
     {
         // GET DATA ORGANIZATION
         $data = parent::get($params);

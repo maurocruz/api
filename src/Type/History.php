@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class History extends Entity implements TypeInterface
+class History extends Entity
 {
     /**
      * @var string

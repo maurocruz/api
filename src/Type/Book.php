@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class Book extends Entity implements TypeInterface
+class Book extends Entity
 {
     /**
      * @var string

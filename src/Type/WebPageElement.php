@@ -8,7 +8,7 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use ReflectionException;
 
-class WebPageElement extends Entity implements TypeInterface
+class WebPageElement extends Entity
 {
     /**
      * @var string
@@ -31,7 +31,7 @@ class WebPageElement extends Entity implements TypeInterface
      * @param array $params
      * @return array
      */
-    public function get(array $params): array
+    public function get(array $params = []): array
     {
         $params['orderBy'] = $params['orderBy'] ?? "position";
         return parent::get($params);

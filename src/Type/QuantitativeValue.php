@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class QuantitativeValue extends Entity implements TypeInterface
+class QuantitativeValue extends Entity
 {
     /**
      * @var string
