@@ -15,6 +15,10 @@ class AuthMiddleware implements MiddlewareInterface
 {
   public function process(Request $request, Handler $handler): ResponseInterface
   {
-		return (new JwtAuthentication(['secret'=>PlinctApi::$JWT_SECRET_API_KEY]))->process($request, $handler);
+		return (new JwtAuthentication([
+			'secure'=>true,
+			'relaxed'=>['localhost','192.168.1.14'],
+			'secret'=>PlinctApi::$JWT_SECRET_API_KEY]
+		))->process($request, $handler);
   }
 }
