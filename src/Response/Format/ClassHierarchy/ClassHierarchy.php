@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Server\Format\ClassHierarchy;
+namespace Plinct\Api\Response\Format\ClassHierarchy;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Soloine\Factory\SoloineFactory;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Server\Format\Geojson;
+namespace Plinct\Api\Response\Format\Geojson;
 
 class Geojson
 {
@@ -10,11 +10,7 @@ class Geojson
 
     private array $response = [];
 
-    public function __construct(object $objectType, array $params)
-    {
-        unset($params['format']);
-
-        $data = (new $objectType())->get($params);
+    public function __construct($data) {
 
         if (isset($data['error']) || (isset($data['status']) && ($data['status'] == 'error' || $data['status'] == 'fail'))) {
             $this->response['status'] = $data['status'] ?? 'error';

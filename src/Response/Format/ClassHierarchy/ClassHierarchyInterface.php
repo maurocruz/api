@@ -1,6 +1,6 @@
 <?php
 
-namespace Plinct\Api\Server\Format\ClassHierarchy;
+namespace Plinct\Api\Response\Format\ClassHierarchy;
 
 interface ClassHierarchyInterface
 {
