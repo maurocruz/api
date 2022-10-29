@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Middleware;
 
-use Plinct\Web\Debug\Debug;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -12,7 +11,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class CorsMiddleware implements MiddlewareInterface
 {
-	private array $options = [];
+	/**
+	 * 'Access-Control-Allow-Origin': '*'
+	 * 'Access-Control-Allow-Headers': 'origin, x-requested-with, content-type, Authorization'
+	 * 'Access-Control-Allow-Methods': 'PUT, GET, POST, DELETE, OPTIONS'
+	 * 'Content-type': 'application/json'
+	 * @var array
+	 */
+	private array $options;
 
 	public function __construct(array $options)
 	{
@@ -28,10 +34,6 @@ class CorsMiddleware implements MiddlewareInterface
 		foreach($this->options as $name => $value) {
 			$response = $response->withHeader($name, $value);
 		}
-		//$response = $response->withHeader('Access-Control-Allow-Origin', '*');
-		//$response = $response->withHeader('Access-Control-Allow-Headers', 'origin, x-requested-with, content-type, Authorization');
-		//$response = $response->withHeader('Access-Control-Allow-Methods', 'PUT, GET, POST, DELETE, OPTIONS');
-		//$response = $response->withHeader("Content-type", "application/json");
 		return $response;
 	}
 }
