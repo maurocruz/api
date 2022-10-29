@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace Plinct\Api\Response;
 
 use Plinct\Api\Response\Message\Message;
+use Plinct\Api\Response\Format\Format;
 use Psr\Http\Message\ResponseInterface;
 
 class Response
 {
+	/**
+	 * @return Format
+	 */
+	public function format(): Format {
+		return new Format();
+	}
 	/**
 	 * @return Message
 	 */
