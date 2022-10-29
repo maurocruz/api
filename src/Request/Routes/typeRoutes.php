@@ -9,8 +9,6 @@ use Slim\Routing\RouteCollectorProxy as Route;
 
 use Plinct\Api\ApiFactory;
 
-use Plinct\Api\Server\Format\Format;
-
 return function(Route $route) {
 	/**
 	 * Generic GET
@@ -19,25 +17,12 @@ return function(Route $route) {
 	{
 		$type = $args['type'] ?? null;
 		$params = $request->getQueryParams() ?? null;
-		$format = $params['format'] ?? null;
 
 		if ($type) {
 			$typeClass = ApiFactory::server()->type($type);
-
-			if ($typeClass->exists()) {
-				//  CLASS HIERARCHY
-				if ($format == "classHierarchy") {
-					$data = (Format::classHierarchy($type, $params))->ready();
-				} elseif ($format == "geojson") {
-					$data = Format::geojson($typeClass, $params)->ready();
-				}
-				//
-				else {
-					$data = $typeClass->httpRequest()->setPermission()->get($params);
-				}
-			} else {
-				$data = ['status'=>'fail', 'message'=>'type not found!' ];
-			}
+			$data = $typeClass->exists()
+				? $typeClass->httpRequest()->setPermission()->get($params)
+				: ApiFactory::response()->message()->fail()->thisTypeNotExists();
 		} else {
 			$data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 		}

@@ -65,6 +65,14 @@ return function(Route $route)
 	  });
 
 	  /**
+	   * PLACE
+	   */
+		$route->group('/place', function (Route $route) {
+			$placeRoutes = require __DIR__.'/placeRoutes.php';
+			return $placeRoutes($route);
+		});
+
+	  /**
 	   * TYPE
 	   */
 		$route->group('/{type}', function (Route $route) {
@@ -81,8 +89,6 @@ return function(Route $route)
 		});
 
   })->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json"]));
-
-
 
   /**
    * DELETE

@@ -10,8 +10,11 @@ use Plinct\Api\ApiFactory;
 
 return function(Route $route)
 {
-	$route->group('', function (Route $route) {
-
+	$route->group('', function (Route $route)
+	{
+		$route->options('', function (Request $request, Response $response) {
+				return $response;
+		});
 		/**
 		 * GET
 		 */
