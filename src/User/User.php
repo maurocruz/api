@@ -92,7 +92,7 @@ class User extends Crud
 	{
 		$iduser = $params['iduser'] ?? null;
 		if ($iduser) {
-			if ($params['new_password']) {
+			if (isset($params['new_password'])) {
 				$params['password'] = $params['new_password'];
 				unset($params['new_password']);
 			} else {
