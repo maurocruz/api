@@ -37,7 +37,7 @@ return function(Route $route) {
 	{
 		$type = $args['type'];
 		$params = $request->getParsedBody() ?? null;
-		$id = $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
+		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id$type"] ?? null;
 
 		if (!$id) {
 			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);

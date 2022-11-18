@@ -80,15 +80,16 @@ return function(Route $route)
 			return $typeRoutes($route);
 		});
 
-
-
 		// HOME
 		$route->get('', function(Request $request, Response $response) {
 			ApiFactory::response()->write($response, ['status'=>'success', 'message'=>'Welcome to Plinct API']);
 			return $response;
 		});
 
-  })->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json"]));
+  })->addMiddleware(new CorsMiddleware([
+		"Content-type"=>"application/json",
+	  "Access-Control-Allow-Origin"=>"*"
+  ]));
 
   /**
    * DELETE
