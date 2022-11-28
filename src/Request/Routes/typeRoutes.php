@@ -9,7 +9,12 @@ use Slim\Routing\RouteCollectorProxy as Route;
 
 use Plinct\Api\ApiFactory;
 
-return function(Route $route) {
+return function(Route $route)
+{
+	$route->options('',function (Request $request, Response $response) {
+		return $response;
+	});
+
 	/**
 	 * Generic GET
 	 */

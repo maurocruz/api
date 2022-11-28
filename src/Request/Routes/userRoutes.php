@@ -14,7 +14,9 @@ return function(Route $route)
 	{
 		$route->options('', function (Request $request, Response $response) {
 				return $response;
-		});
+		})->addMiddleware(new \Plinct\Api\Middleware\CorsMiddleware([
+			'Access-Control-Allow-Headers' => 'origin, x-requested-with, content-type, Authorization'
+		]));
 		/**
 		 * GET
 		 */
