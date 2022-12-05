@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteCollectorProxy as Route;
@@ -14,7 +15,9 @@ return function(Route $route)
 	{
 		$route->options('', function (Request $request, Response $response) {
 				return $response;
-		});
+		})->addMiddleware(new CorsMiddleware([
+			'Access-Control-Allow-Headers'=>'authorization'
+		]));
 		/**
 		 * GET
 		 */

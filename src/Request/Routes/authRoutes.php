@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteCollectorProxy as Route;
@@ -21,7 +22,9 @@ return function (Route $route)
 			$data = ApiFactory::server()->user()->authentication()->login($request->getParsedBody());
 			return ApiFactory::response()->write($response, $data);
 		});
-	});
+	})->addMiddleware(new CorsMiddleware([
+		'Access-Control-Allow-Headers'=>'authorization,content-type'
+	]));
 
 	/**
 	 * REGISTER
