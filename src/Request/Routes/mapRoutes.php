@@ -84,5 +84,7 @@ return function (Route $route)
 
 		$response->getBody()->write(json_encode(['status'=>$status,'message'=>$message,'data'=>$data], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		return $response;
-	});
+	})->addMiddleware(new CorsMiddleware([
+		'Access-Control-Allow-Headers'=>'authorization'
+	]));
 };
