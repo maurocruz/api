@@ -36,7 +36,7 @@ class Privileges extends PrivilegesAbstract
 				if (
 					$value['function'] >= $function
 					&& strpos($value['actions'], $action) !== false
-					&& $value['namespace'] == $namespace
+					&& ($value['namespace'] === 'all' || $value['namespace'] == $namespace)
 				)
 					Permissions::setRequiresSubscription(true);
 			}
@@ -53,7 +53,7 @@ class Privileges extends PrivilegesAbstract
 	public function filterGet(array $data, string $method = 'get'): array
 	{
 		// se for super usuário
-		if(UserLogged::isSuperUser()) return $data;
+		if(UserLogged::isSuperUser() || empty($data)) return $data;
 
 		$newData = null;
 		$permission = false;

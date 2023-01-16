@@ -77,10 +77,12 @@ class HttpRequest implements HttpRequestInterface
 	 * @param array|null $params
 	 * @return array
 	 */
-	public function put(array $params = null): array {
+	public function put(array $params = null): array
+	{
 		if (Permissions::isRequiresSubscription()) {
 			$idname = "id".$this->classActions->getTable();
 			$idvalue = $params[$idname] ?? null;
+
 			if ($idvalue) {
 				$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
 				if(isset($filter['status']) && $filter['status'] == 'fail') {
