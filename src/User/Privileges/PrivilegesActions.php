@@ -8,6 +8,7 @@ use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\Server\GetData\GetData;
 use Plinct\Api\User\UserLogged;
+use Plinct\Web\Debug\Debug;
 
 class PrivilegesActions implements HttpRequestInterface
 {
@@ -44,7 +45,7 @@ class PrivilegesActions implements HttpRequestInterface
 			if (
 				ApiFactory::user()->privileges()->permittedActions($params['actions'], $valueLoggedPrivileges['actions'])
 				&& $params['function'] < $valueLoggedPrivileges['function']
-				&& $params['namespace'] === $valueLoggedPrivileges['namespace']
+				&& ($valueLoggedPrivileges['namespace'] === 'all' || $params['namespace'] === $valueLoggedPrivileges['namespace'])
 			) {
 				$returns = true;
 			}
