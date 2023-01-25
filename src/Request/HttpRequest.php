@@ -91,10 +91,10 @@ class HttpRequest implements HttpRequestInterface
 					$putdata = $this->classActions->put($params);
 					if (empty($putdata)) {
 						return ApiFactory::response()->message()->success()->success('Updated data', $putdata);
-					} elseif ( isset($putdata['status']) && $putdata['status'] == 'success') {
+					} elseif (isset($putdata['status']) && $putdata['status'] == 'success') {
 						return  $putdata;
 					}
-					return ApiFactory::response()->message()->fail()->generic();
+					return ApiFactory::response()->message()->fail()->generic($putdata);
 				}
 			}
 

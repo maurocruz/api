@@ -92,6 +92,8 @@ class Privileges extends PrivilegesAbstract
 			return $data;
 		} elseif ($newData) {
 			return $newData;
+		} elseif (empty($data)) {
+			return ApiFactory::response()->message()->fail()->returnIsEmpty();
 		} else {
 			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 		}
