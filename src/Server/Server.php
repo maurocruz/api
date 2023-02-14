@@ -6,6 +6,7 @@ namespace Plinct\Api\Server;
 
 use Plinct\Api\Request\Server\ConnectBd;
 use Plinct\Api\Server\GetData\GetData;
+use Plinct\Api\Server\Relationship\Relationship;
 use Plinct\Api\Type\Type;
 use Plinct\Api\User\User;
 
@@ -27,6 +28,11 @@ class Server
 	public function getDataInBd(string $table): GetData
 	{
 		return new GetData($table);
+	}
+
+	public function relationship(string $tableHasPart, string $idHasPart, string $tableIsPartOf, string $idIsPartOf): Relationship
+	{
+		return new Relationship($tableHasPart, $idHasPart, $tableIsPartOf, $idIsPartOf);
 	}
 
 	/**

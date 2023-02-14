@@ -60,13 +60,14 @@ class HttpRequest implements HttpRequestInterface
 	}
 
 	/**
-	 * @param array $params
+	 * @param array|null $params
+	 * @param array|null $uploadedFiles
 	 * @return array
 	 */
-	public function post(array $params): array
+	public function post(array $params = null, array $uploadedFiles = null): array
 	{
 		if(Permissions::isRequiresSubscription()) {
-			$data = $this->classActions->post($params);
+			$data = $this->classActions->post($params, $uploadedFiles);
 			return empty($data) ? ApiFactory::response()->message()->success()->success('Item added') : $data;
 		} else {
 			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);

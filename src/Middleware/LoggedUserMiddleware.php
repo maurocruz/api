@@ -19,7 +19,9 @@ class LoggedUserMiddleware implements MiddlewareInterface
 			$authorizationBearer = $request->getHeaderLine('Authorization');
 			if (preg_match("/Bearer\s+(.*)$/i", $authorizationBearer, $matches)) {
 				$token = $matches[1];
-				UserLogged::created($token);
+				if($token != 'undefined') {
+					UserLogged::created($token);
+				}
 		  }
 		}
 		return $handler->handle($request);

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Plinct\Api\Middleware\AuthMiddleware;
+use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteCollectorProxy as Route;
@@ -13,7 +14,10 @@ return function(Route $route)
 {
 	$route->options('',function (Request $request, Response $response) {
 		return $response;
-	});
+	})->addMiddleware(new CorsMiddleware([
+		"Access-Control-Allow-Methods" => "OPTIONS,PUT,POST,GET,DELETE",
+		"Access-Control-Allow-Headers" => "origin, x-requested-with, content-type, Authorization"
+	]));
 
 	/**
 	 * Generic GET
@@ -42,10 +46,10 @@ return function(Route $route)
 	{
 		$type = $args['type'];
 		$params = $request->getParsedBody() ?? null;
-		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id$type"] ?? null;
+		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id". lcfirst($type)] ?? null;
 
 		if (!$id) {
-			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
+			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(["params"=>$params]);
 		}
 		elseif ($response->getStatusCode() === 200) {
 			$typeClass = ApiFactory::server()->type($type);
@@ -71,16 +75,38 @@ return function(Route $route)
 	{
 		$type = $args['type'] ?? null;
 		$params = $request->getParsedBody();
+		$uploadedFiles = $_FILES;
 		$action = $request->getParsedBody()['action'] ?? null;
 		// NAMESPACE
 		$namespace = $params['tableHasPart'] ?? $type;
-
 		if($action == 'create') {
 			$data = ApiFactory::server()->type($type)->create();
 		} else {
-			$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('c', $namespace, 2)->post($params);
+			$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('c', $namespace, 2)->post($params, $uploadedFiles);
 		}
+		return ApiFactory::response()->write($response, $data);
+	})->addMiddleware(new AuthMiddleware());
 
+	/**
+	 * DELETE
+	 */
+	$route->delete("[/{id}]", function (Request $request, Response $response, $args)
+	{
+		$type = $args['type'];
+		$params = $request->getParsedBody() ?? $request->getQueryParams() ?? null;
+		$params["id$type"] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
+		unset($params['id']);
+
+		if ($response->getStatusCode() === 200) {
+			if (!$params["id$type"]) {
+				$data = [ "message" => "missing data (".__FILE__." on ".__LINE__.")"];
+			} else {
+				$classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
+				$data = (new $classname())->delete($params);
+			}
+		} else {
+			$data = null;
+		}
 		return ApiFactory::response()->write($response, $data);
 
 	})->addMiddleware(new AuthMiddleware());

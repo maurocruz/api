@@ -73,6 +73,14 @@ return function(Route $route)
 		});
 
 	  /**
+	   * SCHEMA
+	   */
+		$route->group('/schema', function(Route $route) {
+			$schemaRoutes = require __DIR__.'/schemaRoutes.php';
+			return $schemaRoutes($route);
+		});
+
+	  /**
 	   * TYPE
 	   */
 		$route->group('/{type}', function (Route $route) {
@@ -90,30 +98,4 @@ return function(Route $route)
 		"Content-type"=>"application/json",
 	  "Access-Control-Allow-Origin"=>"*"
   ]));
-
-  /**
-   * DELETE
-   */
-  $route->delete("/api/{type}[/{id}]", function (Request $request, Response $response, $args)
-  {
-	  $type = $args['type'];
-	  $params = $request->getParsedBody() ?? $request->getQueryParams() ?? null;
-	  $params["id$type"] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
-		unset($params['id']);
-
-    if ($response->getStatusCode() === 200) {
-      if (!$params["id$type"]) {
-        $data = [ "message" => "missing data (".__FILE__." on ".__LINE__.")"];
-      } else {
-        $classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
-        $data = (new $classname())->delete($params);
-      }
-    } else {
-      $data = null;
-    }
-
-    $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-    return $response;
-
-  })->addMiddleware(new AuthMiddleware());
 };

@@ -1,0 +1,36 @@
+{
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://plinct.com.br/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:TouristService",
+      "@type": "rdfs:Class",
+      "rdfs:comment": "A tourist service provided for organization or person, e.g. tour guide, travel guide, etc",
+      "rdfs:label": "TouristService",
+      "rdfs:subClassOf": {
+        "@id": "schema:Service"
+      }
+    },
+    {
+      "@id": "schema:TourGuide",
+      "@type": "rdfs:Class",
+      "rdfs:comment": "A service of the tour guide profissional",
+      "rdfs:label": "TourGuide",
+      "rdfs:subClassOf": {
+        "@id": "schema:TouristService"
+      }
+    },
+    {
+      "@id": "schema:WaterPark",
+      "@type": "rdfs:Class",
+      "rdfs:comment": "A water park provide entertainment with the use of swimming pools, beaches, rivers and waterfalls.",
+      "rdfs:label": "WaterPark",
+      "rdfs:subClassOf": {
+        "@id": "schema:EntertainmentBusiness"
+      }
+    }
+  ]
+}
