@@ -117,10 +117,14 @@ class HttpRequest implements HttpRequestInterface
 			if(isset($filter['status']) && $filter['status'] == 'fail') {
 				return $filter;
 			} else {
-				return $this->classActions->delete($params);
+				$returns = $this->classActions->delete($params);
+				if ($returns == []) {
+					return ApiFactory::response()->message()->success()->success('successfully deleted', $params);
+				} else {
+					return ApiFactory::response()->message()->fail()->generic($returns);
+				}
 			}
 		}
-
 		return  ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 }

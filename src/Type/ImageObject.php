@@ -161,7 +161,7 @@ class ImageObject extends Entity
 
 	public function delete(array $params): array
 	{
-		$tableHasPart = $params['tableHasPart'] ? lcfirst($params['tableHasPart']) : null;
+		$tableHasPart = isset($params['tableHasPart']) ? lcfirst($params['tableHasPart']) : null;
 		$idHasPart = $params['idHasPart'] ?? null;
 		$tableIsPartOf = 'imageObject';
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
@@ -216,26 +216,35 @@ class ImageObject extends Entity
 	 */
 	private function getImageIsPartOf($idIsPartOf): array
 	{
-		$info = [];
+		$returns = [
+			'@context' => "https://plinct.com.br/isPartOf",
+			'@type' => 'ImageObject',
+			'@id' => $idIsPartOf,
+			"isPartOf" => []
+		];
+
 		$tablesHasPart = Maintenance::setTableHasImageObject();
 
 		foreach ($tablesHasPart as $value) {
-			$tableHasName = $value['tableName'];
+			$relationshipTable = $value['tableName'];
 			$tableHasPart = strstr($value['tableName'], "_", true);
+			$contextArray = [
+				"@context" => "https://schema.org",
+				"@type" => ucfirst($tableHasPart)
+			];
 
 			if ($tableHasPart !== 'group') {
-				$query = "select * from `$tableHasName`, `$tableHasPart` WHERE `idimageObject`=$idIsPartOf AND $tableHasPart.id$tableHasPart=$tableHasName.id$tableHasPart;";
+				$query = "SELECT `$tableHasPart`.* FROM `$relationshipTable`, `$tableHasPart` WHERE `idimageObject`=$idIsPartOf AND $tableHasPart.id$tableHasPart=$relationshipTable.id$tableHasPart;";
 				$data = PDOConnect::run($query);
 
 				if (!isset($data['error']) && count($data) > 0) {
 					foreach ($data as $valueTableIspartOf) {
-						$id = $valueTableIspartOf["id$tableHasPart"];
-						$info[] = ["tableHasPart" => $tableHasPart, "idHasPart" => $id, "values" => $valueTableIspartOf];
+						$returns['isPartOf'][] = array_merge($contextArray, $valueTableIspartOf);
 					}
 				}
 			}
 		}
 
-		return $info;
+		return $returns;
 	}
 }

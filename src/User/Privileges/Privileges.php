@@ -62,7 +62,7 @@ class Privileges extends PrivilegesAbstract
 		// se estiver em formato ItemList
 		$itemListElement = $itemList ? $data['itemListElement'] : $data;
 
-		foreach ($itemListElement as $value) {
+		foreach ($itemListElement as $key => $value) {
 			$iduser_privileges = $value['iduser_privileges'] ?? null;
 			$idUserCreator = $value['userCreator'] ?? null;
 			// SE OS DADOS FOREM PRIVILEGIOS
@@ -84,7 +84,7 @@ class Privileges extends PrivilegesAbstract
 			} else {
 				$permission = true;
 			}
-			if ($permission) $newData[] = $value;
+			if ($permission) $newData[$key] = $value;
 		}
 
 		if ($itemList) {
@@ -92,8 +92,6 @@ class Privileges extends PrivilegesAbstract
 			return $data;
 		} elseif ($newData) {
 			return $newData;
-		} elseif (empty($data)) {
-			return ApiFactory::response()->message()->fail()->returnIsEmpty();
 		} else {
 			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 		}

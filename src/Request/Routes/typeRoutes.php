@@ -99,10 +99,9 @@ return function(Route $route)
 
 		if ($response->getStatusCode() === 200) {
 			if (!$params["id$type"]) {
-				$data = [ "message" => "missing data (".__FILE__." on ".__LINE__.")"];
+				$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 			} else {
-				$classname = "\\Plinct\\Api\\Type\\".ucfirst($type);
-				$data = (new $classname())->delete($params);
+				$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('d', $type, 2)->delete($params);
 			}
 		} else {
 			$data = null;
