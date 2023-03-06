@@ -89,12 +89,12 @@ class ImageObject extends Entity
 	 */
 	public function post(array $params = null, array $uploadedFiles = null): array
 	{
+		$returns = [];
 		$tableHasPart = $params['tableHasPart'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
 		$position = $params['position'] ?? 1;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$caption = $params['caption'] ?? null;
-		$returns = [];
 		$destination = $params['pathDestinations'] ?? $params['location'] ?? $params['imageFolder'] ?? null;
 		unset($params['tableHasPart'], $params['idHasPart'], $params['pathDestinations'], $params['location'], $params['imageFolder']);
 
@@ -120,6 +120,7 @@ class ImageObject extends Entity
 
 			// upload images
 			$uploadedFilesReturns = $fileSystem->uploadFiles($uploadedFiles['imageupload']);
+
 			foreach ($uploadedFilesReturns as $fileUploaded) {
 				if ($fileUploaded['status']) {
 					$imageSrc = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
@@ -133,6 +134,7 @@ class ImageObject extends Entity
 					$imageParams['encodingFormat'] = $image->getEncodingFormat();
 					$newParams = array_merge($params, $imageParams);
 					$idIsPartOf = parent::post($newParams)['id'];
+
 					// ADDED ID IMAGEOBJECT IN RELATIONSHIP TABLE
 					if($tableHasPart && $idHasPart && $idIsPartOf) {
 						ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
@@ -140,6 +142,15 @@ class ImageObject extends Entity
 					}
 					$returns[] = array_merge(['idimageObject'=>$idIsPartOf], $newParams);
 				}
+			}
+		} else {
+			$idIsPartOf = $params['idIsPartOf'];
+			if($tableHasPart && $idHasPart && $idIsPartOf) {
+				$returnRel = ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
+				$returnUpdate = PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
+			}
+			if (empty($returnRel) && empty($returnUpdate)) {
+				$returns = ["status"=>"ok","message"=>"relationship added"];
 			}
 		}
 		// SUCCESS
