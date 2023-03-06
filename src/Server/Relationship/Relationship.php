@@ -76,12 +76,14 @@ class Relationship extends RelationshipAbstract
 
       $query = "SELECT * FROM $this->tableIsPartOf, $this->table_has_table WHERE $this->table_has_table.$idHasPartRelName=$this->idHasPart AND $this->tableIsPartOf.$idIsPartOfName=$this->table_has_table.$idIsPartOfRelName";
 
-      // IMAGE OBJECT
-      $query .= $this->tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
-      // CONTACT POINT
-      $query .= $this->tableIsPartOf == "contactPoint" ? " ORDER BY position ASC" : ($orderBy ? " ORDER BY $orderBy" : null);
-      // HISTORY
-      $query .= $this->tableIsPartOf == "history" ? " ORDER BY datetime DESC" : ($orderBy ? " ORDER BY $orderBy" : null);
+			if ($orderBy) {
+				$query .= " ORDER BY $orderBy";
+			} else {
+				// IMAGE OBJECT
+				$query .= $this->tableIsPartOf == "imageObject" ? " ORDER BY position ASC" : null;
+				// HISTORY
+				$query .= $this->tableIsPartOf == "history" ? " ORDER BY datetime DESC" : null;
+			}
       $query .= ";";
 
       return PDOConnect::run($query);
