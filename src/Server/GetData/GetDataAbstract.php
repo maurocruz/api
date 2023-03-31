@@ -114,7 +114,12 @@ abstract class GetDataAbstract
       // LIKE
       $like = stristr($key,"like", true);
       if ($like) {
-        $where[] = "LOWER(REPLACE(`$like`,' ','')) LIKE LOWER(REPLACE('%$value%',' ',''))";
+				$valuesLike = explode(',',$value);
+				$likeWhere = [];
+				foreach ($valuesLike as $item) {
+					$likeWhere[] = "LOWER(REPLACE(`$like`,' ','')) LIKE LOWER(REPLACE('%$item%',' ',''))";
+				}
+				$where[] = implode(' AND ',$likeWhere);
       }
     }
 
