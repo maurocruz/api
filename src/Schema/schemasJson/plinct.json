@@ -31,6 +31,15 @@
       "rdfs:subClassOf": {
         "@id": "schema:EntertainmentBusiness"
       }
+    },
+    {
+      "@id": "schema:VacationRentals",
+      "@type": "rdfs:Class",
+      "rdfs:comment": "Type of lodging business that focuses on renting single properties for limited time",
+      "rdfs:label": "VacationRentals",
+      "rdfs:subClassOf": {
+        "@id": "schema:LodgingBusiness"
+      }
     }
   ]
 }
