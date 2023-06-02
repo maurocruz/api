@@ -24,6 +24,8 @@ class SchemaAbstract
 
 	protected ?string $subClass;
 
+	protected ?string $subClassOf;
+
 	protected ?string $schemas;
 
 	/**

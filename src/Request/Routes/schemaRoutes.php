@@ -25,13 +25,18 @@ return function(Route $route)
 	$route->get('[/{class}]', function (Request $request, Response $response, $args)
 	{
 		$params = $request->getQueryParams();
+
 		$class = $args['class'] ?? $params['class'] ?? null;
 		$schemas = $params['schemas'] ?? null;
 		$subClass = $params['subClass'] ?? null;
+		$subClassOf = $params['subClassOf'] ?? null;
+
 		$schema = new Schema();
 		$schema->setClass($class);
 		$schema->setSchemas($schemas);
 		$schema->setSubClass($subClass);
+		$schema->setSubClassOf($subClassOf);
+
 		return ApiFactory::response()->write($response, $schema->ready() );
 	});
 };
