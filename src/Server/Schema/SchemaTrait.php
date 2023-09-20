@@ -50,7 +50,7 @@ class SchemaTrait extends  SchemaAbstract
         if (class_exists($className)) {
           $class = new $className();
 					// if attached propety exists
-					if ($this->attachedProperty[$propertyIsPartOf]) {
+					if (isset($this->attachedProperty[$propertyIsPartOf])) {
 						$params = ['properties'=>$this->attachedProperty[$propertyIsPartOf]];
 					}
           // RELATIONSHIP ONE TO ONE
