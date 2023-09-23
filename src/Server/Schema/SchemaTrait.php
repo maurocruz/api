@@ -31,6 +31,7 @@ class SchemaTrait extends  SchemaAbstract
    */
   protected function newSchema(array $data): ?array
   {
+		$params = [];
     $this->idHasPart = $data['id'] ?? $data["id$this->tableHasPart"] ?? null;
     // SCHEMA WRITE
     $schema = new SchemaWrite($this->context, $this->type);
@@ -67,10 +68,12 @@ class SchemaTrait extends  SchemaAbstract
 							$params['itemOffered'] = $this->idHasPart;
             } elseif ($tableIsPartOf == "Invoice" || $tableIsPartOf == 'OrderItem') {
               $params['referencesOrder'] = $this->idHasPart;
+							unset($params['id']);
             } elseif (isset($class->getHasType()['isPartOf']) && $class->getHasType()['isPartOf'] == ucfirst($this->tableHasPart)) {
               $params['isPartOf'] = $this->idHasPart;
             } else {
-              $params = ['tableHasPart' => $this->tableHasPart, 'idHasPart' => $this->idHasPart];
+              $params['tableHasPart'] = $this->tableHasPart;
+							$params['idHasPart'] = $this->idHasPart;
             }
             $dataIsPartOf = $class->get($params);
             if (empty($dataIsPartOf) || !isset($dataIsPartOf[0])) $dataIsPartOf = null;
