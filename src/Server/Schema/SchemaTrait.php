@@ -31,7 +31,6 @@ class SchemaTrait extends  SchemaAbstract
    */
   protected function newSchema(array $data): ?array
   {
-		$params = [];
     $this->idHasPart = $data['id'] ?? $data["id$this->tableHasPart"] ?? null;
     // SCHEMA WRITE
     $schema = new SchemaWrite($this->context, $this->type);
@@ -41,6 +40,7 @@ class SchemaTrait extends  SchemaAbstract
     }
     // RELATIONSHIP IS PART OF
     foreach ($this->hasTypes as $propertyIsPartOf => $tableIsPartOf) {
+	    $params = [];
       // IF TYPE IS PART OF IS DEFINED WITH FIELD TYPE
       if ($tableIsPartOf === true) {
         $tableIsPartOf = $data[$propertyIsPartOf.'Type'];
