@@ -67,10 +67,9 @@ class Relationship extends RelationshipAbstract
    */
   public function getRelationship($params = null): array
   {
-		$query = null;
+	  $orderBy = $params['orderBy'] ?? null;
 		// IF TABLE_HAS_PART EXISTS
     if (parent::table_exists($this->table_has_table)) {
-      $orderBy = $params['orderBy'] ?? null;
       $idIsPartOfName = 'id'.$this->tableIsPartOf;
       $idHasPartRelName = parent::getColumnName($this->table_has_table,1);
       $idIsPartOfRelName = parent::getColumnName($this->table_has_table,2);
@@ -99,6 +98,9 @@ class Relationship extends RelationshipAbstract
 			}
 			if ($columnName) {
 				$query = "SELECT * FROM `$this->table` WHERE $columnName=$this->idHasPart";
+				if ($orderBy) {
+					$query .= " ORDER BY $orderBy;";
+				}
 			}
     }
 	  return $query ? PDOConnect::run($query) : [];
