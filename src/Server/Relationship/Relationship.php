@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Server\Relationship;
 
 use Plinct\Api\ApiFactory;
@@ -24,7 +22,6 @@ class Relationship extends RelationshipAbstract
     $this->table_has_table = lcfirst($tableHasPart).'_has_'.lcfirst($tableIsPartOf);
 		$this->table = $this->tableIsPartOf;
   }
-
 	/**
 	 * @param array $params
 	 */
@@ -32,7 +29,10 @@ class Relationship extends RelationshipAbstract
 	{
 		$this->params = $params;
 	}
-
+	/**
+	 * @param array $params
+	 * @return false|string[]
+	 */
 	public function post(array $params = [])
 	{
 		if (self::table_exists($this->table_has_table) && $this->idHasPart) {
@@ -44,7 +44,6 @@ class Relationship extends RelationshipAbstract
 		}
 		return false;
 	}
-
 	/**
 	 * @return array
 	 */
@@ -61,21 +60,21 @@ class Relationship extends RelationshipAbstract
 		$where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
 		return parent::erase($where, 1);
 	}
-
   /**
+   * WHEN TABLE_HAS_PART OR IDCOLUMN_IS_PART_OF EXISTS
    * @param null $params
    * @return array
    */
   public function getRelationship($params = null): array
   {
+		$query = null;
+		// IF TABLE_HAS_PART EXISTS
     if (parent::table_exists($this->table_has_table)) {
       $orderBy = $params['orderBy'] ?? null;
       $idIsPartOfName = 'id'.$this->tableIsPartOf;
       $idHasPartRelName = parent::getColumnName($this->table_has_table,1);
       $idIsPartOfRelName = parent::getColumnName($this->table_has_table,2);
-
       $query = "SELECT * FROM $this->tableIsPartOf, $this->table_has_table WHERE $this->table_has_table.$idHasPartRelName=$this->idHasPart AND $this->tableIsPartOf.$idIsPartOfName=$this->table_has_table.$idIsPartOfRelName";
-
 			if ($orderBy) {
 				$query .= " ORDER BY $orderBy";
 			} else {
@@ -85,13 +84,25 @@ class Relationship extends RelationshipAbstract
 				$query .= $this->tableIsPartOf == "history" ? " ORDER BY datetime DESC" : null;
 			}
       $query .= ";";
-
-      return PDOConnect::run($query);
     }
-
-    return [];
+		// IF ISPARTOF OU IDTABLEHASPART COLUMN EXISTS
+		else {
+			$columnName = null;
+	    $columnExists = PDOConnect::run("SHOW COLUMNS FROM `$this->table` LIKE 'isPartOf'");
+			if (!empty($columnExists)) {
+				$columnName = 'isPartOf';
+			} else {
+				$columnExists2 = PDOConnect::run("SHOW COLUMNS FROM `$this->table` LIKE 'id$this->tableHasPart'");
+				if(!empty($columnExists2)) {
+					$columnName = "id".$this->tableHasPart;
+				}
+			}
+			if ($columnName) {
+				$query = "SELECT * FROM `$this->table` WHERE $columnName=$this->idHasPart";
+			}
+    }
+	  return $query ? PDOConnect::run($query) : [];
   }
-
   /**
    * @param array $params
    * @return array
@@ -99,18 +110,15 @@ class Relationship extends RelationshipAbstract
   public function postRelationship(array $params): array
   {
     $this->idIsPartOf = $params['id'] ?? $params['idIsPartOf'] ?? null;
-
     // CREATE NEW REGISTER ON TABLE IS PART OF
     if (!$this->idIsPartOf) {
       $this->table = $this->tableIsPartOf;
       $data = parent::created($params);
-
       if (isset($data['error'])) {
         return $data;
       }
       $this->idIsPartOf = PDOConnect::lastInsertId();
     }
-
     $propertyIsPartOf = $this->propertyIsPartOf();
     // many-to-many relationship type with table_has_table
     if (self::table_exists($this->table_has_table) && $this->idHasPart) {
@@ -125,12 +133,9 @@ class Relationship extends RelationshipAbstract
       // update has part
       $this->table = $this->tableHasPart;
       parent::update([$propertyIsPartOf => $this->idIsPartOf], "`id$this->tableHasPart`=$this->idHasPart");
-
     }
-
     return $params;
   }
-
   /**
    * @param $params
    * @return array
@@ -138,11 +143,9 @@ class Relationship extends RelationshipAbstract
   public function putRelationship($params): array
   {
     $this->idIsPartOf = $params['idIsPartOf'] ?? null;
-
     unset($params['tableIsPartOf']);
     unset($params['idIsPartOf']);
     unset($params['id']);
-
     if ($this->idIsPartOf && parent::table_exists($this->table_has_table)) {
       $this->table = $this->table_has_table;
       $idHasPartName = 'id' . $this->tableHasPart;
@@ -150,10 +153,8 @@ class Relationship extends RelationshipAbstract
       $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
       return parent::update($params, $where);
     }
-
     return ApiFactory::response()->message()->fail()->inputDataIsMissing(["missing idIsPartOf or table_has_table not exists"]);
   }
-
   /**
    * @param $params
    * @return array|null
@@ -161,10 +162,8 @@ class Relationship extends RelationshipAbstract
   public function deleteRelationship($params = null): ?array
   {
     $this->idIsPartOf = $params['idIsPartOf'] ?? $this->idIsPartOf;
-
     if ($this->idIsPartOf) {
       $this->table = $this->table_has_table;
-
       if ($this->tableHasPart == $this->tableIsPartOf) {
 	      $idHasPartName = 'idHasPart';
 	      $idIsPartOfName = 'idIsPartOf';
@@ -172,11 +171,9 @@ class Relationship extends RelationshipAbstract
         $idHasPartName = 'id' . $this->tableHasPart;
         $idIsPartOfName = 'id' . $this->tableIsPartOf;
       }
-
-        $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
-        return parent::erase($where, 1);
-      }
-
-      return null;
+      $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
+      return parent::erase($where, 1);
+		}
+    return null;
   }
 }
