@@ -31,7 +31,7 @@ class SchemaTrait extends  SchemaAbstract
    */
   protected function newSchema(array $data): ?array
   {
-    $this->idHasPart = $data['id'] ?? $data["id$this->tableHasPart"] ?? null;
+    $this->idHasPart = $data['id'] ?? (string) $data["id$this->tableHasPart"] ?? null;
     // SCHEMA WRITE
     $schema = new SchemaWrite($this->context, $this->type);
     // ADD SELECTED PROPERTIES
