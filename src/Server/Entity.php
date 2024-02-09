@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server;
 
+use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\PlinctApi;
 use Plinct\Api\Server\Relationship\Relationship;
 use Plinct\Api\Server\Schema\Schema;
@@ -13,7 +14,7 @@ use ReflectionClass;
 use ReflectionException;
 use Plinct\PDO\PDOConnect;
 
-abstract class Entity extends Crud
+abstract class Entity extends Crud implements HttpRequestInterface
 {
   /**
    * @var string
@@ -28,12 +29,16 @@ abstract class Entity extends Crud
    */
   protected array $hasTypes = [];
 
+	public function getTable(): string {
+		return $this->table;
+	}
+
   /**
    * GET
    * @param array $params
    * @return array
    */
-  public function get(array $params): array
+  public function get(array $params = []): array
   {
     if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
       $data = (new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table))->getRelationship($params);
@@ -102,12 +107,12 @@ abstract class Entity extends Crud
     }
   }
 
-  /**
-   * PUT
-   * @param array $params
-   * @return array
-   */
-  public function put(array $params): array
+	/**
+	 * PUT
+	 * @param array|null $params
+	 * @return array
+	 */
+  public function put(array $params = null): array
   {
     // if relationship
     if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {

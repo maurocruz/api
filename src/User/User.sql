@@ -11,13 +11,14 @@ CREATE TABLE IF NOT EXISTS `user` (
   `name` VARCHAR(50) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  `status` TINYINT(4) NULL DEFAULT NULL,
-  `create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `date` DATE NULL,
+  `status` TINYINT NULL DEFAULT NULL,
+  `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`iduser`),
   UNIQUE INDEX `email` (`email`)
 ) ENGINE = InnoDB;
 
+-- PASSWORD RESET
 CREATE TABLE IF NOT EXISTS `passwordReset` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `iduser` INT NOT NULL,
@@ -29,24 +30,6 @@ CREATE TABLE IF NOT EXISTS `passwordReset` (
     CONSTRAINT `fk_passwordReset_1` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
-CREATE TABLE `user_privileges` (
-   `iduser_privileges` int NOT NULL AUTO_INCREMENT,
-   `code` varchar(16) DEFAULT NULL,
-   `name` varchar(45) DEFAULT NULL,
-   `description` text,
-   PRIMARY KEY (`iduser_privileges`)
-) ENGINE=InnoDB;
-
-
-CREATE TABLE `user_has_user_privileges` (
-    `iduser` int NOT NULL,
-    `iduser_privileges` int NOT NULL,
-    PRIMARY KEY (`iduser`,`iduser_privileges`),
-    KEY `fk_user_has_user_privilegies_user_privilegies1_idx` (`iduser_privileges`),
-    KEY `fk_user_has_user_privilegies_user1_idx` (`iduser`),
-    CONSTRAINT `fk_user_has_user_privileges_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`),
-    CONSTRAINT `fk_user_has_user_privileges_user_privileges` FOREIGN KEY (`iduser_privileges`) REFERENCES `user_privileges` (`iduser_privileges`)
-) ENGINE=InnoDB;
 
 CREATE TABLE `user_history` (
     `iduser_history` int NOT NULL AUTO_INCREMENT,
@@ -59,3 +42,17 @@ CREATE TABLE `user_history` (
     KEY `fk_user_history_user_idx` (`iduser`),
     CONSTRAINT `fk_user_history_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`)
 ) ENGINE=InnoDB;
+
+CREATE TABLE `user_privileges` (
+   `iduser_privileges` int NOT NULL AUTO_INCREMENT,
+   `iduser` int NOT NULL,
+   `function` int unsigned NOT NULL DEFAULT '1',
+   `actions` char(4) NOT NULL DEFAULT 'r',
+   `namespace` varchar(45) NOT NULL DEFAULT '',
+   `userCreator` int DEFAULT NULL,
+   PRIMARY KEY (`iduser_privileges`,`iduser`),
+   UNIQUE KEY `unique` (`function`,`iduser`,`namespace`,`actions`),
+   KEY `fk_user_privileges_user_idx` (`iduser`),
+   CONSTRAINT `fk_user_privileges_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON UPDATE RESTRICT
+) ENGINE=InnoDB;
+

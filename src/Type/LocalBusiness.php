@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Schema\Schema;
 
-class LocalBusiness extends Entity implements TypeInterface
+class LocalBusiness extends Entity
 {
     /**
      * @var string

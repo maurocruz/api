@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class Payment extends Entity implements TypeInterface
+class Payment extends Entity
 {
     /**
      * @var string
@@ -30,7 +30,7 @@ class Payment extends Entity implements TypeInterface
      * @param array $params
      * @return array
      */
-    public function get(array $params): array
+    public function get(array $params = []): array
     {
         if (array_key_exists('orderBy',$params) === false) {
             $params['orderBy'] = "paymentDate";
@@ -49,11 +49,11 @@ class Payment extends Entity implements TypeInterface
         return parent::post($params);
     }
 
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function put(array $params): array
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+    public function put(array $params = null): array
     {
         $params = self::setHistory("UPDATE", $params);
         unset($params['tableHasPart']);

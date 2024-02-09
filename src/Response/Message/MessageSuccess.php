@@ -18,6 +18,6 @@ class MessageSuccess extends MessageAbstract
 	 */
 	public function success(string $message, $data = null): array
 	{
-		return parent::getReturns('0000',$message, $data);
+		return parent::getReturns('0000',$message,$data);
 	}
 }

@@ -7,7 +7,7 @@ namespace Plinct\Api\Type;
 use Plinct\Api\Server\Entity;
 use ReflectionException;
 
-class VideoObject extends Entity implements TypeInterface
+class VideoObject extends Entity
 {
     /**
      * @var string

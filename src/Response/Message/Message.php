@@ -6,10 +6,15 @@ namespace Plinct\Api\Response\Message;
 
 class Message
 {
+
+	public function error(): MessageError
+	{
+		return new MessageError();
+	}
 	/**
 	 * @return MessageFail
 	 */
-	public static function fail(): MessageFail
+	public function fail(): MessageFail
 	{
 		return new MessageFail();
 	}
@@ -17,7 +22,7 @@ class Message
 	/**
 	 * @return MessageSuccess
 	 */
-	public static function success(): MessageSuccess
+	public function success(): MessageSuccess
 	{
 		return new MessageSuccess();
 	}

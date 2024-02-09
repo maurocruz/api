@@ -8,7 +8,7 @@ use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use ReflectionException;
 
-class Person extends Entity implements TypeInterface
+class Person extends Entity
 {
     /**
      * @var string
@@ -47,10 +47,10 @@ class Person extends Entity implements TypeInterface
     }
 
     /**
-     * @param array $params
+     * @param ?array $params
      * @return array
      */
-    public function put(array $params): array
+    public function put(?array $params = []): array
     {
         $params['name'] = $params['givenName']." ".$params['familyName'];
         return parent::put($params);
