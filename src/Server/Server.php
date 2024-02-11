@@ -13,6 +13,13 @@ use Plinct\Api\User\User;
 class Server
 {
 	/**
+	 * @return Maintenance
+	 */
+	public function configuration(): Maintenance
+	{
+		return new Maintenance();
+	}
+	/**
 	 * @param string $table
 	 * @return ConnectBd
 	 */

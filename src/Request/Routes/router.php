@@ -1,10 +1,7 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api;
 
-use Plinct\Api\Middleware\CorsMiddleware;
 use Plinct\Api\Server\Search\Search;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -14,25 +11,25 @@ use Plinct\Api\Middleware\AuthMiddleware;
 
 return function(Route $route)
 {
-  $route->group('/api', function (Route $route)
+  $route->group('/api/', function (Route $route)
   {
-		/** Init application */
-    $route->post('/start', function(Request $request, Response $response) {
-      $data = PlinctApi::starApplication($request->getParsedBody());
-      return $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		/** CONFIGURATION */
+    $route->group('config', function(Route $route) {
+			$routeConfig = require (__DIR__.'/configRoutes.php');
+			return $routeConfig($route);
     });
 
 	  /**
 	   * AUTHENTICATION
 	   */
-	  $route->group('/auth', function (Route $route) {
+	  $route->group('auth', function (Route $route) {
 			return ApiFactory::request()->routes()->auth($route);
 	  });
 
 	  /**
 	   * USER
 	   */
-		$route->group('/user', function(Route $route) {
+		$route->group('user', function(Route $route) {
 			return ApiFactory::request()->routes()->user($route);
 		})->addMiddleware(new AuthMiddleware());
 
@@ -94,8 +91,5 @@ return function(Route $route)
 			return $response;
 		});
 
-  })->addMiddleware(new CorsMiddleware([
-		"Content-type"=>"application/json",
-	  "Access-Control-Allow-Origin"=>"*"
-  ]));
+  });
 };

@@ -22,7 +22,9 @@ return function(Route $route)
 		 * GET
 		 */
 		$route->get('', function (Request $request, Response $response) {
-			$data = ApiFactory::server()->user()->httpRequest()->setPermission()->get($request->getQueryParams());
+			$params = $request->getQueryParams();
+			$data = ApiFactory::server()->user()->get($params);
+			//var_dump($data); die();
 			return ApiFactory::response()->write($response, $data);
 		});
 

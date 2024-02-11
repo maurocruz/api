@@ -7,9 +7,9 @@ namespace Plinct\Api\User;
 abstract class UserAbstract
 {
 	/**
-	 * @var string|null
+	 * @var int|null
 	 */
-	protected static ?string $iduser = null;
+	protected static ?int $iduser = null;
 	/**
 	 * @var string|null
 	 */
@@ -28,17 +28,21 @@ abstract class UserAbstract
 	private static ?array $privileges = null;
 
 	/**
-	 * @param ?string $iduser
+	 * @param ?int $iduser
 	 */
-	protected static function setIduser(string $iduser)
+	protected static function setIduser(int $iduser)
 	{
 		self::$iduser = $iduser;
 	}
 
 	/**
-	 * @return ?string
+	 * @return ?int
 	 */
-	public function getIduser(): ?string {
+	public function getIduser(): ?int {
+		return self::$iduser;
+	}
+
+	public static function iduser(): ?int {
 		return self::$iduser;
 	}
 

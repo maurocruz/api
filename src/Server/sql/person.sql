@@ -1,34 +1,41 @@
-
 --
--- CREATED TABLE person
--- -- address
+-- CREATED TABLES
+-- -- person
 -- -- contactPoint
--- -- imageObject
 --
+
+CREATE TABLE IF NOT EXISTS `contactPoint` (
+  `idcontactPoint` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(180) DEFAULT NULL,
+  `contactType` VARCHAR(160) DEFAULT NULL,
+  `telephone` VARCHAR(45) DEFAULT NULL,
+  `email` VARCHAR(120) DEFAULT NULL,
+  `whatsapp` TINYINT DEFAULT NULL,
+  `obs` TEXT,
+  `position` INT DEFAULT NULL,
+  PRIMARY KEY (`idcontactPoint`)
+) ENGINE=InnoDB;
+
 
 CREATE TABLE IF NOT EXISTS `person` (
-  `idperson` INT(10) NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NULL,
+  `idperson` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) DEFAULT NULL,
   `givenName` VARCHAR(120) NOT NULL,
-  `familyName` VARCHAR(120) NULL DEFAULT NULL,
-  `additionalName` VARCHAR(45) NULL DEFAULT NULL,
-  `taxId` VARCHAR(64) NULL DEFAULT NULL,
-  `birthDate` DATE NULL DEFAULT NULL,
-  `birthPlace` VARCHAR(45) NULL DEFAULT NULL,
-  `gender` VARCHAR(45) NULL DEFAULT NULL,
-  `hasOccupation` VARCHAR(45) NULL DEFAULT NULL,
-  `url` VARCHAR(64) NULL DEFAULT NULL,
-  `address` INT(10) NULL,
-  `dateRegistration` DATE NOT NULL,
+  `familyName` VARCHAR(120) DEFAULT NULL,
+  `additionalName` VARCHAR(45) DEFAULT NULL,
+  `taxId` VARCHAR(64) DEFAULT NULL,
+  `birthDate` DATE DEFAULT NULL,
+  `birthPlace` VARCHAR(45) DEFAULT NULL,
+  `gender` VARCHAR(45) DEFAULT NULL,
+  `hasOccupation` VARCHAR(45) DEFAULT NULL,
+  `url` VARCHAR(64) DEFAULT NULL,
+  `address` INT NULL,
+  `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`idperson`),
-  INDEX `fk_person_1_idx` (`address` ASC),
-  CONSTRAINT `fk_person_1` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION
+  PRIMARY KEY (`idperson`)
 ) ENGINE = InnoDB;
 
---
--- relational table with contactPoint
---
+
 CREATE TABLE IF NOT EXISTS `person_has_contactPoint` (
   `idperson` INT(10) NOT NULL,
   `idcontactPoint` INT(10) NOT NULL,

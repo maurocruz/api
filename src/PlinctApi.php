@@ -1,35 +1,34 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Plinct\Api;
 
+use Plinct\Api\Middleware\CorsMiddleware;
+use Plinct\Api\Middleware\GatewayMiddleware;
+use Plinct\Api\Server\PDOConnect;
 use Slim\App;
-use PDO;
 use Plinct\Api\Middleware\LoggedUserMiddleware;
-use Plinct\Api\Server\Maintenance;
-use Plinct\PDO\PDOConnect;
 
 class PlinctApi
 {
     /**
      * @var App
      */
-    protected $slimApp;
+    protected App $slimApp;
     /**
      * @var string
      */
-    public static $ISSUER = "https://plinct.com.br";
+    public static string $ISSUER = "https://plinct.com.br";
     /**
      * @var string
      */
-    public static $JWT_SECRET_API_KEY = "202103emplenapandemia";
+    public static string $JWT_SECRET_API_KEY = "202103emplenapandemia";
     /**
      * @var float|int
      */
     public static $JWT_EXPIRE = 60*60*24*7;
 
-    public static $soloineApi = "https://plinct.com.br/soloine";
+    public static string $soloineApi = "https://plinct.com.br/soloine";
 
     /**
      * @param App $slimApp
@@ -55,47 +54,13 @@ class PlinctApi
     }
 
     /**
-     * @param $params
-     * @return array|array[]|PDO|string[]|null
-     */
-    public static function starApplication($params)
-    {
-        $data = null;
-        $userAdmin = $params['userAdmin'] ?? null;
-        $emailAdmin = $params['emailAdmin'] ?? null;
-        $passwordAdmin = $params['passwordAdmin'] ?? null;
-        $dbName = $params['dbName'] ?? null;
-        $dbUserName = $params['dbUserName'] ?? null;
-        $dbPassword = $params['dbPassword'] ?? null;
-
-        if ($userAdmin && $emailAdmin && $passwordAdmin && $dbUserName && $dbPassword) {
-            $driver = PDOConnect::getDrive();
-            $host = PDOConnect::getHost();
-            PDOConnect::disconnect();
-            $pdo = PDOConnect::connect($driver, $host, $dbName, $dbUserName, $dbPassword);
-
-            if (array_key_exists('error', (array)$pdo)) {
-                $data = $pdo;
-
-            } elseif (is_object($pdo)) {
-                $maintenance = new Maintenance();
-                $data = $maintenance->start($userAdmin, $emailAdmin, $passwordAdmin);
-            }
-
-        } else {
-            $data = [ "message" => "incomplete data" ];
-        }
-
-        return $data;
-    }
-
-    /**
      * @return mixed
      */
-    public function run()
-    {
-			$this->slimApp->addMiddleware(new LoggedUserMiddleware());
-
+    public function run() {
+			$this->slimApp
+				->addMiddleware(new GatewayMiddleware())
+				->addMiddleware(new LoggedUserMiddleware())
+				->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]));
 			return ApiFactory::request()->routes()->home($this->slimApp);
     }
 }

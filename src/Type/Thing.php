@@ -17,14 +17,4 @@ class Thing extends Entity
      * @var string
      */
     protected string $type = "Thing";
-
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        return parent::createSqlTable('Thing');
-    }
 }

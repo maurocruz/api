@@ -52,13 +52,14 @@ abstract class GetDataAbstract
   /**
    * @param mixed $params
    */
-  public function setParams($params): void
+  public function setParams($params): GetDataAbstract
   {
     if (isset($params['limit'])) {
       $this->limit = (string) $params['limit'];
       unset($params['limit']);
       }
     $this->params = $params;
+		return $this;
   }
 
   /**
