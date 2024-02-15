@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Permission;
+namespace Plinct\Api\Request\User\Permission;
 
 use Plinct\Api\Request\HttpRequest;
-use Plinct\Api\User\UserLogged;
+use Plinct\Api\Request\User\UserLogged;
 
 class Permissions
 {

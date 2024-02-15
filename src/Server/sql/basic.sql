@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `person_has_imageObject` (
 CREATE TABLE IF NOT EXISTS `person_has_contactPoint` (
   `idperson` INT NOT NULL,
   `idcontactPoint` INT UNSIGNED NOT NULL,
-  `position` INT DEFAULT NULL,
+  `position` INT UNSIGNED NOT NULL DEFAULT 1,
   PRIMARY KEY (`idperson`,`idcontactPoint`),
   KEY `fk_person_has_contactPoint_contactPoint_idx` (`idcontactPoint`),
   KEY `fk_person_has_contactPoint_person_idx` (`idperson`),

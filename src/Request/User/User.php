@@ -1,31 +1,33 @@
 <?php
-
 declare(strict_types=1);
-
-namespace Plinct\Api\User;
+namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Actions;
 use Plinct\Api\Request\HttpRequest;
-use Plinct\Api\User\Privileges\Privileges;
-use Plinct\Api\User\Auth\Authentication;
-use Plinct\Api\User\Permission\Permissions;
+use Plinct\Api\Request\User\Auth\Authentication;
+use Plinct\Api\Request\User\Permission\Permissions;
+use Plinct\Api\Request\User\Privileges\Privileges;
 use Plinct\PDO\PDOConnect;
 
 class User
 {
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function get(array $params = null): array
 	{
 		$dataBd = ApiFactory::server()->getDataInBd('user');
 		$dataBd->setParams($params);
 		$data = $dataBd->render();
-		// SUPER USER
-		if(UserLogged::isSuperUser()) return $data;
-		// OTHERS USERS
 		$newData = [];
 		foreach ($data as $item) {
 			$privileges = ApiFactory::server()->getDataInBd('user_privileges')->setParams(['iduser'=>$item['iduser']])->render();
-			if (empty($privileges) || $item['iduser'] === UserLogged::iduser()) {
+			if (UserLogged::isSuperUser()) {
+				$item['privileges'] = $privileges;
+				$newData[] = $item;
+			} elseif (empty($privileges) || $item['iduser'] === UserLogged::iduser()) {
 				$item['privileges'] = $privileges;
 				$newData[] = $item;
 			} else {
@@ -41,6 +43,10 @@ class User
 		}
 		return $newData;
 	}
+
+	/**
+	 * @return Authentication
+	 */
 	public function authentication(): Authentication
 	{
 		return new Authentication();

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User;
+namespace Plinct\Api\Request\User;
 
 abstract class UserAbstract
 {

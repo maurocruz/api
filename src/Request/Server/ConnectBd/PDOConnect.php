@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace Plinct\Api\Server;
+namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Exception;
 use PDO;
 use PDOException;
-use Plinct\PDO\Crud;
 
 class PDOConnect
 {

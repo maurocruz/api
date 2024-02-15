@@ -6,7 +6,7 @@ namespace Plinct\Api\Request\Actions;
 
 use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\Request\HttpRequest;
-use Plinct\Api\User\Privileges\Privileges;
+use Plinct\Api\Request\User\Privileges\Privileges;
 
 class Actions
 {

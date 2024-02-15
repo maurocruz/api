@@ -1,10 +1,8 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Server\GetData;
 
-use Plinct\PDO\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 abstract class GetDataAbstract
 {
@@ -126,6 +124,7 @@ abstract class GetDataAbstract
 
     //
     $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
+    //$columnsTable = ApiFactory::request()->server();
 
     if (isset($columnsTable['error'])) {
       $this->error = $columnsTable;

@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Auth;
+namespace Plinct\Api\Request\User\Auth;
 
 use DateInterval;
 use DateTime;
 use Exception;
 use PHPMailer\PHPMailer\PHPMailer;
-
 use Plinct\Api\ApiFactory;
 
 class ResetPassword

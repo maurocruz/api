@@ -14,11 +14,6 @@ class Routes
 		$homeRouters = require __DIR__ . '/router.php';
 		return $homeRouters($route);
 	}
-
-	public function auth($route) {
-		$authRoutes = require __DIR__.'/authRoutes.php';
-		return $authRoutes($route);
-	}
 	/**
 	 * @param $route
 	 * @return mixed
@@ -26,14 +21,5 @@ class Routes
 	public function user($route)	{
 		$userRoutes = require __DIR__.'/userRoutes.php';
 		return $userRoutes($route);
-	}
-
-	/**
-	 * @param $route
-	 * @return mixed
-	 */
-	public function userPrivileges($route) {
-		$routePermissions = require __DIR__.'/userPrivilegesRoutes.php';
-		return $routePermissions($route);
 	}
 }

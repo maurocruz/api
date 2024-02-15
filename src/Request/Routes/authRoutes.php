@@ -19,7 +19,8 @@ return function (Route $route)
 			return $response;
 		});
 		$route->post('', function (Request $request, Response $response) {
-			$data = ApiFactory::server()->user()->authentication()->login($request->getParsedBody());
+			$params = $request->getParsedBody();
+			$data = ApiFactory::request()->user()->authentication()->login($params);
 			return ApiFactory::response()->write($response, $data);
 		});
 	})->addMiddleware(new CorsMiddleware([
@@ -34,7 +35,7 @@ return function (Route $route)
 			return $response;
 		});
 		$route->post('', function (Request $request, Response $response) {
-			$data = ApiFactory::server()->user()->authentication()->register($request->getParsedBody());
+			$data = ApiFactory::request()->user()->authentication()->register($request->getParsedBody());
 			return ApiFactory::response()->write($response, $data);
 		});
 	});

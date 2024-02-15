@@ -1,6 +1,8 @@
 <?php
 namespace Plinct\Api\Server;
 
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
+
 class Maintenance {
 
 	const SQL_DIR = __DIR__.'/sql/';

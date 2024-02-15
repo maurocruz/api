@@ -1,18 +1,16 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Server;
 
 use Plinct\Api\Interfaces\HttpRequestInterface;
-use Plinct\Api\PlinctApi;
+use Plinct\Api\PlinctApp;
+use Plinct\Api\Request\Server\ConnectBd\Crud;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Server\Relationship\Relationship;
 use Plinct\Api\Server\Schema\Schema;
-use Plinct\PDO\Crud;
 use Plinct\Tool\Curl;
 use ReflectionClass;
 use ReflectionException;
-use Plinct\PDO\PDOConnect;
 
 abstract class Entity extends Crud implements HttpRequestInterface
 {
@@ -69,7 +67,7 @@ abstract class Entity extends Crud implements HttpRequestInterface
         $queryStringArray['source'] = 'serviceCategory';
       }
 
-      $soloData = json_decode(Curl::getUrlContents(PlinctApi::$soloineApi . "?" . http_build_query($queryStringArray)), true);
+      $soloData = json_decode(Curl::getUrlContents(PlinctApp::$soloineApi . "?" . http_build_query($queryStringArray)), true);
 
       if (isset($soloData['@graph'])) {
         foreach ($soloData['@graph'] as $key => $value) {

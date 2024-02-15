@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Privileges;
+namespace Plinct\Api\Request\User\Privileges;
 
 abstract class PrivilegesAbstract
 {

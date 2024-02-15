@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Server\Relationship;
 
 use Plinct\Api\ApiFactory;
-use Plinct\PDO\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class Relationship extends RelationshipAbstract
 {
@@ -11,9 +11,9 @@ class Relationship extends RelationshipAbstract
 	 * @param string $tableHasPart
 	 * @param string $idHasPart
 	 * @param string $tableIsPartOf
-	 * @param string|null $idIsPartOf
+	 * @param int|null $idIsPartOf
 	 */
-  public function __construct(string $tableHasPart, string $idHasPart, string $tableIsPartOf, string $idIsPartOf = null)
+  public function __construct(string $tableHasPart, string $idHasPart, string $tableIsPartOf, int $idIsPartOf = null)
   {
     $this->tableHasPart = lcfirst($tableHasPart);
     $this->idHasPart = $idHasPart;
@@ -67,6 +67,7 @@ class Relationship extends RelationshipAbstract
    */
   public function getRelationship($params = null): array
   {
+		$query = null;
 	  $orderBy = $params['orderBy'] ?? null;
 		// IF TABLE_HAS_PART EXISTS
     if (parent::table_exists($this->table_has_table)) {
@@ -144,7 +145,7 @@ class Relationship extends RelationshipAbstract
    */
   public function putRelationship($params): array
   {
-    $this->idIsPartOf = $params['idIsPartOf'] ?? null;
+    $this->idIsPartOf = (int) $params['idIsPartOf'] ?? null;
     unset($params['tableIsPartOf']);
     unset($params['idIsPartOf']);
     unset($params['id']);

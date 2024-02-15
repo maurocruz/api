@@ -1,7 +1,7 @@
 <?php
 namespace Plinct\Api\Server\Schema;
 
-use Plinct\PDO\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 abstract class SchemaAbstract
 {

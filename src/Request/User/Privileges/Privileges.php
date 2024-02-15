@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Privileges;
+namespace Plinct\Api\Request\User\Privileges;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Permissions;
 use Plinct\Api\Request\HttpRequest;
-use Plinct\Api\User\UserLogged;
+use Plinct\Api\Request\User\UserLogged;
 
 class Privileges extends PrivilegesAbstract
 {

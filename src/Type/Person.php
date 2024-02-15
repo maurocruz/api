@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
@@ -35,12 +33,9 @@ class Person extends Entity
     {
         if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
             return parent::post($params);
-
         } elseif (isset($params['givenName']) && isset($params['familyName'])) {
             $params['name'] = $params['givenName']." ".$params['familyName'];
-            $params['dateRegistration'] = date('Y-m-d');
             return parent::post($params);
-
         } else {
             return [ "message" => "incomplete mandatory data" ];
         } 

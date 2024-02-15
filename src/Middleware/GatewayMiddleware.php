@@ -3,8 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Middleware;
 
 use Plinct\Api\ApiFactory;
-
-use Plinct\Api\Server\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

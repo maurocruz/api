@@ -1,16 +1,23 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api;
 
 use Plinct\Api\Request\Request;
+use Plinct\Api\Request\User\User;
 use Plinct\Api\Response\Response;
 use Plinct\Api\Server\Server;
-use Plinct\Api\User\User;
+use Slim\App;
 
 class ApiFactory
 {
+	/**
+	 * @param App $slimApp
+	 * @return PlinctApp
+	 */
+	public static function create(App $slimApp): PlinctApp {
+		return new PlinctApp($slimApp);
+	}
+
 	/**
 	 * @return User
 	 */

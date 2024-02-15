@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Privileges;
+namespace Plinct\Api\Request\User\Privileges;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
+use Plinct\Api\Request\User\UserLogged;
 use Plinct\Api\Server\GetData\GetData;
-use Plinct\Api\User\UserLogged;
-use Plinct\Web\Debug\Debug;
 
 class PrivilegesActions implements HttpRequestInterface
 {

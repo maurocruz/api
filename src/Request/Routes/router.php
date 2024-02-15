@@ -23,40 +23,39 @@ return function(Route $route)
 	   * AUTHENTICATION
 	   */
 	  $route->group('auth', function (Route $route) {
-			return ApiFactory::request()->routes()->auth($route);
+		  $authRoutes = require __DIR__.'/authRoutes.php';
+		  return $authRoutes($route);
 	  });
 
 	  /**
 	   * USER
 	   */
 		$route->group('user', function(Route $route) {
-			return ApiFactory::request()->routes()->user($route);
+			$userRoutes = require __DIR__.'/userRoutes.php';
+			return $userRoutes($route);
 		})->addMiddleware(new AuthMiddleware());
 
 	  /**
 	   * SEARCH
 	   */
-	  $route->get('/search', function(Request $request, Response $response)
+	  $route->get('search', function(Request $request, Response $response)
 	  {
 		  $queryParams = $request->getQueryParams();
-
 		  if ($queryParams) {
 			  $data = (new Search())->getData($queryParams);
 		  } else {
 			  $data = ['message' => 'Plinct Search API'];
 		  }
-
 		  $response = $response->withHeader("Content-type", "application/json");
 		  $response = $response->withHeader('Access-Control-Allow-Origin', '*');
 		  $response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
-
 		  return $response;
 	  });
 
 		/**
 		 * MAP
 		 */
-	  $route->group('/map', function (Route $route)	{
+	  $route->group('map', function (Route $route)	{
 			$mapRoutes = require __DIR__ . '/mapRoutes.php';
 			return $mapRoutes($route);
 	  });
@@ -64,7 +63,7 @@ return function(Route $route)
 	  /**
 	   * PLACE
 	   */
-		$route->group('/place', function (Route $route) {
+		$route->group('place', function (Route $route) {
 			$placeRoutes = require __DIR__.'/placeRoutes.php';
 			return $placeRoutes($route);
 		});
@@ -72,7 +71,7 @@ return function(Route $route)
 	  /**
 	   * SCHEMA
 	   */
-		$route->group('/schema', function(Route $route) {
+		$route->group('schema', function(Route $route) {
 			$schemaRoutes = require __DIR__.'/schemaRoutes.php';
 			return $schemaRoutes($route);
 		});
@@ -80,7 +79,7 @@ return function(Route $route)
 	  /**
 	   * TYPE
 	   */
-		$route->group('/{type}', function (Route $route) {
+		$route->group('{type}', function (Route $route) {
 			$typeRoutes = require __DIR__.'/typeRoutes.php';
 			return $typeRoutes($route);
 		});
@@ -90,6 +89,5 @@ return function(Route $route)
 			ApiFactory::response()->write($response, ['status'=>'success', 'message'=>'Welcome to Plinct API']);
 			return $response;
 		});
-
   });
 };

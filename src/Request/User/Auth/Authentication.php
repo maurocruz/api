@@ -1,14 +1,13 @@
 <?php
-
 declare(strict_types=1);
-
-namespace Plinct\Api\User\Auth;
+namespace Plinct\Api\Request\User\Auth;
 
 use Exception;
 use Firebase\JWT\JWT;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\PlinctApi;
-use Plinct\Api\User\UserActions;
+use Plinct\Api\PlinctApp;
+use Plinct\Api\Request\User\UserActions;
+use Plinct\Tool\ToolBox;
 
 class Authentication
 {
@@ -18,34 +17,30 @@ class Authentication
 	 */
 	public function login($params): array
 	{
+		$password = $params['password'] ?? null;
+		$logger = ToolBox::Logger('auth', PlinctApp::getLogdir().'auth.log');
 		// NO DATA RECEIVED
-		if (!isset($params['email']) || !isset($params['password'])) {
+		if (!isset($params['email']) || !isset($password)) {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing();
 		}
 		// INVALID EMAIL
 		if (!Validator::isEmail($params['email'])) {
 			return ApiFactory::response()->message()->fail()->invalidEmail();
 		}
-
 		$email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
-		$password = $params['password'] ?? null;
-		$iss = $params['iss'] ?? PlinctApi::$ISSUER;
-		$exp = $params['exp'] ?? PlinctApi::$JWT_EXPIRE;
-
-
+		$iss = $params['iss'] ?? PlinctApp::$ISSUER;
+		$exp = $params['exp'] ?? PlinctApp::$JWT_EXPIRE;
 		// GET DATA
 		$data = (new UserActions())->get(["email" => $email ]);
-
 		// ERROR
 		if(isset($data['error'])) {
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data['error']);
 		}
-
 		// USER NOT EXISTS
 		if (empty($data)) {
+			$logger->info('ACCESS LOGIN: User does not exists!', ['email'=>$email]);
 			return ApiFactory::response()->message()->fail()->userDoesNotExist();
 		}
-
 		// USER EXISTS
 		if (password_verify($password, $data[0]['password'])) {
 			$value = $data[0];
@@ -55,10 +50,8 @@ class Authentication
 				"name" => $value['name'],
 				"uid" => $value['iduser']
 			];
-
-			return ApiFactory::response()->message()->success()->success("Access authorized",['token'=>JWT::encode($payload, PlinctApi::$JWT_SECRET_API_KEY)]);
+			return ApiFactory::response()->message()->success()->success("Access authorized",['token'=>JWT::encode($payload, PlinctApp::$JWT_SECRET_API_KEY)]);
 		}
-
 		// USER NOT AUTHORIZED
 		return ApiFactory::response()->message()->fail()->userExistsButNotLogged();
 	}

@@ -1,10 +1,8 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Server\GetData;
 
-use Plinct\PDO\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class GetData extends GetDataAbstract
 {
@@ -47,7 +45,6 @@ class GetData extends GetDataAbstract
         }
 
         $this->query .= ";";
-
         return PDOConnect::run($this->query);
     }
 }

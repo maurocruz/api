@@ -1,17 +1,22 @@
 <?php
-
 declare(strict_types=1);
-
-namespace Plinct\Api\User;
+namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
-use Plinct\Api\User\Privileges\PrivilegesActions;
+use Plinct\Api\Request\User\Privileges\PrivilegesActions;
 
 class UserActions implements HttpRequestInterface
 {
+	/**
+	 *
+	 */
 	const tableName = "user";
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$dataUser = ApiFactory::server()->getDataInBd(self::tableName);
@@ -36,13 +41,16 @@ class UserActions implements HttpRequestInterface
 		return $data;
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function post(array $params): array
 	{
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;
 		$password = $params['password'] ?? null;
 		$passwordRepeat = $params['passwordRepeat'] ?? null;
-
 		if ($password !== $passwordRepeat) {
 			return ApiFactory::response()->message()->fail()->passwordRepeatIsIncorrect();
 		}
@@ -55,12 +63,10 @@ class UserActions implements HttpRequestInterface
 		if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password)) {
 			return ApiFactory::response()->message()->fail()->passwordLeastLength();
 		}
-
 		$newParams['name'] = $name;
 		$newParams['email'] = $email;
 		$newParams['password'] = password_hash($password, PASSWORD_DEFAULT);
-		$data = ApiFactory::server()->connectBd('user')->created($newParams);
-
+		$data = ApiFactory::request()->server()->connectBd('user')->created($newParams);
 		if (isset($data['error']) || (isset($data['status']) && $data['status'] == 'error')) {
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} else {
@@ -69,16 +75,27 @@ class UserActions implements HttpRequestInterface
 		}
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function put(array $params = null): array
 	{
 		return ApiFactory::server()->connectBd('user')->update($params);
 	}
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
 	public function delete($params): array
 	{
 		return ApiFactory::server()->connectBd('user')->delete($params);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTable(): string
 	{
 		return self::tableName;

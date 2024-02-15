@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Request\Actions;
 
-use Plinct\Api\User\UserLogged;
-
 class Permissions
 {
 	private static bool $requiresSubscription = false;

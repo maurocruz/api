@@ -1,11 +1,9 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Server\Relationship;
 
-use Plinct\PDO\Crud;
-use Plinct\PDO\PDOConnect;
+use Plinct\Api\Request\Server\ConnectBd\Crud;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 abstract class RelationshipAbstract extends Crud
 {
@@ -22,9 +20,9 @@ abstract class RelationshipAbstract extends Crud
 	 */
   protected ?string $tableIsPartOf;
 	/**
-	 * @var string|null
+	 * @var int|null
 	 */
-	protected ?string $idIsPartOf;
+	protected ?int $idIsPartOf;
 	/**
 	 * @var string|null
 	 */

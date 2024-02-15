@@ -1,15 +1,13 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Type;
 
 use Exception;
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Server\Entity;
 use Plinct\Api\Server\Maintenance;
 use Plinct\Api\Server\Relationship\Relationship;
-use Plinct\PDO\PDOConnect;
 use Plinct\Tool\ArrayTool;
 use Plinct\Tool\FileSystem\FileSystem;
 use Plinct\Tool\Image\Image;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Middleware;
 
-use Plinct\Api\User\UserLogged;
+use Plinct\Api\Request\User\UserLogged;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

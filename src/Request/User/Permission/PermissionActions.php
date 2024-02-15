@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\User\Permission;
+namespace Plinct\Api\Request\User\Permission;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;

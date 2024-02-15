@@ -113,11 +113,12 @@ class HttpRequest implements HttpRequestInterface
 	{
 		if (Permissions::isRequiresSubscription()) {
 			$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get($params),'delete');
-
 			if(isset($filter['status']) && $filter['status'] == 'fail') {
 				return $filter;
 			} else {
 				$returns = $this->classActions->delete($params);
+				var_dump($returns);
+				die();
 				if ($returns == []) {
 					return ApiFactory::response()->message()->success()->success('successfully deleted', $params);
 				} else {

@@ -1,12 +1,8 @@
 <?php
-
 declare(strict_types=1);
-
-namespace Plinct\Api\Request\Server;
+namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Interfaces\CrudInterface;
-use Plinct\PDO\PDOConnect;
 
 class ConnectBd implements CrudInterface
 {
@@ -67,7 +63,7 @@ class ConnectBd implements CrudInterface
 		}
 	}
 
-	public function lastInsertId(): string {
+	public function lastInsertId(): int {
 		return PDOConnect::lastInsertId();
 	}
 

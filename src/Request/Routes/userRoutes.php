@@ -18,13 +18,13 @@ return function(Route $route)
 		})->addMiddleware(new CorsMiddleware([
 			'Access-Control-Allow-Headers' => 'origin, x-requested-with, content-type, Authorization'
 		]));
+
 		/**
 		 * GET
 		 */
 		$route->get('', function (Request $request, Response $response) {
 			$params = $request->getQueryParams();
 			$data = ApiFactory::server()->user()->get($params);
-			//var_dump($data); die();
 			return ApiFactory::response()->write($response, $data);
 		});
 
@@ -39,8 +39,7 @@ return function(Route $route)
 		/**
 		 * PUT
 		 */
-		$route->put('', function (Request $request, Response $response)
-		{
+		$route->put('', function (Request $request, Response $response) {
 			$params = $request->getParsedBody();
 			$httpRequest = ApiFactory::server()->user()->httpRequest();
 			if (isset($params['iduser'])) {
@@ -65,6 +64,7 @@ return function(Route $route)
 	});
 
 	$route->group('/privileges', function(Route $route) {
-		return ApiFactory::request()->routes()->userPrivileges($route);
+		$privilegesRoutes = require __DIR__.'/userPrivilegesRoutes.php';
+		return $privilegesRoutes($route);
 	});
 };
