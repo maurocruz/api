@@ -1,12 +1,8 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
-use Plinct\Api\Server\Maintenance;
-use ReflectionException;
 
 class WebSite extends Entity
 {
@@ -26,22 +22,4 @@ class WebSite extends Entity
      * @var array|string[]
      */
     protected array $hasTypes = ['hasPart'=>'WebPage'];
-
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        $maintenance = new Maintenance();
-        $message[] = $maintenance->createSqlTable("organization");
-        $message[] = $maintenance->createSqlTable("person");
-        $message[] = $maintenance->createSqlTable("ImageObject");
-        $message[] = $maintenance->createSqlTable("PropertyValue");
-        $message[] =  parent::createSqlTable("WebSite");
-        $message[] = $maintenance->createSqlTable('WebPage');
-        $message[] = $maintenance->createSqlTable('WebPageElement');
-        return $message;
-    }
 }

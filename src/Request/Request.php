@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request;
 
+use Plinct\Api\Request\Configuration\Configuration;
 use Plinct\Api\Request\Routes\Routes;
 use Plinct\Api\Request\Server\Server;
 use Plinct\Api\Request\User\User;
@@ -9,6 +10,13 @@ use Plinct\Api\Type\Type;
 
 class Request
 {
+	/**
+	 * @return Configuration
+	 */
+	public function configuration(): Configuration
+	{
+		return new Configuration();
+	}
 	/**
 	 * @return Routes
 	 */

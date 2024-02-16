@@ -1,12 +1,8 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Type;
 
 use Plinct\Api\Server\Entity;
-use Plinct\Api\Server\Maintenance;
-use ReflectionException;
 
 class WebPageElement extends Entity
 {
@@ -35,20 +31,5 @@ class WebPageElement extends Entity
     {
         $params['orderBy'] = $params['orderBy'] ?? "position";
         return parent::get($params);
-    }
-
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        $maintenance = new Maintenance();
-        $message[] = $maintenance->createSqlTable("propertyValue");
-        $message[] = $maintenance->createSqlTable("webPage");
-        $message[] = $maintenance->createSqlTable("imageObject");
-        $message[] = parent::createSqlTable("WebPageElement");
-        return $message;
     }
 }

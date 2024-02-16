@@ -197,3 +197,11 @@ CREATE TABLE IF NOT EXISTS `place` (
   KEY `fk_place_1_idx` (`address`),
   CONSTRAINT `fk_place_address` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `propertyValue` (
+  `idpropertyValue` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) NOT NULL,
+  `value` varchar(255) NOT NULL,
+  PRIMARY KEY (`idpropertyValue`)
+) ENGINE=InnoDB;
