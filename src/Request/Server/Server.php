@@ -40,7 +40,6 @@ class Server
 		if($userFunction === 5) {
 			self::$isPermitted = true;
 		}
-
 		return $this;
 	}
 }

@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS `organization` (
   `idorganization` int NOT NULL AUTO_INCREMENT,
   `additionalType` varchar(255) DEFAULT NULL,
-  `name` varchar(45) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `description` text,
   `disambiguatingDescription` text,
   `legalName` varchar(124) DEFAULT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `webSite_has_propertyValue` (
 CREATE TABLE IF NOT EXISTS `webPage` (
   `idwebPage` int NOT NULL AUTO_INCREMENT,
   `isPartOf` int DEFAULT NULL,
-  `url` varchar(255) DEFAULT NULL,
+  `url` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `alternativeHeadline` varchar(50) DEFAULT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `webPage` (
   `dateCreated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dateModified` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idwebPage`),
-  KEY `date_modified` (`dateModified`)
+  KEY `url` (`url`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `webPage_has_propertyValue` (

@@ -1,20 +1,20 @@
 
 CREATE TABLE IF NOT EXISTS `organization` (
-                                            `idorganization` int NOT NULL AUTO_INCREMENT,
-                                            `additionalType` varchar(255) DEFAULT NULL,
-                                            `name` varchar(45) NOT NULL,
-                                            `description` text,
-                                            `disambiguatingDescription` text,
-                                            `legalName` varchar(124) DEFAULT NULL,
-                                            `taxId` varchar(24) DEFAULT NULL,
-                                            `url` varchar(255) DEFAULT NULL,
-                                            `hasOfferCatalog` text,
-                                            `location` int DEFAULT NULL,
-                                            `address` int DEFAULT NULL,
-                                            `areaServed` int(10) DEFAULT NULL,
-                                            `dateCreated` datetime DEFAULT CURRENT_TIMESTAMP,
-                                            `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                            PRIMARY KEY (`idorganization`)
+  `idorganization` int NOT NULL AUTO_INCREMENT,
+  `additionalType` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text,
+  `disambiguatingDescription` text,
+  `legalName` varchar(124) DEFAULT NULL,
+  `taxId` varchar(24) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  `hasOfferCatalog` text,
+  `location` int DEFAULT NULL,
+  `address` int DEFAULT NULL,
+  `areaServed` int(10) DEFAULT NULL,
+  `dateCreated` datetime DEFAULT CURRENT_TIMESTAMP,
+  `dateModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`idorganization`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `organization_has_contactPoint` (

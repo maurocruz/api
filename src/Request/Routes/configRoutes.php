@@ -32,8 +32,8 @@ return function(Route $route) {
 
 		$route->post('', function (Request $request, Response $response) {
 			$params = $request->getParsedBody();
-			$createTable = $params['createTable'] ?? null;
-			$data = ApiFactory::request()->configuration()->createTable($createTable);
+			$module = $params['createModule'] ?? null;
+			$data = ApiFactory::request()->configuration()->createModule($module);
 			return ApiFactory::response()->write($response, $data);
 		})->addMiddleware(new AuthMiddleware());
 

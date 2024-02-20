@@ -6,7 +6,6 @@ use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class Configuration
 {
-
 	const SQL_DIR = __DIR__.'/sql/';
 	/**
 	 * @param string $table
@@ -31,19 +30,19 @@ class Configuration
 	 * @param ?string $name
 	 * @return string[]
 	 */
-	public function createTable(?string $name): array
+	public function createModule(?string $name): array
 	{
-		if (!$name) return ['message'=>'Table was not created! Name is null!'];
-		$sqlFile = self::SQL_DIR.$name.".sql";
+		if (!$name) return ['message'=>'Module was not created! Name is null!'];
+		$sqlFile = self::SQL_DIR.lcfirst($name).".sql";
 		if (file_exists($sqlFile)) {
 			$data = PDOConnect::run(file_get_contents($sqlFile));
 			if(empty($data)) {
-				return ['message'=>'Table has been created'];
+				return ['status'=>'success','message'=>'Module has been created'];
 			} else {
-				return ['message'=>'fail','data'=>$data];
+				return ['status'=>'fail','message'=>'fail','data'=>$data];
 			}
 		} else {
-			return ['message'=>'Table was not created! SQL file does not exists'];
+			return ['status'=>'fail','message'=>'Module was not created! SQL file does not exists'];
 		}
 	}
 }

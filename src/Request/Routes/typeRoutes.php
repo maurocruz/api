@@ -42,18 +42,14 @@ return function(Route $route)
 	/**
 	 * PUT
 	 */
-	$route->put('', function (Request $request, Response $response, $args)
-	{
+	$route->put('', function (Request $request, Response $response, $args) {
 		$type = $args['type'];
 		$params = $request->getParsedBody() ?? null;
 		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id". lcfirst($type)] ?? null;
-
 		if (!$id) {
 			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(["params"=>$params]);
-		}
-		elseif ($response->getStatusCode() === 200) {
+		}	else if ($response->getStatusCode() === 200) {
 			$typeClass = ApiFactory::server()->type($type);
-
 			if($typeClass->exists()) {
 				$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('u', $type, 2)->put($params);
 			} else {
@@ -63,9 +59,7 @@ return function(Route $route)
 		else {
 			$data = ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction();
 		}
-
 		return ApiFactory::response()->write($response, $data);
-
 	})->addMiddleware(new AuthMiddleware());
 
 	/**
