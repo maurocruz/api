@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Server;
 
-use Plinct\Api\Server\GetData\GetData;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\PDO\Crud;
 use Plinct\PDO\PDOConnect;
 

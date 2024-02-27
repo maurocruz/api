@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\User\Permission;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Interfaces\HttpRequestInterface;
-use Plinct\Api\Server\GetData\GetData;
+use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\HttpRequestInterface;
 
 class PermissionActions implements HttpRequestInterface
 {

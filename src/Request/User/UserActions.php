@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Interfaces\HttpRequestInterface;
+use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\User\Privileges\PrivilegesActions;
 
 class UserActions implements HttpRequestInterface
@@ -51,27 +51,44 @@ class UserActions implements HttpRequestInterface
 		$email = $params['email'] ?? null;
 		$password = $params['password'] ?? null;
 		$passwordRepeat = $params['passwordRepeat'] ?? null;
+		// check valid password
 		if ($password !== $passwordRepeat) {
 			return ApiFactory::response()->message()->fail()->passwordRepeatIsIncorrect();
 		}
+		// check valid name
 		if (strlen($name) < 5) {
 			return ApiFactory::response()->message()->fail()->nameLonger4Char();
 		}
+		// check valid email
 		if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
 			return ApiFactory::response()->message()->fail()->invalidEmail();
 		}
+		//check valid password
 		if (!preg_match("#.*^(?=.{8,20})(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).*$#", $password)) {
 			return ApiFactory::response()->message()->fail()->passwordLeastLength();
 		}
+		// save user
 		$newParams['name'] = $name;
 		$newParams['email'] = $email;
 		$newParams['password'] = password_hash($password, PASSWORD_DEFAULT);
+
 		$data = ApiFactory::request()->server()->connectBd('user')->created($newParams);
+		// error
 		if (isset($data['error']) || (isset($data['status']) && $data['status'] == 'error')) {
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} else {
-			$id = ApiFactory::server()->connectBd('user')->lastInsertId();
-			return ApiFactory::response()->message()->success()->success('User registered successfully', ['iduser' => $id]);
+			// get iduser
+			$iduser = ApiFactory::server()->connectBd('user')->lastInsertId();
+			// insert user from new person
+			// save thing
+			$dataThing = ApiFactory::request()->type('thing')->httpRequest()->setPermission()->post(['name'=>$name,'type'=>'Person']);
+			$idthing = $dataThing['id'];
+			// save person
+			ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['thing'=>$idthing]);
+			// save contactPoint
+			ApiFactory::request()->type('contactPoint')->httpRequest()->setPermission()->post(['thing'=>$idthing,'email'=>$email]);
+			// return
+			return ApiFactory::response()->message()->success()->success('User registered successfully', ['iduser' => $iduser]);
 		}
 	}
 

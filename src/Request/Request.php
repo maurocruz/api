@@ -5,8 +5,8 @@ namespace Plinct\Api\Request;
 use Plinct\Api\Request\Configuration\Configuration;
 use Plinct\Api\Request\Routes\Routes;
 use Plinct\Api\Request\Server\Server;
+use Plinct\Api\Request\Type\Type;
 use Plinct\Api\Request\User\User;
-use Plinct\Api\Type\Type;
 
 class Request
 {

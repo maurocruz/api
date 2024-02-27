@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 use Plinct\Api\Middleware\AuthMiddleware;
@@ -26,16 +25,11 @@ return function(Route $route)
 	{
 		$type = $args['type'] ?? null;
 		$params = $request->getQueryParams() ?? null;
-
 		if ($type) {
-			$typeClass = ApiFactory::server()->type($type);
-			$data = $typeClass->exists()
-				? $typeClass->httpRequest()->setPermission()->get($params)
-				: ApiFactory::response()->message()->fail()->thisTypeNotExists();
+			$data = ApiFactory::request()->type($type)->get($params)->ready();
 		} else {
 			$data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 		}
-
 		return ApiFactory::response()->write($response, $data);
 	});
 
@@ -48,16 +42,8 @@ return function(Route $route)
 		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id". lcfirst($type)] ?? null;
 		if (!$id) {
 			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(["params"=>$params]);
-		}	else if ($response->getStatusCode() === 200) {
-			$typeClass = ApiFactory::server()->type($type);
-			if($typeClass->exists()) {
-				$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('u', $type, 2)->put($params);
-			} else {
-				$data = ApiFactory::response()->message()->fail()->thisTypeNotExists();
-			}
-		}
-		else {
-			$data = ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction();
+		}	else {
+			$data = ApiFactory::request()->type($type)->put($params)->ready();
 		}
 		return ApiFactory::response()->write($response, $data);
 	})->addMiddleware(new AuthMiddleware());
@@ -70,14 +56,7 @@ return function(Route $route)
 		$type = $args['type'] ?? null;
 		$params = $request->getParsedBody();
 		$uploadedFiles = $_FILES;
-		$action = $request->getParsedBody()['action'] ?? null;
-		// NAMESPACE
-		$namespace = $params['tableHasPart'] ?? $type;
-		if($action == 'create') {
-			$data = ApiFactory::server()->type($type)->create();
-		} else {
-			$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('c', $namespace, 2)->post($params, $uploadedFiles);
-		}
+		$data = ApiFactory::request()->type($type)->post($params, $uploadedFiles)->ready();
 		return ApiFactory::response()->write($response, $data);
 	})->addMiddleware(new AuthMiddleware());
 
@@ -90,15 +69,10 @@ return function(Route $route)
 		$params = $request->getParsedBody() ?? $request->getQueryParams() ?? null;
 		$params["id$type"] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
 		unset($params['id']);
-
-		if ($response->getStatusCode() === 200) {
-			if (!$params["id$type"]) {
-				$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
-			} else {
-				$data = ApiFactory::server()->type($type)->httpRequest()->withPrivileges('d', $type, 2)->delete($params);
-			}
+		if (!$params["id$type"]) {
+			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		} else {
-			$data = null;
+			$data = ApiFactory::request()->type($type)->delete($params)->ready();
 		}
 		return ApiFactory::response()->write($response, $data);
 

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Plinct\Api\Server;
 
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
+use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship\Relationship;
+use Plinct\Api\Request\Type\Type;
 use Plinct\Api\Request\User\User;
-use Plinct\Api\Server\GetData\GetData;
-use Plinct\Api\Server\Relationship\Relationship;
-use Plinct\Api\Type\Type;
 
 class Server
 {
@@ -30,18 +30,9 @@ class Server
 		return new GetData($table);
 	}
 
-	public function relationship(string $tableHasPart, string $idHasPart, string $tableIsPartOf, int $idIsPartOf): Relationship
+	public function relationship(string $tableHasPart, int $idHasPart, string $tableIsPartOf, int $idIsPartOf): Relationship
 	{
 		return new Relationship($tableHasPart, $idHasPart, $tableIsPartOf, $idIsPartOf);
-	}
-
-	/**
-	 * @param string $type
-	 * @return Type
-	 */
-	public function type(string $type): Type
-	{
-		return new Type($type);
 	}
 
 	/**

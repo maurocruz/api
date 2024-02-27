@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Plinct\Api\Middleware\CorsMiddleware;
-use Plinct\Api\Schema\Schema;
+use Plinct\Api\Request\Schema\Schema;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteCollectorProxy as Route;

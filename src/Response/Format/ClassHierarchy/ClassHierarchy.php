@@ -39,7 +39,7 @@ class ClassHierarchy implements ClassHierarchyInterface
 
     // PLINCT
     $paramsPlinct = ['groupBy' => 'additionalType', 'orderBy' => 'dateModified desc'];
-    $dataPlinct = ApiFactory::server()->type($this->type)->httpRequest()->setPermission()->get($paramsPlinct);
+    $dataPlinct = ApiFactory::request()->type($this->type)->httpRequest()->setPermission()->get($paramsPlinct);
 
     //
     $newData = [];

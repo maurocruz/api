@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Map;
 
-use Plinct\Api\Server\GetData\GetData;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Viewport // DEPRECATED
 {

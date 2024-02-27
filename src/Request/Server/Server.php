@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
-use Plinct\Api\Server\GetData\GetData;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Server
 {

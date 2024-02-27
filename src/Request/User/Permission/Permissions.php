@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Request\User\Permission;
 
-use Plinct\Api\Request\HttpRequest;
+use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\UserLogged;
 
 class Permissions

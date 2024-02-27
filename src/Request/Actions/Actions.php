@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Request\Actions;
 
-use Plinct\Api\Interfaces\HttpRequestInterface;
-use Plinct\Api\Request\HttpRequest;
+use Plinct\Api\Request\Server\HttpRequest;
+use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\User\Privileges\Privileges;
 
 class Actions

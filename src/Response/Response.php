@@ -6,6 +6,7 @@ namespace Plinct\Api\Response;
 
 use Plinct\Api\Response\Message\Message;
 use Plinct\Api\Response\Format\Format;
+use Plinct\Api\Response\Type\Type;
 use Psr\Http\Message\ResponseInterface;
 
 class Response
@@ -21,6 +22,15 @@ class Response
 	 */
 	public function message(): Message {
 		return new Message();
+	}
+
+	/**
+	 * @param string $type
+	 * @return Type
+	 */
+	public function type(string $type): Type
+	{
+		return new Type($type);
 	}
 
 	/**

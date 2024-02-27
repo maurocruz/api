@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Request\User;
 
 use Firebase\JWT\ExpiredException;
@@ -30,10 +28,8 @@ class UserLogged extends UserAbstract
 		}
 		$idUserLogged = $payload->uid;
 		parent::setIduser($idUserLogged);
-
 		$userData = (new UserActions())->get(['iduser'=>$idUserLogged]);
-
-		if (!isset($userData['status']) || $userData['status'] !== 'fail') {
+		if (!empty($userData) && (!isset($userData['status']) || $userData['status'] !== 'fail')) {
 			$userValues = $userData[0];
 			parent::setName($userValues['name']);
 			parent::setEmail($userValues['email']);

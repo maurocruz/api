@@ -6,7 +6,7 @@ namespace Plinct\Api\Request\User\Privileges;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Permissions;
-use Plinct\Api\Request\HttpRequest;
+use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\UserLogged;
 
 class Privileges extends PrivilegesAbstract

@@ -4,7 +4,7 @@ namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Actions;
-use Plinct\Api\Request\HttpRequest;
+use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\Auth\Authentication;
 use Plinct\Api\Request\User\Permission\Permissions;
 use Plinct\Api\Request\User\Privileges\Privileges;

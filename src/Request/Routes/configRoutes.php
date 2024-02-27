@@ -19,21 +19,21 @@ return function(Route $route) {
 		$route->get('', function (Request $request, Response $response) {
 			$params = $request->getQueryParams();
 			$data = ['message'=>'No action was taken'];
-			$showTableStatus = $params['showTableStatus'] ?? null;
+			$tableName = $params['showTableStatus'] ?? null;
 			$schema = $params['schema'] ?? null;
-			if ($showTableStatus) {
-				$data = ApiFactory::request()->configuration()->showTableStatus($showTableStatus);
+			if ($tableName) {
+				$data = ApiFactory::request()->configuration()->module()->showTableStatus($tableName);
 			}
 			if ($schema === 'basic') {
-				$data = ApiFactory::request()->configuration()->setBasicConfiguration();
+				$data = ApiFactory::request()->configuration()->module()->database()->initApplication();
 			}
 			return ApiFactory::response()->write($response, $data);
 		});
 
 		$route->post('', function (Request $request, Response $response) {
 			$params = $request->getParsedBody();
-			$module = $params['createModule'] ?? null;
-			$data = ApiFactory::request()->configuration()->createModule($module);
+			$module = $params['installModule'] ?? null;
+			$data = ApiFactory::request()->configuration()->module()->install($module);
 			return ApiFactory::response()->write($response, $data);
 		})->addMiddleware(new AuthMiddleware());
 
