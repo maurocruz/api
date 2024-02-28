@@ -1,4 +1,16 @@
 
+-- POSTAL ADDRESS
+
+CREATE TABLE IF NOT EXISTS `postalAddress` (
+  `idpostalAddress` INT NOT NULL AUTO_INCREMENT,
+  `streetAddress` VARCHAR(255) NULL DEFAULT NULL,
+  `addressLocality` VARCHAR(80) NULL DEFAULT NULL,
+  `addressRegion` VARCHAR(45) NULL DEFAULT NULL,
+  `addressCountry` VARCHAR(45) NULL DEFAULT NULL,
+  `postalCode` VARCHAR(45) NULL DEFAULT NULL,
+  PRIMARY KEY (`idpostalAddress`)
+) ENGINE = InnoDB;
+
 -- PLACE
 
 CREATE TABLE IF NOT EXISTS `place` (
@@ -8,9 +20,6 @@ CREATE TABLE IF NOT EXISTS `place` (
   `longitude` decimal(18,14) DEFAULT NULL,
   `elevation` varchar(125) DEFAULT NULL,
   `address` INT DEFAULT NULL,
-  `rank` INT unsigned NOT NULL DEFAULT '1000',
-  `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idplace`,`thing`),
   KEY `fk_place_1_idx` (`address`),
   CONSTRAINT `fk_place_address` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE CASCADE

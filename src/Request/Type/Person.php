@@ -24,7 +24,7 @@ class Person extends Entity
   /**
    * @var array|string[]
    */
-  protected array $hasTypes = ['thing'=>'Thing',"address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject"];
+  protected array $hasTypes = ['thing'=>'Thing',"address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject", "homeLocation"=>"Place"];
 
 	/**
 	 * @param array $params
@@ -50,6 +50,10 @@ class Person extends Entity
 					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
 						$dataRelational = (new Relationship('thing',$idthing,'imageObject'))->getRelationship();
 						$value['image'] = isset($dataRelational[0]) ? $dataRelational : null;
+					}
+					if (stripos($properties,'homeLocation') !== false || stripos($properties,'address') !== false) {
+						$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['homeLocation'],'properties'=>'address'])->ready();
+						$value['homeLocation'] = $dataPlace[0] ?? null;
 					}
 				}
 				$newData[] = $value;

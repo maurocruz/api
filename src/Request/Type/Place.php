@@ -1,12 +1,9 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Request\Type;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Server\Maintenance;
-use ReflectionException;
 
 class Place extends Entity
 {
@@ -21,33 +18,22 @@ class Place extends Entity
     /**
      * @var array|string[]
      */
-    protected array $properties = [];
+    protected array $properties = ["thing"];
     /**
      * @var array|string[]
      */
-    protected array $hasTypes = [ "address" => "PostalAddress", "image" => "ImageObject" ];
+    protected array $hasTypes = ["thing"=>"Thing","address" => "PostalAddress", "image" => "ImageObject" ];
 
-    /**
-     * @param array $params
-     * @return array
-     */
-    public function post(array $params): array
-    {
-        $params['dateCreated'] = date("Y-m-d H:i:s");
-        return parent::post($params);
-    }
-
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        $maintenance = new Maintenance();
-        $message[] = $maintenance->createSqlTable("ImageObject");
-        $message[] = $maintenance->createSqlTable("PostalAddress");
-        $message[] =  parent::createSqlTable("Place");
-        return $message;
-    }
+	/**
+	 * @param array|null $params
+	 * @param array|null $uploadedFiles
+	 * @return string[]
+	 */
+	public function post(array $params = null, array $uploadedFiles = null): array
+	{
+		$params['type'] = 'place';
+		$dataThing = ApiFactory::request()->type('thing')->post($params, $uploadedFiles)->ready();
+		$idthing = $dataThing['id'];
+		return parent::post(['thing'=>$idthing]);
+	}
 }

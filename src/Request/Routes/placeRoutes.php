@@ -31,7 +31,7 @@ return function (Route $route)
 		} elseif ($format == "geojson") {
 			$data = ApiFactory::response()->format()->geojson($placeData)->ready();
 		} else {
-			$data = $placeData;
+			$data = ApiFactory::response()->type('place')->get($placeData)->ready();
 		}
 		return ApiFactory::response()->write($response, $data);
 	});

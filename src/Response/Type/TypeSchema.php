@@ -26,9 +26,9 @@ class TypeSchema extends TypeSchemaAbstract
 
 	/**
 	 * @param array|null $value
-	 * @return void
+	 * @return TypeSchema
 	 */
-	public function get(?array $value): void
+	public function get(?array $value): TypeSchema
 	{
 		$idname = "id".lcfirst($this->type);
 		$this->setIdentifier($idname, (string) $value[$idname]);
@@ -46,7 +46,15 @@ class TypeSchema extends TypeSchemaAbstract
 		if (array_key_exists('image',$value)) {
 			$value['image'] = ApiFactory::response()->type('imageObject')->get($value['image'])->ready();
 		}
+		if (array_key_exists('address',$value) && is_array($value['address'])) {
+			$value['address'] = (new TypeSchema('postalAddress'))->get($value['address'])->ready();
+		}
+		if (array_key_exists('homeLocation',$value) && is_array($value['homeLocation'])) {
+			$value['homeLocation'] = (new TypeSchema('place'))->get($value['homeLocation'])->ready();
+		}
+
 		$this->value = $value;
+		return $this;
 	}
 
 	/**

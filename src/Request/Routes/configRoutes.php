@@ -24,7 +24,7 @@ return function(Route $route) {
 			if ($tableName) {
 				$data = ApiFactory::request()->configuration()->module()->showTableStatus($tableName);
 			}
-			if ($schema === 'basic') {
+			if ($schema === 'init') {
 				$data = ApiFactory::request()->configuration()->module()->database()->initApplication();
 			}
 			return ApiFactory::response()->write($response, $data);
