@@ -14,4 +14,8 @@ class Thing extends Entity
      * @var string
      */
     protected string $type = "Thing";
+	/**
+	 * @var array|string[]
+	 */
+		protected array $properties = ["contactPoint"];
 }

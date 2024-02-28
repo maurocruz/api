@@ -4,12 +4,12 @@ namespace Plinct\Api\Response\Type;
 
 use Plinct\Api\ApiFactory;
 
-class Type
+class Type extends TypeAbstract
 {
 	/**
-	 * @var mixed
+	 * @var string
 	 */
-	private $typeObject;
+	private string $type;
 	/**
 	 * @var array|null
 	 */
@@ -20,10 +20,7 @@ class Type
 	 */
 	public function __construct(string $type)
 	{
-		$className = __NAMESPACE__."\\".ucfirst($type)."\\".ucfirst($type);
-		if(class_exists($className)) {
-			$this->typeObject = new $className();
-		}
+		$this->type = lcfirst($type);
 	}
 
 	/**
@@ -43,9 +40,18 @@ class Type
 	{
 		if (empty($this->data)) {
 			return ApiFactory::response()->message()->fail()->returnIsEmpty();
-		} else if (!!$this->typeObject) {
-			return  $this->typeObject->get($this->data)->ready();
 		} else {
+			$className = __NAMESPACE__."\\".ucfirst($this->type)."\\".ucfirst($this->type);
+			if(class_exists($className)) {
+				$newData = [];
+				foreach ($this->data as $value) {
+					$typeObject = new $className();
+					$typeObject->setContextSchema($this->type);
+					$typeObject->get($value);
+					$newData[] = $typeObject->ready();
+				}
+				return $newData;
+			}
 			return $this->data;
 		}
 	}

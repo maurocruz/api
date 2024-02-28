@@ -6,16 +6,31 @@ use Plinct\Api\Response\Type\TypeAbstract;
 
 class Person extends TypeAbstract
 {
-	private ?array $data;
+	/**
+	 * @var array|null
+	 */
+	private ?array $value;
 
-	public function get(?array $data): Person
+	/**
+	 * @param array|null $value
+	 * @return void
+	 */
+	public function get(?array $value): void
 	{
-		$this->data = $data;
-		return $this;
+		$this->setIdentifier('idperson', (string) $value['idperson']);
+		if (isset($value['thing'])) {
+			$this->setThingData($value['thing']);
+		}
+		unset($value['idperson']);
+		unset($value['thing']);
+		$this->value = $value;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function ready(): array
 	{
-		return parent::extractThing($this->data[0]);
+		return array_merge($this->contextSchema, $this->thingData, $this->value, ['identifier'=>$this->identifier]);
 	}
 }

@@ -63,6 +63,8 @@ class SchemaTrait extends  SchemaAbstract
             }
           } // RELATIONSHIP ONE TO MANY
           else {
+						var_dump($class);
+						die();
             if ($tableIsPartOf == "Offer") {
               $params['itemOfferedType'] = $this->tableHasPart;
 							$params['itemOffered'] = $this->idHasPart;
@@ -83,9 +85,9 @@ class SchemaTrait extends  SchemaAbstract
       }
     }
     // IDENTIFIER
-    if ($this->idHasPart) {
-      $schema->addProperty('identifier', ["@type"=>"PropertyValue", "name" => "id", "value" => $this->idHasPart]);
-    }
+    /*if ($this->idHasPart) {
+      $schema->addProperty('identifier', ["@type"=>"PropertyValue", "name" => "id".lcfirst($this->type), "value" => $this->idHasPart]);
+    }*/
     return $schema->ready();
   }
 }

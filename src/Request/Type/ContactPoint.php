@@ -22,13 +22,4 @@ class ContactPoint extends Entity
      */
     protected array $properties = [ "*" ];
 
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        return parent::createSqlTable("ContactPoint");
-    }
 }
