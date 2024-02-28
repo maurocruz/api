@@ -5,6 +5,7 @@ namespace Plinct\Api\Request\Type;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship\Relationship;
 
 class Person extends Entity
 {
@@ -45,6 +46,10 @@ class Person extends Entity
 					if (stripos($properties, 'contactPoint') !== false) {
 						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['thing' => $idthing])->ready();
 						$value['contactPoint'] = isset($dataContactPoint[0]) ? $dataContactPoint : null;
+					}
+					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
+						$dataRelational = (new Relationship('thing',$idthing,'imageObject'))->getRelationship();
+						$value['image'] = isset($dataRelational[0]) ? $dataRelational : null;
 					}
 				}
 				$newData[] = $value;

@@ -135,7 +135,7 @@ class ImageObject extends Entity
 
 					// ADDED ID IMAGEOBJECT IN RELATIONSHIP TABLE
 					if($tableHasPart && $idHasPart && $idIsPartOf) {
-						ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
+						ApiFactory::server()->relationship($tableHasPart, (int) $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
 						PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
 					}
 					$returns[] = array_merge(['idimageObject'=>$idIsPartOf], $newParams);

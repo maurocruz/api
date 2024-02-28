@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace Plinct\Api\Response\Type;
 
-abstract class TypeAbstract
+abstract class TypeSchemaAbstract
 {
 	/**
 	 * @var array
@@ -11,11 +11,12 @@ abstract class TypeAbstract
 	/**
 	 * @var array
 	 */
-	protected array $thingData;
+	protected array $thingData = [];
 	/**
 	 * @var array
 	 */
 	protected array $identifier;
+
 
 	/**
 	 * @param string $type
@@ -46,6 +47,7 @@ abstract class TypeAbstract
 		$this->setIdentifier('dateModified', (string) $value['dateModified']);
 		unset($value['@context']);
 		unset($value['@type']);
+		unset($value['type']);
 		unset($value['idthing']);
 		unset($value['dateCreated']);
 		unset($value['dateModified']);

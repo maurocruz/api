@@ -7,7 +7,7 @@ class SchemaTrait extends  SchemaAbstract
   /**
    * @param array $data
    */
-  protected function listSchema(array $data)
+  protected function listSchema(array $data): void
   {
     $listItem=[];
     $this->schema['@context'] = $this->context;
@@ -63,8 +63,6 @@ class SchemaTrait extends  SchemaAbstract
             }
           } // RELATIONSHIP ONE TO MANY
           else {
-						var_dump($class);
-						die();
             if ($tableIsPartOf == "Offer") {
               $params['itemOfferedType'] = $this->tableHasPart;
 							$params['itemOffered'] = $this->idHasPart;
@@ -84,10 +82,6 @@ class SchemaTrait extends  SchemaAbstract
         }
       }
     }
-    // IDENTIFIER
-    /*if ($this->idHasPart) {
-      $schema->addProperty('identifier', ["@type"=>"PropertyValue", "name" => "id".lcfirst($this->type), "value" => $this->idHasPart]);
-    }*/
     return $schema->ready();
   }
 }

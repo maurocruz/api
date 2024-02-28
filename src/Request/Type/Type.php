@@ -117,8 +117,7 @@ class Type
 				case 'put':
 					return $httpRequest->withPrivileges('u', $this->namespace, 2)->put($this->params);
 				case 'get':
-					$data = $httpRequest->setPermission()->get($this->params);
-					return ApiFactory::response()->type($this->type)->get($data)->ready();
+					return $httpRequest->setPermission()->get($this->params);
 				case 'delete':
 					return $httpRequest->withPrivileges('d',$this->namespace,2)->delete($this->params);
 				default:

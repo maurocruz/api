@@ -4,7 +4,7 @@ namespace Plinct\Api\Response\Type;
 
 use Plinct\Api\ApiFactory;
 
-class Type extends TypeAbstract
+class Type
 {
 	/**
 	 * @var string
@@ -41,18 +41,13 @@ class Type extends TypeAbstract
 		if (empty($this->data)) {
 			return ApiFactory::response()->message()->fail()->returnIsEmpty();
 		} else {
-			$className = __NAMESPACE__."\\".ucfirst($this->type)."\\".ucfirst($this->type);
-			if(class_exists($className)) {
-				$newData = [];
-				foreach ($this->data as $value) {
-					$typeObject = new $className();
-					$typeObject->setContextSchema($this->type);
-					$typeObject->get($value);
-					$newData[] = $typeObject->ready();
-				}
-				return $newData;
+			$newData = [];
+			foreach ($this->data as $value) {
+				$typeSchema = new TypeSchema($this->type);
+				$typeSchema->get($value);
+				$newData[] = $typeSchema->ready();
 			}
-			return $this->data;
+			return $newData;
 		}
 	}
 }
