@@ -14,6 +14,13 @@ return function(Route $route) {
 		return ApiFactory::response()->write($response, ['config'=>'config']);
 	});
 
+	$route->post('/install', function (Request $request, Response $response) {
+		$params = $request->getParsedBody();
+		$module = $params['module'] ?? null;
+		$data = ApiFactory::request()->configuration()->module()->installModule($module);
+		return ApiFactory::response()->write($response, $data);
+	})->addMiddleware(new AuthMiddleware());
+
 	$route->group('/database', function (Route $route) {
 
 		$route->get('', function (Request $request, Response $response) {
@@ -22,20 +29,14 @@ return function(Route $route) {
 			$tableName = $params['showTableStatus'] ?? null;
 			$schema = $params['schema'] ?? null;
 			if ($tableName) {
-				$data = ApiFactory::request()->configuration()->module()->showTableStatus($tableName);
+				$data = ApiFactory::request()->configuration()->module()->database()->showTableStatus($tableName);
 			}
 			if ($schema === 'init') {
-				$data = ApiFactory::request()->configuration()->module()->database()->initApplication();
+				$data = ApiFactory::request()->configuration()->module()->initApplication();
 			}
 			return ApiFactory::response()->write($response, $data);
 		});
 
-		$route->post('', function (Request $request, Response $response) {
-			$params = $request->getParsedBody();
-			$module = $params['installModule'] ?? null;
-			$data = ApiFactory::request()->configuration()->module()->install($module);
-			return ApiFactory::response()->write($response, $data);
-		})->addMiddleware(new AuthMiddleware());
 
 	});
 };

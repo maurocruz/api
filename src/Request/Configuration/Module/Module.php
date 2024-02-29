@@ -7,7 +7,7 @@ use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class Module
 {
-	const SQL_DIR = __DIR__.'/sql/';
+	const SQL_DIR = __DIR__.'/database/sql/';
 
 	/**
 	 * @return Database
@@ -16,25 +16,25 @@ class Module
 	{
 		return new Database();
 	}
+
 	/**
-	 * @param string $tableName
 	 * @return array
 	 */
-	public function showTableStatus(string $tableName): array {
-		$query = "SHOW TABLE STATUS FROM ".PDOConnect::getDbname()." WHERE name='$tableName';";
-		$data = PDOConnect::run($query);
-		return empty($data) ? ['status'=>'fail','message'=>'table not exists' ] : ['status'=>'success', 'message' => 'table exist', 'data'=> $data];
+	public function initApplication(): array
+	{
+		return $this->database()->createTable('user','thing','person','place','contactPoint','creativeWork','mediaObject','imageObject');
 	}
+
 
 	/**
 	 * @param ?string $name
 	 * @return string[]
 	 */
-	public function install(?string $name): array
+	public function installModule(?string $name): array
 	{
 		if (!$name) return ['message'=>'Module was not created! Name is null!'];
 		$tableName = lcfirst($name);
-		$checkTable = $this->showTableStatus($tableName);
+		$checkTable = $this->database()->showTableStatus($tableName);
 		if ($checkTable['status'] === 'fail') {
 			$sqlFile = self::SQL_DIR.lcfirst($name).".sql";
 			if (file_exists($sqlFile)) {

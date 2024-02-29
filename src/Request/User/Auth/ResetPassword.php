@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Request\User\Auth;
 
 use DateInterval;
@@ -49,9 +47,9 @@ class ResetPassword
       $iduser = $resultBd[0]['iduser'];
 
 			// VERIFICA SE EXISTE UM TOKEN NO BD, SE HOUVER DELETA
-	    $dataSelect = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE `iduser`='$iduser';");
+	    $dataSelect = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `user_passwordReset` WHERE `iduser`='$iduser';");
 			if (isset($dataSelect[0])) {
-					ApiFactory::server()->connectBd('user')->run("DELETE FROM `passwordReset` WHERE `iduser`='$iduser';");
+					ApiFactory::server()->connectBd('user')->run("DELETE FROM `user_passwordReset` WHERE `iduser`='$iduser';");
 			}
 
 			// GERAR UM NOVO TOKEN E SALVAR NO BD
@@ -59,7 +57,7 @@ class ResetPassword
 			$token = random_bytes(32);
 			$validator = bin2hex($token);
 			$now->add(new DateInterval('PT01H')); // 1 hour
-			ApiFactory::server()->connectBd('user')->run("INSERT INTO `passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
+			ApiFactory::server()->connectBd('user')->run("INSERT INTO `user_passwordReset` (iduser, selector, token, expires) VALUES (:iduser, :selector, :token, :expires);", [
 				'iduser' => $iduser,
 				'selector' => $selector,
 				'token' => hash('sha256', $token),
@@ -131,7 +129,7 @@ class ResetPassword
      */
     public static function getDataPasswordReset($selector): array
     {
-        $result = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
+        $result = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `user_passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
         if (!empty($result)) {
             return ApiFactory::response()->message()->success()->success("Selector found!",$result[0]);
         } else {

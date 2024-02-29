@@ -7,11 +7,13 @@ use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 class Database
 {
 	/**
+	 * @param string $tableName
 	 * @return array
 	 */
-	public function initApplication(): array
-	{
-		return $this->createTable('user','thing','contactPoint','person','place');
+	public function showTableStatus(string $tableName): array {
+		$query = "SHOW TABLE STATUS FROM ".PDOConnect::getDbname()." WHERE name='$tableName';";
+		$data = PDOConnect::run($query);
+		return empty($data) ? ['status'=>'fail','message'=>'table not exists' ] : ['status'=>'success', 'message' => 'table exist', 'data'=> $data];
 	}
 
 	/**
@@ -21,19 +23,19 @@ class Database
 	public function createTable(...$tables): array
 	{
 		$returns = [];
-		foreach ($tables as $table){
+		foreach ($tables as $table) {
 			$fileSql = __DIR__."/sql/$table.sql";
 			if (file_exists($fileSql)) {
 				$data = PDOConnect::run(file_get_contents($fileSql));
 				if (empty($data)) {
-					$returns[] = ['status' => 'success', 'message' => "Table $table created or already existing", 'data' => $data];
+					$returns[] = ['status' => 'success', 'message' => "Module $table created or already existing", 'data' => $data];
 				} else {
-					$returns[] = ['status' => 'fail', 'message' => "Table $table not created", 'data' => $data];
+					$returns[] = ['status' => 'fail', 'message' => "Module $table not created", 'data' => $data];
 				}
 			} else {
 				$returns[] = ['status'=>'fail', 'message'=>"File $table.sql not exists"];
 			}
 		}
-		return ['status'=>'complete','message'=>'Table creation is complete', 'data'=>$returns];
+		return ['status'=>'complete','message'=>'Modules creation is complete', 'data'=>$returns];
 	}
 }
