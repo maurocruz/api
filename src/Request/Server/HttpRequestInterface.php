@@ -4,7 +4,6 @@ namespace Plinct\Api\Request\Server;
 
 interface HttpRequestInterface
 {
-	public function getTable(): string;
 	/**
 	 * @param array $params
 	 * @return array

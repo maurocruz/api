@@ -2,15 +2,15 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Server;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\PlinctApp;
+use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\ConnectBd\Crud;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Request\Server\Schema\Schema;
 use Plinct\Tool\Curl;
-use ReflectionClass;
-use ReflectionException;
 
 abstract class Entity extends Crud implements HttpRequestInterface
 {
@@ -31,7 +31,8 @@ abstract class Entity extends Crud implements HttpRequestInterface
 		return $this->table;
 	}
 
-  /**
+
+	/**
    * GET
    * @param array $params
    * @return array
@@ -93,15 +94,24 @@ abstract class Entity extends Crud implements HttpRequestInterface
       unset($params['tableHasPart'],$params['idHasPart']);
       return $relationship->postRelationship($params);
     }
-
-    $message = parent::created($params);
-    $lastId = PDOConnect::lastInsertId();
-
-    if ($lastId == '0') {
-      return $message;
-    } else {
-      return [ "id" => $lastId ];
-    }
+		// connect
+	  $columnsTable = ApiFactory::request()->configuration()->module()->database()->showColumnsName($this->table);
+		$newParams = [];
+	  foreach ($columnsTable as $value) {
+		  $columnNanme = $value['COLUMN_NAME'];
+		  if (array_key_exists($columnNanme,$params)) {
+				$newParams[$columnNanme] = $params[$columnNanme];
+		  }
+	  }
+		// save
+	  $connect = new ConnectBd($this->table);
+	  $data = $connect->created($newParams);
+	  // response
+	  if (empty($data)) {
+		  return ['id' => $connect->lastInsertId()];
+	  } else {
+		  return ApiFactory::response()->message()->fail()->generic($data);
+	  }
   }
 
 	/**
@@ -142,43 +152,14 @@ abstract class Entity extends Crud implements HttpRequestInterface
       $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
       unset($params['tableHasPart'],$params['idHasPart']);
       return $relationship->deleteRelationship($params);
-
     } else {
       $params = array_filter($params);
       $whereArray = [];
-
       foreach ($params as $key => $value) {
         $whereArray[] = "`$key`='$value'";
       }
-
       $where = implode(" AND ", $whereArray);
-
       return PDOConnect::run("DELETE FROM `$this->table` WHERE $where");
-    }
-  }
-
-  /**
-   * CREATE SQL
-   * @param string|null $type
-   * @return array
-   * @throws ReflectionException
-   */
-  public function createSqlTable(string $type = null): array
-  {
-    $className = "\\Plinct\\Api\\Type\\".ucfirst($type);
-    $reflection = new ReflectionClass($className);
-    $sqlFile = dirname($reflection->getFileName()) . "/" . ucfirst($type) . ".sql";
-
-    // RUN SQL FILE
-    if (file_exists($sqlFile)) {
-      $data = PDOConnect::run(file_get_contents($sqlFile));
-      if (array_key_exists("error", $data)) {
-        return $data;
-      }
-      return [ "message" => "Sql table for ".$type. " created successfully!" ];
-
-    } else {
-      return [ "message" => "Sql table for ".$type." not created!" ];
     }
   }
 }

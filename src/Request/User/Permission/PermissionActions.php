@@ -38,7 +38,7 @@ class PermissionActions implements HttpRequestInterface
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ApiFactory::response()->message()->success()->success("Permissions added", $returns);
+				return ApiFactory::response()->message()->success("Permissions added", $returns);
 			}
 		}
 		return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
@@ -53,7 +53,7 @@ class PermissionActions implements HttpRequestInterface
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ApiFactory::response()->message()->success()->success("Permission updated", $returns);
+				return ApiFactory::response()->message()->success("Permission updated", $returns);
 			}
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
@@ -68,7 +68,7 @@ class PermissionActions implements HttpRequestInterface
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {
-				return ApiFactory::response()->message()->success()->success("Permission deleted", $returns);
+				return ApiFactory::response()->message()->success("Permission deleted", $returns);
 			}
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);

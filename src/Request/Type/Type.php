@@ -36,7 +36,11 @@ class Type
 	{
 		$this->type = $type;
 		$this->namespace = $type;
-		$classname = __NAMESPACE__ . '\\' . ucfirst($type);
+		$classname = __NAMESPACE__.'\\'.ucfirst($type);
+		if (class_exists($classname)) {
+			$this->classActions = new $classname();
+		}
+		$classname = __NAMESPACE__.'\\'.ucfirst($type).'\\'.ucfirst($type);
 		if (class_exists($classname)) {
 			$this->classActions = new $classname();
 		}
@@ -124,6 +128,12 @@ class Type
 					return ApiFactory::response()->message()->fail()->generic();
 			}
 		} else {
+			// check if table exists
+			$connectTable = ApiFactory::request()->server()->connectBd($this->type);
+			$checkTable = $connectTable->showTableStatus();
+			if (isset($checkTable['status']) && $checkTable['status'] === 'success') {
+				return $connectTable->read($this->params);
+			}
 			return ApiFactory::response()->message()->fail()->thisTypeNotExists();
 		}
 	}

@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS `thing` (
   `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idthing`),
-  KEY (`name`,`description`)
+  KEY (`name`,`description`),
+  CONSTRAINT `thing_chk_name` CHECK ((`name` <> ''))
 ) ENGINE = InnoDB;
 
 -- PROPERTY VALUE

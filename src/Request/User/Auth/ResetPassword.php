@@ -67,7 +67,7 @@ class ResetPassword
 			$mail = self::sendEmailForResetPassword($parseBody, $selector, $validator);
 
       // RETORNA SUCESSO
-      return ApiFactory::response()->message()->success()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
+      return ApiFactory::response()->message()->success("Saved token", [ "selector" => $selector, "validator" => $validator, "mail" => $mail ] );
     }
 
     /**
@@ -113,7 +113,7 @@ class ResetPassword
 								}
 								ApiFactory::server()->connectBd('passwordReset')->delete(['iduser'=>$iduser]);
 
-                return ApiFactory::response()->message()->success()->success("Changed password");
+                return ApiFactory::response()->message()->success("Changed password");
 
             } else {
                 return ApiFactory::response()->message()->fail()->invalidToken();
@@ -131,7 +131,7 @@ class ResetPassword
     {
         $result = ApiFactory::server()->connectBd('user')->run("SELECT * FROM `user_passwordReset` WHERE selector = ? AND expires >= NOW()", [$selector]);
         if (!empty($result)) {
-            return ApiFactory::response()->message()->success()->success("Selector found!",$result[0]);
+            return ApiFactory::response()->message()->success("Selector found!",$result[0]);
         } else {
             return ApiFactory::response()->message()->fail()->invalidToken();
         }
@@ -173,7 +173,7 @@ class ResetPassword
             $phpMail->send();
 
 						$message = sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername']);
-            return ApiFactory::response()->message()->success()->success($message);
+            return ApiFactory::response()->message()->success($message);
 
         } catch (Exception $e) {
             return ApiFactory::response()->message()->error()->anErrorHasOcurred($phpMail->ErrorInfo);

@@ -26,14 +26,20 @@ class Place extends Entity
 
 	/**
 	 * @param array|null $params
-	 * @param array|null $uploadedFiles
 	 * @return string[]
 	 */
-	public function post(array $params = null, array $uploadedFiles = null): array
+	public function post(array $params = null): array
 	{
-		$params['type'] = 'place';
-		$dataThing = ApiFactory::request()->type('thing')->post($params, $uploadedFiles)->ready();
-		$idthing = $dataThing['id'];
-		return parent::post(['thing'=>$idthing]);
+		$idthing = $params['thing'] ?? null;
+		if (!$idthing) {
+			$params['type'] = 'place';
+			$dataThing = ApiFactory::request()->type('thing')->post($params)->ready();
+			if (isset($dataThing['error'])) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($dataThing);
+			} else {
+				$idthing = $dataThing['id'];
+			}
+		}
+		return parent::post(['thing' => $idthing]);
 	}
 }

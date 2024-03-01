@@ -50,7 +50,7 @@ class Authentication
 				"name" => $value['name'],
 				"uid" => $value['iduser']
 			];
-			return ApiFactory::response()->message()->success()->success("Access authorized",['token'=>JWT::encode($payload, PlinctApp::$JWT_SECRET_API_KEY)]);
+			return ApiFactory::response()->message()->success("Access authorized",['token'=>JWT::encode($payload, PlinctApp::$JWT_SECRET_API_KEY)]);
 		}
 		// USER NOT AUTHORIZED
 		return ApiFactory::response()->message()->fail()->userExistsButNotLogged();

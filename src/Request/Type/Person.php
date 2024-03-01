@@ -48,8 +48,8 @@ class Person extends Entity
 						$value['contactPoint'] = isset($dataContactPoint[0]) ? $dataContactPoint : null;
 					}
 					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
-						$dataRelational = (new Relationship('thing',$idthing,'imageObject'))->getRelationship();
-						$value['image'] = isset($dataRelational[0]) ? $dataRelational : null;
+						$dataImageObject = (new Relationship('thing',$idthing,'imageObject'))->getRelationship();
+						$value['image'] = isset($dataImageObject[0]) ? $dataImageObject : null;
 					}
 					if (stripos($properties,'homeLocation') !== false || stripos($properties,'address') !== false) {
 						$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['homeLocation'],'properties'=>'address'])->ready();
@@ -69,10 +69,17 @@ class Person extends Entity
 	 */
   public function post(array $params = null, array $uploadedFiles = null): array
   {
-		$params['type'] = 'person';
-		$dataThing = ApiFactory::request()->type('thing')->post($params, $uploadedFiles)->ready();
-		$idthing = $dataThing['id'];
-		return parent::post(['thing'=>$idthing]);
+	  $idthing = $params['thing'] ?? null;
+	  if (!$idthing) {
+		  $params['type'] = 'person';
+		  $dataThing = ApiFactory::request()->type('thing')->post($params, $uploadedFiles)->ready();
+		  if (isset($dataThing['error'])) {
+			  return ApiFactory::response()->message()->error()->anErrorHasOcurred($dataThing);
+		  } else {
+			  $idthing = $dataThing['id'];
+		  }
+	  }
+	  return parent::post(['thing' => $idthing]);
   }
 
 	/**

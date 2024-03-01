@@ -24,10 +24,10 @@ class Type
 	}
 
 	/**
-	 * @param array $data
+	 * @param ?array $data
 	 * @return $this
 	 */
-	public function get(array $data): Type
+	public function get(?array $data): Type
 	{
 		$this->data = $data;
 		return $this;
@@ -39,7 +39,7 @@ class Type
 	public function ready(): ?array
 	{
 		if (empty($this->data)) {
-			return ApiFactory::response()->message()->fail()->returnIsEmpty();
+			return $this->data === null ? null :  ApiFactory::response()->message()->success('No data found');
 		} else {
 			$newData = [];
 			foreach ($this->data as $value) {

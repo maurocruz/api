@@ -40,7 +40,17 @@ class Relationship extends RelationshipAbstract
 			$idIsPartOfName = parent::getColumnName($this->table_has_table,2);
 			$this->table = $this->table_has_table;
 			$paramCreate = array_merge($params, [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ]);
-			return parent::created($paramCreate);
+
+			$columnsTable = ApiFactory::request()->configuration()->module()->database()->showColumnsName($this->table);
+			$newParams = [];
+			foreach ($columnsTable as $value) {
+				$columnNanme = $value['COLUMN_NAME'];
+				if (array_key_exists($columnNanme,$paramCreate)) {
+					$newParams[$columnNanme] = $paramCreate[$columnNanme];
+				}
+			}
+
+			return parent::created($newParams);
 		}
 		return false;
 	}

@@ -57,7 +57,7 @@ class PrivilegesActions implements HttpRequestInterface
 			if (isset($data['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 			} else {
-				return ApiFactory::response()->message()->success()->success("privileges added");
+				return ApiFactory::response()->message()->success("privileges added");
 			}
 		}
 

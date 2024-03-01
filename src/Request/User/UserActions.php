@@ -81,14 +81,14 @@ class UserActions implements HttpRequestInterface
 			$iduser = ApiFactory::server()->connectBd('user')->lastInsertId();
 			// insert user from new person
 			// save thing
-			$dataThing = ApiFactory::request()->type('thing')->httpRequest()->setPermission()->post(['name'=>$name,'type'=>'Person']);
+			$dataThing = ApiFactory::request()->type('thing')->httpRequest()->setPermission()->post(['name'=>$name,'type'=>'person']);
 			$idthing = $dataThing['id'];
 			// save person
 			ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['thing'=>$idthing]);
 			// save contactPoint
 			ApiFactory::request()->type('contactPoint')->httpRequest()->setPermission()->post(['thing'=>$idthing,'email'=>$email]);
 			// return
-			return ApiFactory::response()->message()->success()->success('User registered successfully', ['iduser' => $iduser]);
+			return ApiFactory::response()->message()->success('User registered successfully', ['iduser' => $iduser]);
 		}
 	}
 

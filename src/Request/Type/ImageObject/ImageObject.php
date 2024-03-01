@@ -1,24 +1,17 @@
 <?php
 declare(strict_types=1);
-namespace Plinct\Api\Request\Type;
+namespace Plinct\Api\Request\Type\ImageObject;
 
 use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Server\Maintenance;
 use Plinct\Tool\ArrayTool;
-use Plinct\Tool\FileSystem\FileSystem;
 use Plinct\Tool\Image\Image;
-use ReflectionException;
 
-class ImageObject extends Entity
+class ImageObject extends ImageObjectAbstract
 {
-  /**
-   * @var string
-   */
-  protected string $table = "imageObject";
   /**
    * @var string
    */
@@ -32,7 +25,12 @@ class ImageObject extends Entity
    */
   protected array $hasTypes = [ "author" => "Person" ];
 
-  /**
+	public function __construct()
+	{
+		$this->setTable('imageObject');
+	}
+
+	/**
    * @param array $params
    * @return array
    * @throws Exception
@@ -85,77 +83,41 @@ class ImageObject extends Entity
 	/**
 	 * @throws Exception
 	 */
-	public function post(array $params = null, array $uploadedFiles = null): array
+	public function post(?array $params, ?array $uploadedFiles = null): array
 	{
+		$imagesUpload = $uploadedFiles['imageupload'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? $params['idthing'] ?? null;
+		$idimageObject = $params['idimageObject'] ?? null;
+		$destination = $params['destination'] ?? $params['location'] ?? $params['imageFolder'] ?? '/public/images/';
 		$returns = [];
-		$tableHasPart = $params['tableHasPart'] ?? null;
-		$idHasPart = $params['idHasPart'] ?? null;
-		$position = $params['position'] ?? 1;
-		$representativeOfPage = $params['representativeOfPage'] ?? null;
-		$caption = $params['caption'] ?? null;
-		$destination = $params['pathDestinations'] ?? $params['location'] ?? $params['imageFolder'] ?? null;
-		unset($params['tableHasPart'], $params['idHasPart'], $params['pathDestinations'], $params['location'], $params['imageFolder']);
-
 		// UPLOAD FILES
-		if (isset($uploadedFiles['imageupload'])) {
-			$fileSystem = new FileSystem($destination);
-			// destination dir
-			if(!$destination) {
-				$uploadsFolder = '/public/uploads/images';
-				$imagesFolder = '/public/images';
-				if ($fileSystem->file_exists($uploadsFolder)) {
-					$destination = $imagesFolder;
-				} elseif ($fileSystem->file_exists($imagesFolder)) {
-					$destination = $uploadsFolder;
-				} else {
-					mkdir($_SERVER['DOCUMENT_ROOT'].$imagesFolder,0755,true);
-					$destination = $uploadsFolder;
-				}
-			} elseif (!$fileSystem->getDir()) {
-				mkdir($_SERVER['DOCUMENT_ROOT'].$destination,0755,true);
-			}
-			$fileSystem->setDir($destination);
-
-			// upload images
-			$uploadedFilesReturns = $fileSystem->uploadFiles($uploadedFiles['imageupload']);
-
+		if ($imagesUpload) {
+			$uploadedFilesReturns = parent::uploadFiles($imagesUpload,$destination);
 			foreach ($uploadedFilesReturns as $fileUploaded) {
-				if ($fileUploaded['status']) {
-					$imageSrc = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
-					$image = new Image($imageSrc);
-					$image->thumbnail(200);
-					$imageParams['contentUrl'] = $image->getSrc();
-					$imageParams['contentSize'] = $image->getFileSize();
-					$imageParams['thumbnail'] = $image->getThumbSrc();
-					$imageParams['width'] = $image->getWidth();
-					$imageParams['height'] = $image->getHeight();
-					$imageParams['encodingFormat'] = $image->getEncodingFormat();
-					$newParams = array_merge($params, $imageParams);
-					$idIsPartOf = parent::post($newParams)['id'];
-
-					// ADDED ID IMAGEOBJECT IN RELATIONSHIP TABLE
-					if($tableHasPart && $idHasPart && $idIsPartOf) {
-						ApiFactory::server()->relationship($tableHasPart, (int) $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
-						PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
+				$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
+				// SAVE NEW IMAGE OBJECT
+				$saveImageObject = parent::saveImageObject($pathfile, $params);
+				if (isset($saveImageObject['id'])) {
+					if ($idHasPart) {
+						$idIsPartOf = $saveImageObject['id'];
+						parent::saveThingHasImageObject((int) $idHasPart, (int) $idIsPartOf, $params);
 					}
-					$returns[] = array_merge(['idimageObject'=>$idIsPartOf], $newParams);
+					$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl'=>$pathfile]);
+				} else {
+					$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
 				}
-			}
-		} else {
-			$idIsPartOf = $params['idIsPartOf'];
-			if($tableHasPart && $idHasPart && $idIsPartOf) {
-				$returnRel = ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
-				$returnUpdate = PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
-			}
-			if (empty($returnRel) && empty($returnUpdate)) {
-				$returns = ["status"=>"ok","message"=>"relationship added"];
 			}
 		}
-		// SUCCESS
-		if(!empty($returns))
-			return ApiFactory::response()->message()->success()->success("Files uploaded!", $returns);
-		// FAIL
-		return ApiFactory::response()->message()->fail()->inputDataIsMissing();
+		// RELATIONSHIP
+		if ($idimageObject && $idHasPart) {
+			$returns[] = parent::saveThingHasImageObject($idHasPart, $idimageObject, $params);
+		}
+		// RESPONSE
+		if (empty($returns)) {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
+		} else {
+			return ApiFactory::response()->message()->success("Files uploaded!", $returns);
+		}
 	}
 
   /**
@@ -189,35 +151,6 @@ class ImageObject extends Entity
 		}
 		return parent::delete($params);
 	}
-
-	/**
-   * @param null $type
-   * @return array
-   * @throws ReflectionException
-   */
-  public function createSqlTable($type = null): array
-  {
-    $message[] =  parent::createSqlTable("ImageObject");
-    return $message;
-  }
-
-  /**
-   * @param $data
-   * @param string $mode
-   * @return null
-   */
-  public static function getRepresentativeImageOfPage($data, string $mode = "string")
-  {
-    if ($data) {
-      foreach ($data as $valueImage) {
-        if (isset($valueImage['representativeOfPage']) && $valueImage['representativeOfPage'] === true) {
-          return $mode == "string" ? $valueImage['contentUrl'] : $valueImage;
-        }
-      }
-      return $mode == "string" ? $data[0]['contentUrl'] : $data[0];
-    }
-    return null;
-  }
 
 	/**
 	 * @param $idIsPartOf

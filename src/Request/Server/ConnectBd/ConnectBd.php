@@ -4,8 +4,9 @@ namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Plinct\Api\ApiFactory;
 
-class ConnectBd implements CrudInterface
+class ConnectBd
 {
+
 	private string $table;
 
 	public function __construct(string $table)
@@ -38,7 +39,7 @@ class ConnectBd implements CrudInterface
 		if($idvalue) {
 			$data = PDOConnect::crud()->setTable($this->table)->update($params, "`$idname`='$idvalue'");
 			if (empty($data)) {
-				return ApiFactory::response()->message()->success()->success("The $this->table table was updated");
+				return ApiFactory::response()->message()->success("The $this->table table was updated");
 			} elseif (isset($data['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data['error']);
 			} else {
@@ -57,7 +58,7 @@ class ConnectBd implements CrudInterface
 			$data = PDOConnect::crud()->setTable($this->table)->erase($params);
 
 			if (isset($data['status']) && $data['status'] == 'success') {
-				return ApiFactory::response()->message()->success()->success("Item deleted",$data);
+				return ApiFactory::response()->message()->success("Item deleted",$data);
 			}
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		}
@@ -67,6 +68,20 @@ class ConnectBd implements CrudInterface
 		return PDOConnect::lastInsertId();
 	}
 
+	/**
+	 * @return array
+	 */
+	public function showTableStatus(): array {
+		$query = "SHOW TABLE STATUS FROM ".PDOConnect::getDbname()." WHERE name='$this->table';";
+		$data = PDOConnect::run($query);
+		return empty($data) ? ['status'=>'fail','message'=>'table not exists' ] : ['status'=>'success', 'message' => 'table exist', 'data'=> $data];
+	}
+
+	/**
+	 * @param string $query
+	 * @param $args
+	 * @return array
+	 */
 	public function run(string $query, $args = null): array {
 		return PDOConnect::run($query, $args);
 	}

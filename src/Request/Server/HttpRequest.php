@@ -65,7 +65,7 @@ class HttpRequest implements HttpRequestInterface
 	{
 		if(Permissions::isRequiresSubscription()) {
 			$data = $this->classActions->post($params, $uploadedFiles);
-			return empty($data) ? ApiFactory::response()->message()->success()->success('Item added') : $data;
+			return empty($data) ? ApiFactory::response()->message()->success('Item added') : $data;
 		} else {
 			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
 		}
@@ -87,7 +87,7 @@ class HttpRequest implements HttpRequestInterface
 				} else {
 					$putdata = $this->classActions->put($params);
 					if (empty($putdata)) {
-						return ApiFactory::response()->message()->success()->success('Updated data', $putdata);
+						return ApiFactory::response()->message()->success('Updated data', $putdata);
 					} elseif (isset($putdata['status']) && $putdata['status'] == 'success') {
 						return  $putdata;
 					}
@@ -112,7 +112,7 @@ class HttpRequest implements HttpRequestInterface
 			} else {
 				$returns = $this->classActions->delete($params);
 				if ($returns == []) {
-					return ApiFactory::response()->message()->success()->success('successfully deleted', $params);
+					return ApiFactory::response()->message()->success('successfully deleted', $params);
 				} else {
 					return ApiFactory::response()->message()->fail()->generic($returns);
 				}
