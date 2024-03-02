@@ -30,10 +30,6 @@ abstract class RelationshipAbstract extends Crud
 	/**
 	 * @var array
 	 */
-  protected array $params;
-	/**
-	 * @var array
-	 */
   protected array $properties;
 	/**
 	 * @var array

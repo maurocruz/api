@@ -76,7 +76,6 @@ class ImageObject extends ImageObjectAbstract
         }
       }
     }
-
     return $data;
   }
 
@@ -94,17 +93,21 @@ class ImageObject extends ImageObjectAbstract
 		if ($imagesUpload) {
 			$uploadedFilesReturns = parent::uploadFiles($imagesUpload,$destination);
 			foreach ($uploadedFilesReturns as $fileUploaded) {
-				$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
-				// SAVE NEW IMAGE OBJECT
-				$saveImageObject = parent::saveImageObject($pathfile, $params);
-				if (isset($saveImageObject['id'])) {
-					if ($idHasPart) {
-						$idIsPartOf = $saveImageObject['id'];
-						parent::saveThingHasImageObject((int) $idHasPart, (int) $idIsPartOf, $params);
+				if (!empty($fileUploaded)) {
+					$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
+					// SAVE NEW IMAGE OBJECT
+					$saveImageObject = parent::saveImageObject($pathfile, $params);
+					if (isset($saveImageObject['id'])) {
+						if ($idHasPart) {
+							$idIsPartOf = $saveImageObject['id'];
+							parent::saveThingHasImageObject((int)$idHasPart, (int)$idIsPartOf, $params);
+						}
+						$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl' => $pathfile]);
+					} else {
+						$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
 					}
-					$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl'=>$pathfile]);
 				} else {
-					$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
+					$returns[] = ApiFactory::response()->message()->fail()->generic($fileUploaded, 'Upload failed');
 				}
 			}
 		}
@@ -126,8 +129,41 @@ class ImageObject extends ImageObjectAbstract
    */
   public function put(array $params = null): array
   {
-    unset($params['contentUrl']);
-    return parent::put($params);
+		$idimageObject = $params['idimageObject'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$returns = [];
+		if ($idimageObject) {
+			$dataImageObject = parent::put($params);
+			if ($dataImageObject['status'] === 'success') {
+				$returns[] = $dataImageObject;
+				$idmediaObject = $dataImageObject['data'][0]['mediaObject'] ?? null;
+				if ($idmediaObject) {
+					$dataMediaObject = ApiFactory::request()->type('mediaObject')->put(['idmediaObject'=>$idmediaObject] + $params)->ready();
+					if ($dataMediaObject['status'] === 'success') {
+						$returns[] = $dataMediaObject;
+						$idcreativeWork = $dataMediaObject['data'][0]['creativeWork'] ?? null;
+						if ($idcreativeWork) {
+							$dataCreativeWork = ApiFactory::request()->type('creativeWork')->put(['idcreativeWork'=>$idcreativeWork] + $params)->ready();
+							if ($dataCreativeWork['status'] === 'success') {
+								$returns[] = $dataCreativeWork;
+								$idthing = $dataCreativeWork['data'][0]['thing'] ?? null;
+								if ($idthing) {
+									$dataThing = ApiFactory::request()->type('thing')->put(['idthing'=>$idthing] + $params)->ready();
+									if ($dataThing['status'] === 'success') {
+										$returns[] = $dataThing;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if ($idHasPart) {
+				$dataRelationship = (new Relationship('thing', (int) $idHasPart, 'imageObject', (int) $idimageObject))->putRelationship($params);
+				$returns[] = $dataRelationship;
+			}
+		}
+		return $returns;
   }
 
 	public function delete(array $params): array
@@ -164,9 +200,7 @@ class ImageObject extends ImageObjectAbstract
 			'@id' => $idIsPartOf,
 			"isPartOf" => []
 		];
-
 		$tablesHasPart = Maintenance::setTableHasImageObject();
-
 		foreach ($tablesHasPart as $value) {
 			$relationshipTable = $value['tableName'];
 			$tableHasPart = strstr($value['tableName'], "_", true);
@@ -174,11 +208,9 @@ class ImageObject extends ImageObjectAbstract
 				"@context" => "https://schema.org",
 				"@type" => ucfirst($tableHasPart)
 			];
-
 			if ($tableHasPart !== 'group') {
 				$query = "SELECT `$tableHasPart`.* FROM `$relationshipTable`, `$tableHasPart` WHERE `idimageObject`=$idIsPartOf AND $tableHasPart.id$tableHasPart=$relationshipTable.id$tableHasPart;";
 				$data = PDOConnect::run($query);
-
 				if (!isset($data['error']) && count($data) > 0) {
 					foreach ($data as $valueTableIspartOf) {
 						$returns['isPartOf'][] = array_merge($contextArray, $valueTableIspartOf);
@@ -186,7 +218,6 @@ class ImageObject extends ImageObjectAbstract
 				}
 			}
 		}
-
 		return $returns;
 	}
 }

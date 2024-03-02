@@ -14,6 +14,7 @@ use Plinct\Tool\Curl;
 
 abstract class Entity extends Crud implements HttpRequestInterface
 {
+	protected array $params = [];
   /**
    * @var string
    */
@@ -26,6 +27,22 @@ abstract class Entity extends Crud implements HttpRequestInterface
    * @var array
    */
   protected array $hasTypes = [];
+
+	/**
+	 * @param array $params
+	 */
+	public function setParams(array $params)
+	{
+		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
+		$newParams = [];
+		foreach ($columnsTable as $value) {
+			$columnNanme = $value['COLUMN_NAME'];
+			if (array_key_exists($columnNanme,$params)) {
+				$newParams[$columnNanme] = $params[$columnNanme];
+			}
+		}
+		$this->params = $newParams;
+	}
 
 	public function getTable(): string {
 		return $this->table;
@@ -47,7 +64,7 @@ abstract class Entity extends Crud implements HttpRequestInterface
     if (isset($data['error'])) {
       return $data;
     } else {
-      return (new Schema($this->type, $this->properties, $this->hasTypes))->buildSchema($params, $data);
+      return (new Schema($this->table, $this->properties, $this->hasTypes))->buildSchema($params, $data);
     }
   }
 
@@ -95,7 +112,7 @@ abstract class Entity extends Crud implements HttpRequestInterface
       return $relationship->postRelationship($params);
     }
 		// connect
-	  $columnsTable = ApiFactory::request()->configuration()->module()->database()->showColumnsName($this->table);
+	  $columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
 		$newParams = [];
 	  foreach ($columnsTable as $value) {
 		  $columnNanme = $value['COLUMN_NAME'];
@@ -121,24 +138,26 @@ abstract class Entity extends Crud implements HttpRequestInterface
 	 */
   public function put(array $params = null): array
   {
-    // if relationship
-    if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
-      $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
-      unset($params['tableHasPart'],$params['idHasPart']);
-      return $relationship->putRelationship($params) ?? [];
-    }
-    unset($params['tableHasPart']);
+		// RELATIONSHIP
+	 /* if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
+		  $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
+		  unset($params['tableHasPart'],$params['idHasPart']);
+		  return $relationship->putRelationship($params) ?? [];
+	  }*/
 
-    $idName = "id".$this->table;
-    $idValue = $params['id'] ?? $params['idHasPart'] ?? $params[$idName] ?? null;
-    unset($params['id']);
-    unset($params['idHasPart']);
-
-    if ($idValue) {
-      return parent::update($params, "`$idName`=$idValue");
-    } else {
-      die("No id defined in put request! (".__FILE__." in line ".__LINE__.")");
-    }
+		// CONNECT
+	  $connect = new ConnectBd($this->table);
+		$data = $connect->update($params);
+		if ($data['status'] === 'success') {
+			$idname = "id$this->table";
+			$idvalue = $params[$idname] ?? null;
+			if ($idvalue) {
+				$getData = new GetData($this->table);
+				$rowUpdated = $getData->setParams([$idname => $idvalue])->render();
+				$data['data'] = $rowUpdated;
+			}
+		}
+		return $data;
   }
 
   /**

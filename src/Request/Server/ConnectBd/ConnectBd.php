@@ -78,6 +78,15 @@ class ConnectBd
 	}
 
 	/**
+	 * @return array
+	 */
+	public function showColumnsName(): array
+	{
+		$schema = PDOConnect::getDbname();
+		return PDOConnect::run("SELECT column_name FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$this->table';");
+	}
+
+	/**
 	 * @param string $query
 	 * @param $args
 	 * @return array

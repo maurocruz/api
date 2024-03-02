@@ -19,10 +19,6 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 */
 	protected function uploadFiles(array $imagesUpload, string $destination): array
 	{
-
-		// TODO limitar max width da imagem
-
-
 		$fileSystem = new FileSystem($destination);
 		// destination dir
 		if(!$destination) {

@@ -22,13 +22,7 @@ class Relationship extends RelationshipAbstract
     $this->table_has_table = lcfirst($tableHasPart).'_has_'.lcfirst($tableIsPartOf);
 		$this->table = $this->tableIsPartOf;
   }
-	/**
-	 * @param array $params
-	 */
-	public function setParams(array $params): void
-	{
-		$this->params = $params;
-	}
+
 	/**
 	 * @param array $params
 	 * @return false|string[]
@@ -41,7 +35,7 @@ class Relationship extends RelationshipAbstract
 			$this->table = $this->table_has_table;
 			$paramCreate = array_merge($params, [ $idHasPartName => $this->idHasPart, $idIsPartOfName => $this->idIsPartOf ]);
 
-			$columnsTable = ApiFactory::request()->configuration()->module()->database()->showColumnsName($this->table);
+			$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
 			$newParams = [];
 			foreach ($columnsTable as $value) {
 				$columnNanme = $value['COLUMN_NAME'];
@@ -155,7 +149,6 @@ class Relationship extends RelationshipAbstract
    */
   public function putRelationship($params): array
   {
-    $this->idIsPartOf = (int) $params['idIsPartOf'] ?? null;
     unset($params['tableIsPartOf']);
     unset($params['idIsPartOf']);
     unset($params['id']);
@@ -164,7 +157,12 @@ class Relationship extends RelationshipAbstract
       $idHasPartName = 'id' . $this->tableHasPart;
       $idIsPartOfName = 'id' . $this->tableIsPartOf;
       $where = "`$idHasPartName`=$this->idHasPart AND `$idIsPartOfName` = $this->idIsPartOf";
-      return parent::update($params, $where);
+      $data = parent::update($params, $where);
+			if (empty($data)) {
+				return ApiFactory::response()->message()->success("Table $this->table_has_table was updated", $data);
+			} else {
+				return ApiFactory::response()->message()->fail()->generic($data);
+			}
     }
     return ApiFactory::response()->message()->fail()->inputDataIsMissing(["missing idIsPartOf or table_has_table not exists"]);
   }

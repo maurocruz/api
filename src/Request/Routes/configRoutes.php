@@ -29,7 +29,7 @@ return function(Route $route) {
 			$tableName = $params['showTableStatus'] ?? null;
 			$schema = $params['schema'] ?? null;
 			if ($tableName) {
-				$data = ApiFactory::request()->configuration()->module()->database()->showTableStatus($tableName);
+				$data = ApiFactory::request()->server()->connectBd($tableName)->showTableStatus();
 			}
 			if ($schema === 'init') {
 				$data = ApiFactory::request()->configuration()->module()->initApplication();

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Configuration\Module;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Configuration\Module\database\Database;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
@@ -34,7 +35,7 @@ class Module
 	{
 		if (!$name) return ['message'=>'Module was not created! Name is null!'];
 		$tableName = lcfirst($name);
-		$checkTable = $this->database()->showTableStatus($tableName);
+		$checkTable = ApiFactory::server()->connectBd($tableName)->showTableStatus();
 		if ($checkTable['status'] === 'fail') {
 			$sqlFile = self::SQL_DIR.lcfirst($name).".sql";
 			if (file_exists($sqlFile)) {

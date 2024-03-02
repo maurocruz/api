@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Server\ConnectBd;
 
+use Plinct\Api\ApiFactory;
+
 class Crud
 {
   /**
@@ -9,7 +11,10 @@ class Crud
    */
   protected string $table;
 
-  /**
+	protected array $params = [];
+
+
+	/**
    * @param string $table
    * @return Crud
    */
@@ -18,6 +23,22 @@ class Crud
     $this->table = $table;
     return $this;
   }
+
+	/**
+	 * @param array $params
+	 */
+	public function setParams(array $params)
+	{
+		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
+		$newParams = [];
+		foreach ($columnsTable as $value) {
+			$columnName = $value['COLUMN_NAME'];
+			if (array_key_exists($columnName,$params)) {
+				$newParams[$columnName] = $params[$columnName];
+			}
+		}
+		$this->params = $newParams;
+	}
 
   /**
    * READ
@@ -77,19 +98,21 @@ class Crud
 
   /**
    * UPDATE
-   * @param array $data
+   * @param array $params
    * @param string $where
    * @return array
    */
-  public function update(array $data, string $where): array
+  public function update(array $params, string $where): array
   {
+		$this->setParams($params);
     $names = null;
     $bindValues = null;
-    if (empty($data)) {
+    if (empty($this->params)) {
       return [ "message" => "No data from update in CRUD" ];
     }
+
     // query
-    foreach ($data as $key => $value) {
+    foreach ($this->params as $key => $value) {
       $names[] = "`$key`=?";
       $bindValues[] = $value;
     }

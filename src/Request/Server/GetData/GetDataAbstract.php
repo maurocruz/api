@@ -124,7 +124,6 @@ abstract class GetDataAbstract
 
     //
     $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
-    //$columnsTable = ApiFactory::request()->server();
 
     if (isset($columnsTable['error'])) {
       $this->error = $columnsTable;

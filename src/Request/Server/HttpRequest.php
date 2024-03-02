@@ -81,10 +81,10 @@ class HttpRequest implements HttpRequestInterface
 			$idname = "id".$this->classActions->getTable();
 			$idvalue = $params[$idname] ?? null;
 			if ($idvalue) {
-				$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
-				if(isset($filter['status']) && $filter['status'] == 'fail') {
-					return $filter;
-				} else {
+				//$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
+				//if(isset($filter['status']) && $filter['status'] == 'fail') {
+					//return $filter;
+				//} else {
 					$putdata = $this->classActions->put($params);
 					if (empty($putdata)) {
 						return ApiFactory::response()->message()->success('Updated data', $putdata);
@@ -92,7 +92,7 @@ class HttpRequest implements HttpRequestInterface
 						return  $putdata;
 					}
 					return ApiFactory::response()->message()->fail()->generic($putdata);
-				}
+				//}
 			}
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 		}

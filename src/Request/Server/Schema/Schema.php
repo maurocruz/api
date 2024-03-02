@@ -4,14 +4,14 @@ namespace Plinct\Api\Request\Server\Schema;
 
 class Schema extends SchemaTrait
 {
-  /**
-   * @param $type
-   * @param $properties
-   * @param $hasTypes
-   */
-  public function __construct($type, $properties, $hasTypes)
+	/**
+	 * @param $table
+	 * @param $properties
+	 * @param $hasTypes
+	 */
+  public function __construct($table, $properties, $hasTypes)
   {
-    $this->type = $type;
+    $this->type = ucfirst($table);
     $this->properties = $properties;
     $this->hasTypes = $hasTypes;
   }
