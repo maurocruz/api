@@ -28,7 +28,7 @@ class TypeSchema extends TypeSchemaAbstract
 	 * @param array|null $value
 	 * @return TypeSchema
 	 */
-	public function get(?array $value): TypeSchema
+	public function setValue(?array $value): TypeSchema
 	{
 		$idname = "id".lcfirst($this->type);
 		$this->setIdentifier($idname, (string) $value[$idname]);
@@ -41,16 +41,16 @@ class TypeSchema extends TypeSchemaAbstract
 		unset($value['idthing']);
 
 		if (array_key_exists('contactPoint',$value)) {
-			$value['contactPoint'] = ApiFactory::response()->type('contactPoint')->get($value['contactPoint'])->ready();
+			$value['contactPoint'] = ApiFactory::response()->type('contactPoint')->setData($value['contactPoint'])->ready();
 		}
 		if (array_key_exists('image',$value)) {
-			$value['image'] = ApiFactory::response()->type('imageObject')->get($value['image'])->ready();
+			$value['image'] = ApiFactory::response()->type('imageObject')->setData($value['image'])->ready();
 		}
 		if (array_key_exists('address',$value) && is_array($value['address'])) {
-			$value['address'] = (new TypeSchema('postalAddress'))->get($value['address'])->ready();
+			$value['address'] = (new TypeSchema('postalAddress'))->setValue($value['address'])->ready();
 		}
 		if (array_key_exists('homeLocation',$value) && is_array($value['homeLocation'])) {
-			$value['homeLocation'] = (new TypeSchema('place'))->get($value['homeLocation'])->ready();
+			$value['homeLocation'] = (new TypeSchema('place'))->setValue($value['homeLocation'])->ready();
 		}
 
 		$this->value = $value;
@@ -62,6 +62,9 @@ class TypeSchema extends TypeSchemaAbstract
 	 */
 	public function ready(): array
 	{
+		if (array_key_exists('identifier', $this->value)) {
+			$this->identifier = array_merge($this->identifier, $this->value['identifier']);
+		}
 		return array_merge($this->contextSchema, $this->thingData, $this->value, ['identifier'=>$this->identifier]);
 	}
 }

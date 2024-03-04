@@ -4,11 +4,8 @@ namespace Plinct\Api\Request\Type\ImageObject;
 
 use Exception;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Relationship\Relationship;
-use Plinct\Api\Server\Maintenance;
-use Plinct\Tool\ArrayTool;
-use Plinct\Tool\Image\Image;
+use Plinct\Tool\ToolBox;
 
 class ImageObject extends ImageObjectAbstract
 {
@@ -37,46 +34,33 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
-		// IMAGES IS PART OF
-    if (isset($params['isPartOf'])) Return $this->getImageIsPartOf($params['isPartOf']);
-
-    // vars
-    $thumbnail = $params['thumbnail'] ?? null;
-    $format = $params['format'] ?? null;
-    if ($thumbnail == "on") $params['properties'] = "*";
-    unset($params['thumbnail']);
-
-    // GET
-    $data = parent::get($params);
-
-    // THUMBNAIL ON
-    if ($thumbnail=='on') {
-      $itemList = $data['itemListElement'] ?? $data;
-
-      foreach ($itemList as $key => $value) {
-        $item = $format ? $value['item'] : $value;
-
-        if (!$item['thumbnail']) {
-          $image = new Image($item['contentUrl']);
-          $image->thumbnail("200");
-          $contentSize = $image->getFileSize();
-          $width = $image->getWidth();
-          $height = $image->getHeight();
-          $encodingFormat = $image->getEncodingFormat();
-          $thumbnailData = $image->getThumbSrc();
-          $data['itemListElement'][$key]['item']['contentSize'] = $contentSize;
-          $data['itemListElement'][$key]['item']['width'] = $width;
-          $data['itemListElement'][$key]['item']['height'] = $height;
-          $data['itemListElement'][$key]['item']['encodingFormat'] = $encodingFormat;
-          $data['itemListElement'][$key]['item']['thumbnail'] = $thumbnailData;
-          // save data
-          $id = ArrayTool::searchByValue($item['identifier'], "id")['value'];
-          $newParams = [ "id" => $id, "contentSize" => $contentSize, "width" => $width, "height" => $height, "encodingFormat" => $encodingFormat, "thumbnail" => $thumbnailData ];
-          parent::put($newParams);
-        }
-      }
-    }
-    return $data;
+		$dataImageObject = parent::get($params);
+		$newData = [];
+		foreach ($dataImageObject as $item) {
+			$idmediaObject = $item['mediaObject'];
+			unset($item['mediaObject']);
+			// mediaObject
+			$dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject'=>$idmediaObject] + $params)->ready();
+			$idcreativeWork = $dataMediaObject[0]['creativeWork'];
+			unset($dataMediaObject[0]['idmediaObject']);
+			unset($dataMediaObject[0]['creativeWork']);
+			// creativeWork
+			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork] + $params)->ready();
+			$idthing = $dataCreativeWork[0]['thing'];
+			unset($dataCreativeWork[0]['idcreativeWork']);
+			// thing
+			$dataThing = ApiFactory::request()->type('thing')->get(['idthing'=>$idthing] + $params)->ready();
+			unset($dataThing['type']);
+			// returns
+			$returns = $item + $dataThing[0] + $dataCreativeWork[0] + $dataMediaObject[0];
+			// identifier
+			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idmediaObject','value'=>$idmediaObject];
+			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idcreativeWork','value'=>$idcreativeWork];
+			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idthing','value'=>$idthing];
+			// new data
+			$newData[] = $returns;
+		}
+		return $newData;
   }
 
 	/**
@@ -163,61 +147,22 @@ class ImageObject extends ImageObjectAbstract
 				$returns[] = $dataRelationship;
 			}
 		}
-		return $returns;
+		return ["status"=>"success","message"=>"Items updated","data"=>$returns];
   }
 
 	public function delete(array $params): array
 	{
-		$tableHasPart = isset($params['tableHasPart']) ? lcfirst($params['tableHasPart']) : null;
-		$idHasPart = $params['idHasPart'] ?? null;
-		$tableIsPartOf = 'imageObject';
-		$idIsPartOf = $params['idIsPartOf'] ?? null;
-		if ($tableHasPart && $idHasPart && $idIsPartOf) {
-			$relationship = new Relationship($tableHasPart, $idHasPart, $tableIsPartOf, $idIsPartOf);
-			$relationshipTable = $tableHasPart . '_has_' . $tableIsPartOf;
-			$relationshipRow = PDOConnect::run("SELECT position FROM $relationshipTable WHERE id$tableHasPart=$idHasPart AND id$tableIsPartOf=$idIsPartOf");
-			if(empty($relationshipRow)) {
-				return ApiFactory::response()->message()->fail()->generic($relationshipRow, 'item not found!');
-			} elseif(isset($relationshipRow['error'])) {
-				return $relationshipRow;
+		$idimageObject = $params['idimageObject'] ?? null;
+		if($idimageObject) {
+			$dataImageObject = ApiFactory::request()->type('imageObject')->get(['idimageObject'=>$idimageObject])->ready();
+			if (!empty($dataImageObject)) {
+				$idthing = ToolBox::searchByValue($dataImageObject[0]['identifier'],'idthing','value');
+				return ApiFactory::request()->type('thing')->delete(['idthing'=>$idthing])->ready();
+			} else {
+				return ApiFactory::response()->message()->fail()->generic($params,'Object not found!');
 			}
-			$position = $relationshipRow[0]['position'];
-			PDOConnect::run("UPDATE $relationshipTable SET position=position-1 WHERE id$tableHasPart=$idHasPart AND position>$position");
-			return $relationship->delete();
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		}
-		return parent::delete($params);
-	}
-
-	/**
-	 * @param $idIsPartOf
-	 * @return array
-	 */
-	private function getImageIsPartOf($idIsPartOf): array
-	{
-		$returns = [
-			'@context' => "https://plinct.com.br/isPartOf",
-			'@type' => 'ImageObject',
-			'@id' => $idIsPartOf,
-			"isPartOf" => []
-		];
-		$tablesHasPart = Maintenance::setTableHasImageObject();
-		foreach ($tablesHasPart as $value) {
-			$relationshipTable = $value['tableName'];
-			$tableHasPart = strstr($value['tableName'], "_", true);
-			$contextArray = [
-				"@context" => "https://schema.org",
-				"@type" => ucfirst($tableHasPart)
-			];
-			if ($tableHasPart !== 'group') {
-				$query = "SELECT `$tableHasPart`.* FROM `$relationshipTable`, `$tableHasPart` WHERE `idimageObject`=$idIsPartOf AND $tableHasPart.id$tableHasPart=$relationshipTable.id$tableHasPart;";
-				$data = PDOConnect::run($query);
-				if (!isset($data['error']) && count($data) > 0) {
-					foreach ($data as $valueTableIspartOf) {
-						$returns['isPartOf'][] = array_merge($contextArray, $valueTableIspartOf);
-					}
-				}
-			}
-		}
-		return $returns;
 	}
 }

@@ -39,7 +39,7 @@ class ConnectBd
 		if($idvalue) {
 			$data = PDOConnect::crud()->setTable($this->table)->update($params, "`$idname`='$idvalue'");
 			if (empty($data)) {
-				return ApiFactory::response()->message()->success("The $this->table table was updated");
+				return ApiFactory::response()->message()->success("The $this->table was updated");
 			} elseif (isset($data['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data['error']);
 			} else {

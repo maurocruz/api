@@ -27,7 +27,7 @@ class Type
 	 * @param ?array $data
 	 * @return $this
 	 */
-	public function get(?array $data): Type
+	public function setData(?array $data): Type
 	{
 		$this->data = $data;
 		return $this;
@@ -44,7 +44,7 @@ class Type
 			$newData = [];
 			foreach ($this->data as $value) {
 				$typeSchema = new TypeSchema($this->type);
-				$typeSchema->get($value);
+				$typeSchema->setValue($value);
 				$newData[] = $typeSchema->ready();
 			}
 			return $newData;

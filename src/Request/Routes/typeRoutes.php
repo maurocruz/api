@@ -27,7 +27,7 @@ return function(Route $route)
 		$params = $request->getQueryParams() ?? null;
 		if ($type) {
 			$dataRequest = ApiFactory::request()->type($type)->get($params)->ready();
-			$data = ApiFactory::response()->type($type)->get($dataRequest)->ready();
+			$data = ApiFactory::response()->type($type)->setData($dataRequest)->ready();
 		} else {
 			$data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
 		}
