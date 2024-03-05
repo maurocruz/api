@@ -10,4 +10,4 @@ CREATE TABLE IF NOT EXISTS `place` (
   `publicAccess` TINYINT DEFAULT 0,
   PRIMARY KEY (`idplace`,`thing`),
   CONSTRAINT `fk_place_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+) ENGINE = InnoDB;

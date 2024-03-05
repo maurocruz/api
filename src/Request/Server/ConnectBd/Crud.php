@@ -10,9 +10,10 @@ class Crud
    * @var string
    */
   protected string $table;
-
+	/**
+	 * @var array
+	 */
 	protected array $params = [];
-
 
 	/**
    * @param string $table
@@ -27,7 +28,7 @@ class Crud
 	/**
 	 * @param array $params
 	 */
-	public function setParams(array $params)
+	public function setParams(array $params): void
 	{
 		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
 		$newParams = [];
@@ -40,28 +41,21 @@ class Crud
 		$this->params = $newParams;
 	}
 
-  /**
-   * READ
-   * @param string $field
-   * @param string|null $where
-   * @param string|null $groupBy
-   * @param string|null $orderBy
-   * @param null $limit
-   * @param null $offset
-   * @param array|null $args
-   * @return array
-   */
-  public function read(
-    string $field = "*",
-    string $where = null,
-    string $groupBy = null,
-    string $orderBy = null,
-    $limit = null,
-    $offset = null, array
-      $args = null
-  ): array
+	/**
+	 * READ
+	 * @param array $params
+	 * @return array
+	 */
+  public function read(array $params): array
   {
-    $query = "SELECT $field FROM `$this->table`";
+	  $fields = $params['fields'] ?? '*';
+		$where = $params['where'] ?? null;
+		$groupBy = $params['groupBy'] ?? null;
+		$orderBy = $params['orderBy'] ?? null;
+		$limit = $params['limit'] ?? null;
+		$offset =	$params['offset'] ?? null;
+		$args = $params['args'] ?? null;
+    $query = "SELECT $fields FROM `$this->table`";
     $query .= $where ? " WHERE $where" : null;
     $query .= $groupBy ? " GROUP BY $groupBy" : null;
     $query .= $orderBy ? " ORDER BY $orderBy" : null;
@@ -73,19 +67,20 @@ class Crud
 
   /**
    * CREATED
-   * @param array $data
+   * @param array $params
    * @return array
    */
-  public function created(array $data): array
+  public function created(array $params): array
   {
+		$this->setParams($params);
     $names = null;
     $values = null;
     $bindValues = null;
-    if (empty($data)) {
+    if (empty($this->params)) {
       return [ "message" => "Record in $this->table not created because data is empty" ];
     }
     // query
-    foreach ($data as $key => $value) {
+    foreach ($this->params as $key => $value) {
 	    $names[] = "`$key`";
       $values[] = "?";
       $bindValues[] = $value;
@@ -93,7 +88,7 @@ class Crud
     $columns = implode(",", $names);
     $rows = implode(",", $values);
     $query = "INSERT INTO `$this->table` ($columns) VALUES ($rows)";
-      return PDOConnect::run($query, $bindValues);
+		return PDOConnect::run($query, $bindValues);
   }
 
   /**

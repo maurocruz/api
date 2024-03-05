@@ -1,17 +1,23 @@
 <?php
 declare(strict_types=1);
-namespace Plinct\Api\Request\Type\MediaObject;
+namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Request\Server\HttpRequestInterface;
 
-class MediaObject extends Entity implements HttpRequestInterface
+class ContactPoint extends Entity
 {
+	/**
+	 *
+	 */
 	public function __construct()
 	{
-		$this->setTable('mediaObject');
+		$this->setTable('contactPoint');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		return parent::getData($params);

@@ -34,32 +34,37 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
-		$dataImageObject = parent::get($params);
-		$newData = [];
-		foreach ($dataImageObject as $item) {
-			$idmediaObject = $item['mediaObject'];
-			unset($item['mediaObject']);
-			// mediaObject
-			$dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject'=>$idmediaObject] + $params)->ready();
-			$idcreativeWork = $dataMediaObject[0]['creativeWork'];
-			unset($dataMediaObject[0]['idmediaObject']);
-			unset($dataMediaObject[0]['creativeWork']);
-			// creativeWork
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork] + $params)->ready();
-			$idthing = $dataCreativeWork[0]['thing'];
-			unset($dataCreativeWork[0]['idcreativeWork']);
-			// thing
-			$dataThing = ApiFactory::request()->type('thing')->get(['idthing'=>$idthing] + $params)->ready();
-			unset($dataThing['type']);
-			// returns
-			$returns = $item + $dataThing[0] + $dataCreativeWork[0] + $dataMediaObject[0];
-			// identifier
-			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idmediaObject','value'=>$idmediaObject];
-			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idcreativeWork','value'=>$idcreativeWork];
-			$returns['identifier'][] = ['@type'=>'PropertyValue','name'=>'idthing','value'=>$idthing];
-			// new data
-			$newData[] = $returns;
+	  $newData = [];
+	  $dataImageObject = [];
+	  $hasPart = $params['hasPart'] ?? null;
+		if ($hasPart) {
+			$dataRelational = (new Relationship('thing',$hasPart,'imageObject'))->getRelationship();
+			if (!empty($dataRelational)) {
+				foreach ($dataRelational as $value) {
+					$idimageObject = $value['idimageObject'];
+					$data = parent::getData(['idimageObject'=>$idimageObject]);
+					$dataImageObject[] = $data[0];
+				}
+			}
+		} else {
+			$dataImageObject = parent::getData($params);
 		}
+		//
+	  foreach ($dataImageObject as $item) {
+		  $idmediaObject = $item['mediaObject'];
+		  // mediaObject
+		  $dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject' => $idmediaObject] + $params)->ready();
+		  $idcreativeWork = $dataMediaObject[0]['creativeWork'];
+		  // creativeWork
+		  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
+		  $idthing = $dataCreativeWork[0]['thing'];
+		  // thing
+		  $dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing] + $params)->ready();
+		  // returns
+		  $returns = $item + $dataThing[0] + $dataCreativeWork[0] + $dataMediaObject[0];
+		  // new data
+		  $newData[] = $returns;
+	  }
 		return $newData;
   }
 

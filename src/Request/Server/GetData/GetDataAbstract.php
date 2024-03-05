@@ -42,7 +42,7 @@ abstract class GetDataAbstract
   /**
    *
    */
-  public function setQuery()
+  protected function setQuery()
   {
     $this->query = "SELECT $this->fields FROM `$this->table`";
   }

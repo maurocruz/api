@@ -21,15 +21,7 @@ class ConnectBd
 
 	public function read(array $params): array
 	{
-		return PDOConnect::crud()->setTable($this->table)->read(
-			$params['fields'] ?? '*',
-			$params['where'] ?? null,
-			$params['groupBy'] ?? null,
-			$params['orderBy'] ?? null,
-			$params['limit'] ?? null,
-			$params['offset'] ?? null,
-			$params['args'] ?? null
-		);
+		return PDOConnect::crud()->setTable($this->table)->read($params);
 	}
 
 	public function update(array $params): array

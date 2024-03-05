@@ -41,13 +41,19 @@ class Type
 		if (empty($this->data)) {
 			return $this->data === null ? null :  ApiFactory::response()->message()->success('No data found');
 		} else {
-			$newData = [];
-			foreach ($this->data as $value) {
-				$typeSchema = new TypeSchema($this->type);
-				$typeSchema->setValue($value);
-				$newData[] = $typeSchema->ready();
+			if (isset($this->data['error'])) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($this->data['error']);
+			} elseif (isset($this->data['status']) && $this->data['status'] === 'fail') {
+				return $this->data;
+			} else {
+				$newData = [];
+				foreach ($this->data as $value) {
+					$typeSchema = new TypeSchema($this->type);
+					$typeSchema->setValue($value);
+					$newData[] = $typeSchema->ready();
+				}
+				return $newData;
 			}
-			return $newData;
 		}
 	}
 }

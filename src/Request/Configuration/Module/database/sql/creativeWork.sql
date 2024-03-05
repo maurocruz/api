@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `copyrightHolder` VARCHAR(50) DEFAULT NULL,
   `datePublished` DATETIME DEFAULT NULL,
   `editor` INT UNSIGNED DEFAULT NULL,
-  `hasPart` INT UNSIGNED DEFAULT NULL,
   `headline` VARCHAR(100) DEFAULT NULL,
   `isPartOf` INT UNSIGNED DEFAULT NULL,
   `keywords` TEXT,
@@ -24,5 +23,6 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `thumbnail` VARCHAR(100) DEFAULT NULL,
   `version` VARCHAR(50) DEFAULT '',
   PRIMARY KEY (`idcreativeWork`,`thing`),
-  CONSTRAINT `fk_creativeWork_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  CONSTRAINT `fk_creativeWork_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
+  CONSTRAINT `fk_creativeWork_creativeWork` FOREIGN KEY ('isPartOf') REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE
+) ENGINE = InnoDB;

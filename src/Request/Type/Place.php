@@ -7,22 +7,32 @@ use Plinct\Api\Request\Server\Entity;
 
 class Place extends Entity
 {
-    /**
-     * @var string
-     */
-    protected string $table = "place";
-    /**
-     * @var string
-     */
-    protected string $type = "Place";
-    /**
-     * @var array|string[]
-     */
-    protected array $properties = ["thing"];
-    /**
-     * @var array|string[]
-     */
-    protected array $hasTypes = ["thing"=>"Thing","address" => "PostalAddress", "image" => "ImageObject" ];
+
+	public function __construct()
+	{
+		$this->setTable('place');
+	}
+
+	public function get(array $params = []): array
+	{
+		$returns = [];
+		$properties = $params['properties'] ?? null;
+		$data = parent::getData($params);
+		if (!empty($data)) {
+			foreach ($data as $value) {
+				$idthing = $value['thing'];
+				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
+				if ($properties) {
+					if (stripos($properties, 'address') !== false) {
+						$dataAddress = ApiFactory::request()->type('postalAddress')->get(['thing'=>$idthing])->ready();
+						$value['address'] = !empty($dataAddress) ? ApiFactory::response()->type('postalAddress')->setData($dataAddress)->ready() : null;
+					}
+				}
+				$returns[] = $value + $dataThing[0];
+			}
+		}
+		return $returns;
+	}
 
 	/**
 	 * @param array|null $params

@@ -4,19 +4,9 @@ namespace Plinct\Api\Request\Type;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Api\Request\Server\Relationship\Relationship;
 
 class Person extends Entity
 {
-  /**
-   * @var string
-   */
-  protected string $table = "person";
-  /**
-   * @var string
-   */
-  protected string $type = "Person";
   /**
    * @var array|string[]
    */
@@ -26,40 +16,42 @@ class Person extends Entity
    */
   protected array $hasTypes = ['thing'=>'Thing',"address" => 'PostalAddress', "contactPoint" => "ContactPoint", "image" => "ImageObject", "homeLocation"=>"Place"];
 
+	public function __construct()
+	{
+		$this->setTable('person');
+	}
+
 	/**
 	 * @param array $params
 	 * @return array
 	 */
 	public function get(array $params = []): array
 	{
+		$returns = [];
 		$properties = $params['properties'] ?? null;
-		$newData = [];
-		$getData = new GetData('person');
-		$getData->setParams($params)->render();
-		$data = $getData->render();
+		$data = parent::getData($params);
 		if (!empty($data)) {
 			foreach ($data as $value) {
 				$idthing = $value['thing'];
 				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				$value['thing'] = $dataThing[0];
 				if ($properties) {
 					if (stripos($properties, 'contactPoint') !== false) {
 						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['thing' => $idthing])->ready();
-						$value['contactPoint'] = isset($dataContactPoint[0]) ? $dataContactPoint : null;
+						$value['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
 					}
 					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
-						$dataImageObject = (new Relationship('thing',$idthing,'imageObject'))->getRelationship();
-						$value['image'] = isset($dataImageObject[0]) ? $dataImageObject : null;
+						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['hasPart'=>$idthing])->ready();
+						$value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 					}
 					if (stripos($properties,'homeLocation') !== false || stripos($properties,'address') !== false) {
 						$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['homeLocation'],'properties'=>'address'])->ready();
-						$value['homeLocation'] = $dataPlace[0] ?? null;
+						$value['homeLocation'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
 					}
 				}
-				$newData[] = $value;
+				$returns[] = $value + $dataThing[0];
 			}
 		}
-		return $newData;
+		return $returns;
 	}
 
 	/**

@@ -2,26 +2,46 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Type;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 
 class WebPage extends Entity
 {
 	/**
-	 * @var string
+	 *
 	 */
-	protected string $table = "webPage";
+	public function __construct()
+	{
+		$this->setTable('webPage');
+	}
+
 	/**
-	 * @var string
+	 * @param array $params
+	 * @return array
 	 */
-	protected string $type = "WebPage";
-	/**
-	 * @var array|string[]
-	 */
-	protected array $properties = [];
-	/**
-	 * @var array|string[]
-	 */
-	protected array $hasTypes = [ "hasPart" => "WebPageElement", "identifier" => "PropertyValue", "isPartOf"=>'WebSite'];
+	public function get(array $params = []): array
+	{
+		$returns = [];
+		$isPartOf = $params['isPartOf'] ?? null;
+		if ($isPartOf) {
+			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['isPartOf'=>$isPartOf])->ready();
+			foreach ($dataCreativeWork as $item) {
+				$idcreativeWork = $item['idcreativeWork'];
+				$dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
+				unset($dataWebPage[0]['creativeWork']);
+				$returns[] = $dataWebPage[0] + $item;
+			}
+		} else {
+			$dataWebPage = parent::getData($params);
+			foreach ($dataWebPage as $item) {
+				$idcreativeWork = $item['creativeWork'];
+				unset($item['creativeWork']);
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
+				$returns[] = $item + $dataCreativeWork[0];
+			}
+		}
+		return $returns;
+	}
 
 	/**
 	 * @param array $params
@@ -29,7 +49,29 @@ class WebPage extends Entity
 	 */
 	public function post(array $params): array
 	{
-		return parent::post($this->addBreadcrumb($params));
+		$url = $params['url'] ?? null;
+		$alternativeHeadline = $params['alternativeHeadline'] ?? null;
+		$isPartOf = $params['isPartOf'] ?? null;
+		if ($url && $alternativeHeadline && $isPartOf) {
+			$params = $this->addBreadcrumb($params);
+			// SAVE THING
+			$dataThing = ApiFactory::request()->type('thing')->post(['type'=>'webPage'] + $params)->ready();
+			if (isset($dataThing['id'])) {
+				$idthing = $dataThing['id'];
+				// SAVE CREATIVEWORK
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post(['thing'=>$idthing] + $params)->ready();
+				if (isset($dataCreativeWork['id'])) {
+					$idcreativeWork = $dataCreativeWork['id'];
+					// SAVE WEBPAGE
+					$dataWebpAGE = parent::post(['creativeWork'=>$idcreativeWork] + $params);
+					// RETURN
+					return ApiFactory::response()->message()->success('WebPage was created', $dataWebpAGE);
+				}
+			};
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: url, alternativeHeadline and isPartOf']);
+		}
+		return ApiFactory::response()->message()->fail()->generic();
 	}
 
 	/**

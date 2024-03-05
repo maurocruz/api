@@ -19,5 +19,11 @@ class Thing extends Entity implements HttpRequestInterface
 	public function __construct()
 	{
 		$this->setTable('thing');
+		$this->setProperties(['contactPoint']);
+	}
+
+	public function get(array $params = []): array
+	{
+		return parent::getData($params);
 	}
 }

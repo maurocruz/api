@@ -15,7 +15,7 @@ abstract class TypeSchemaAbstract
 	/**
 	 * @var array
 	 */
-	protected array $identifier;
+	protected array $identifier = [];
 
 
 	/**
@@ -35,22 +35,5 @@ abstract class TypeSchemaAbstract
 	public function setIdentifier(string $name, string $value, string $type = 'PropertyValue'): void
 	{
 		$this->identifier[] = ['@type'=>$type,'name'=>$name,'value'=>$value];
-	}
-
-	/**
-	 * @param array $value
-	 */
-	public function setThingData(array $value): void
-	{
-		$this->setIdentifier('idthing', (string) $value['idthing']);
-		$this->setIdentifier('dateCreated', (string) $value['dateCreated']);
-		$this->setIdentifier('dateModified', (string) $value['dateModified']);
-		unset($value['@context']);
-		unset($value['@type']);
-		unset($value['type']);
-		unset($value['idthing']);
-		unset($value['dateCreated']);
-		unset($value['dateModified']);
-		$this->thingData = $value;
 	}
 }

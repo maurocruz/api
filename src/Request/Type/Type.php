@@ -36,13 +36,16 @@ class Type
 	{
 		$this->type = $type;
 		$this->namespace = $type;
-		$classname = __NAMESPACE__.'\\'.ucfirst($type);
-		if (class_exists($classname)) {
-			$this->classActions = new $classname();
-		}
-		$classname = __NAMESPACE__.'\\'.ucfirst($type).'\\'.ucfirst($type);
-		if (class_exists($classname)) {
-			$this->classActions = new $classname();
+		$namesClasses = [
+			__NAMESPACE__.'\\'.ucfirst($type),
+			__NAMESPACE__.'\\'.ucfirst($type).'\\'.ucfirst($type),
+			__NAMESPACE__."\\CreativeWork\\".ucfirst($type),
+			__NAMESPACE__."\\Intangible\\".ucfirst($type)
+		];
+		foreach ($namesClasses as $classname) {
+			if (class_exists($classname)) {
+				$this->classActions = new $classname();
+			}
 		}
 	}
 

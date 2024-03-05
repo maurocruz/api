@@ -2,14 +2,8 @@
 declare(strict_types=1);
 namespace Plinct\Api\Response\Type;
 
-use Plinct\Api\ApiFactory;
-
 class TypeSchema extends TypeSchemaAbstract
 {
-	/**
-	 * @var string
-	 */
-	private string $type;
 	/**
 	 * @var array|null
 	 */
@@ -20,7 +14,6 @@ class TypeSchema extends TypeSchemaAbstract
 	 */
 	public function __construct(string $type)
 	{
-		$this->type = $type;
 		$this->setContextSchema($type);
 	}
 
@@ -30,28 +23,21 @@ class TypeSchema extends TypeSchemaAbstract
 	 */
 	public function setValue(?array $value): TypeSchema
 	{
-		$idname = "id".lcfirst($this->type);
-		$this->setIdentifier($idname, (string) $value[$idname]);
-
-		if (isset($value['thing']) && is_array($value['thing'])) {
-			$this->setThingData($value['thing']);
+		foreach ($value as $key => $valueItem) {
+			if(is_string($key) && substr($key,0,2) === 'id' && !is_array($valueItem)) {
+				$this->setIdentifier($key, (string) $valueItem);
+				unset($value[$key]);
+			}
+			if ($key === 'dateCreated' || $key === 'dateModified') {
+				$this->setIdentifier($key, $valueItem);
+			}
 		}
-		unset($value[$idname]);
+		unset($value['type']);
 		unset($value['thing']);
-		unset($value['idthing']);
-
-		if (array_key_exists('contactPoint',$value)) {
-			$value['contactPoint'] = ApiFactory::response()->type('contactPoint')->setData($value['contactPoint'])->ready();
-		}
-		if (array_key_exists('image',$value)) {
-			$value['image'] = ApiFactory::response()->type('imageObject')->setData($value['image'])->ready();
-		}
-		if (array_key_exists('address',$value) && is_array($value['address'])) {
-			$value['address'] = (new TypeSchema('postalAddress'))->setValue($value['address'])->ready();
-		}
-		if (array_key_exists('homeLocation',$value) && is_array($value['homeLocation'])) {
-			$value['homeLocation'] = (new TypeSchema('place'))->setValue($value['homeLocation'])->ready();
-		}
+		unset($value['mediaObject']);
+		unset($value['creativeWork']);
+		unset($value['dateCreated']);
+		unset($value['dateModified']);
 
 		$this->value = $value;
 		return $this;
