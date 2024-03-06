@@ -78,9 +78,9 @@ class HttpRequest implements HttpRequestInterface
 	public function put(array $params = null): array
 	{
 		if (Permissions::isRequiresSubscription()) {
-			$idname = "id".$this->classActions->getTable();
-			$idvalue = $params[$idname] ?? null;
-			if ($idvalue) {
+			//$idname = "id".$this->classActions->getTable();
+			//$idvalue = $params[$idname] ?? null;
+			//if ($idvalue) {
 				//$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
 				//if(isset($filter['status']) && $filter['status'] == 'fail') {
 					//return $filter;
@@ -88,15 +88,16 @@ class HttpRequest implements HttpRequestInterface
 					$putdata = $this->classActions->put($params);
 					if (empty($putdata)) {
 						return ApiFactory::response()->message()->success('Updated data', $putdata);
-					} elseif (isset($putdata['status']) && $putdata['status'] == 'success') {
+					} else {
 						return  $putdata;
 					}
-					return ApiFactory::response()->message()->fail()->generic($putdata);
+					//return ApiFactory::response()->message()->fail()->generic($putdata);
 				//}
-			}
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			//}
+			//return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+		} else {
+			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
 		}
-		return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
 	/**
@@ -110,12 +111,7 @@ class HttpRequest implements HttpRequestInterface
 			if(isset($filter['status']) && $filter['status'] == 'fail') {
 				return $filter;
 			} else {
-				$returns = $this->classActions->delete($params);
-				if ($returns == []) {
-					return ApiFactory::response()->message()->success('successfully deleted', $params);
-				} else {
-					return ApiFactory::response()->message()->fail()->generic($returns);
-				}
+				return $this->classActions->delete($params);
 			}
 		}
 		return  ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);

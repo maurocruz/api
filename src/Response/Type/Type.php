@@ -39,7 +39,7 @@ class Type
 	public function ready(): ?array
 	{
 		if (empty($this->data)) {
-			return $this->data === null ? null :  ApiFactory::response()->message()->success('No data found');
+			return null;
 		} else {
 			if (isset($this->data['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($this->data['error']);

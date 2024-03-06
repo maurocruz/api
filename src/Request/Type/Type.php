@@ -50,6 +50,17 @@ class Type
 	}
 
 	/**
+	 * @param array $params
+	 * @return $this
+	 */
+	public function get(array $params): Type
+	{
+		$this->method = 'get';
+		$this->params = $params;
+		return $this;
+	}
+
+	/**
 	 * @param array|null $params
 	 * @param array|null $uploadedFiles
 	 * @return $this
@@ -62,22 +73,12 @@ class Type
 		$this->uploadedFiles = $uploadedFiles;
 		return $this;
 	}
-	/**
-	 * @param array $params
-	 * @return $this
-	 */
-	public function get(array $params): Type
-	{
-		$this->method = 'get';
-		$this->params = $params;
-		return $this;
-	}
 
 	/**
-	 * @param array $params
+	 * @param array|null $params
 	 * @return $this
 	 */
-	public function put(array $params): Type
+	public function put(array $params = null): Type
 	{
 		$this->method = 'put';
 		$this->params = $params;

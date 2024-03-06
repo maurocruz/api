@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plinct\Api\Response;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Response\Message\Message;
 use Plinct\Api\Response\Format\Format;
 use Plinct\Api\Response\Type\Type;
@@ -35,11 +36,12 @@ class Response
 
 	/**
 	 * @param ResponseInterface $response
-	 * @param array $data
+	 * @param array|null $data
 	 * @return ResponseInterface
 	 */
-	public function write(ResponseInterface $response, array $data = ['status'=>'success','message'=>'empty response']): ResponseInterface
+	public function write(ResponseInterface $response, ?array $data): ResponseInterface
 	{
+		$data = $data ?? ApiFactory::response()->message()->success('No data found!');
 		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
 		return $response;
 	}

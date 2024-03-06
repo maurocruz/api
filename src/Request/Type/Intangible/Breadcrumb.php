@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-namespace Plinct\Api\Request\Type;
+namespace Plinct\Api\Request\Type\Intangible;
+
+use Plinct\Api\Request\Type\CreativeWork\WebPage;
 
 class Breadcrumb
 {

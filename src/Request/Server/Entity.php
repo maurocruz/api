@@ -103,11 +103,11 @@ abstract class Entity implements HttpRequestInterface
     return $data->render();
   }
 
-  /**
-   * @param array $params
-   * @return array
-   */
-  public function post(array $params): array
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+  public function post(array $params = null): array
   {
 		$connect = new ConnectBd($this->table);
 		$data = $connect->created($params);
@@ -116,30 +116,6 @@ abstract class Entity implements HttpRequestInterface
 	  } else {
 		  return ApiFactory::response()->message()->fail()->generic($data);
 	  }
-    // if relationship
-    /*if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
-      $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
-      unset($params['tableHasPart'],$params['idHasPart']);
-      return $relationship->postRelationship($params);
-    }
-		// connect
-	  $columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
-		$newParams = [];
-	  foreach ($columnsTable as $value) {
-		  $columnNanme = $value['COLUMN_NAME'];
-		  if (array_key_exists($columnNanme,$params)) {
-				$newParams[$columnNanme] = $params[$columnNanme];
-		  }
-	  }
-		// save
-	  $connect = new ConnectBd($this->table);
-	  $data = $connect->created($newParams);
-	  // response
-	  if (empty($data)) {
-		  return ['id' => $connect->lastInsertId()];
-	  } else {
-		  return ApiFactory::response()->message()->fail()->generic($data);
-	  }*/
   }
 
 	/**
@@ -149,13 +125,6 @@ abstract class Entity implements HttpRequestInterface
 	 */
   public function put(array $params = null): array
   {
-		// RELATIONSHIP
-	 /* if (isset($params['tableHasPart']) && isset($params['idHasPart']) ) {
-		  $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
-		  unset($params['tableHasPart'],$params['idHasPart']);
-		  return $relationship->putRelationship($params) ?? [];
-	  }*/
-
 		// CONNECT
 	  $connect = new ConnectBd($this->table);
 		$data = $connect->update($params);
@@ -178,7 +147,9 @@ abstract class Entity implements HttpRequestInterface
    */
   public function delete(array $params): array
   {
-    if (isset($params['tableHasPart']) && isset($params['idHasPart']) && isset($params['tableIsPartOf']) && isset($params['idIsPartOf'])) {
+		$connect = new ConnectBd($this->table);
+		return $connect->delete($params);
+    /*if (isset($params['tableHasPart']) && isset($params['idHasPart']) && isset($params['tableIsPartOf']) && isset($params['idIsPartOf'])) {
       $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
       unset($params['tableHasPart'],$params['idHasPart']);
       return $relationship->deleteRelationship($params);
@@ -190,6 +161,6 @@ abstract class Entity implements HttpRequestInterface
       }
       $where = implode(" AND ", $whereArray);
       return PDOConnect::run("DELETE FROM `$this->table` WHERE $where");
-    }
+    }*/
   }
 }

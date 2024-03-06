@@ -42,10 +42,10 @@ class UserActions implements HttpRequestInterface
 	}
 
 	/**
-	 * @param array $params
+	 * @param array|null $params
 	 * @return array
 	 */
-	public function post(array $params): array
+	public function post(array $params = null): array
 	{
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;

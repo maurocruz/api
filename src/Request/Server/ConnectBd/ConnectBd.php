@@ -6,24 +6,41 @@ use Plinct\Api\ApiFactory;
 
 class ConnectBd
 {
-
+	/**
+	 * @var string
+	 */
 	private string $table;
 
+	/**
+	 * @param string $table
+	 */
 	public function __construct(string $table)
 	{
 		$this->table = $table;
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function created(array $params): array
 	{
 		return PDOConnect::crud()->setTable($this->table)->created($params);
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function read(array $params): array
 	{
 		return PDOConnect::crud()->setTable($this->table)->read($params);
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function update(array $params): array
 	{
 		$idname = "id$this->table";
@@ -42,13 +59,16 @@ class ConnectBd
 		}
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function delete(array $params): array
 	{
 		if (empty($params)) {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		} else {
 			$data = PDOConnect::crud()->setTable($this->table)->erase($params);
-
 			if (isset($data['status']) && $data['status'] == 'success') {
 				return ApiFactory::response()->message()->success("Item deleted",$data);
 			}
@@ -56,6 +76,9 @@ class ConnectBd
 		}
 	}
 
+	/**
+	 * @return int
+	 */
 	public function lastInsertId(): int {
 		return PDOConnect::lastInsertId();
 	}

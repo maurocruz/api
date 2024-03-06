@@ -35,21 +35,6 @@ return function(Route $route)
 	});
 
 	/**
-	 * PUT
-	 */
-	$route->put('', function (Request $request, Response $response, $args) {
-		$type = $args['type'];
-		$params = $request->getParsedBody() ?? null;
-		$id = $params['id'] ?? $params['idHasPart'] ?? $params["id". lcfirst($type)] ?? null;
-		if (!$id) {
-			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(["params"=>$params]);
-		}	else {
-			$data = ApiFactory::request()->type($type)->put($params)->ready();
-		}
-		return ApiFactory::response()->write($response, $data);
-	})->addMiddleware(new AuthMiddleware());
-
-	/**
 	 * POST
 	 */
 	$route->post('', function(Request $request, Response $response, $args)
@@ -62,20 +47,23 @@ return function(Route $route)
 	})->addMiddleware(new AuthMiddleware());
 
 	/**
+	 * PUT
+	 */
+	$route->put('', function (Request $request, Response $response, $args) {
+		$type = $args['type'];
+		$params = $request->getParsedBody() ?? null;
+		$data = ApiFactory::request()->type($type)->put($params)->ready();
+		return ApiFactory::response()->write($response, $data);
+	})->addMiddleware(new AuthMiddleware());
+
+	/**
 	 * DELETE
 	 */
 	$route->delete("[/{id}]", function (Request $request, Response $response, $args)
 	{
 		$type = $args['type'];
-		$params = $request->getParsedBody() ?? $request->getQueryParams() ?? null;
-		$params["id$type"] = $args['id'] ?? $params['id'] ?? $params['idIsPartOf'] ?? $params["id$type"] ?? null;
-		unset($params['id']);
-		if (!$params["id$type"]) {
-			$data = ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
-		} else {
-			$data = ApiFactory::request()->type($type)->delete($params)->ready();
-		}
+		$params = $request->getQueryParams() ?? null;
+		$data = ApiFactory::request()->type($type)->delete($params)->ready();
 		return ApiFactory::response()->write($response, $data);
-
 	})->addMiddleware(new AuthMiddleware());
 };
