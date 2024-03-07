@@ -5,10 +5,10 @@ namespace Plinct\Api\Request\Server;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\PlinctApp;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Request\Server\Schema\Schema;
+use Plinct\Api\Response\Message\MessageSuccess;
 use Plinct\Tool\Curl;
 
 abstract class Entity implements HttpRequestInterface
@@ -51,10 +51,12 @@ abstract class Entity implements HttpRequestInterface
 		$this->properties = $properties;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTable(): string {
 		return $this->table;
 	}
-
 
 	/**
    * GET
@@ -119,6 +121,24 @@ abstract class Entity implements HttpRequestInterface
   }
 
 	/**
+	 * @param string $parentName
+	 * @param array|null $params
+	 * @param array|null $uploadedFiles
+	 * @return array
+	 */
+	protected function create(string $parentName, array $params = null, array $uploadedFiles = null): array
+	{
+		// SAVE PARENT
+		$dataParent = ApiFactory::request()->type($parentName)->post($params, $uploadedFiles)->ready();
+		if (isset($dataParent['id'])) {
+			$idparent = $dataParent['id'];
+			// SAVE CHILD
+			return self::post([$parentName=>$idparent] + $params);
+		}
+		return ApiFactory::response()->message()->fail()->generic($dataParent);
+	}
+
+	/**
 	 * PUT
 	 * @param array|null $params
 	 * @return array
@@ -140,6 +160,33 @@ abstract class Entity implements HttpRequestInterface
 		return $data;
   }
 
+	/**
+	 * @param string $parentName
+	 * @param array|null $params
+	 * @return array|MessageSuccess
+	 */
+	protected function update(string $parentName, array $params = null)
+	{
+		$idchildName = 'id'.$this->table;
+		$idchildValue = $params[$idchildName] ?? null;
+		if ($idchildValue) {
+			$dataChild = self::getData([$idchildName=>$idchildValue]);
+			if (!empty($dataChild)) {
+				$putChild = self::put($params);
+				if ($putChild['status'] === 'success') {
+					$idparent = $putChild['data'][0][$parentName];
+					$putParent = ApiFactory::request()->type($parentName)->put(['id'.$parentName=>$idparent] + $params)->ready();
+					if ($putParent['status'] === 'success') {
+						return ApiFactory::response()->message()->success('CreativeWork was updated', [$putChild, $putParent]);
+					}
+				}
+			} else {
+				return ApiFactory::response()->message()->fail()->returnIsEmpty();
+			}
+		}
+		return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
+	}
+
   /**
    * DELETE
    * @param array $params
@@ -149,18 +196,27 @@ abstract class Entity implements HttpRequestInterface
   {
 		$connect = new ConnectBd($this->table);
 		return $connect->delete($params);
-    /*if (isset($params['tableHasPart']) && isset($params['idHasPart']) && isset($params['tableIsPartOf']) && isset($params['idIsPartOf'])) {
-      $relationship = new Relationship($params['tableHasPart'], $params['idHasPart'], $this->table);
-      unset($params['tableHasPart'],$params['idHasPart']);
-      return $relationship->deleteRelationship($params);
-    } else {
-      $params = array_filter($params);
-      $whereArray = [];
-      foreach ($params as $key => $value) {
-        $whereArray[] = "`$key`='$value'";
-      }
-      $where = implode(" AND ", $whereArray);
-      return PDOConnect::run("DELETE FROM `$this->table` WHERE $where");
-    }*/
   }
+
+	/**
+	 * @param string $parentName
+	 * @param array|null $params
+	 * @return array
+	 */
+	protected function erase(string $parentName, array $params = null): array
+	{
+		$idchildName = 'id'.$this->table;
+		$idchildValue = $params[$idchildName] ?? $params[$this->table] ?? null;
+		if ($idchildValue) {
+			$dataChild = self::getData([$idchildName=>$idchildValue]);
+			if (!empty($dataChild)) {
+				$idparent = $dataChild[0][$parentName];
+				return ApiFactory::request()->type($parentName)->delete(['id'.$parentName=>$idparent])->ready();
+			}else {
+				return ApiFactory::response()->message()->fail()->generic($params, ucfirst($this->table).' id not found');
+			}
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: $idchildName or $this->table"]);
+		}
+	}
 }

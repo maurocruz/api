@@ -18,7 +18,7 @@ class PostalAddress extends Entity
 		return parent::getData($params);
 	}
 
-	public function post(array $params): array
+	public function post(array $params = null): array
 	{
 		$idthing = $params['thing'] ?? null;
 		if ($idthing) {

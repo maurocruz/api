@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `thing` (
   `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`idthing`),
   KEY (`name`,`description`),
-  CONSTRAINT `thing_chk_name` CHECK ((`name` <> ''))
+  CONSTRAINT `thing_check_name` CHECK ((`name` <> ''))
 ) ENGINE = InnoDB;
 
 -- PROPERTY VALUE
@@ -25,5 +25,17 @@ CREATE TABLE IF NOT EXISTS `propertyValue` (
   `name` varchar(45) NOT NULL,
   `value` varchar(255) NOT NULL,
   PRIMARY KEY (`idpropertyValue`,`thing`),
-  CONSTRAINT `FK_propertyValue_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  KEY `fk_propertyValue_thing_idx1` (`thing`),
+  CONSTRAINT `fk_propertyValue_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `thing_has_thing` (
+  `idHasPart` INT UNSIGNED NOT NULL,
+  `idIsPartOf` INT UNSIGNED NOT NULL,
+  PRIMARY KEY (`idHasPart`,`idIsPartOf`),
+  KEY `fk_thing_has_thing_hasPart_idx1` (`idIsPartOf`),
+  KEY `fk_thing_has_thing_isPartOf_idx1` (`idHasPart`),
+  CONSTRAINT `fk_thing_has_thing_hasPart` FOREIGN KEY (`idHasPart`) REFERENCES `thing` (`idthing`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_thing_has_thing_isPartOf` FOREIGN KEY (`idIsPartOf`) REFERENCES `thing` (`idthing`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB;

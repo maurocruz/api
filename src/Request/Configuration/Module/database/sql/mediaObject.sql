@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS `mediaObject` (
   `width` INT DEFAULT NULL,
   `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`idmediaObject`,`creativeWork`),
+  KEY `fk_mediaObject_creativeWork_idx` (`creativeWork`),
   CONSTRAINT `fk_mediaObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE
 )ENGINE = InnoDB;

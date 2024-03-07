@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace Plinct\Api\Request\Type;
+namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;

@@ -40,14 +40,8 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function post(array $params = null): array
 	{
-		// SAVE THING
-		$dataThing = ApiFactory::request()->type('thing')->post(['type'=>'CreativeWork'] + $params)->ready();
-		if (isset($dataThing['id'])) {
-			$idthing = $dataThing['id'];
-			// SAVE CREATIVEWORK
-			return parent::post(['thing'=>$idthing] + $params);
-		}
-		return ApiFactory::response()->message()->fail()->generic($dataThing);
+		$params['type'] = 'CreativeWork';
+		return parent::create('thing', $params);
 	}
 
 	/**

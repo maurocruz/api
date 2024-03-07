@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Plinct\Api\Request\Type;
+namespace Plinct\Api\Request\Type\Event;
 
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Server\Maintenance;
