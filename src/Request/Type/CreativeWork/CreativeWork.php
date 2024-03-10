@@ -31,7 +31,7 @@ class CreativeWork extends Entity implements HttpRequestInterface
 				$returns[] = $item + $dataThing[0];
 			}
 		}
-		return $returns;
+		return parent::array_sort($returns, $params);
 	}
 
 	/**
@@ -50,23 +50,7 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function put(array $params = null): array
 	{
-		$idcreativeWork = $params['idcreativeWork'] ?? null;
-		if ($idcreativeWork) {
-			$datacreativeWork = parent::getData(['idcreativeWork'=>$idcreativeWork]);
-			if (!empty($datacreativeWork)) {
-				$putcreativeWork = parent::put($params);
-				if ($putcreativeWork['status'] === 'success') {
-					$idthing = $datacreativeWork[0]['thing'];
-					$putThing = ApiFactory::request()->type('thing')->put(['idthing'=>$idthing] + $params)->ready();
-					if ($putThing['status'] === 'success') {
-						return ApiFactory::response()->message()->success('CreativeWork was updated', [$putcreativeWork, $putThing]);
-					}
-				}
-			} else {
-				return ApiFactory::response()->message()->fail()->returnIsEmpty();
-			}
-		}
-		return ApiFactory::response()->message()->fail()->generic();
+		return parent::update('thing', $params);
 	}
 
 	/**

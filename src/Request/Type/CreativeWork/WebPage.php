@@ -36,17 +36,28 @@ class WebPage extends Entity
 			$dataWebPage = parent::getData($params);
 			foreach ($dataWebPage as $item) {
 				$idcreativeWork = $item['creativeWork'];
-				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();// PROPERTIES
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
+				// PROPERTIES
 				if ($properties) {
 					if (stripos($properties, 'hasPart') !== false) {
-						$dataWebPage = ApiFactory::request()->type('webPageElement')->get(['isPartOf' => $idcreativeWork])->ready();
-						$item['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPage)->ready();
+						$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf' => $idcreativeWork])->ready();
+						$item['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPageElement)->ready();
+					}
+					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
+						$thing = $dataCreativeWork[0]['thing'];
+						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$thing])->ready();
+						$item['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
+					}
+					if (stripos($properties,'isPartOf') !== false) {
+						$isPartOf = $dataCreativeWork[0]['isPartOf'];
+						$dataWebSite = ApiFactory::request()->type('webSite')->get(['creativeWork'=>$isPartOf])->ready();
+						$item['isPartOf'] = ApiFactory::response()->type('webSite')->setData($dataWebSite)->ready()[0];
 					}
 				}
 				$returns[] = $item + $dataCreativeWork[0];
 			}
 		}
-		return $returns;
+		return parent::array_sort($returns, $params);
 	}
 
 	/**
@@ -81,25 +92,7 @@ class WebPage extends Entity
 	 */
 	public function put(array $params = null): array
 	{
-		$idwebPage = $params['idwebPage'] ?? $params['webPage'] ?? null;
-		if ($idwebPage) {
-			$datawebPage = parent::getData(['idwebPage'=>$idwebPage]);
-			if (!empty($datawebPage)) {
-				$putwebPage = parent::put($params);
-				if ($putwebPage['status'] === 'success') {
-					$idcreativeWork = $datawebPage[0]['creativeWork'];
-					$putCreativeWork = ApiFactory::request()->type('creativeWork')->put(['idcreativeWork'=>$idcreativeWork] + $params)->ready();
-					if ($putCreativeWork['status'] === 'success') {
-						return ApiFactory::response()->message()->success('WebPage was updated', [$putwebPage, $putCreativeWork]);
-					}
-				}
-			} else {
-				return ApiFactory::response()->message()->fail()->returnIsEmpty();
-			}
-		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idwebPage or webPage"]);
-		}
-		return ApiFactory::response()->message()->fail()->generic();
+		return parent::update('creativeWork',$params);
 	}
 
 	public function delete(array $params): array

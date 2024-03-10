@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Server\GetData;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 abstract class GetDataAbstract
@@ -32,18 +33,9 @@ abstract class GetDataAbstract
   protected string $limit = '200';
 
   /**
-   * @param string $limit
-   */
-  public function setLimit(string $limit)
-  {
-    $this->limit = $limit;
-  }
-
-  /**
    *
    */
-  protected function setQuery()
-  {
+  protected function setQuery() {
     $this->query = "SELECT $this->fields FROM `$this->table`";
   }
 
@@ -52,11 +44,19 @@ abstract class GetDataAbstract
    */
   public function setParams($params): GetDataAbstract
   {
+	  $columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
+	  $newParams = [];
+	  foreach ($columnsTable as $value) {
+		  $columnName = $value['COLUMN_NAME'];
+		  if (array_key_exists($columnName,$params)) {
+			  $newParams[$columnName] = $params[$columnName];
+		  }
+	  }
     if (isset($params['limit'])) {
       $this->limit = (string) $params['limit'];
       unset($params['limit']);
-      }
-    $this->params = $params;
+		}
+	  $this->params = $newParams;
 		return $this;
   }
 
@@ -67,13 +67,11 @@ abstract class GetDataAbstract
     if (isset($this->params['fields'])) {
 			$fields = $this->params['fields'];
 			unset($this->params['fields']);
-
 			// ID IS REQUIRED IF THERE IS A hasType PROPERTY
 			$idname = "id$this->table";
 			if (strpos($fields,$idname) === false) {
 				$fields .= ",$idname";
 			}
-
       $this->fields = $fields;
     }
   }
@@ -86,13 +84,10 @@ abstract class GetDataAbstract
     $groupBy = $this->params['groupBy'] ?? null;
     $orderBy = $this->params['orderBy'] ?? null;
     $ordering = $this->params['ordering'] ?? null;
-
     // GROUP BY
     if ($groupBy) $this->query .= " GROUP BY $groupBy";
-
     // ORDER BY
     if ($orderBy) $this->query .= " ORDER BY $orderBy $ordering";
-
   }
 
   /**
@@ -121,13 +116,10 @@ abstract class GetDataAbstract
 				$where[] = implode(' AND ',$likeWhere);
       }
     }
-
     //
     $columnsTable = PDOConnect::run("SHOW COLUMNS FROM `$this->table`;");
-
     if (isset($columnsTable['error'])) {
       $this->error = $columnsTable;
-
     } else {
       foreach ($columnsTable as $value) {
         $field = $value['Field'];

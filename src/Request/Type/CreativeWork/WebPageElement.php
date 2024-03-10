@@ -47,8 +47,10 @@ class WebPageElement extends Entity
 			  $returns[] = $value + $dataCreativeWork[0];
 		  }
 	  }
-		return $returns;
+	  return parent::array_sort($returns, $params);
   }
+
+
 
 	public function post(array $params = null): array
 	{
@@ -57,13 +59,7 @@ class WebPageElement extends Entity
 		$name = $params['name'] ?? null;
 		$params['additionalType'] = "WebPageElement";
 		if ($isPartOf && $text && $name) {
-			// SAVE CREATIVEWORK
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
-			if (isset($dataCreativeWork['id'])) {
-				$idcreativeWork = $dataCreativeWork['id'];
-				// SAVE WEPAGEELEMENT
-				return parent::post(['creativeWork'=>$idcreativeWork] + $params);
-			}
+			return parent::create('creativeWork', $params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, isPartOf and $text']);
 		}

@@ -39,7 +39,7 @@ class WebSite extends Entity
 					$returns[] = $item;
 				}
 			}
-			return $returns;
+			return parent::array_sort($returns, $params);
 		} else {
 			return $data;
 		}

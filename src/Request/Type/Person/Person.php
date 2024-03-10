@@ -35,7 +35,7 @@ class Person extends Entity
 						$value['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
 					}
 					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
-						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['hasPart'=>$idthing])->ready();
+						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$idthing])->ready();
 						$value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 					}
 					if (stripos($properties,'homeLocation') !== false || stripos($properties,'address') !== false) {
@@ -46,7 +46,7 @@ class Person extends Entity
 				$returns[] = $value + $dataThing[0];
 			}
 		}
-		return $returns;
+		return parent::array_sort($returns, $params);
 	}
 
 	/**

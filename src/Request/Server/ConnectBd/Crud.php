@@ -55,6 +55,7 @@ class Crud
 		$limit = $params['limit'] ?? null;
 		$offset =	$params['offset'] ?? null;
 		$args = $params['args'] ?? null;
+		//
     $query = "SELECT $fields FROM `$this->table`";
     $query .= $where ? " WHERE $where" : null;
     $query .= $groupBy ? " GROUP BY $groupBy" : null;

@@ -22,7 +22,8 @@ class MediaObject extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		return parent::getData($params);
+		$returns = parent::getData($params);
+		return parent::array_sort($returns, $params);
 	}
 
 	/**

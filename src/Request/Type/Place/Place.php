@@ -31,7 +31,7 @@ class Place extends Entity
 				$returns[] = $value + $dataThing[0];
 			}
 		}
-		return $returns;
+		return parent::array_sort($returns, $params);
 	}
 
 	/**

@@ -21,13 +21,13 @@ class Organization extends Entity
   public function get(array $params = []): array
   {
     // GET DATA ORGANIZATION
-    $data = parent::getData($params);
+	  $returns = parent::getData($params);
     // GET OFFERS
     if (isset($params['properties']) && strpos($params['properties'], "hasOfferCatalog") !== false) {
       $offerCatalog = (new Offer())->get([ "format" => "ItemList", "offeredBy" => $params['id'], "offeredByType" => "Organization" ]);
-      $data[0]['hasOfferCatalog'] = $offerCatalog;
+	    $returns[0]['hasOfferCatalog'] = $offerCatalog;
     }
-    return $data;
+	  return parent::array_sort($returns, $params);
   }
 
 	public function post(array $params = null): array

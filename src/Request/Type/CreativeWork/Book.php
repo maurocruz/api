@@ -35,7 +35,7 @@ class Book extends Entity
 					$returns[] = $value;
 				}
 			}
-			return $returns;
+			return parent::array_sort($returns, $params);
 		} else {
 			return [];
 		}

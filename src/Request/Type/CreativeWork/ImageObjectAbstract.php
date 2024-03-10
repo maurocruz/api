@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Exception;
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\Server\Relationship\Relationship;
@@ -77,5 +78,40 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	{
 		$relationShip = new Relationship('thing', $idHasPart,'imageObject', $idimageObject);
 		return $relationShip->post($params);
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function updateHasTable(array $params): array
+	{
+		$idimageObject = $params['idimageObject'];
+		$newPosition = $params['position'] ?? null;
+		$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject'"]);
+		$idthing = $dataItem[0]['idthing'];
+		// position
+		if ($newPosition) {
+			$oldPosition = $dataItem[0]['position'];
+			$dataAll = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idthing`='$idthing'"]);
+			foreach ($dataAll as $value) {
+				$position = $value['position'];
+				$id = $value['idimageObject'];
+				 if ($newPosition < $oldPosition && $position >= $newPosition && $position < $oldPosition) {
+					 PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$position+1],"`idimageObject`='$id'");
+				 } else if ($newPosition > $oldPosition && $position <= $newPosition && $position > $oldPosition) {
+					 PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$position-1],"`idimageObject`='$id'");
+				 }
+			}
+		}
+		// update thing
+		PDOConnect::crud()->setTable('thing_has_imageObject')->update($params,"`idimageObject`='$idimageObject'");
+		// reordering things
+		$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
+		$newData = $connect->read(['where'=>"`idthing`='$idthing'", "orderBy"=>"position"]);
+		foreach ($newData as $k => $v) {
+			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$k+1],"`idimageObject`='{$v['idimageObject']}'");
+		}
+		return $dataItem;
 	}
 }

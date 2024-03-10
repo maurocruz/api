@@ -178,7 +178,11 @@ abstract class Entity implements HttpRequestInterface
 					$putParent = ApiFactory::request()->type($parentName)->put(['id'.$parentName=>$idparent] + $params)->ready();
 					if ($putParent['status'] === 'success') {
 						return ApiFactory::response()->message()->success('CreativeWork was updated', [$putChild, $putParent]);
+					} else {
+						return ApiFactory::response()->message()->error()->anErrorHasOcurred($putParent);
 					}
+				} else {
+					return ApiFactory::response()->message()->error()->anErrorHasOcurred($putChild);
 				}
 			} else {
 				return ApiFactory::response()->message()->fail()->returnIsEmpty();
@@ -218,5 +222,54 @@ abstract class Entity implements HttpRequestInterface
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: $idchildName or $this->table"]);
 		}
+	}
+
+	/**
+	 * @param array $array
+	 * @param array|null $params
+	 * @return array
+	 */
+	protected function array_sort(array $array, array $params): array
+	{
+		$new_array = array();
+		$sortable_array = array();
+		$orderBy = $params['orderBy'] ?? null;
+		$ordering = isset($params['ordering']) && $params['ordering'] === 'desc' ? SORT_DESC : SORT_ASC;
+		if (count($array) > 0 && $orderBy) {
+			foreach ($array as $k => $v) {
+				if (is_array($v)) {
+					foreach ($v as $k2 => $v2) {
+						if ($k2 === $orderBy) {
+							$sortable_array[$k] = $v2;
+						}
+					}
+				} else {
+					$sortable_array[$k] = $v;
+				}
+			}
+			// IF ORDERBY NOT FOUND
+			if (empty($sortable_array)) {
+				$new_array = $array;
+			} else {
+				switch ($ordering) {
+					case SORT_ASC:
+						asort($sortable_array);
+						break;
+					case SORT_DESC:
+						arsort($sortable_array);
+						break;
+				}
+				foreach ($sortable_array as $k => $v) {
+					$new_array[$k] = $array[$k];
+				}
+			}
+		} else {
+			$new_array = $array;
+		}
+		foreach ($new_array as $key => $value) {
+			ksort($value);
+			$new_array[$key] = $value;
+		}
+		return $new_array;
 	}
 }

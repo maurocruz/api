@@ -4,7 +4,6 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Exception;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 
 class ImageObject extends ImageObjectAbstract
@@ -28,7 +27,7 @@ class ImageObject extends ImageObjectAbstract
 	  $dataImageObject = [];
 	  $isPartOf = $params['isPartOf'] ?? null;
 		if ($isPartOf) {
-			$dataRelational = (new Relationship('thing',$isPartOf,'imageObject'))->getRelationship();
+			$dataRelational = (new Relationship('thing',(int) $isPartOf,'imageObject'))->getRelationship();
 			if (!empty($dataRelational)) {
 				foreach ($dataRelational as $value) {
 					$idimageObject = $value['idimageObject'];
@@ -56,7 +55,7 @@ class ImageObject extends ImageObjectAbstract
 		  // new data
 		  $newData[] = $returns;
 	  }
-		return $newData;
+	  return parent::array_sort($newData, $params);
   }
 
 	/**
@@ -119,15 +118,15 @@ class ImageObject extends ImageObjectAbstract
 		if ($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
-				// IF RELATIONSHIP
-				PDOConnect::crud()->setTable('thing_has_imageObject')->update($params,"`idimageObject`='$idimageObject'");
 				//
 				$putImageObject = parent::put($params);
 				if ($putImageObject['status'] === 'success') {
 					$idmediaObject = $dataImageObject[0]['mediaObject'];
 					$putMediaObject = ApiFactory::request()->type('mediaObject')->put(['idmediaObject'=>$idmediaObject] + $params)->ready();
 					if ($putMediaObject['status'] === 'success') {
-						return ApiFactory::response()->message()->success('ImageObject was updated', [$putImageObject, $putMediaObject]);
+						// IF RELATIONSHIP
+						$putHasTable = parent::updateHasTable($params);
+						return ApiFactory::response()->message()->success('ImageObject was updated', [$putImageObject, $putMediaObject, $putHasTable]);
 					}
 				}
 			} else {
