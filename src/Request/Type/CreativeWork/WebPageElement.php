@@ -63,7 +63,6 @@ class WebPageElement extends Entity
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, isPartOf and $text']);
 		}
-		return ApiFactory::response()->message()->fail()->generic($dataCreativeWork);
 	}
 
 	public function put(array $params = null): array

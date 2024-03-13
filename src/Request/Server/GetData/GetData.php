@@ -12,7 +12,17 @@ class GetData extends GetDataAbstract
   public function __construct($table)
   {
     $this->table = $table;
+	  $this->setProperties();
   }
+
+	/**
+	 * @param mixed $params
+	 */
+	public function setParams($params): GetDataAbstract
+	{
+		$this->params = $params;
+		return $this;
+	}
 
   /**
    * @return array
@@ -23,20 +33,15 @@ class GetData extends GetDataAbstract
     $this->setFields();
     // QUERY
     $this->setQuery();
-    // WHERE
-    $this->parseWhereClause();
+		//
     if($this->error) {
         return $this->error;
     }
     // PARAMS
     if ($this->params) {
-        parent::parseParams();
-    }
-    if ($this->limit != 'none' && $this->limit != '') {
-			// LIMIT
-			$this->query .= " LIMIT $this->limit";
-      // OFFSET
-      if (isset($this->params['offset'])) $this->query .= " OFFSET {$this->params['offset']}";
+	    // WHERE
+	    $this->whereCondition();
+      $this->finalConditions();
     }
     $this->query .= ";";
     return PDOConnect::run($this->query);

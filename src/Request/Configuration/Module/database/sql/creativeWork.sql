@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `editor` INT UNSIGNED DEFAULT NULL,
   `headline` VARCHAR(100) DEFAULT NULL,
   `isPartOf` INT UNSIGNED DEFAULT NULL,
-  `keywords` TEXT,
+  `keywords` VARCHAR(255) NOT NULL DEFAULT '',
   `license` VARCHAR(100) DEFAULT NULL,
   `locationCreated` VARCHAR(100) DEFAULT NULL,
   `maintainer` INT UNSIGNED DEFAULT NULL,
@@ -23,6 +23,9 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `thumbnail` VARCHAR(100) DEFAULT NULL,
   `version` VARCHAR(50) DEFAULT '',
   PRIMARY KEY (`idcreativeWork`,`thing`),
+  KEY `fk_creativeWork_thing_idx` (`thing`),
+  KEY `fk_creativeWork_creativeWork_idx` (`isPartOf`),
+  KEY `creativeWork_keywords_idx` (`keywords`),
   CONSTRAINT `fk_creativeWork_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
   CONSTRAINT `fk_creativeWork_creativeWork` FOREIGN KEY ('isPartOf') REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE
 ) ENGINE = InnoDB;

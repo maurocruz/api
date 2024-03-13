@@ -185,7 +185,11 @@ class PDOConnect
           $q->execute($args);
           $errorInfo = $q->errorInfo();
           if ($errorInfo[0] == "0000") {
-            return $q->fetchAll();
+						if (substr($q->queryString,0,6) === "DELETE") {
+							return ['rows'=>$q->rowCount()];
+						} else {
+							return $q->fetchAll();
+						}
           } else {
             return ["error" => [
 	            "message" => $errorInfo[2],

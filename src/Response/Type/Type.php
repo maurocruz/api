@@ -39,10 +39,10 @@ class Type
 	public function ready(): ?array
 	{
 		if (empty($this->data)) {
-			return null;
+			return [];
 		} else {
-			if (isset($this->data['error'])) {
-				return ApiFactory::response()->message()->error()->anErrorHasOcurred($this->data['error']);
+			if (isset($this->data['error']) || (isset($this->data['status']) && $this->data['status'] === 'error')) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($this->data);
 			} elseif (isset($this->data['status']) && $this->data['status'] === 'fail') {
 				return $this->data;
 			} else {

@@ -7,7 +7,6 @@ use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\HttpRequestInterface;
-use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Tool\FileSystem\FileSystem;
 use Plinct\Tool\Image\Image;
 
@@ -47,6 +46,8 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	protected function saveImageObject(string $pathfile, ?array $params = []): array
 	{
 		$params = $params ?? [];
+		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
+		unset($params['isPartOf']); // para não dar erro em chave estrangeira no insert creative work
 
 		// TODO fazer thumbnails: tiny; small; meddium; large
 
@@ -57,61 +58,89 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params['encodingFormat'] = $image->getEncodingFormat();
 		$params['width'] = $image->getWidth();
 		$params['height'] = $image->getHeight();
-		unset($params['isPartOf']);
+		$params['name'] = $params['name'] ?? $image->getBasename();
 		// SAVE MEDIAOBJECT
-		$dataMediaObject = ApiFactory::request()->type('mediaObject')->post($params)->ready();
-		if (isset($dataMediaObject['id'])) {
-			$idMediaObject = $dataMediaObject['id'];
+		$postMediaObject = ApiFactory::request()->type('mediaObject')->post($params)->ready();
+		if (isset($postMediaObject['id'])) {
+			$idMediaObject = $postMediaObject['id'];
 			// SAVE IMAGEOBJECT
-			return parent::post(['mediaObject'=>$idMediaObject] + $params);
+			$dataImageObject = parent::post(['mediaObject'=>$idMediaObject] + $params);
+			if ($isPartOf) {
+				$idIsPartOf = $dataImageObject['id'];
+				self::saveThingHasImageObject((int)$isPartOf, (int)$idIsPartOf, $params);
+			}
+			return  $dataImageObject;
 		}
-		return ApiFactory::response()->message()->error()->anErrorHasOcurred($dataMediaObject);
+		return ApiFactory::response()->message()->error()->anErrorHasOcurred($postMediaObject);
 	}
 
 	/**
-	 * @param int $idHasPart
+	 * @param int $idthing
 	 * @param int $idimageObject
 	 * @param array $params
-	 * @return false|string[]
+	 * @return string[]
 	 */
-	protected function saveThingHasImageObject(int $idHasPart, int $idimageObject, array $params)
+	protected function saveThingHasImageObject(int $idthing, int $idimageObject, array $params): array
 	{
-		$relationShip = new Relationship('thing', $idHasPart,'imageObject', $idimageObject);
-		return $relationShip->post($params);
+		return PDOConnect::crud()->setTable('thing_has_imageObject')->created(['idthing'=>$idthing, 'idimageObject'=>$idimageObject] + $params);
 	}
 
 	/**
 	 * @param array $params
+	 * @param string $isPartOf
 	 * @return array
 	 */
-	public function updateHasTable(array $params): array
+	public function updateHasTable(array $params, string $isPartOf): array
 	{
-		$idimageObject = $params['idimageObject'];
-		$newPosition = $params['position'] ?? null;
-		$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject'"]);
+		$idimageObject = (int) $params['idimageObject'];
+		$position = isset($params['position']) ? (int) $params['position'] : null;
+		$representativeOfPage = $params['representativeOfPage'] ?? null;
+		$caption = $params['caption'] ?? null;
+		$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject' AND `idthing`='$isPartOf'"]);
 		$idthing = $dataItem[0]['idthing'];
+		// representative of page
+		if ($representativeOfPage ) {
+			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>0],"`idthing`='$isPartOf'");
+			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>$representativeOfPage],"`idimageObject`='$idimageObject'");
+		}
 		// position
-		if ($newPosition) {
+		if ($position) {
 			$oldPosition = $dataItem[0]['position'];
 			$dataAll = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idthing`='$idthing'"]);
 			foreach ($dataAll as $value) {
-				$position = $value['position'];
+				$currentPosition = $value['position'];
 				$id = $value['idimageObject'];
-				 if ($newPosition < $oldPosition && $position >= $newPosition && $position < $oldPosition) {
-					 PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$position+1],"`idimageObject`='$id'");
-				 } else if ($newPosition > $oldPosition && $position <= $newPosition && $position > $oldPosition) {
-					 PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$position-1],"`idimageObject`='$id'");
-				 }
+				if ($id === $idimageObject) {
+					$newPosition = $position;
+				} else if ($position < $oldPosition && $currentPosition >= $position && $currentPosition < $oldPosition) {
+				  $newPosition = $currentPosition + 1;
+			  } else if ($position > $oldPosition && $currentPosition <= $position && $currentPosition > $oldPosition) {
+					$newPosition = $currentPosition - 1;
+				} else {
+					$newPosition = $currentPosition;
+				}
+				PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$newPosition],"`idimageObject`='$id'");
+			}
+			// reordering position in things_has_imageObject
+			$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
+			$newData = $connect->read(['where' => "`idthing`='$idthing'", "orderBy" => "position"]);
+			foreach ($newData as $k => $v) {
+				PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position' => $k + 1], "`idimageObject`='{$v['idimageObject']}'");
 			}
 		}
-		// update thing
-		PDOConnect::crud()->setTable('thing_has_imageObject')->update($params,"`idimageObject`='$idimageObject'");
-		// reordering things
-		$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
-		$newData = $connect->read(['where'=>"`idthing`='$idthing'", "orderBy"=>"position"]);
-		foreach ($newData as $k => $v) {
-			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position'=>$k+1],"`idimageObject`='{$v['idimageObject']}'");
+		// caption 
+		if ($caption) {
+			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['caption'=>$caption],"`idimageObject`='$idimageObject'");
 		}
 		return $dataItem;
+	}
+
+	protected function reorderingPosition($isPartOf)
+	{
+		$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
+		$newData = $connect->read(['where' => "`idthing`='$isPartOf'", "orderBy" => "position"]);
+		foreach ($newData as $k => $v) {
+			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position' => $k + 1], "`idimageObject`='{$v['idimageObject']}'");
+		}
 	}
 }

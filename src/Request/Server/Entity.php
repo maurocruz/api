@@ -99,7 +99,6 @@ abstract class Entity implements HttpRequestInterface
         $params['where'] = "(" . implode(" OR ", $whereArray) . ")";
       }
     }
-
     $data = new GetData($this->table);
     $data->setParams($params);
     return $data->render();
@@ -252,12 +251,11 @@ abstract class Entity implements HttpRequestInterface
 				$new_array = $array;
 			} else {
 				switch ($ordering) {
-					case SORT_ASC:
-						asort($sortable_array);
-						break;
 					case SORT_DESC:
 						arsort($sortable_array);
 						break;
+					default:
+						asort($sortable_array);
 				}
 				foreach ($sortable_array as $k => $v) {
 					$new_array[$k] = $array[$k];

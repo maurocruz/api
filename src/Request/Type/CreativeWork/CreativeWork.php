@@ -24,11 +24,18 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	{
 		$returns = [];
 		$data = parent::getData($params);
+		if (isset($data['error'])) {
+			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
+		}
 		if (!empty($data)) {
 			foreach ($data as $item) {
-				$idthing = $item['thing'];
-				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				$returns[] = $item + $dataThing[0];
+				$idthing = $item['thing'] ?? null;
+				if ($idthing) {
+					$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
+					$returns[] = $item + $dataThing[0];
+				} else {
+					$returns[] = $item;
+				}
 			}
 		}
 		return parent::array_sort($returns, $params);

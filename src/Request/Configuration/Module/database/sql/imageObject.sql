@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `thing_has_imageObject` (
   `idthing` INT UNSIGNED NOT NULL,
   `idimageObject` INT UNSIGNED NOT NULL,
   `position` INT UNSIGNED DEFAULT NULL,
-  `representativeOfPage` TINYINT DEFAULT NULL ,
+  `representativeOfPage` TINYINT(1) NOT NULL DEFAULT 0,
   `caption` TEXT,
   PRIMARY KEY (`idthing`, `idimageObject`),
   KEY `idx_1` (`representativeOfPage`),

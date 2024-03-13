@@ -4,7 +4,7 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Exception;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Relationship\Relationship;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class ImageObject extends ImageObjectAbstract
 {
@@ -26,34 +26,65 @@ class ImageObject extends ImageObjectAbstract
 	  $newData = [];
 	  $dataImageObject = [];
 	  $isPartOf = $params['isPartOf'] ?? null;
+	  $orderBy = $params['orderBy'] ?? null;
+		$groupBy = $params['groupBy'] ?? null;
+	  $ordering = $params['ordering'] ?? null;
+		$keywordsLike = $params['keywordsLike'] ?? null;
+		// IS PART OF
 		if ($isPartOf) {
-			$dataRelational = (new Relationship('thing',(int) $isPartOf,'imageObject'))->getRelationship();
+			$dataRelational = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idthing`='$isPartOf'","orderBy"=>$orderBy,"ordering"=>$ordering]);
 			if (!empty($dataRelational)) {
 				foreach ($dataRelational as $value) {
 					$idimageObject = $value['idimageObject'];
 					$data = parent::getData(['idimageObject'=>$idimageObject]);
-					$dataImageObject[] = $data[0];
+					$dataImageObject[] = $data[0] + $value;
 				}
 			}
 			unset($params['isPartOf']);
+		}
+		// KEYWORDS LIKE
+		else if ($keywordsLike || $groupBy) {
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get($params)->ready();
+				if (isset($dataCreativeWork['status']) && $dataCreativeWork['status'] === 'error') {
+					return $dataCreativeWork;
+				}
+				foreach ($dataCreativeWork as $valueCreativeWork) {
+					$idcreativeWork = $valueCreativeWork['idcreativeWork'];
+					$idthing = $valueCreativeWork['thing'] ?? null;
+					if ($idthing) {
+						$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing] + $params)->ready();
+						$dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['creativeWork' => $idcreativeWork] + $params)->ready();
+						foreach ($dataMediaObject as $valueMediaObject) {
+							$idmediaObject = $valueMediaObject['idmediaObject'];
+							$newData[] = parent::getData(['mediaObject' => $idmediaObject] + $params)[0] + $valueMediaObject + $valueCreativeWork + $dataThing[0];
+						}
+					} else {
+						$newData[] = $valueCreativeWork;
+					}
+				}
 		} else {
 			$dataImageObject = parent::getData($params);
 		}
 		//
-	  foreach ($dataImageObject as $item) {
-		  $idmediaObject = $item['mediaObject'];
-		  // mediaObject
-		  $dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject' => $idmediaObject] + $params)->ready();
-		  $idcreativeWork = $dataMediaObject[0]['creativeWork'];
-		  // creativeWork
-		  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
-		  $idthing = $dataCreativeWork[0]['thing'];
-		  // thing
-		  $dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing] + $params)->ready();
-		  // returns
-		  $returns = $item + $dataThing[0] + $dataCreativeWork[0] + $dataMediaObject[0];
-		  // new data
-		  $newData[] = $returns;
+	  if (!empty($dataImageObject)) {
+		  foreach ($dataImageObject as $item) {
+			  $idmediaObject = $item['mediaObject'];
+			  // mediaObject
+			  $dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject' => $idmediaObject] + $params)->ready();
+			  $idcreativeWork = $dataMediaObject[0]['creativeWork'];
+			  // creativeWork
+			  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
+			  if (!empty($dataCreativeWork)) {
+				  $creativeWork = $dataCreativeWork[0];
+				  $idthing = $creativeWork['thing'];
+				  // thing
+				  $dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing] + $params)->ready();
+				  // returns
+				  $returns = $item + $dataThing[0] + $creativeWork + $dataMediaObject[0];
+				  // new data
+				  $newData[] = $returns;
+			  }
+		  }
 	  }
 	  return parent::array_sort($newData, $params);
   }
@@ -63,10 +94,6 @@ class ImageObject extends ImageObjectAbstract
 	 */
 	public function post(array $params = null, ?array $uploadedFiles = null): array
 	{
-		$name = $params['name'] ?? null;
-		if (!$name) {
-			return ApiFactory::response()->message()->fail()->generic(['Mandatory field: name']);
-		}
 		$imagesUpload = $uploadedFiles['imageupload'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
 		$idimageObject = $params['idimageObject'] ?? null;
@@ -82,10 +109,6 @@ class ImageObject extends ImageObjectAbstract
 					// SAVE NEW IMAGE OBJECT
 					$saveImageObject = parent::saveImageObject($pathfile, $params);
 					if (isset($saveImageObject['id'])) {
-						if ($isPartOf) {
-							$idIsPartOf = $saveImageObject['id'];
-							parent::saveThingHasImageObject((int)$isPartOf, (int)$idIsPartOf, $params);
-						}
 						$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl' => $pathfile]);
 					} else {
 						$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
@@ -97,7 +120,7 @@ class ImageObject extends ImageObjectAbstract
 		}
 		// RELATIONSHIP
 		if ($idimageObject && $isPartOf) {
-			$returns[] = parent::saveThingHasImageObject($isPartOf, $idimageObject, $params);
+			$returns[] = parent::saveThingHasImageObject((int) $isPartOf, (int) $idimageObject, $params);
 		}
 		// RESPONSE
 		if (empty($returns)) {
@@ -114,7 +137,7 @@ class ImageObject extends ImageObjectAbstract
   public function put(array $params = null): array
   {
 		$idimageObject = $params['idimageObject'] ?? null;
-		$returns = [];
+		$isPartOf = $params['isPartOf'] ?? null;
 		if ($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
@@ -125,7 +148,7 @@ class ImageObject extends ImageObjectAbstract
 					$putMediaObject = ApiFactory::request()->type('mediaObject')->put(['idmediaObject'=>$idmediaObject] + $params)->ready();
 					if ($putMediaObject['status'] === 'success') {
 						// IF RELATIONSHIP
-						$putHasTable = parent::updateHasTable($params);
+						$putHasTable = $isPartOf ? parent::updateHasTable($params, $isPartOf) : null;
 						return ApiFactory::response()->message()->success('ImageObject was updated', [$putImageObject, $putMediaObject, $putHasTable]);
 					}
 				}
@@ -133,7 +156,7 @@ class ImageObject extends ImageObjectAbstract
 				return ApiFactory::response()->message()->fail()->returnIsEmpty();
 			}
 		}
-		return ["status"=>"success","message"=>"Items updated","data"=>$returns];
+		return ApiFactory::response()->message()->fail()->generic(["Mandatory not found: idimageobject"]);
   }
 
 	/**
@@ -143,7 +166,14 @@ class ImageObject extends ImageObjectAbstract
 	public function delete(array $params): array
 	{
 		$idimageObject = $params['idimageObject'] ?? $params['imageObject'] ?? null;
-		if($idimageObject) {
+		$isPartOf = $params['isPartOf'] ?? null;
+		if($idimageObject && $isPartOf) {
+			$deleteReturn =  PDOConnect::crud()->setTable('thing_has_imageObject')->erase(['idthing'=>$isPartOf,'idimageObject'=>$idimageObject]);
+			if ($deleteReturn['status'] === 'success') {
+				parent::reorderingPosition($isPartOf);
+			}
+			return $deleteReturn;
+		} else if($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
 				return ApiFactory::request()->type('mediaObject')->delete(['idmediaObject'=>$dataImageObject[0]['mediaObject']])->ready();
@@ -151,7 +181,7 @@ class ImageObject extends ImageObjectAbstract
 				return ApiFactory::response()->message()->fail()->generic($params,'ImageObject id is not found');
 			}
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idimageObject or imageObject"]);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idimageObject or imageObject!"]);
 		}
 	}
 }

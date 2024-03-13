@@ -52,6 +52,7 @@ class Crud
 		$where = $params['where'] ?? null;
 		$groupBy = $params['groupBy'] ?? null;
 		$orderBy = $params['orderBy'] ?? null;
+		$ordering = $params['ordering'] ?? 'asc';
 		$limit = $params['limit'] ?? null;
 		$offset =	$params['offset'] ?? null;
 		$args = $params['args'] ?? null;
@@ -59,7 +60,7 @@ class Crud
     $query = "SELECT $fields FROM `$this->table`";
     $query .= $where ? " WHERE $where" : null;
     $query .= $groupBy ? " GROUP BY $groupBy" : null;
-    $query .= $orderBy ? " ORDER BY $orderBy" : null;
+    $query .= $orderBy ? " ORDER BY $orderBy $ordering" : null;
     $query .= $limit ? " LIMIT $limit" : null;
     $query .= $offset ? " OFFSET $offset" : null;
     $query .= ";";
@@ -136,11 +137,11 @@ class Crud
     $query .= $limit ? " LIMIT $limit" : null;
     $query .= ";";
     $run = PDOConnect::run($query);
-
-	  if (empty($run)) {
-      return ['status'=>'success', 'message'=>'Deleted successfully'];
+		$rows = $run['rows'];
+	  if ($rows > 0) {
+      return ['status'=>'success', 'message'=>"Deleted successfully. $rows rows affected."];
     } else {
-      return $run;
+		  return ['status'=>'fail', 'message'=>"$rows rows affected."];
     }
   }
 }
