@@ -57,9 +57,17 @@ class WebPageElement extends Entity
 		$isPartOf = $params['isPartOf'] ?? null;
 		$text = $params['text'] ?? null;
 		$name = $params['name'] ?? null;
-		$params['additionalType'] = "WebPageElement";
+		$params['type'][] = "WebPageElement";
 		if ($isPartOf && $text && $name) {
-			return parent::create('creativeWork', $params);
+			// get absolute url
+			$dataIsPartOf = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
+			if(!empty($dataIsPartOf)) {
+				$valueIsPartOf = $dataIsPartOf[0];
+				$params['url'] = $valueIsPartOf['url'].'#'.$name;
+				return parent::createWithParent('creativeWork', $params);
+			} else {
+				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
+			}
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, isPartOf and $text']);
 		}

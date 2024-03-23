@@ -5,7 +5,6 @@
 CREATE TABLE IF NOT EXISTS `imageObject` (
   `idimageObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `mediaObject` INT UNSIGNED NOT NULL,
-  `representativeOfPage` TINYINT DEFAULT 0,
   PRIMARY KEY (`idimageObject`),
   CONSTRAINT `fk_imageObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE
 ) ENGINE=InnoDB;

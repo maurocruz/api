@@ -125,7 +125,7 @@ abstract class Entity implements HttpRequestInterface
 	 * @param array|null $uploadedFiles
 	 * @return array
 	 */
-	protected function create(string $parentName, array $params = null, array $uploadedFiles = null): array
+	protected function createWithParent(string $parentName, array $params = null, array $uploadedFiles = null): array
 	{
 		// SAVE PARENT
 		$dataParent = ApiFactory::request()->type($parentName)->post($params, $uploadedFiles)->ready();

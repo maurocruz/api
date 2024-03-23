@@ -23,6 +23,9 @@ class TypeSchema extends TypeSchemaAbstract
 	 */
 	public function setValue(?array $value): TypeSchema
 	{
+		if (isset($value['type'])) {
+			$value['@type'] = $value['type'];
+		}
 		foreach ($value as $key => $valueItem) {
 			if(is_string($key) && substr($key,0,2) === 'id' && !is_array($valueItem)) {
 				$this->setIdentifier($key, (string) $valueItem);

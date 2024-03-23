@@ -32,7 +32,8 @@ class Organization extends Entity
 
 	public function post(array $params = null): array
 	{
-		return parent::create('thing',$params);
+		$params['type'][] = 'Organization';
+		return parent::createWithParent('thing',$params);
 	}
 
 	public function put(array $params = null): array

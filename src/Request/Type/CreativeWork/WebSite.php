@@ -55,7 +55,7 @@ class WebSite extends Entity
 		$description = $params['description'] ?? null;
 		$author = $params['author'] ?? null;
 		$copyrightHolder = $params['copyrightHolder'] ?? null;
-		$params['additionalType'] = isset($params['additionalType']) ? "WebSite,".$params['additionalType'] : "WebSite";
+		$params['type'][] = "WebSite";
 		if ($name && $description && $author && $copyrightHolder) {
 			// SAVE CREATIVEWORK
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();

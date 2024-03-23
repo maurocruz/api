@@ -5,6 +5,7 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
+use Plinct\Tool\Image\Image;
 
 class ImageObject extends ImageObjectAbstract
 {
@@ -25,11 +26,13 @@ class ImageObject extends ImageObjectAbstract
   {
 	  $newData = [];
 	  $dataImageObject = [];
+		$idimageObject = $params['idimageObject'] ?? null;
 	  $isPartOf = $params['isPartOf'] ?? null;
 	  $orderBy = $params['orderBy'] ?? null;
 		$groupBy = $params['groupBy'] ?? null;
 	  $ordering = $params['ordering'] ?? null;
 		$keywordsLike = $params['keywordsLike'] ?? null;
+	  $hasPart = $params['hasPart'] ?? null;
 		// IS PART OF
 		if ($isPartOf) {
 			$dataRelational = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idthing`='$isPartOf'","orderBy"=>$orderBy,"ordering"=>$ordering]);
@@ -62,6 +65,8 @@ class ImageObject extends ImageObjectAbstract
 						$newData[] = $valueCreativeWork;
 					}
 				}
+		} else if($hasPart) {
+			return parent::getHasPart($idimageObject);
 		} else {
 			$dataImageObject = parent::getData($params);
 		}
@@ -98,13 +103,13 @@ class ImageObject extends ImageObjectAbstract
 		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
 		$idimageObject = $params['idimageObject'] ?? null;
 		$destination = $params['destination'] ?? $params['location'] ?? $params['imageFolder'] ?? '/public/images/';
-		$params['additionalType'] = "ImageObject";
+		$params['type'][] = "ImageObject";
 		$returns = [];
 		// UPLOAD FILES
 		if ($imagesUpload) {
 			$uploadedFilesReturns = parent::uploadFiles($imagesUpload,$destination);
 			foreach ($uploadedFilesReturns as $fileUploaded) {
-				if (!empty($fileUploaded)) {
+				if ($fileUploaded['status'] === 'success') {
 					$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
 					// SAVE NEW IMAGE OBJECT
 					$saveImageObject = parent::saveImageObject($pathfile, $params);
@@ -113,8 +118,10 @@ class ImageObject extends ImageObjectAbstract
 					} else {
 						$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
 					}
-				} else {
+				} elseif ($fileUploaded['status'] === 'fail') {
 					$returns[] = ApiFactory::response()->message()->fail()->generic($fileUploaded, 'Upload failed');
+				} else {
+					return ApiFactory::response()->message()->error()->anErrorHasOcurred($fileUploaded);
 				}
 			}
 		}
@@ -138,7 +145,10 @@ class ImageObject extends ImageObjectAbstract
   {
 		$idimageObject = $params['idimageObject'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
-		if ($idimageObject) {
+		if($idimageObject && $isPartOf) {
+			// IF RELATIONSHIP
+			return parent::updateHasTable($params, $isPartOf);
+		} else if ($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
 				//
@@ -147,21 +157,23 @@ class ImageObject extends ImageObjectAbstract
 					$idmediaObject = $dataImageObject[0]['mediaObject'];
 					$putMediaObject = ApiFactory::request()->type('mediaObject')->put(['idmediaObject'=>$idmediaObject] + $params)->ready();
 					if ($putMediaObject['status'] === 'success') {
-						// IF RELATIONSHIP
-						$putHasTable = $isPartOf ? parent::updateHasTable($params, $isPartOf) : null;
-						return ApiFactory::response()->message()->success('ImageObject was updated', [$putImageObject, $putMediaObject, $putHasTable]);
+
+						return ApiFactory::response()->message()->success('ImageObject was updated', [$putImageObject, $putMediaObject]);
+					} else {
+						return ApiFactory::response()->message()->fail()->generic($putMediaObject);
 					}
 				}
 			} else {
 				return ApiFactory::response()->message()->fail()->returnIsEmpty();
 			}
 		}
-		return ApiFactory::response()->message()->fail()->generic(["Mandatory not found: idimageobject"]);
+		return ApiFactory::response()->message()->fail()->generic(["Mandatory not found: idimageObject in put imageObject"]);
   }
 
 	/**
 	 * @param array $params
 	 * @return array
+	 * @throws Exception
 	 */
 	public function delete(array $params): array
 	{
@@ -174,9 +186,15 @@ class ImageObject extends ImageObjectAbstract
 			}
 			return $deleteReturn;
 		} else if($idimageObject) {
-			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
+			$dataImageObject = self::get(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
-				return ApiFactory::request()->type('mediaObject')->delete(['idmediaObject'=>$dataImageObject[0]['mediaObject']])->ready();
+				$valueImageObject = $dataImageObject[0];
+				// elimina o arquivo
+				$image = new Image($valueImageObject['contentUrl']);
+				$pathfile = $image->getPathFile();
+				unlink($pathfile);
+				// apaga registro
+				return ApiFactory::request()->type('mediaObject')->delete(['idmediaObject'=>$valueImageObject['mediaObject']])->ready();
 			} else {
 				return ApiFactory::response()->message()->fail()->generic($params,'ImageObject id is not found');
 			}

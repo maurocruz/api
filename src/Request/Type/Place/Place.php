@@ -42,7 +42,7 @@ class Place extends Entity
 	{
 		$idthing = $params['thing'] ?? null;
 		if (!$idthing) {
-			$params['type'] = 'place';
+			$params['type'][] = 'place';
 			$dataThing = ApiFactory::request()->type('thing')->post($params)->ready();
 			if (isset($dataThing['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($dataThing);

@@ -33,7 +33,7 @@ class MediaObject extends Entity implements HttpRequestInterface
 	public function post(array $params = null): array
 	{
 		$contentUrl = $params['contentUrl'] ?? null;
-		$params['additionalType'] = isset($params['additionalType']) ? "MediaObject,".$params['additionalType'] : "MediaObject";
+		$params['type'][] = "MediaObject";
 		$params['uploadDate'] = date('Y-m-d H:i:s');
 		if ($contentUrl) {
 			// SAVE CREATIVEWORK

@@ -47,8 +47,8 @@ class Book extends Entity
 	 */
 	public function post(array $params = null): array
 	{
-		$params['additionalType'] = isset($params['additionalType']) ? "Book,".$params['additionalType'] : "Book";
-		return parent::create('creativeWork',$params);
+		$params['type'][] = "Book";
+		return parent::createWithParent('creativeWork',$params);
 	}
 
 	/**

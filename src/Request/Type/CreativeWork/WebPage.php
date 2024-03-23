@@ -70,15 +70,25 @@ class WebPage extends Entity
 		$alternativeHeadline = $params['alternativeHeadline'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
 		$name = $params['name'] ?? null;
-		$params['additionalType'] = isset($params['additionalType']) ? "WebPage,".$params['additionalType'] : "WebPage";
+		$params['type'][] = "WebPage";
 		if ($url && $alternativeHeadline && $isPartOf && $name) {
 			$params = $this->addBreadcrumb($params);
-			// SAVE CREATIVEWORK
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
-			if (isset($dataCreativeWork['id'])) {
-				$idcreativeWork = $dataCreativeWork['id'];
-				// SAVE WEBPAGE
-				return parent::post(['creativeWork'=>$idcreativeWork] + $params);
+			// get url host
+			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
+			if (!empty($dataCreativeWork)) {
+				// set absolut url
+				$valueCreativeWork = $dataCreativeWork[0];
+				$webSiteUrl = $valueCreativeWork['url'];
+				$params['url'] = $webSiteUrl . $url;
+				// SAVE CREATIVEWORK
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
+				if (isset($dataCreativeWork['id'])) {
+					$idcreativeWork = $dataCreativeWork['id'];
+					// SAVE WEBPAGE
+					return parent::post(['creativeWork'=>$idcreativeWork] + $params);
+				}
+			} else {
+				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
 			}
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, url, alternativeHeadline and isPartOf']);

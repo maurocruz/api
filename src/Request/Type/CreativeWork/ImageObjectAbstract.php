@@ -132,9 +132,13 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		if ($caption) {
 			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['caption'=>$caption],"`idimageObject`='$idimageObject'");
 		}
-		return $dataItem;
+		return ApiFactory::response()->message()->success("thing has imageObject has updated");
 	}
 
+	/**
+	 * @param $isPartOf
+	 * @return void
+	 */
 	protected function reorderingPosition($isPartOf)
 	{
 		$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
@@ -142,5 +146,19 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		foreach ($newData as $k => $v) {
 			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['position' => $k + 1], "`idimageObject`='{$v['idimageObject']}'");
 		}
+	}
+
+	/**
+	 * @param string $idimageObject
+	 * @return array
+	 */
+	protected function getHasPart(string $idimageObject): array
+	{
+		$data = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject'"]);
+		$newData = [];
+		foreach ($data as $value) {
+			$newData[] = ApiFactory::request()->type('thing')->get(['idthing'=>$value['idthing']])->ready()[0];
+		}
+		return $newData;
 	}
 }

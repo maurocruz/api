@@ -47,8 +47,8 @@ class Article extends Entity
 	 */
 	public function post(array $params = null): array
 	{
-		$params['additionalType'] = isset($params['additionalType']) ? "Article,".$params['additionalType'] : "Article";
-	  return parent::create('creativeWork',$params);
+		$params['typt'][] = "Article";
+	  return parent::createWithParent('creativeWork',$params);
 	}
 
 	/**

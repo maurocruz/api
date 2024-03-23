@@ -33,7 +33,7 @@ class Thing extends Entity implements HttpRequestInterface
 	public function post(array $params = null): array
 	{
 		$name = $params['name'] ?? null;
-		$type = $params['type'] ?? null;
+		$type = isset($params['type']) ? current($params['type']) :  null;
 		if ($name && $type) {
 			return parent::post($params);
 		}
