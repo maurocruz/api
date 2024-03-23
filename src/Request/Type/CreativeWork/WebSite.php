@@ -52,11 +52,12 @@ class WebSite extends Entity
 	public function post(array $params = null): array
 	{
 		$name = $params['name'] ?? null;
+		$url = $params['url'] ?? null;
 		$description = $params['description'] ?? null;
 		$author = $params['author'] ?? null;
-		$copyrightHolder = $params['copyrightHolder'] ?? null;
+		unset($params['type']);
 		$params['type'][] = "WebSite";
-		if ($name && $description && $author && $copyrightHolder) {
+		if ($name && $description && $author && $url) {
 			// SAVE CREATIVEWORK
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
 			if (isset($dataCreativeWork['id'])) {
@@ -65,7 +66,7 @@ class WebSite extends Entity
 				return parent::post(['creativeWork' => $idcreativeWork] + $params);
 			}
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, description, author and copyrightHolder']);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, description, author and url']);
 		}
 		return ApiFactory::response()->message()->fail()->generic();
 	}

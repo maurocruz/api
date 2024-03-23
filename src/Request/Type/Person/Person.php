@@ -56,8 +56,19 @@ class Person extends Entity
 	 */
   public function post(array $params = null, array $uploadedFiles = null): array
   {
-	  $params['type'] = 'Person';
-		return parent::createWithParent('thing', $params, $uploadedFiles);
+	  $params['type'][] = 'Person';
+		$dataPerson =  parent::createWithParent('thing', $params, $uploadedFiles);
+		if (isset($dataPerson['id'])) {
+			$idperson = $dataPerson['id'];
+			$getPerson = ApiFactory::request()->type('person')->get(['idperson'=>$idperson])->ready();
+			if (!empty($getPerson)) {
+				return ApiFactory::response()->type('person')->setData($getPerson)->ready();
+			} else {
+				return ApiFactory::response()->message()->fail()->generic($getPerson);
+			}
+		} else {
+			return ApiFactory::response()->message()->fail()->generic($dataPerson);
+		}
   }
 
 	/**
@@ -66,7 +77,6 @@ class Person extends Entity
 	 */
 	public function put(array $params = null): array
 	{
-		$params['type'][] = 'Person';
 		return parent::update('thing', $params);
 	}
 

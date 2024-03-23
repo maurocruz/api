@@ -5,6 +5,7 @@ namespace Plinct\Api\Request\User;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\User\Privileges\PrivilegesActions;
+use Plinct\Cms\View\WebSite\Type\TypeBuilder;
 
 class UserActions implements HttpRequestInterface
 {
@@ -79,14 +80,15 @@ class UserActions implements HttpRequestInterface
 		} else {
 			// get iduser
 			$iduser = ApiFactory::server()->connectBd('user')->lastInsertId();
-			// insert user from new person
-			// save thing
-			$dataThing = ApiFactory::request()->type('thing')->httpRequest()->setPermission()->post(['name'=>$name,'type'=>'person']);
-			$idthing = $dataThing['id'];
 			// save person
-			ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['thing'=>$idthing]);
-			// save contactPoint
-			ApiFactory::request()->type('contactPoint')->httpRequest()->setPermission()->post(['thing'=>$idthing,'email'=>$email]);
+			$dataPerson = ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['name'=>$name]);
+			if (!empty($dataPerson)) {
+				$valuePerson = $dataPerson[0];
+				$typeBuilder = new TypeBuilder('person',$valuePerson);
+				$idthing = $typeBuilder->getPropertyValue('idthing');
+				// save contactPoint
+				ApiFactory::request()->type('contactPoint')->httpRequest()->setPermission()->post(['thing'=>$idthing,'email'=>$email]);
+			}
 			// return
 			return ApiFactory::response()->message()->success('User registered successfully', ['iduser' => $iduser]);
 		}

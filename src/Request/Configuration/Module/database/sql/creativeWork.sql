@@ -27,5 +27,5 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   KEY `fk_creativeWork_creativeWork_idx` (`isPartOf`),
   KEY `creativeWork_keywords_idx` (`keywords`),
   CONSTRAINT `fk_creativeWork_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
-  CONSTRAINT `fk_creativeWork_creativeWork` FOREIGN KEY ('isPartOf') REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE
+  CONSTRAINT `fk_creativeWork_creativeWork` FOREIGN KEY (`isPartOf`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE
 ) ENGINE = InnoDB;

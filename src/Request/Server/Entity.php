@@ -8,7 +8,6 @@ use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Request\Server\Schema\Schema;
-use Plinct\Api\Response\Message\MessageSuccess;
 use Plinct\Tool\Curl;
 
 abstract class Entity implements HttpRequestInterface
@@ -113,7 +112,7 @@ abstract class Entity implements HttpRequestInterface
 		$connect = new ConnectBd($this->table);
 		$data = $connect->created($params);
 	  if (empty($data)) {
-		  return ['id' => $connect->lastInsertId()];
+		  return ['id' => $connect->lastInsertId(), 'table'=>$this->table];
 	  } else {
 		  return ApiFactory::response()->message()->fail()->generic($data);
 	  }
@@ -128,7 +127,7 @@ abstract class Entity implements HttpRequestInterface
 	protected function createWithParent(string $parentName, array $params = null, array $uploadedFiles = null): array
 	{
 		// SAVE PARENT
-		$dataParent = ApiFactory::request()->type($parentName)->post($params, $uploadedFiles)->ready();
+		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
 		if (isset($dataParent['id'])) {
 			$idparent = $dataParent['id'];
 			// SAVE CHILD
@@ -162,9 +161,9 @@ abstract class Entity implements HttpRequestInterface
 	/**
 	 * @param string $parentName
 	 * @param array|null $params
-	 * @return array|MessageSuccess
+	 * @return array
 	 */
-	protected function update(string $parentName, array $params = null)
+	protected function update(string $parentName, array $params = null): array
 	{
 		$idchildName = 'id'.$this->table;
 		$idchildValue = $params[$idchildName] ?? null;

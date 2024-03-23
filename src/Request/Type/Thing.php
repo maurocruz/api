@@ -33,8 +33,9 @@ class Thing extends Entity implements HttpRequestInterface
 	public function post(array $params = null): array
 	{
 		$name = $params['name'] ?? null;
-		$type = isset($params['type']) ? current($params['type']) :  null;
+		$type = $params['type'] ?? null;
 		if ($name && $type) {
+			$params['type'] = current($params['type']);
 			return parent::post($params);
 		}
 		return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name and type']);
