@@ -25,6 +25,7 @@ class WebPage extends Entity
 		$returns = [];
 		$properties = $params['properties'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
+		$url = $params['url'] ?? null;
 		if ($isPartOf) {
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['isPartOf'=>$isPartOf])->ready();
 			foreach ($dataCreativeWork as $item) {
@@ -32,7 +33,17 @@ class WebPage extends Entity
 				$dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
 				$returns[] = $dataWebPage[0] + $item;
 			}
-		} else {
+		} elseif($url) {
+			$dataThing = ApiFactory::request()->type('thing')->get(['type'=>'WebPage'] + $params)->ready();
+			if (!empty($dataThing)) {
+				foreach ($dataThing as $item) {
+					$idthing = $item['idthing'];
+					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
+					$returns[] = $item + $dataCreativeWork[0];
+				}
+			}
+		}
+		else {
 			$dataWebPage = parent::getData($params);
 			foreach ($dataWebPage as $item) {
 				$idcreativeWork = $item['creativeWork'];
