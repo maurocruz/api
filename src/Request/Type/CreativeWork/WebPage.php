@@ -6,7 +6,7 @@ use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
-class WebPage extends Entity
+class WebPage extends WebPageAbstract
 {
 	/**
 	 *
@@ -39,6 +39,9 @@ class WebPage extends Entity
 				foreach ($dataThing as $item) {
 					$idthing = $item['idthing'];
 					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
+					if ($properties) {
+						$item = parent::getProperties($properties, $dataCreativeWork[0], $item);
+					}
 					$returns[] = $item + $dataCreativeWork[0];
 				}
 			}
