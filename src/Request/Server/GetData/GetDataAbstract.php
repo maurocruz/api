@@ -49,7 +49,7 @@ abstract class GetDataAbstract
 		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
 		$properties = [];
 	  foreach ($columnsTable as $value) {
-			$properties[] = $value['column_name'];
+			$properties[] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
 	  }
 		$this->properties = $properties;
 	}
