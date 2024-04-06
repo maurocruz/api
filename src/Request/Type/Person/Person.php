@@ -22,30 +22,39 @@ class Person extends Entity
 	public function get(array $params = []): array
 	{
 		$returns = [];
-		$properties = $params['properties'] ?? null;
-		$data = parent::getData($params);
+		$name = $params['name'] ?? null;
+		$url = $params['url'] ?? null;
+		if ($name || $url) {
+			$dataThing = ApiFactory::request()->type('thing')->get($params)->ready();
+			foreach ($dataThing as $item) {
+				$idthing = $item['idthing'];
+				$dataPerson = parent::getData(['thing' => $idthing] + $params);
+				if (isset($dataPerson[0])) {
+					$value = $item + $dataPerson[0];
+					$idperson = $value['idperson'];
+					$value['contactPoint'] = parent::getProperties('contactPoint',['thing' => $idthing]);
+					$value['homeLocation'] = parent::getProperties('place',['idplace' => $value['homeLocation'],'properties'=>'address']);
+					$value['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
+					$value['memberOf'] = parent::getProperties('programMembership',['member' => $idperson]);
+					$returns[] = $value;
+				}
+			}
+		} else {
+			$data = parent::getData($params);
+		}
 		if (!empty($data)) {
 			foreach ($data as $value) {
 				$idthing = $value['thing'];
+				$idperson = $value['idperson'];
 				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				// PROPERTIES
-				if ($properties) {
-					if (stripos($properties, 'contactPoint') !== false) {
-						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['thing' => $idthing])->ready();
-						$value['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
-					}
-					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
-						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$idthing])->ready();
-						$value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
-					}
-					if (stripos($properties,'homeLocation') !== false || stripos($properties,'address') !== false) {
-						$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['homeLocation'],'properties'=>'address'])->ready();
-						$value['homeLocation'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
-					}
-				}
+				$value['contactPoint'] = parent::getProperties('contactPoint',['thing' => $idthing]);
+				$value['homeLocation'] = parent::getProperties('place',['idplace' => $value['homeLocation'],'properties'=>'address']);
+				$value['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
+				$value['memberOf'] = parent::getProperties('programMembership',['member' => $idperson]);
 				$returns[] = $value + $dataThing[0];
 			}
 		}
+
 		return parent::array_sort($returns, $params);
 	}
 

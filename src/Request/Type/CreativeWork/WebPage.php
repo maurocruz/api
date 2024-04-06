@@ -6,7 +6,7 @@ use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
-class WebPage extends WebPageAbstract
+class WebPage extends Entity
 {
 	/**
 	 *
@@ -23,7 +23,6 @@ class WebPage extends WebPageAbstract
 	public function get(array $params = []): array
 	{
 		$returns = [];
-		$properties = $params['properties'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
 		$url = $params['url'] ?? null;
 		if ($isPartOf) {
@@ -39,9 +38,10 @@ class WebPage extends WebPageAbstract
 				foreach ($dataThing as $item) {
 					$idthing = $item['idthing'];
 					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
-					if ($properties) {
-						$item = parent::getProperties($properties, $dataCreativeWork[0], $item);
-					}
+					$idcreativeWork = $dataCreativeWork[0]['idcreativeWork'];
+					$item['hasPart'] = parent::getProperties('webPageElement',['isPartOf' => $idcreativeWork]);
+					$item['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
+					$item['isPartOf'] = parent::getProperties('webSite',['creativeWork'=>$isPartOf])[0];
 					$returns[] = $item + $dataCreativeWork[0];
 				}
 			}
@@ -51,23 +51,10 @@ class WebPage extends WebPageAbstract
 			foreach ($dataWebPage as $item) {
 				$idcreativeWork = $item['creativeWork'];
 				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
-				// PROPERTIES
-				if ($properties) {
-					if (stripos($properties, 'hasPart') !== false) {
-						$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf' => $idcreativeWork])->ready();
-						$item['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPageElement)->ready();
-					}
-					if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
-						$thing = $dataCreativeWork[0]['thing'];
-						$dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$thing])->ready();
-						$item['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
-					}
-					if (stripos($properties,'isPartOf') !== false) {
-						$isPartOf = $dataCreativeWork[0]['isPartOf'];
-						$dataWebSite = ApiFactory::request()->type('webSite')->get(['creativeWork'=>$isPartOf])->ready();
-						$item['isPartOf'] = ApiFactory::response()->type('webSite')->setData($dataWebSite)->ready()[0];
-					}
-				}
+				$idthing = $dataCreativeWork[0]['thing'];
+				$item['hasPart'] = parent::getProperties('webPageElement',['isPartOf' => $idcreativeWork]);
+				$item['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
+				$item['isPartOf'] = parent::getProperties('webSite',['creativeWork'=>$isPartOf])[0];
 				$returns[] = $item + $dataCreativeWork[0];
 			}
 		}

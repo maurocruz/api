@@ -33,7 +33,7 @@ class Crud
 		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
 		$newParams = [];
 		foreach ($columnsTable as $value) {
-			$columnName = $value['column_name'];
+			$columnName = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
 			if (array_key_exists($columnName,$params)) {
 				$newParams[$columnName] = $params[$columnName];
 			}

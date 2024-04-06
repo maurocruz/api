@@ -9,13 +9,16 @@ CREATE TABLE IF NOT EXISTS `person` (
   `additionalName` VARCHAR(45) DEFAULT NULL,
   `taxId` VARCHAR(64) DEFAULT NULL,
   `birthDate` DATE DEFAULT NULL,
-  `deathDate` DATE DEFAULT NULL,
   `birthPlace` VARCHAR(45) DEFAULT NULL,
+  `deathDate` DATE DEFAULT NULL,
+  `deathPlace` DATE DEFAULT NULL,
   `gender` VARCHAR(45) DEFAULT NULL,
   `hasOccupation` VARCHAR(45) DEFAULT NULL,
   `homeLocation` INT UNSIGNED NULL,
+  `memberOf` INT UNSIGNED NULL,
   PRIMARY KEY (`idperson`,`thing`),
   KEY (`givenName`,`familyName`),
   CONSTRAINT `fk_person_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
 

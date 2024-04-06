@@ -76,6 +76,13 @@ abstract class Entity implements HttpRequestInterface
     }
   }
 
+	public function getProperties(string $property, array $params): ?array
+	{
+		$data = ApiFactory::request()->type($property)->get($params)->ready();
+		return isset($data[0]) ? ApiFactory::response()->type($property)->setData($data)->ready() : null;
+	}
+
+
   /**
    * @param $params
    * @return array
