@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `alternativeHeadline` VARCHAR(50) DEFAULT NULL,
   `author` VARCHAR(50) DEFAULT NULL,
   `copyrightHolder` VARCHAR(50) DEFAULT NULL,
+  `creativeWorkStatus` VARCHAR(45) NULL,
   `datePublished` DATETIME DEFAULT NULL,
   `editor` INT UNSIGNED DEFAULT NULL,
   `headline` VARCHAR(100) DEFAULT NULL,

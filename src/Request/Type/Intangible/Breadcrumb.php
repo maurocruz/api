@@ -35,12 +35,12 @@ class Breadcrumb
    * @param $urlArray
    * @return array
    */
-  private static function getNewParams($urlArray): array
+  private static function getNewParams($urlArray): ?array
   {
     $parentUrl = DIRECTORY_SEPARATOR . implode("/", $urlArray);
     $newParams = ["url" => $parentUrl, "properties" => "alternativeHeadline"];
     $parentData = (new WebPage())->get($newParams);
-    return self::item(count($urlArray), $parentUrl, $parentData[0]['alternativeHeadline']);
+    return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $parentData[0]['alternativeHeadline']) : null;
   }
 
   /**

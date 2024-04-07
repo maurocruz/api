@@ -3,15 +3,16 @@
 
 CREATE TABLE IF NOT EXISTS `thing` (
   `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL,
-  `alternateName` VARCHAR(255) NULL,
-  `type` VARCHAR(45) NOT NULL,
   `additionalType` VARCHAR(255) NULL,
-  `description` VARCHAR(255),
-  `disambiguatingDescription` TEXT,
-  `url` VARCHAR(255) NULL,
+  `alternateName` VARCHAR(255) NULL,
   `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `description` VARCHAR(255),
+  `disambiguatingDescription` TEXT,
+  `name` VARCHAR(255) NOT NULL,
+  `mainEntityOfPage` VARCHAR(255) DEFAULT NULL,
+  `type` VARCHAR(45) NOT NULL,
+  `url` VARCHAR(255) NULL,
   PRIMARY KEY (`idthing`),
   KEY (`name`,`description`),
   CONSTRAINT `thing_check_name` CHECK ((`name` <> ''))
