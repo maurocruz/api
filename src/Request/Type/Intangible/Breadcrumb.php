@@ -12,8 +12,9 @@ class Breadcrumb
    */
   public function get($params): array
   {
-		$path = parse_url($params['url']);
-    $urlArray = array_filter(explode("/",$path['path']));
+		$parseUrl = parse_url($params['url']);
+		$baseUrl = $parseUrl['scheme'] . '://' . $parseUrl['host'];
+    $urlArray = array_filter(explode("/",$parseUrl['path']));
     $key = count($urlArray);
     $items[] = self::item($key, $params['url'], $params['alternativeHeadline'] ?? $params['alternateName'] ?? $params['name'] ?? null);
     if ($key > 1) {
@@ -21,7 +22,7 @@ class Breadcrumb
       while(current($urlArray)) {
         array_pop($urlArray);
         if(!empty($urlArray)) {
-          $items[] = self::getNewParams($urlArray);
+          $items[] = self::getNewParams($urlArray, $baseUrl);
           end($urlArray);
         } else {
           break;
@@ -32,14 +33,15 @@ class Breadcrumb
 		return ["@context" => "https://schema.org", "@type" => "BreadcrumbList", "itemListElement" => $reverseArray];
   }
 
-  /**
-   * @param $urlArray
-   * @return array
-   */
-  private static function getNewParams($urlArray): ?array
+	/**
+	 * @param array $urlArray
+	 * @param string $baseUrl
+	 * @return array
+	 */
+  private static function getNewParams(array $urlArray, string $baseUrl): ?array
   {
-    $parentUrl = DIRECTORY_SEPARATOR . implode("/", $urlArray);
-    $newParams = ["url" => $parentUrl, "properties" => "alternativeHeadline"];
+    $parentUrl = $baseUrl . DIRECTORY_SEPARATOR . implode("/", $urlArray);
+    $newParams = ["url" => $parentUrl];
     $parentData = (new WebPage())->get($newParams);
 		$name = $parentData[0]['alternateName'] ?? $parentData[0]['alternativeHeadline'] ?? null;
     return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $name) : null;

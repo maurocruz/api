@@ -78,10 +78,6 @@ class WebPage extends Entity
 			// get url host
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
 			if (!empty($dataCreativeWork)) {
-				// set absolut url
-				$valueCreativeWork = $dataCreativeWork[0];
-				$webSiteUrl = $valueCreativeWork['url'];
-				$params['url'] = $webSiteUrl . $url;
 				// SAVE CREATIVEWORK
 				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
 				if (isset($dataCreativeWork[0])) {
