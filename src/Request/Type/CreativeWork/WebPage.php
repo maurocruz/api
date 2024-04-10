@@ -39,6 +39,7 @@ class WebPage extends Entity
 					$idthing = $item['idthing'];
 					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
 					$idcreativeWork = $dataCreativeWork[0]['idcreativeWork'];
+					$item = parent::getData(['creativeWork'=>$idcreativeWork] + $params)[0];
 					$item['hasPart'] = parent::getProperties('webPageElement',['isPartOf' => $idcreativeWork]);
 					$item['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
 					$item['isPartOf'] = parent::getProperties('webSite',['creativeWork'=>$isPartOf])[0];
@@ -103,6 +104,7 @@ class WebPage extends Entity
 	 */
 	public function put(array $params = null): array
 	{
+		$params = $this->addBreadcrumb($params);
 		return parent::update('creativeWork',$params);
 	}
 

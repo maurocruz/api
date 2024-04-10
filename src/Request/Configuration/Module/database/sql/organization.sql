@@ -29,6 +29,6 @@ CREATE TABLE `programMembership` (
   KEY `fk_programMembership_hostOrganization_idx` (`hostingOrganization`),
   KEY `fk_programMembership_member_idx` (`member`),
   CONSTRAINT `fk_programMembership_hostOrganization` FOREIGN KEY (`hostingOrganization`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
-  CONSTRAINT `fk_programMembership_member` FOREIGN KEY (`member`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
+  CONSTRAINT `fk_programMembership_member` FOREIGN KEY (`member`) REFERENCES `person` (`idperson`) ON DELETE CASCADE,
   CONSTRAINT `fk_programMembership_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE=InnoDB;

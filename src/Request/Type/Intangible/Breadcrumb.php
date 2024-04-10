@@ -14,7 +14,7 @@ class Breadcrumb
   {
     $urlArray = array_filter(explode("/",$params['url']));
     $key = count($urlArray);
-    $items[] = self::item($key, $params['url'], $params['alternativeHeadline']);
+    $items[] = self::item($key, $params['url'], $params['alternativeHeadline'] ?? $params['alternateName'] ?? $params['name'] ?? null);
     if ($key > 1) {
       end($urlArray);
       while(current($urlArray)) {
@@ -40,23 +40,26 @@ class Breadcrumb
     $parentUrl = DIRECTORY_SEPARATOR . implode("/", $urlArray);
     $newParams = ["url" => $parentUrl, "properties" => "alternativeHeadline"];
     $parentData = (new WebPage())->get($newParams);
-    return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $parentData[0]['alternativeHeadline']) : null;
+		$name = $parentData[0]['alternateName'] ?? $parentData[0]['alternativeHeadline'] ?? null;
+    return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $name) : null;
   }
 
-  /**
-   * @param $position
-   * @param $url
-   * @param $alternativeHeadline
-   * @return array
-   */
-  private static function item($position, $url, $alternativeHeadline): array
+	/**
+	 * @param $position
+	 * @param $url
+	 * @param $name
+	 * @return array
+	 */
+  private static function item($position, $url, $name): array
   {
+	  $array = explode("/", $url);
+	  $name = $name ?? ucfirst(end($array)) ?? '';
     return [
 	    "@type" => "ListItem",
       "position" => $position,
       "item" => [
         "@id" => $url,
-        "name" => $alternativeHeadline
+        "name" => $name
       ]
     ];
   }

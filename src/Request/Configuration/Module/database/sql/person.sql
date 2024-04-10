@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `person` (
   `deathDate` DATE DEFAULT NULL,
   `deathPlace` DATE DEFAULT NULL,
   `gender` VARCHAR(45) DEFAULT NULL,
-  `hasOccupation` VARCHAR(45) DEFAULT NULL,
+  `hasOccupation` VARCHAR(255) DEFAULT NULL,
   `homeLocation` INT UNSIGNED NULL,
   `memberOf` INT UNSIGNED NULL,
   PRIMARY KEY (`idperson`,`thing`),
