@@ -119,7 +119,9 @@ abstract class Entity implements HttpRequestInterface
 		$connect = new ConnectBd($this->table);
 		$data = $connect->created($params);
 	  if (empty($data)) {
-		  return ['id' => $connect->lastInsertId(), 'table'=>$this->table];
+			$idvalue = $connect->lastInsertId();
+			$idname = "id".$this->table;
+			return ApiFactory::request()->type($this->table)->get([$idname=>$idvalue])->ready();
 	  } else {
 		  return ApiFactory::response()->message()->fail()->generic($data);
 	  }
@@ -135,8 +137,8 @@ abstract class Entity implements HttpRequestInterface
 	{
 		// SAVE PARENT
 		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
-		if (isset($dataParent['id'])) {
-			$idparent = $dataParent['id'];
+		if (isset($dataParent[0])) {
+			$idparent = $dataParent[0]['id'.lcfirst($parentName)];
 			// SAVE CHILD
 			return self::post([$parentName=>$idparent] + $params);
 		}

@@ -12,7 +12,8 @@ class Breadcrumb
    */
   public function get($params): array
   {
-    $urlArray = array_filter(explode("/",$params['url']));
+		$path = parse_url($params['url']);
+    $urlArray = array_filter(explode("/",$path['path']));
     $key = count($urlArray);
     $items[] = self::item($key, $params['url'], $params['alternativeHeadline'] ?? $params['alternateName'] ?? $params['name'] ?? null);
     if ($key > 1) {
