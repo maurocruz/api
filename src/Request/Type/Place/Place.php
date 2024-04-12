@@ -40,16 +40,7 @@ class Place extends Entity
 	 */
 	public function post(array $params = null): array
 	{
-		$idthing = $params['thing'] ?? null;
-		if (!$idthing) {
-			$params['type'][] = 'place';
-			$dataThing = ApiFactory::request()->type('thing')->post($params)->ready();
-			if (isset($dataThing['error'])) {
-				return ApiFactory::response()->message()->error()->anErrorHasOcurred($dataThing);
-			} else {
-				$idthing = $dataThing['id'];
-			}
-		}
-		return parent::post(['thing' => $idthing]);
+		$params['type'][] = 'Place';
+		return parent::createWithParent('thing', $params);
 	}
 }

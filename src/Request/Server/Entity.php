@@ -139,8 +139,9 @@ abstract class Entity implements HttpRequestInterface
 		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
 		if (isset($dataParent[0])) {
 			$idparent = $dataParent[0]['id'.lcfirst($parentName)];
+			$idthing = $dataParent[0]['idthing'] ?? $dataParent[0]['thing'];
 			// SAVE CHILD
-			return self::post([$parentName=>$idparent] + $params);
+			return self::post([$parentName=>$idparent, 'thing'=>$idthing] + $params);
 		}
 		return ApiFactory::response()->message()->fail()->generic($dataParent);
 	}

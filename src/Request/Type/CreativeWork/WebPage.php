@@ -76,24 +76,16 @@ class WebPage extends Entity
 		if ($url && $alternateName && $isPartOf && $name) {
 			$params = $this->addBreadcrumb($params);
 			// get url host
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
-			if (!empty($dataCreativeWork)) {
+			$getCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
+			if (!empty($getCreativeWork)) {
 				// SAVE CREATIVEWORK
-				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
-				if (isset($dataCreativeWork[0])) {
-					$idthing = $dataCreativeWork[0]['thing'];
-					$idcreativeWork = $dataCreativeWork[0]['idcreativeWork'];
-					// SAVE WEBPAGE
-					$dataWebPage = parent::post(['creativeWork'=>$idcreativeWork, 'thing'=>$idthing] + $params);
-					return ApiFactory::response()->type('webPage')->setData($dataWebPage)->ready();
-				}
+				return parent::createWithParent('creativeWork', $params);
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
 			}
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, url, alternateName and isPartOf']);
 		}
-		return ApiFactory::response()->message()->fail()->generic($dataCreativeWork);
 	}
 
 	/**

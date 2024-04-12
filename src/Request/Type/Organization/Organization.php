@@ -50,19 +50,7 @@ class Organization extends Entity
 	public function post(array $params = null): array
 	{
 		$params['type'][] = 'Organization';
-		$dataOrganization = parent::createWithParent('thing',$params);
-		if (isset($dataOrganization['id'])) {
-			$idorganization = $dataOrganization['id'];
-			$getOrganization = ApiFactory::request()->type('organization')->get(['idorganization'=>$idorganization])->ready();
-			if (!empty($getOrganization)) {
-				return ApiFactory::response()->type('organization')->setData($getOrganization)->ready();
-			} else {
-				return ApiFactory::response()->message()->fail()->generic($getOrganization);
-			}
-		} else {
-			return ApiFactory::response()->message()->fail()->generic($dataOrganization);
-		}
-
+		return parent::createWithParent('thing',$params);
 	}
 
 	public function put(array $params = null): array

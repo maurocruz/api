@@ -50,8 +50,10 @@ class WebPageElement extends Entity
 	  return parent::array_sort($returns, $params);
   }
 
-
-
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function post(array $params = null): array
 	{
 		$isPartOf = $params['isPartOf'] ?? null;
@@ -60,10 +62,11 @@ class WebPageElement extends Entity
 		$params['type'][] = "WebPageElement";
 		if ($isPartOf && $text && $name) {
 			// get absolute url
-			$dataIsPartOf = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
-			if(!empty($dataIsPartOf)) {
-				$valueIsPartOf = $dataIsPartOf[0];
-				$params['url'] = $valueIsPartOf['url'].'#'.$name;
+			$getCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
+			if(!empty($getCreativeWork)) {
+				$valueCreativeWork = $getCreativeWork[0];
+				$params['url'] = $valueCreativeWork['url'].'#'.$name;
+				// SAVE CREATIVEWORK
 				return parent::createWithParent('creativeWork', $params);
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);

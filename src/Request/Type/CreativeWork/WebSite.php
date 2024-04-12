@@ -59,16 +59,10 @@ class WebSite extends Entity
 		$params['type'][] = "WebSite";
 		if ($name && $description && $author && $url) {
 			// SAVE CREATIVEWORK
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
-			if (isset($dataCreativeWork['id'])) {
-				$idcreativeWork = $dataCreativeWork['id'];
-				// SAVE WEBSITE
-				return parent::post(['creativeWork' => $idcreativeWork] + $params);
-			}
+			return parent::createWithParent('creativeWork', $params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, description, author and url']);
 		}
-		return ApiFactory::response()->message()->fail()->generic();
 	}
 
 	public function put(array $params = null): array

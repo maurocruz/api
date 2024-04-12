@@ -59,19 +59,9 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params['width'] = $image->getWidth();
 		$params['height'] = $image->getHeight();
 		$params['name'] = $params['name'] ?? $image->getBasename();
+
 		// SAVE MEDIAOBJECT
-		$postMediaObject = ApiFactory::request()->type('mediaObject')->post($params)->ready();
-		if (isset($postMediaObject['id'])) {
-			$idMediaObject = $postMediaObject['id'];
-			// SAVE IMAGEOBJECT
-			$dataImageObject = parent::post(['mediaObject'=>$idMediaObject] + $params);
-			if ($isPartOf) {
-				$idIsPartOf = $dataImageObject['id'];
-				self::saveThingHasImageObject((int)$isPartOf, (int)$idIsPartOf, $params);
-			}
-			return  $dataImageObject;
-		}
-		return ApiFactory::response()->message()->error()->anErrorHasOcurred($postMediaObject);
+		return parent::createWithParent('mediaObject', $params);
 	}
 
 	/**

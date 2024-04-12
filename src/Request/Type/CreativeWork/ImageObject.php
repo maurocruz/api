@@ -113,7 +113,8 @@ class ImageObject extends ImageObjectAbstract
 					$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
 					// SAVE NEW IMAGE OBJECT
 					$saveImageObject = parent::saveImageObject($pathfile, $params);
-					if (isset($saveImageObject['id'])) {
+					if (isset($saveImageObject[0])) {
+						$idimageObject = $saveImageObject[0]['idimageObject'];
 						$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl' => $pathfile]);
 					} else {
 						$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
