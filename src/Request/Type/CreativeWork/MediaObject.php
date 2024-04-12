@@ -38,16 +38,9 @@ class MediaObject extends Entity implements HttpRequestInterface
 		if ($contentUrl) {
 			// SAVE CREATIVEWORK
 			return $this->createWithParent('creativeWork', $params);
-			/*$dataCreativeWork = ApiFactory::request()->type('creativeWork')->post($params)->ready();
-			if (isset($dataCreativeWork['id'])) {
-				$idcreativeWork = $dataCreativeWork['id'];
-				// SAVE MEDIAOBJECT
-				return parent::post(['creativeWork'=>$idcreativeWork] + $params);
-			}*/
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: contentUrl']);
 		}
-		return ApiFactory::response()->message()->fail()->generic($dataCreativeWork);
 	}
 
 	/**

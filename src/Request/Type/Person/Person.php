@@ -24,6 +24,7 @@ class Person extends Entity
 		$returns = [];
 		$name = $params['name'] ?? null;
 		$url = $params['url'] ?? null;
+		$properties = $params['properties'] ?? [];
 		if ($name || $url) {
 			$dataThing = ApiFactory::request()->type('thing')->get($params)->ready();
 			foreach ($dataThing as $item) {
@@ -32,10 +33,14 @@ class Person extends Entity
 				if (isset($dataPerson[0])) {
 					$value = $item + $dataPerson[0];
 					$idperson = $value['idperson'];
-					$value['contactPoint'] = parent::getProperties('contactPoint',['thing' => $idthing]);
-					$value['homeLocation'] = parent::getProperties('place',['idplace' => $value['homeLocation'],'properties'=>'address']);
-					$value['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
-					$value['memberOf'] = parent::getProperties('programMembership',['member' => $idperson]);
+
+					if ($properties) {
+						if (strpos($properties, 'contactPoint') !== false) $value['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
+						if (strpos($properties, 'homeLocation') !== false) $value['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
+						if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+						if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
+					}
+
 					$returns[] = $value;
 				}
 			}
@@ -47,10 +52,14 @@ class Person extends Entity
 				$idthing = $value['thing'];
 				$idperson = $value['idperson'];
 				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				$value['contactPoint'] = parent::getProperties('contactPoint',['thing' => $idthing]);
-				$value['homeLocation'] = parent::getProperties('place',['idplace' => $value['homeLocation'],'properties'=>'address']);
-				$value['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
-				$value['memberOf'] = parent::getProperties('programMembership',['member' => $idperson]);
+
+				if ($properties) {
+					if (strpos($properties, 'contactPoint') !== false) $value['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
+					if (strpos($properties, 'homeLocation') !== false) $value['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
+					if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
+				}
+
 				$returns[] = $value + $dataThing[0];
 			}
 		}

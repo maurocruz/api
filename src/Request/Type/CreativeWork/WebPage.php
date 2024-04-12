@@ -25,6 +25,7 @@ class WebPage extends Entity
 		$returns = [];
 		$isPartOf = $params['isPartOf'] ?? null;
 		$url = $params['url'] ?? null;
+		$properties = $params['properties'] ?? null;
 		if ($isPartOf) {
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['isPartOf'=>$isPartOf])->ready();
 			foreach ($dataCreativeWork as $item) {
@@ -32,7 +33,7 @@ class WebPage extends Entity
 				$dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
 				$returns[] = $dataWebPage[0] + $item;
 			}
-		} elseif($url) {
+		} elseif ($url) {
 			$dataThing = ApiFactory::request()->type('thing')->get(['type'=>'WebPage'] + $params)->ready();
 			if (!empty($dataThing)) {
 				foreach ($dataThing as $item) {
@@ -40,9 +41,13 @@ class WebPage extends Entity
 					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
 					$idcreativeWork = $dataCreativeWork[0]['idcreativeWork'];
 					$item = parent::getData(['creativeWork'=>$idcreativeWork] + $params)[0];
-					$item['hasPart'] = parent::getProperties('webPageElement',['isPartOf' => $idcreativeWork]);
-					$item['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
-					$item['isPartOf'] = parent::getProperties('webSite',['creativeWork'=>$isPartOf])[0];
+
+					if ($properties) {
+						if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork]);
+						if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+						if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webSite', ['creativeWork' => $isPartOf])[0];
+					}
+
 					$returns[] = $item + $dataCreativeWork[0];
 				}
 			}
@@ -53,9 +58,13 @@ class WebPage extends Entity
 				$idcreativeWork = $item['creativeWork'];
 				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
 				$idthing = $dataCreativeWork[0]['thing'];
-				$item['hasPart'] = parent::getProperties('webPageElement',['isPartOf' => $idcreativeWork]);
-				$item['image'] = parent::getProperties('imageObject',['isPartOf' => $idthing]);
-				$item['isPartOf'] = parent::getProperties('webSite',['creativeWork'=>$isPartOf])[0];
+
+				if ($properties) {
+					if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork]);
+					if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webSite', ['creativeWork' => $isPartOf])[0];
+				}
+
 				$returns[] = $item + $dataCreativeWork[0];
 			}
 		}
