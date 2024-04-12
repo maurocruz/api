@@ -29,6 +29,11 @@ class WebPageElement extends Entity
 		  foreach ($dataCreativeWork as $item) {
 			  $idcreativeWork = $item['idcreativeWork'];
 			  $dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
+				$idthing = $dataWebPage[0]['thing'];
+			  if ($properties) {
+				  if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+				  if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
+			  }
 			  $returns[] = $dataWebPage[0] + $item;
 		  }
 	  } else {
@@ -36,13 +41,10 @@ class WebPageElement extends Entity
 		  foreach ($data as $value) {
 			  $idcreativeWork = $value['creativeWork'];
 			  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork])->ready();
+			  $idthing = $dataCreativeWork[0]['thing'];
 				// PROPERTIES
 			  if ($properties) {
-				  if (stripos($properties, 'image') !== false) {
-						$idthing = $dataCreativeWork[0]['thing'];
-					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf' => $idthing])->ready();
-					  $value['image'] = ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready();
-				  }
+				  if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
 			  }
 			  $returns[] = $value + $dataCreativeWork[0];
 		  }
