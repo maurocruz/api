@@ -46,8 +46,8 @@ class ProgramMembership extends Entity
 			$params['name'] = $name;
 			$params['type'][] = "ProgramMembership";
 			$dataProgramMembership = parent::createWithParent('thing', $params);
-			if (isset($dataProgramMembership['id'])) {
-				$idprogramMembership = $dataProgramMembership['id'];
+			if (isset($dataProgramMembership[0])) {
+				$idprogramMembership = $dataProgramMembership[0]['idprogramMembership'];
 				$getProgramMembership = ApiFactory::request()->type('programMembership')->get(['idprogramMembership'=>$idprogramMembership])->ready();
 				if (!empty($getProgramMembership)) {
 					return ApiFactory::response()->type('programMembership')->setData($getProgramMembership)->ready();
