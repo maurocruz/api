@@ -10,7 +10,7 @@ class MessageFail extends MessageAbstract
 		parent::setStatus('fail');
 	}
 	/** GENERIC */
-	public function generic(array $data = null, string $message = 'Something has failed!'): array {
+	public function generic(array $data = null, string $message = 'Something has failed (in Plinct/api)'): array {
 		$this->setMessage($message);
 		$this->setData($data);
 		return $this->returns;
@@ -18,27 +18,27 @@ class MessageFail extends MessageAbstract
 
 	/** VALIDATE DATA**/
 	public function inputDataIsMissing($data = null): array	{
-		return parent::getReturns('FV001', 'incomplete input data', $data);
+		return parent::getReturns('FV001', 'incomplete input data (in Plinct/api)', $data);
 	}
 
 	public function invalidData(): array	{
-		return parent::getReturns('FV002', 'invalid data');
+		return parent::getReturns('FV002', 'invalid data (in Plinct/api)');
 	}
 
 	public function invalidEmail(): array {
-		return parent::getReturns('FV003', 'invalid email');
+		return parent::getReturns('FV003', 'invalid email (in Plinct/api)');
 	}
 
 	public function invalidDomain(): array	{
-		return parent::getReturns('FV004', 'invalid domain');
+		return parent::getReturns('FV004', 'invalid domain (in Plinct/api)');
 	}
 	public function invalidUrl(): array	{
-		return parent::getReturns('FV005', 'invalid url');
+		return parent::getReturns('FV005', 'invalid url (in Plinct/api)');
 	}
 
 	/** DATABASE CHECK */
 	public function propertyNotFoundInDatabase(string $property, $data = null): array	{
-		return parent::getReturns('FD001', "$property not found in database", $data);
+		return parent::getReturns('FD001', "$property not found in database (in Plinct/api)", $data);
 	}
 	public function returnIsEmpty(): array {
 		return parent::withCode('FD002');
@@ -46,13 +46,13 @@ class MessageFail extends MessageAbstract
 
 	/** USER */
 	public function userDoesNotExist(): array {
-		return parent::getReturns('FU001','user does not exist');
+		return parent::getReturns('FU001','user does not exist (in Plinct/api)');
 	}
 	public function userExistsButNotLogged(): array {
-		return parent::getReturns('FU002','The user exists but has not logged in. Check your password!');
+		return parent::getReturns('FU002','The user exists but has not logged in. Check your password! (in Plinct/api)');
 	}
 	public function userNotAuthorizedForThisAction($data = null): array	{
-		return parent::getReturns('FU003', 'user logged is not authorized for this action', $data);
+		return parent::getReturns('FU003', 'user logged is not authorized for this action (in Plinct/api)', $data);
 	}
 	/** AUTHENTICATION */
 	public function passwordRepeatIsIncorrect(): array {
