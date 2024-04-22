@@ -68,7 +68,7 @@ class WebPage extends Entity
 				$returns[] = $item + $dataCreativeWork[0];
 			}
 		}
-		return parent::array_sort($returns, $params);
+		return parent::sortData($returns);
 	}
 
 	/**

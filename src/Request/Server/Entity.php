@@ -58,6 +58,14 @@ abstract class Entity implements HttpRequestInterface
 	}
 
 	/**
+	 * @param array $params
+	 */
+	public function setParams(array $params): void
+	{
+		$this->params = $params;
+	}
+
+	/**
    * GET
    * @param array $params
    * @return array
@@ -236,48 +244,15 @@ abstract class Entity implements HttpRequestInterface
 		}
 	}
 
+
 	/**
 	 * @param array $array
-	 * @param array|null $params
 	 * @return array
 	 */
-	protected function array_sort(array $array, array $params): array
+	protected function sortData(array $array): array
 	{
 		$new_array = array();
-		$sortable_array = array();
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = isset($params['ordering']) && $params['ordering'] === 'desc' ? SORT_DESC : SORT_ASC;
-		if (count($array) > 0 && $orderBy) {
-			foreach ($array as $k => $v) {
-				if (is_array($v)) {
-					foreach ($v as $k2 => $v2) {
-						if ($k2 === $orderBy) {
-							$sortable_array[$k] = $v2;
-						}
-					}
-				} else {
-					$sortable_array[$k] = $v;
-				}
-			}
-			// IF ORDERBY NOT FOUND
-			if (empty($sortable_array)) {
-				$new_array = $array;
-			} else {
-				switch ($ordering) {
-					case SORT_DESC:
-						arsort($sortable_array);
-						break;
-					default:
-						asort($sortable_array);
-				}
-				foreach ($sortable_array as $k => $v) {
-					$new_array[$k] = $array[$k];
-				}
-			}
-		} else {
-			$new_array = $array;
-		}
-		foreach ($new_array as $key => $value) {
+		foreach ($array as $key => $value) {
 			ksort($value);
 			$new_array[$key] = $value;
 		}

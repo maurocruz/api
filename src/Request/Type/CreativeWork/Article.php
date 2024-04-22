@@ -35,7 +35,7 @@ class Article extends Entity
 					$returns[] = $value;
 				}
 			}
-			return parent::array_sort($returns, $params);
+			return parent::sortData($returns);
 		} else {
 			return [];
 		}

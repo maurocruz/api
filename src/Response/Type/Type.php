@@ -15,6 +15,8 @@ class Type
 	 */
 	private ?array $data = [];
 
+	private ?array $params = [];
+
 	/**
 	 * @param string $type
 	 */
@@ -34,10 +36,21 @@ class Type
 	}
 
 	/**
+	 * @param array|null $params
+	 * @return $this
+	 */
+	public function setParams(?array $params): Type
+	{
+		$this->params = $params;
+		return $this;
+	}
+
+	/**
 	 * @return array|null
 	 */
 	public function ready(): ?array
 	{
+		$format = $this->params['format'] ?? null;
 		if (empty($this->data)) {
 			return [];
 		} else {
@@ -51,6 +64,24 @@ class Type
 					$typeSchema = new TypeSchema($this->type);
 					$typeSchema->setValue($value);
 					$newData[] = $typeSchema->ready();
+				}
+				// ITEM LIST
+				if ($format == 'ItemList') {
+					$listItem = [
+						'@context'=>'https://schema.org',
+						'@type'=>'ItemList',
+						'itemListOrder' => $this->params['ordering'] ?? 'ascending',
+						'numberOfItems'=>count($newData),
+						'itemListElement'=>[]
+					];
+					foreach ($newData as $key => $item) {
+						$listItem['itemListElement'][] = [
+							'@type'=>'ListItem',
+							'position'=>($key + 1),
+							'item'=> $item
+						];
+					}
+					return $listItem;
 				}
 				return $newData;
 			}

@@ -7,7 +7,9 @@ use Plinct\Api\Request\Server\Entity;
 
 class Place extends Entity
 {
-
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->setTable('place');
@@ -31,7 +33,7 @@ class Place extends Entity
 				$returns[] = $value + $dataThing[0];
 			}
 		}
-		return parent::array_sort($returns, $params);
+		return parent::sortData($returns);
 	}
 
 	/**

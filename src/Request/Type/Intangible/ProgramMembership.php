@@ -30,7 +30,7 @@ class ProgramMembership extends Entity
 				$returns[] = $value + $dataThing[0];
 			}
 		}
-		return parent::array_sort($returns, $params);
+		return parent::sortData($returns);
 	}
 
 	/**

@@ -38,8 +38,12 @@ abstract class GetDataAbstract
   /**
    *
    */
-  protected function setQuery() {
-    $this->query = "SELECT $this->fields FROM `$this->table`";
+  protected function setQuery()
+  {
+	  $this->query = "SELECT $this->fields FROM `$this->table`";
+		if (in_array('thing',$this->properties)) {
+			$this->query .= " LEFT JOIN `thing` ON `thing`.`idthing`=`$this->table`.`thing`";
+    }
   }
 
 	/**
@@ -58,15 +62,21 @@ abstract class GetDataAbstract
    */
   protected function setFields()
   {
+		$fieldsArray = [];
     if (isset($this->params['fields'])) {
-			$fields = $this->params['fields'];
+			$fields = $this->params['fields'].',thing,type';
 			unset($this->params['fields']);
+			foreach (explode(',',$fields) as $field) {
+				if (in_array($field, $this->properties)) {
+					$fieldsArray[] = $field;
+				}
+			}
 			// ID IS REQUIRED IF THERE IS A hasType PROPERTY
 			$idname = "id$this->table";
 			if (strpos($fields,$idname) === false) {
-				$fields .= ",$idname";
+				$fieldsArray[] = $idname;
 			}
-      $this->fields = $fields;
+      $this->fields = implode(',',$fieldsArray);
     }
   }
 
@@ -119,15 +129,15 @@ abstract class GetDataAbstract
 		$limit = $this->params['limit'] ?? self::__LIMIT__;
 		$offset = $this->params['offset'] ?? null;
     // GROUP BY
-    if ($groupBy && array_search($groupBy, $this->properties)) {
+		if ($groupBy) {
 	    $this->query .= " GROUP BY $groupBy";
     }
     // ORDER BY
-    if ($orderBy && array_search($orderBy, $this->properties)) {
+    if ($orderBy) {
 	    $this->query .= " ORDER BY $orderBy $ordering";
     }
 		// LIMIT
-		If ($limit != 'none' && $limit != '') {
+		if ($limit != 'none' && $limit != '') {
 			$this->query .= " LIMIT $limit";
 			// OFFSET
 			if ($offset) {

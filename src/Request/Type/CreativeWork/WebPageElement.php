@@ -49,7 +49,7 @@ class WebPageElement extends Entity
 			  $returns[] = $value + $dataCreativeWork[0];
 		  }
 	  }
-	  return parent::array_sort($returns, $params);
+	  return parent::sortData($returns);
   }
 
 	/**

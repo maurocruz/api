@@ -91,7 +91,7 @@ class ImageObject extends ImageObjectAbstract
 			  }
 		  }
 	  }
-	  return parent::array_sort($newData, $params);
+	  return parent::sortData($newData);
   }
 
 	/**

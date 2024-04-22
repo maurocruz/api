@@ -4,7 +4,6 @@ namespace Plinct\Api\Request\Type\Organization;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Request\Type\Offer;
 
 class Organization extends Entity
 {
@@ -44,7 +43,7 @@ class Organization extends Entity
 			  $returns[] = $value + $dataThing[0];
 		  }
 	  }
-	  return parent::array_sort($returns, $params);
+	  return parent::sortData($returns);
   }
 
 	public function post(array $params = null): array
