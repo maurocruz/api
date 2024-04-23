@@ -12,7 +12,7 @@ class GetData extends GetDataAbstract
   public function __construct($table)
   {
     $this->table = $table;
-	  $this->setProperties();
+	  $this->setProperties($table);
   }
 
 	/**

@@ -29,7 +29,7 @@ abstract class GetDataAbstract
 	/**
 	 * @var array
 	 */
-	protected array $properties;
+	protected array $properties = [];
   /**
    * @var bool|array
    */
@@ -43,19 +43,20 @@ abstract class GetDataAbstract
 	  $this->query = "SELECT $this->fields FROM `$this->table`";
 		if (in_array('thing',$this->properties)) {
 			$this->query .= " LEFT JOIN `thing` ON `thing`.`idthing`=`$this->table`.`thing`";
+			$this->setProperties('thing');
     }
   }
 
 	/**
 	 */
-	protected function setProperties(): void
+	protected function setProperties(string $table): void
 	{
-		$columnsTable = ApiFactory::request()->server()->connectBd($this->table)->showColumnsName();
+		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
 		$properties = [];
 	  foreach ($columnsTable as $value) {
 			$properties[] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
 	  }
-		$this->properties = $properties;
+		$this->properties = array_merge($this->properties, $properties);
 	}
 
   /**

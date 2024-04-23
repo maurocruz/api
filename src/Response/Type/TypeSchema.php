@@ -32,7 +32,9 @@ class TypeSchema extends TypeSchemaAbstract
 				unset($value[$key]);
 			}
 			if ($key === 'dateCreated' || $key === 'dateModified') {
-				$this->setIdentifier($key, $valueItem);
+				if ($valueItem) {
+					$this->setIdentifier($key, $valueItem);
+				}
 			}
 		}
 		unset($value['type']);
