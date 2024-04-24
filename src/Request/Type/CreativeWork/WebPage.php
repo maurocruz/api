@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
@@ -34,21 +35,24 @@ class WebPage extends Entity
 				$returns[] = $dataWebPage[0] + $item;
 			}
 		} elseif ($url) {
-			$dataThing = ApiFactory::request()->type('thing')->get(['type'=>'WebPage'] + $params)->ready();
-			if (!empty($dataThing)) {
-				foreach ($dataThing as $item) {
+			$data = PDOConnect::run("SELECT * FROM webPage
+LEFT JOIN creativeWork ON creativeWork.idcreativeWork=webPage.creativeWork
+LEFT JOIN thing ON creativeWork.thing=thing.idthing
+WHERE thing.url='$url'; ");
+
+			if (!empty($data)) {
+				foreach ($data as $item) {
 					$idthing = $item['idthing'];
-					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['thing'=>$idthing] + $params)->ready();
-					$idcreativeWork = $dataCreativeWork[0]['idcreativeWork'];
-					$item = parent::getData(['creativeWork'=>$idcreativeWork] + $params)[0];
+					$idcreativeWork = $item['creativeWork'];
+
 
 					if ($properties) {
 						if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork]);
-						if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+						if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy'=>'position']);
 						if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webSite', ['creativeWork' => $isPartOf])[0];
 					}
 
-					$returns[] = $item + $dataCreativeWork[0];
+					$returns[] = $item;
 				}
 			}
 		}

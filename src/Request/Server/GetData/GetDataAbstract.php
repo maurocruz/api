@@ -40,11 +40,23 @@ abstract class GetDataAbstract
    */
   protected function setQuery()
   {
-	  $this->query = "SELECT $this->fields FROM `$this->table`";
-		if (in_array('thing',$this->properties)) {
-			$this->query .= " LEFT JOIN `thing` ON `thing`.`idthing`=`$this->table`.`thing`";
+		if ($this->table === "imageObject") {
+			$this->query = "SELECT * FROM imageObject"
+			." LEFT JOIN mediaObject ON mediaObject.idmediaObject=imageObject.mediaObject"
+			." LEFT JOIN creativeWork ON creativeWork.idcreativeWork=mediaObject.creativeWork"
+			." LEFT JOIN thing ON thing.idthing=creativeWork.thing";
+
 			$this->setProperties('thing');
-    }
+			$this->setProperties('creativeWork');
+			$this->setProperties('mediaObject');
+
+		} else {
+			$this->query = "SELECT $this->fields FROM `$this->table`";
+			if (in_array('thing', $this->properties)) {
+				$this->query .= " LEFT JOIN `thing` ON `thing`.`idthing`=`$this->table`.`thing`";
+				$this->setProperties('thing');
+			}
+		}
   }
 
 	/**
