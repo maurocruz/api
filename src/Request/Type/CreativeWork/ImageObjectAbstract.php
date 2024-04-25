@@ -9,6 +9,7 @@ use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Tool\FileSystem\FileSystem;
 use Plinct\Tool\Image\Image;
+use Plinct\Tool\StringTool;
 
 abstract class ImageObjectAbstract extends Entity implements HttpRequestInterface
 {
@@ -16,9 +17,11 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 * @param array $imagesUpload
 	 * @param string $destination
 	 * @return array
+	 * @throws Exception
 	 */
 	protected function uploadFiles(array $imagesUpload, string $destination): array
 	{
+		// create destination
 		$fileSystem = new FileSystem($destination);
 		// destination dir
 		if(!$destination) {
@@ -36,29 +39,70 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 			mkdir($_SERVER['DOCUMENT_ROOT'].$destination,0755,true);
 		}
 		$fileSystem->setDir($destination);
-		// upload images
-		return $fileSystem->uploadFiles($imagesUpload);
+		// save images
+		if(isset($imagesUpload['error'])) {
+			$data = [];
+			foreach ($imagesUpload['error'] as $key => $error) {
+				if ($error == UPLOAD_ERR_OK) {
+					$name = $imagesUpload['name'][$key];
+					$type = $imagesUpload['type'][$key];
+					$tmp_name = $imagesUpload['tmp_name'][$key];
+					$newImage = new Image($tmp_name);
+					$width = $newImage->getWidth();
+					$ratio = 1.618; // number gold
+					$largeWidth = 1280;
+					$meddiumWidth = $largeWidth / $ratio;
+					$smallWidth = $meddiumWidth / $ratio;
+					$tinyWidth = $smallWidth / $ratio;
+					if ($width < $largeWidth) {
+						$largeWidth = $width;
+						$meddiumWidth = null;
+					} else if ($width < $meddiumWidth) {
+						$largeWidth = $width;
+						$meddiumWidth = null;
+						$smallWidth = null;
+					}
+					$prefix = date("Ymd-His_");
+					$extension = substr(strstr($type, "/"), 1);
+					$filename = pathinfo($name)['filename'];
+					$newName = $prefix . substr(md5(StringTool::removeAccentsAndSpaces($filename)), 0, 16);
+					// large
+					$contentUrl = $newImage->createNewImage($destination . '/' . $newName . '.' . $extension, $largeWidth);
+					// meddium
+					if ($meddiumWidth) $newImage->createNewImage($destination . '/' . $newName . '_m.' . $extension, (int) $meddiumWidth);
+					// small
+					$thumbnail = $smallWidth ? $newImage->createNewImage($destination . '/' . $newName . '_s.' . $extension, (int) $smallWidth) : $contentUrl;
+					// tiny
+					$newImage->createNewImage($destination . '/' . $newName . '_t.' . $extension, (int)$tinyWidth);
+					$data[] = ['status' => 'success', 'data' => ['contentUrl'=>$contentUrl,'thumbnail'=>$thumbnail]];
+				} else {
+					$data[] = ['status' => 'error', 'message' => FileSystem::returnMessageError($error)];
+				}
+			}
+			return ['status'=>'success', 'data'=>$data];
+		} else {
+			return ['status'=>'fail', 'data'=>$imagesUpload];
+		}
 	}
 
 	/**
 	 * @throws Exception
 	 */
-	protected function saveImageObject(string $pathfile, ?array $params = []): array
+	protected function saveImageObject(array $data, ?array $params = []): array
 	{
 		$params = $params ?? [];
-		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
+		$contentUrl = $data['contentUrl'] ?? null;
+		$thumbnail = $data['thumbnailUrl'] ?? null;
 		unset($params['isPartOf']); // para não dar erro em chave estrangeira no insert creative work
 
-		// TODO fazer thumbnails: tiny; small; meddium; large
-
-		$sourceImage = str_replace($_SERVER['DOCUMENT_ROOT'], '', $pathfile);
-		$image = new Image($sourceImage);
+		$image = new Image($contentUrl);
 		$params['contentUrl'] = $image->getSrc();
 		$params['contentSize'] = $image->getFileSize();
 		$params['encodingFormat'] = $image->getEncodingFormat();
 		$params['width'] = $image->getWidth();
 		$params['height'] = $image->getHeight();
 		$params['name'] = $params['name'] ?? $image->getBasename();
+		$params['thumbnail'] = $thumbnail;
 
 		// SAVE MEDIAOBJECT
 		return parent::createWithParent('mediaObject', $params);

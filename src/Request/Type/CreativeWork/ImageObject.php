@@ -65,23 +65,26 @@ class ImageObject extends ImageObjectAbstract
 		// UPLOAD FILES
 		if ($imagesUpload) {
 			$uploadedFilesReturns = parent::uploadFiles($imagesUpload,$destination);
-			foreach ($uploadedFilesReturns as $fileUploaded) {
-				if ($fileUploaded['status'] === 'success') {
-					$pathfile = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
-					// SAVE NEW IMAGE OBJECT
-					$saveImageObject = parent::saveImageObject($pathfile, $params);
-					if (isset($saveImageObject[0])) {
-						$idimageObject = $saveImageObject[0]['idimageObject'];
-						$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl' => $pathfile]);
+			if ($uploadedFilesReturns['status'] === 'success') {
+				foreach ($uploadedFilesReturns['data'] as $fileUploaded) {
+					if ($fileUploaded['status'] === 'success') {
+						$data = $fileUploaded['data'];
+						$contentUrl = $data['contentUrl'] ?? null;
+						// SAVE NEW IMAGE OBJECT
+						$saveImageObject = parent::saveImageObject($fileUploaded['data'], $params);
+						if (isset($saveImageObject[0])) {
+							$returns[] = ApiFactory::response()->message()->success("File uploaded", ['contentUrl' => $contentUrl]);
+						} else {
+							$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
+						}
+					} elseif ($fileUploaded['status'] === 'fail') {
+						$returns[] = ApiFactory::response()->message()->fail()->generic($fileUploaded, 'Upload failed');
 					} else {
-						$returns[] = ApiFactory::response()->message()->fail()->generic($saveImageObject);
+						return ApiFactory::response()->message()->error()->anErrorHasOcurred($fileUploaded);
 					}
-				} elseif ($fileUploaded['status'] === 'fail') {
-					$returns[] = ApiFactory::response()->message()->fail()->generic($fileUploaded, 'Upload failed');
-				} else {
-					return ApiFactory::response()->message()->error()->anErrorHasOcurred($fileUploaded);
 				}
 			}
+			return ApiFactory::response()->message()->fail()->generic([$uploadedFilesReturns]);
 		}
 		// RELATIONSHIP
 		if ($idimageObject && $isPartOf) {
@@ -147,10 +150,19 @@ class ImageObject extends ImageObjectAbstract
 			$dataImageObject = self::get(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
 				$valueImageObject = $dataImageObject[0];
-				// elimina o arquivo
+				// elimina os arquivos
 				$image = new Image($valueImageObject['contentUrl']);
 				$pathfile = $image->getPathFile();
+				$pathInfo = pathinfo($pathfile);
+				$dirname = $pathInfo['dirname'];
+				$filename = $pathInfo['filename'];
+				$extension = $pathInfo['extension'];
 				unlink($pathfile);
+				$meddiumFile = $dirname.DIRECTORY_SEPARATOR.$filename."_m.".$extension;
+				if (file_exists($meddiumFile)) unlink($meddiumFile);
+				$smallFile = $dirname.DIRECTORY_SEPARATOR.$filename."_s.".$extension;
+				if(file_exists($smallFile)) unlink($smallFile);
+				unlink($dirname.DIRECTORY_SEPARATOR.$filename."_t.".$extension);
 				// apaga registro
 				return ApiFactory::request()->type('mediaObject')->delete(['idmediaObject'=>$valueImageObject['mediaObject']])->ready();
 			} else {
