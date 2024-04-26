@@ -105,11 +105,13 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params['thumbnail'] = $thumbnail;
 		// SAVE MEDIAOBJECT
 		$dataImageObject = parent::createWithParent('mediaObject', $params);
+
 		if (isset($dataImageObject[0]) && $isPartOf) {
 			$valueImage = $dataImageObject[0];
 			$idimageObject = $valueImage['idimageObject'];
-			PDOConnect::crud()->setTable('thing_has_imageObject')->created(['idthing'=>$isPartOf, 'idimageObject'=>$idimageObject] + $params);
+			self::saveThingHasImageObject((int) $isPartOf, (int) $idimageObject, $params);
 		}
+
 		return $dataImageObject;
 	}
 
