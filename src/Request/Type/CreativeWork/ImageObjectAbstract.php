@@ -93,8 +93,8 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params = $params ?? [];
 		$contentUrl = $data['contentUrl'] ?? null;
 		$thumbnail = $data['thumbnailUrl'] ?? null;
+		$isPartOf = $params['isPartOf'] ?? null;
 		unset($params['isPartOf']); // para não dar erro em chave estrangeira no insert creative work
-
 		$image = new Image($contentUrl);
 		$params['contentUrl'] = $image->getSrc();
 		$params['contentSize'] = $image->getFileSize();
@@ -103,9 +103,14 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params['height'] = $image->getHeight();
 		$params['name'] = $params['name'] ?? $image->getBasename();
 		$params['thumbnail'] = $thumbnail;
-
 		// SAVE MEDIAOBJECT
-		return parent::createWithParent('mediaObject', $params);
+		$dataImageObject = parent::createWithParent('mediaObject', $params);
+		if (isset($dataImageObject[0]) && $isPartOf) {
+			$valueImage = $dataImageObject[0];
+			$idimageObject = $valueImage['idimageObject'];
+			PDOConnect::crud()->setTable('thing_has_imageObject')->created(['idthing'=>$isPartOf, 'idimageObject'=>$idimageObject] + $params);
+		}
+		return $dataImageObject;
 	}
 
 	/**

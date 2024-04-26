@@ -86,10 +86,6 @@ class ImageObject extends ImageObjectAbstract
 			}
 			return ApiFactory::response()->message()->fail()->generic([$uploadedFilesReturns]);
 		}
-		// RELATIONSHIP
-		if ($idimageObject && $isPartOf) {
-			$returns[] = parent::saveThingHasImageObject((int) $isPartOf, (int) $idimageObject, $params);
-		}
 		// RESPONSE
 		if (empty($returns)) {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
