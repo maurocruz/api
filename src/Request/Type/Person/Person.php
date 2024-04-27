@@ -23,9 +23,9 @@ class Person extends Entity
 	{
 		$returns = [];
 		$properties = $params['properties'] ?? null;
-		$memberOf = $params['memberOf'] ?? null;
-		if ($memberOf !== null) {
-			$dataProgramMembership = ApiFactory::request()->type('programMembership')->get($params)->ready();
+		$programName = $params['programName'] ?? $params['memberOf'] ?? null;
+		if ($programName) {
+			$dataProgramMembership = ApiFactory::request()->type('programMembership')->get(['programName'=>$programName] + $params)->ready();
 			if(!empty($dataProgramMembership)) {
 				foreach($dataProgramMembership as $programMembership) {
 					$member = $programMembership['member'];
@@ -58,6 +58,8 @@ class Person extends Entity
 				if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
 				$returns[] = $value;
 			}
+		} else {
+			$returns = $dataPerson;
 		}
 		return $returns;
 	}
