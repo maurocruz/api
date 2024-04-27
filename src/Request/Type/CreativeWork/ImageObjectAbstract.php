@@ -92,7 +92,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	{
 		$params = $params ?? [];
 		$contentUrl = $data['contentUrl'] ?? null;
-		$thumbnail = $data['thumbnailUrl'] ?? null;
+		$thumbnail = $data['thumbnail'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
 		unset($params['isPartOf']); // para não dar erro em chave estrangeira no insert creative work
 		$image = new Image($contentUrl);

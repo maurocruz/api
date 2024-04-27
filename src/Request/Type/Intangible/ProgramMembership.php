@@ -22,12 +22,15 @@ class ProgramMembership extends Entity
 	public function get(array $params = []): array
 	{
 		$returns = [];
+		$properties = $params['properties'] ?? null;
 		$data = parent::getData($params);
 		if (!empty($data)) {
-			foreach ($data as $value) {
-				$idthing = $value['thing'];
-				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				$returns[] = $value + $dataThing[0];
+			foreach ($data as $item) {
+				$member = $item['member'];
+				if ($properties) {
+					if (strpos($properties, 'member') !== false) $item['member'] = parent::getProperties('person', ['idperson' => $member]);
+				}
+				$returns[] = $item;
 			}
 		}
 		return parent::sortData($returns);

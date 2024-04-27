@@ -14,8 +14,9 @@ CREATE TABLE IF NOT EXISTS `thing` (
   `type` VARCHAR(45) NOT NULL,
   `url` VARCHAR(255) NULL,
   PRIMARY KEY (`idthing`),
-  KEY (`name`,`description`),
-  CONSTRAINT `thing_check_name` CHECK ((`name` <> ''))
+  KEY `name` (`name`,`description`),
+  KEY (`url`,`url`),
+  CONSTRAINT `thing_check_name` CHECK (`name` <> '')
 ) ENGINE = InnoDB;
 
 -- PROPERTY VALUE

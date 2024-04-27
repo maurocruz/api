@@ -38,13 +38,12 @@ class WebPage extends Entity
 			$data = PDOConnect::run("SELECT * FROM webPage
 LEFT JOIN creativeWork ON creativeWork.idcreativeWork=webPage.creativeWork
 LEFT JOIN thing ON creativeWork.thing=thing.idthing
-WHERE thing.url='$url'; ");
+WHERE thing.url='$url';");
 
 			if (!empty($data)) {
 				foreach ($data as $item) {
 					$idthing = $item['idthing'];
 					$idcreativeWork = $item['creativeWork'];
-
 
 					if ($properties) {
 						if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork]);

@@ -71,6 +71,11 @@ abstract class GetDataAbstract
 		$this->properties = array_merge($this->properties, $properties);
 	}
 
+	private function isProperty(string $property): bool
+	{
+		return in_array($property, $this->properties);
+	}
+
   /**
    */
   protected function setFields()
@@ -142,11 +147,11 @@ abstract class GetDataAbstract
 		$limit = $this->params['limit'] ?? self::__LIMIT__;
 		$offset = $this->params['offset'] ?? null;
     // GROUP BY
-		if ($groupBy) {
+		if ($groupBy && $this->isProperty($groupBy)) {
 	    $this->query .= " GROUP BY $groupBy";
     }
     // ORDER BY
-    if ($orderBy) {
+    if ($orderBy && $this->isProperty($orderBy)) {
 	    $this->query .= " ORDER BY $orderBy $ordering";
     }
 		// LIMIT
