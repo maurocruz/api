@@ -56,7 +56,7 @@ class Person extends Entity
 				if (strpos($properties, 'homeLocation') !== false) $value['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
 				if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
 				if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
-				if (strpos($properties, 'mainEntityOfPage') !== false) $value['mainEntityOfPage'] = parent::getProperties('webPage', ['url' => $value['mainEntityOfPage'], 'properties' => 'image,hasPart']);
+				if (strpos($properties, 'mainEntityOfPage') !== false) $value['mainEntityOfPage'] = parent::getProperties('webPage', ['url' =>$value['mainEntityOfPage'] ?? $value['url'], 'properties' => 'image,hasPart']);
 				$returns[] = $value;
 			}
 		} else {

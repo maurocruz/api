@@ -54,8 +54,7 @@ WHERE thing.url='$url';");
 					$returns[] = $item;
 				}
 			}
-		}
-		else {
+		} elseif (!array_key_exists('url', $params)) {
 			$dataWebPage = parent::getData($params);
 			foreach ($dataWebPage as $item) {
 				$idcreativeWork = $item['creativeWork'];
