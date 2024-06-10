@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS `mediaObject` (
   `idmediaObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `creativeWork` INT UNSIGNED NOT NULL,
+  `thing` int unsigned not null,
   `contentSize` VARCHAR(100) DEFAULT NULL,
   `contentUrl` VARCHAR(255) NOT NULL,
   `encodingFormat` VARCHAR(50) DEFAULT NULL,

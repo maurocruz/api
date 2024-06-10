@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS `webSite` (
   `idwebSite` int UNSIGNED NOT NULL AUTO_INCREMENT,
   `creativeWork` INT UNSIGNED NOT NULL,
+  `thing` int unsigned not null,
   PRIMARY KEY (`idwebSite`,`creativeWork`),
   KEY `fk_webSite_creativeWork` (`creativeWork`),
   CONSTRAINT `fk_webSite_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE

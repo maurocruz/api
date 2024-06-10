@@ -5,6 +5,7 @@
 CREATE TABLE IF NOT EXISTS `creativeWork` (
   `idcreativeWork` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `thing` INT UNSIGNED NOT NULL,
+  `about` INT UNSIGNED NOT NULL,
   `acquireLicensePage` VARCHAR(100) DEFAULT NULL,
   `alternativeHeadline` VARCHAR(50) DEFAULT NULL,
   `author` VARCHAR(50) DEFAULT NULL,
