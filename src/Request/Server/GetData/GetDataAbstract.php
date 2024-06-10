@@ -31,14 +31,14 @@ abstract class GetDataAbstract
 	 */
 	protected array $properties = [];
   /**
-   * @var bool|array
+   * @var ?array
    */
-  protected $error = false;
+  protected ?array $error = null;
 
   /**
    *
    */
-  protected function setQuery()
+  protected function setQuery(): void
   {
 		if ($this->table === "imageObject") {
 			$this->query = "SELECT * FROM imageObject"
@@ -52,7 +52,7 @@ abstract class GetDataAbstract
 
 		} else {
 			$this->query = "SELECT $this->fields FROM `$this->table`";
-			if (in_array('thing', $this->properties)) {
+			if (in_array('thing', $this->properties) && 	!str_contains($this->fields,'count')) {
 				$this->query .= " LEFT JOIN `thing` ON `thing`.`idthing`=`$this->table`.`thing`";
 				$this->setProperties('thing');
 			}
@@ -78,30 +78,35 @@ abstract class GetDataAbstract
 
   /**
    */
-  protected function setFields()
+  protected function setFields(): void
   {
 		$fieldsArray = [];
     if (isset($this->params['fields'])) {
-			$fields = $this->params['fields'].',thing,type';
-			unset($this->params['fields']);
-			foreach (explode(',',$fields) as $field) {
-				if (in_array($field, $this->properties)) {
-					$fieldsArray[] = $field;
+			$fields = $this->params['fields'];
+			if (str_contains($fields,'count')) {
+				$this->fields = $fields;
+			} else {
+				$fields = $fields.',thing,type';
+				unset($this->params['fields']);
+				foreach (explode(',', $fields) as $field) {
+					if (in_array($field, $this->properties)) {
+						$fieldsArray[] = $field;
+					}
 				}
+				// ID IS REQUIRED IF THERE IS A hasType PROPERTY
+				$idname = "id$this->table";
+				if (!str_contains($fields, $idname)) {
+					$fieldsArray[] = $idname;
+				}
+				$this->fields = implode(',', $fieldsArray);
 			}
-			// ID IS REQUIRED IF THERE IS A hasType PROPERTY
-			$idname = "id$this->table";
-			if (strpos($fields,$idname) === false) {
-				$fieldsArray[] = $idname;
-			}
-      $this->fields = implode(',',$fieldsArray);
     }
   }
 
   /**
    *
    */
-  protected function whereCondition()
+  protected function whereCondition(): void
   {
 		$whereCondition = null;
 	  foreach ($this->params as $key => $value) {
@@ -115,14 +120,16 @@ abstract class GetDataAbstract
 			  $whereCondition[] = "`$idname`=$value";
 		  }
 		  // LIKE CONDITION
-			$likeProperty = stristr($key,"like", true);
-			if ($likeProperty && array_search($likeProperty, $this->properties)) {
-				$valuesLike = explode(',',$value);
-				$likeWhere = [];
-				foreach ($valuesLike as $item) {
-					$likeWhere[] = "LOWER(REPLACE(`$likeProperty`,' ','')) LIKE LOWER(REPLACE('%$item%',' ',''))";
+		  if (is_string($key)) {
+				$likeProperty = stristr($key,"like", true);
+				if ($likeProperty && array_search($likeProperty, $this->properties)) {
+					$valuesLike = explode(',', $value);
+					$likeWhere = [];
+					foreach ($valuesLike as $item) {
+						$likeWhere[] = "LOWER(REPLACE(`$likeProperty`,' ','')) LIKE LOWER(REPLACE('%$item%',' ',''))";
+					}
+					$whereCondition[] = implode(' AND ', $likeWhere);
 				}
-				$whereCondition[] = implode(' AND ',$likeWhere);
 			}
 	  }
 		// PROPERTIES WITH PARAMS
@@ -139,7 +146,7 @@ abstract class GetDataAbstract
 	/**
 	 *
 	 */
-	protected function finalConditions()
+	protected function finalConditions(): void
 	{
 		$groupBy = $this->params['groupBy'] ?? null;
 		$orderBy = $this->params['orderBy'] ?? null;
@@ -155,7 +162,7 @@ abstract class GetDataAbstract
 	    $this->query .= " ORDER BY $orderBy $ordering";
     }
 		// LIMIT
-		if ($limit != 'none' && $limit != '') {
+		if ($limit != 'none' && $limit != '' && !str_contains($this->fields,'count')) {
 			$this->query .= " LIMIT $limit";
 			// OFFSET
 			if ($offset) {
