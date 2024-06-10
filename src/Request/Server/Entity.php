@@ -3,12 +3,10 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\PlinctApp;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Request\Server\Schema\Schema;
-use Plinct\Tool\Curl;
 
 abstract class Entity implements HttpRequestInterface
 {
@@ -101,22 +99,6 @@ abstract class Entity implements HttpRequestInterface
    */
   protected function getData($params): array
   {
-    // obter opção se houver subClassOf como parâmetro;
-    if (isset($params['subClassOf'])) {
-      $whereArray = null;
-      $class = $params['subClassOf'];
-      $queryStringArray = ['class'=>$class,'format'=>'hierarchyText','subClass'=>'true'];
-      if($this->table == 'service') {
-        $queryStringArray['source'] = 'serviceCategory';
-      }
-      $soloData = json_decode(Curl::getUrlContents(PlinctApp::$soloineApi . "?" . http_build_query($queryStringArray)), true);
-      if (isset($soloData['@graph'])) {
-        foreach ($soloData['@graph'] as $key => $value) {
-          $whereArray[] = $this->table == 'service' ? "`category`='$key'" : "`additionalType`='$key'";
-        }
-        $params['where'] = "(" . implode(" OR ", $whereArray) . ")";
-      }
-    }
     $data = new GetData($this->table);
     $data->setParams($params);
     return $data->render();
