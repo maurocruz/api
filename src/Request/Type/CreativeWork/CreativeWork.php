@@ -22,10 +22,21 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$data = parent::getData($params);
-		if (isset($data['error'])) {
-			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
-		} else{
+		$returns = [];
+		$properties = $params['properties'] ?? null;
+		$dataCreativeWork = parent::getData($params);
+		if (isset($dataCreativeWork['error'])) {
+			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($dataCreativeWork);
+		} elseif (!empty($dataCreativeWork) && $properties) {
+			foreach ($dataCreativeWork as $creativeWork) {
+				$author = $creativeWork['author'];
+				if (strpos($properties, 'author') !== false) $creativeWork['author'] = parent::getProperties('person', ['idperson' => $author, 'properties' => 'image']);
+				$returns[] = $creativeWork;
+			}
+		} else {
+			$returns = $dataCreativeWork;
+		}
+		/*else{
 			$newData = [];
 			foreach ($data as $item) {
 				if (isset($item['type'])) {
@@ -41,8 +52,9 @@ class CreativeWork extends Entity implements HttpRequestInterface
 					$newData[] = $item;
 				}
 			}
-		}
-		return parent::sortData($newData);
+		}*/
+
+		return parent::sortData($returns);
 	}
 
 	/**

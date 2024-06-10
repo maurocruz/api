@@ -22,9 +22,9 @@ class Book extends Entity
 	public function get(array $params = []): array
 	{
 		$returns = [];
-		$dataArticle = parent::getData($params);
-		if (!empty($dataArticle)) {
-			foreach ($dataArticle as $value) {
+		$dataBook = parent::getData($params);
+		if (!empty($dataBook)) {
+			foreach ($dataBook as $value) {
 				// CREATIVE WORK
 				$idcreativeWork = $value['creativeWork'];
 				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();

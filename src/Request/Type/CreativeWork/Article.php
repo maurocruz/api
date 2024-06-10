@@ -22,23 +22,48 @@ class Article extends Entity
 	public function get(array $params = []): array
 	{
 		$returns = [];
-		$dataArticle = parent::getData($params);
-		if (!empty($dataArticle)) {
-			foreach ($dataArticle as $value) {
-				// CREATIVE WORK
-				$idcreativeWork = $value['creativeWork'];
-				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
-				// RESPONSE
-				if (isset($dataCreativeWork[0])) {
-					$returns[] = $value + $dataCreativeWork[0];
-				} else {
-					$returns[] = $value;
+		$about = $params['about'] ?? null;
+		$properties = $params['properties'] ?? null;
+		if ($about) {
+			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['about'=>$about] + $params)->ready();
+			if (!empty($dataCreativeWork)) {
+				foreach ($dataCreativeWork as $valueCreativeWork) {
+					$idcreativeWork = $valueCreativeWork['idcreativeWork'];
+					$dataArticle = parent::get(['creativeWork'=>$idcreativeWork] + $params);
+					if(!empty($dataArticle)) {
+						$returns[] = $dataArticle[0] + $valueCreativeWork;
+					}
 				}
 			}
-			return parent::sortData($returns);
 		} else {
-			return [];
+			$dataArticle = parent::getData($params);
+			if (!empty($dataArticle)) {
+				foreach ($dataArticle as $value) {
+					// CREATIVE WORK
+					$idcreativeWork = $value['creativeWork'];
+					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
+					// RESPONSE
+					if (isset($dataCreativeWork[0])) {
+						$returns[] = $value + $dataCreativeWork[0];
+					} else {
+						$returns[] = $value;
+					}
+				}
+			} else {
+				$returns = $dataArticle;
+			}
 		}
+		// PROPERTIES
+		if ($properties) {
+			$data = $returns;
+			$returns = [];
+			foreach($data as $item) {
+				$idthing = $item['thing'];
+				if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+				$returns[] = $item;
+			}
+		}
+		return parent::sortData($returns);
 	}
 
 	/**

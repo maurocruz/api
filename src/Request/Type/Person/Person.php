@@ -52,7 +52,9 @@ class Person extends Entity
 			foreach ($dataPerson as $value) {
 				$idthing = $value['idthing'];
 				$idperson = $value['idperson'];
+				if (strpos($properties, 'about') !== false) $value['about'] = parent::getProperties('creativeWork', ['about' => $idthing]);
 				if (strpos($properties, 'contactPoint') !== false) $value['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
+				if (strpos($properties, 'hasCertification') !== false) $value['hasCertification'] = parent::getProperties('certification', ['about' => $idthing]);
 				if (strpos($properties, 'homeLocation') !== false) $value['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
 				if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
 				if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
