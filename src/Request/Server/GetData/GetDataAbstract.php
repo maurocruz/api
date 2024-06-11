@@ -158,7 +158,7 @@ abstract class GetDataAbstract
 	    $this->query .= " GROUP BY $groupBy";
     }
     // ORDER BY
-    if ($orderBy && $this->isProperty($orderBy)) {
+    if ($orderBy) {
 	    $this->query .= " ORDER BY $orderBy $ordering";
     }
 		// LIMIT
