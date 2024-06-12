@@ -158,9 +158,19 @@ abstract class GetDataAbstract
 	    $this->query .= " GROUP BY $groupBy";
     }
     // ORDER BY
-    if ($orderBy) {
-	    $this->query .= " ORDER BY $orderBy $ordering";
-    }
+		if ($orderBy) {
+			$orderByArray = [];
+			foreach (explode(',', $orderBy) as $value) {
+				$item = str_replace([' desc', ' asc'], '', trim($value));
+				if ($this->isProperty($item)) {
+					$orderByArray[] = trim($value);
+				}
+			}
+			$orderFiltered = implode(',', $orderByArray);
+			if (!!$orderFiltered) {
+				$this->query .= " ORDER BY $orderFiltered $ordering";
+			}
+		}
 		// LIMIT
 		if ($limit != 'none' && $limit != '' && !str_contains($this->fields,'count')) {
 			$this->query .= " LIMIT $limit";

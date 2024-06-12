@@ -23,9 +23,10 @@ class Article extends Entity
 	{
 		$returns = [];
 		$about = $params['about'] ?? null;
+		$orderBY = $params['orderBy'] ?? null;
 		$properties = $params['properties'] ?? null;
-		if ($about) {
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['about'=>$about] + $params)->ready();
+		if ($about || ($orderBY && strpos($orderBY,'datePublished') !== false)) {
+			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['type'=>'Article'] + $params)->ready();
 			if (!empty($dataCreativeWork)) {
 				foreach ($dataCreativeWork as $valueCreativeWork) {
 					$idcreativeWork = $valueCreativeWork['idcreativeWork'];
