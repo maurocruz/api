@@ -22,4 +22,22 @@ class ContactPoint extends Entity
 	{
 		return parent::getData($params);
 	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function put(array $params = null): array
+	{
+		return parent::update('thing', $params);
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function delete(array $params): array
+	{
+		return parent::erase('thing', $params);
+	}
 }

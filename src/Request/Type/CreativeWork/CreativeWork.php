@@ -36,24 +36,6 @@ class CreativeWork extends Entity implements HttpRequestInterface
 		} else {
 			$returns = $dataCreativeWork;
 		}
-		/*else{
-			$newData = [];
-			foreach ($data as $item) {
-				if (isset($item['type'])) {
-					$table = lcfirst($item['type']);
-					$thing = $item['thing'];
-					$dataType = ApiFactory::server()->connectBd($table)->read(['where' => "`thing`=$thing"]);
-					if (isset($dataType[0])) {
-						$newData[] = $item + $dataType[0];
-					} else {
-						$newData[] = $item;
-					}
-				} else {
-					$newData[] = $item;
-				}
-			}
-		}*/
-
 		return parent::sortData($returns);
 	}
 

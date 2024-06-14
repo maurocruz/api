@@ -44,7 +44,6 @@ class Certification extends Entity implements HttpRequestInterface
 		}
 	}
 
-
 	/**
 	 * @param array|null $params
 	 * @return array

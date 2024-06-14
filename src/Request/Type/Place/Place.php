@@ -45,4 +45,22 @@ class Place extends Entity
 		$params['type'][] = 'Place';
 		return parent::createWithParent('thing', $params);
 	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function put(array $params = null): array
+	{
+		return parent::update('thing', $params);
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function delete(array $params): array
+	{
+		return parent::erase('thing', $params);
+	}
 }
