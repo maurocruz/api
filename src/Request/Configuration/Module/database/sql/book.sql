@@ -2,8 +2,9 @@
 -- CREATE TABLE book
 --
 CREATE TABLE IF NOT EXISTS `book` (
-  `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `creativeWork` INT UNSIGNED NOT NULL,
+  `idbook` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `creativeWork` INT(10) UNSIGNED NOT NULL,
+  `thing` INT(10) UNSIGNED NOT NULL,
   `bookEdition` VARCHAR(24) DEFAULT '',
   `bookFormat` VARCHAR(20) NULL,
   `illustrator` INT UNSIGNED NULL,

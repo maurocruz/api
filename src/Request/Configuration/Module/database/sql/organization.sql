@@ -3,13 +3,13 @@
 --
 
 CREATE TABLE IF NOT EXISTS `organization` (
-  `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `thing` INT UNSIGNED NOT NULL,
-  `areaServed` INT UNSIGNED DEFAULT NULL,
+  `idorganization` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `thing` INT(10) UNSIGNED NOT NULL,
+  `areaServed` INT(10) UNSIGNED DEFAULT NULL,
   `hasOfferCatalog` text,
   `legalName` VARCHAR(124) DEFAULT NULL,
-  `location` INT UNSIGNED DEFAULT NULL,
-  `logo` INT UNSIGNED DEFAULT NULL,
+  `location` INT(10) UNSIGNED DEFAULT NULL,
+  `logo` INT(10) UNSIGNED DEFAULT NULL,
   `taxId` VARCHAR(24) DEFAULT NULL,
   PRIMARY KEY (`idorganization`,`thing`),
   key `fk_organization_thing_idx` (`thing`),
