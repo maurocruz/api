@@ -21,8 +21,8 @@ return function(Route $route) {
 		return ApiFactory::response()->write($response, $data);
 	})->addMiddleware(new AuthMiddleware());
 
+	// DATABASE
 	$route->group('/database', function (Route $route) {
-
 		$route->get('', function (Request $request, Response $response) {
 			$params = $request->getQueryParams();
 			$data = ['message'=>'No action was taken'];
@@ -36,7 +36,17 @@ return function(Route $route) {
 			}
 			return ApiFactory::response()->write($response, $data);
 		});
+	});
 
-
+	// UPDATE
+	$route->group('/update', function (Route $route) {
+		$route->get('', function (Request $request, Response $response) {
+			$params = $request->getQueryParams();
+			$data = [];
+			if ($params['update'] == 'v2tov3') {
+				$data = ApiFactory::request()->configuration()->update()->v2tov3();
+			}
+			return ApiFactory::response()->write($response, $data);
+		});
 	});
 };
