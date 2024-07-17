@@ -35,7 +35,7 @@ class Module
 	{
 		if (!$name) return ['message'=>'Module was not created! Name is null!'];
 		$tableName = lcfirst($name);
-		$checkTable = ApiFactory::server()->connectBd($tableName)->showTableStatus();
+		$checkTable = ApiFactory::request()->server()->connectBd($tableName)->showTableStatus();
 		if ($checkTable['status'] === 'fail') {
 			$sqlFile = self::SQL_DIR.lcfirst($name).".sql";
 			if (file_exists($sqlFile)) {

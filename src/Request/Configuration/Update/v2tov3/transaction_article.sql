@@ -1,5 +1,6 @@
 -- ARTICLE
 START TRANSACTION ;
+
   -- alter table
   ALTER TABLE `article`
     DROP COLUMN `additionalType`,
@@ -10,6 +11,7 @@ START TRANSACTION ;
     ADD COLUMN `backstory` TEXT,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idarticle`);
+
   -- insert thing
   INSERT INTO `thing` (`name`,`dateCreated`, `dateModified`, `type`)
     SELECT `headline`,`dateCreated`, `dateModified`, 'Article' FROM `article`;
@@ -17,6 +19,7 @@ START TRANSACTION ;
   UPDATE `article`
     JOIN `thing` ON thing.name=article.headline AND thing.dateCreated=article.dateCreated AND thing.dateModified=article.dateModified
     SET article.thing=thing.idthing;
+
   -- insert parent
   INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`,`position`)
     SELECT `thing`,`headline`,`datePublished`,`author`,`publisher`,`position` FROM `article`;
@@ -24,10 +27,12 @@ START TRANSACTION ;
   UPDATE `article`
     JOIN `creativeWork` ON creativeWork.thing=article.thing
     SET article.creativeWork=creativeWork.idcreativeWork;
+
   -- insert images
   INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
     SELECT `thing`,`idimageObject`,`article_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `article_has_imageObject`
       JOIN `article` ON `article_has_imageObject`.idarticle=article.idarticle;
+
   -- alter table
   ALTER TABLE `article`
     DROP COLUMN `headline`,

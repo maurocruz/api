@@ -1,22 +1,5 @@
 
 
-ALTER TABLE `book`
-  CHANGE COLUMN `idbook` `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  ADD COLUMN `creativeWork` INT UNSIGNED NOT NULL AFTER `idbook`,
-  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idbook`,
-  ADD COLUMN `bookFormat` VARCHAR(20) NULL AFTER `idbook`,
-  ADD COLUMN `illustrator` INT UNSIGNED NULL AFTER `idbook`,
-  ADD COLUMN `isbn` VARCHAR(18) NULL AFTER `idbook`,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idbook`);
-
-ALTER TABLE `contactPoint`
-  CHANGE COLUMN `idcontactPoint` `idcontactPoint` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idcontactPoint`,
-  ADD COLUMN `contactOption` VARCHAR(100) DEFAULT NULL AFTER `idcontactPoint`,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idcontactPoint`);
-
 ALTER TABLE `event`
   DROP COLUMN `additionalType`,
   CHANGE COLUMN `idevent` `idevent` INT UNSIGNED NOT NULL AUTO_INCREMENT,

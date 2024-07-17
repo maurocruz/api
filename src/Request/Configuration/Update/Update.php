@@ -27,6 +27,8 @@ class Update
 		// transaction book
 		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_book.sql'));
 		// transaction contactPoint
+		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_contactPoint.sql'));
+		// transaction event
 
 
 		die();
