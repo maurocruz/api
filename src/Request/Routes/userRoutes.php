@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 use Plinct\Api\Middleware\CorsMiddleware;
@@ -24,7 +23,7 @@ return function(Route $route)
 		 */
 		$route->get('', function (Request $request, Response $response) {
 			$params = $request->getQueryParams();
-			$data = ApiFactory::server()->user()->get($params);
+			$data = ApiFactory::request()->user()->get($params);
 			return ApiFactory::response()->write($response, $data);
 		});
 
@@ -32,7 +31,7 @@ return function(Route $route)
 		 * POST
 		 */
 		$route->post('', function (Request $request, response $response) {
-			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
+			$data = ApiFactory::request()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
 			return ApiFactory::response()->write($response, $data);
 		});
 
@@ -41,7 +40,7 @@ return function(Route $route)
 		 */
 		$route->put('', function (Request $request, Response $response) {
 			$params = $request->getParsedBody();
-			$httpRequest = ApiFactory::server()->user()->httpRequest();
+			$httpRequest = ApiFactory::request()->user()->httpRequest();
 			if (isset($params['iduser'])) {
 				if ($params['iduser'] == ApiFactory::user()->userLogged()->getIduser()) {
 					$data = $httpRequest->setPermission()->put($params);
@@ -58,7 +57,7 @@ return function(Route $route)
 		 * DELETE
 		 */
 		$route->delete('', function (Request $request, Response $response) {
-			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
+			$data = ApiFactory::request()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
 			return ApiFactory::response()->write($response, $data);
 		});
 	});

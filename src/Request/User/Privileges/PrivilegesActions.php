@@ -52,7 +52,7 @@ class PrivilegesActions implements HttpRequestInterface
 		// RETURNS
 		if ($returns) {
 			$params['userCreator'] = ApiFactory::user()->userLogged()->getIduser();
-			$data = ApiFactory::server()->connectBd(self::TABLENAME)->created($params);
+			$data = ApiFactory::request()->server()->connectBd(self::TABLENAME)->created($params);
 
 			if (isset($data['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
@@ -69,7 +69,7 @@ class PrivilegesActions implements HttpRequestInterface
 	 * @return array
 	 */
 	public function put(array $params = null): array {
-		return ApiFactory::server()->connectBd(self::TABLENAME)->update($params);
+		return ApiFactory::request()->server()->connectBd(self::TABLENAME)->update($params);
 	}
 
 	/**
@@ -77,6 +77,6 @@ class PrivilegesActions implements HttpRequestInterface
 	 * @return array
 	 */
 	public function delete(array $params): array {
-		return ApiFactory::server()->connectBd(self::TABLENAME)->delete($params);
+		return ApiFactory::request()->server()->connectBd(self::TABLENAME)->delete($params);
 	}
 }

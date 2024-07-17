@@ -14,7 +14,7 @@ return function(Route $route)
 	 * GET
 	 */
 	$route->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-		$data = ApiFactory::server()->user()->privileges()->httpRequest()->withPrivileges('r','user_admin')->get($request->getQueryParams());
+		$data = ApiFactory::request()->user()->privileges()->httpRequest()->withPrivileges('r','user_admin')->get($request->getQueryParams());
 		return ApiFactory::response()->write($response,$data);
 	});
 
@@ -27,7 +27,7 @@ return function(Route $route)
 	 *
 	 */
 	$route->post('', function (ServerRequestInterface $request, ResponseInterface $response) {
-		$data = ApiFactory::server()->user()->privileges()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
+		$data = ApiFactory::request()->user()->privileges()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
 		return ApiFactory::response()->write($response, $data);
 	});
 
@@ -35,7 +35,7 @@ return function(Route $route)
 	 * PUT
 	 */
 	$route->put('', function(ServerRequestInterface $request, ResponseInterface $response) {
-		$data = ApiFactory::server()->user()->privileges()->httpRequest()->withPrivileges('u','user_admin')->put($request->getParsedBody());
+		$data = ApiFactory::request()->user()->privileges()->httpRequest()->withPrivileges('u','user_admin')->put($request->getParsedBody());
 		return ApiFactory::response()->write($response, $data);
 	});
 
@@ -43,7 +43,7 @@ return function(Route $route)
 	 * DELETE
 	 */
 	$route->delete('', function(ServerRequestInterface $request, ResponseInterface $response) {
-		$data = ApiFactory::server()->user()->privileges()->httpRequest()->withPrivileges('d','user_admin',3)->delete($request->getQueryParams());
+		$data = ApiFactory::request()->user()->privileges()->httpRequest()->withPrivileges('d','user_admin',3)->delete($request->getQueryParams());
 		return ApiFactory::response()->write($response, $data);
 	});
 };

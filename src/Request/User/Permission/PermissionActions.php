@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Request\User\Permission;
 
 use Plinct\Api\ApiFactory;
@@ -24,16 +22,16 @@ class PermissionActions implements HttpRequestInterface
 	}
 
 	/**
-	 * @param array $params
+	 * @param array|null $params
 	 * @return array
 	 */
-	public function post(array $params = []): array
+	public function post(array $params = null): array
 	{
 		if (isset($params['iduser'])) {
 			// seta o criador da permissão
-			$params['userCreator'] = ApiFactory::user()->userLogged()->getIduser();
+			$params['userCreator'] = ApiFactory::request()->user()->userLogged()->getIduser();
 			// salva no bd
-			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->created($params);
+			$returns = ApiFactory::request()->server()->connectBd(self::TABLENAME)->created($params);
 			// returns
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
@@ -48,7 +46,7 @@ class PermissionActions implements HttpRequestInterface
 	{
 		if (isset($params['iduser_permission']) && isset($params['iduser'])) {
 			// salva no bd
-			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->update($params);
+			$returns = ApiFactory::request()->server()->connectBd(self::TABLENAME)->update($params);
 
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
@@ -64,7 +62,7 @@ class PermissionActions implements HttpRequestInterface
 	{
 		if (isset($params['iduser_permission']) && isset($params['iduser'])) {
 			$newParams = ['iduser_permission'=>$params['iduser_permission'], 'iduser'=>$params['iduser']];
-			$returns = ApiFactory::server()->connectBd(self::TABLENAME)->delete($newParams);
+			$returns = ApiFactory::request()->server()->connectBd(self::TABLENAME)->delete($newParams);
 			if (isset($returns['error'])) {
 				return ApiFactory::response()->message()->error()->anErrorHasOcurred($returns['error']);
 			} else {

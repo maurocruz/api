@@ -47,7 +47,7 @@ return function (Route $route)
 
   $route->post('/reset_password', function (Request $request, Response $response)
   {
-		$data = ApiFactory::server()->user()->authentication()->resetPassword($request->getParsedBody());
+		$data = ApiFactory::request()->user()->authentication()->resetPassword($request->getParsedBody());
 		return ApiFactory::response()->write($response, $data);
   });
 
@@ -57,7 +57,7 @@ return function (Route $route)
 	 */
   $route->post('/change_password', function (Request $request, Response $response)
   {
-		$data = ApiFactory::server()->user()->authentication()->changePassword($request->getParsedBody());
+		$data = ApiFactory::request()->user()->authentication()->changePassword($request->getParsedBody());
 		return ApiFactory::response()->write($response, $data);
   });
 };

@@ -20,10 +20,9 @@ class UserActions implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$dataUser = ApiFactory::server()->getDataInBd(self::tableName);
+		$dataUser = ApiFactory::request()->server()->getDataInBd(self::tableName);
 		$dataUser->setParams($params);
 		$data = $dataUser->render();
-
 		// GET PERMISSIONS
 		if (isset($params['properties']) && strpos($params['properties'], 'privileges') !== false) {
 			foreach ($data as $key => $valueData) {
@@ -79,7 +78,7 @@ class UserActions implements HttpRequestInterface
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} else {
 			// get iduser
-			$iduser = ApiFactory::server()->connectBd('user')->lastInsertId();
+			$iduser = ApiFactory::request()->server()->connectBd('user')->lastInsertId();
 			// save person
 			$dataPerson = ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['name'=>$name]);
 			if (!empty($dataPerson)) {
@@ -100,7 +99,7 @@ class UserActions implements HttpRequestInterface
 	 */
 	public function put(array $params = null): array
 	{
-		return ApiFactory::server()->connectBd('user')->update($params);
+		return ApiFactory::request()->server()->connectBd('user')->update($params);
 	}
 
 	/**
@@ -109,7 +108,7 @@ class UserActions implements HttpRequestInterface
 	 */
 	public function delete($params): array
 	{
-		return ApiFactory::server()->connectBd('user')->delete($params);
+		return ApiFactory::request()->server()->connectBd('user')->delete($params);
 	}
 
 	/**

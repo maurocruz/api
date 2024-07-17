@@ -18,12 +18,12 @@ class User
 	 */
 	public function get(array $params = null): array
 	{
-		$dataBd = ApiFactory::server()->getDataInBd('user');
+		$dataBd = ApiFactory::request()->server()->getDataInBd('user');
 		$dataBd->setParams($params);
 		$data = $dataBd->render();
 		$newData = [];
 		foreach ($data as $item) {
-			$privileges = ApiFactory::server()->getDataInBd('user_privileges')->setParams(['iduser'=>$item['iduser']])->render();
+			$privileges = ApiFactory::request()->server()->getDataInBd('user_privileges')->setParams(['iduser'=>$item['iduser']])->render();
 			if (UserLogged::isSuperUser()) {
 				$item['privileges'] = $privileges;
 				$newData[] = $item;
