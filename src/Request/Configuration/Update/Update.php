@@ -24,25 +24,12 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_imageObject.sql'));
 		// transaction article
 		PDOConnect::run(file_get_contents(__DIR__ . '/../Update/v2tov3/transaction_article.sql'));
-		// alterar as tabelas adicionando thing
-		//PDOConnect::run(file_get_contents(__DIR__ . '/../Update/v2tov3/alter_tables_before.sql'));
-		// migrar thing (name, additionalType, description, disambiguatingDescription, url, dateCreated e dateModified) das tabelas event, organization, person, place, product e taxon
-		//PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/insert_into_thing.sql'));
-		// migrar dados de imageObject para mediaObject e creativeWork
-		//PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/migrate_imageObject.sql'));
+		// transaction book
+		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_book.sql'));
+		// transaction contactPoint
 
-		// migrar dados thing (name, additionalType, description, disambiguatingDescription, url, dateCreated e dateModified) de creativeWorks like article, webSite, webPage, webPageElement, videoObject
-
-		// alter tabelas add constraint foreing key e removendo name, additionalType, description, disambiguatingDescription, url, dateCreated e dateModified
-
-		// apaga campos duplicados (ambiguous) em imageObject, article, website, webpage, webpage element e video Object
 
 		die();
-
-			//
-
-
-
 
 		return ApiFactory::response()->message()->success("Nothing to update!");
 	}
