@@ -2,37 +2,40 @@
 declare(strict_types=1);
 namespace Plinct\Api\Request\Configuration\Update;
 
-use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class Update
 {
 	public function v2tov3(): array
 	{
-		// criar as tabelas thing, thing_has_imageObject, thing_has_thing
-		PDOConnect::run(file_get_contents(__DIR__.'/../Module/database/sql/thing.sql'));
-		// creative work
-		PDOConnect::run(file_get_contents(__DIR__.'/../Module/database/sql/creativeWork.sql'));
-		// media object
-		PDOConnect::run(file_get_contents(__DIR__.'/../Module/database/sql/mediaObject.sql'));
-		// drop indexes and foreign keys
-		PDOConnect::run(file_get_contents((__DIR__.'/../Update/v2tov3/drop_indexes.sql')));
-		// imageObject
-		PDOConnect::run("ALTER TABLE `imageObject` CHANGE COLUMN `idimageObject` `idimageObject` INT UNSIGNED NOT NULL AUTO_INCREMENT;");
-		PDOConnect::run(file_get_contents(__DIR__.'/../Module/database/sql/imageObject.sql'));
-		// transaction imageObject
-		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_imageObject.sql'));
-		// transaction article
-		PDOConnect::run(file_get_contents(__DIR__ . '/../Update/v2tov3/transaction_article.sql'));
-		// transaction book
-		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_book.sql'));
-		// transaction contactPoint
-		PDOConnect::run(file_get_contents(__DIR__.'/../Update/v2tov3/transaction_contactPoint.sql'));
-		// transaction event
+		$schema_name = PDOConnect::getDbname();
 
 
-		die();
 
-		return ApiFactory::response()->message()->success("Nothing to update!");
+		PDOConnect::run("ALTER TABLE `catalog` DROP INDEX `idx_2`;");
+		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_1`;");
+		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_2`;");
+		PDOConnect::run("ALTER TABLE `invoice` DROP INDEX `idx_3`;");
+		PDOConnect::run("ALTER TABLE `localBusiness` DROP INDEX `idx_1`;");
+		PDOConnect::run("ALTER TABLE `localBusiness_has_imageObject` DROP INDEX `idx_1`;");
+		PDOConnect::run("ALTER TABLE `product` DROP INDEX `idx_1`;");
+
+
+
+
+		PDOConnect::run("SET autocommit=0;");
+
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
+		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_create_tables.sql'));
+		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_drop_keys.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_contactPoint.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_event.sql'));
+
+		PDOConnect::run("SET @@autocommit=1;");
+
+		return PDOConnect::run("CALL sql_update('$schema_name');");
 	}
 }

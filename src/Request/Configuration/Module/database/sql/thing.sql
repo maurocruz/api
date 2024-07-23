@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS `thing` (
 
 CREATE TABLE IF NOT EXISTS `thing_has_thing` (
   `idHasPart` INT UNSIGNED NOT NULL,
+  `typeHasPart` VARCHAR(48) NOT NULL,
   `idIsPartOf` INT UNSIGNED NOT NULL,
-  PRIMARY KEY (`idHasPart`,`idIsPartOf`),
+  `typeIsPartOf` VARCHAR(48) NOT NULL,
+  PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`),
   KEY `fk_thing_has_thing_hasPart_idx1` (`idHasPart`),
   KEY `fk_thing_has_thing_isPartOf_idx1` (`idIsPartOf`),
   CONSTRAINT `fk_thing_has_thing_hasPart` FOREIGN KEY (`idHasPart`) REFERENCES `thing` (`idthing`) ON DELETE NO ACTION ON UPDATE NO ACTION,
