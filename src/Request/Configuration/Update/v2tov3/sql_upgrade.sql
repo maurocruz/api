@@ -1,4 +1,4 @@
-DROP PROCEDURE IF EXISTS sql_update;
+DROP PROCEDURE IF EXISTS sql_upgrade;
 DROP PROCEDURE IF EXISTS create_tables;
 DROP PROCEDURE IF EXISTS drop_keys;
 DROP PROCEDURE IF EXISTS upgrade_imageObject;
@@ -6,8 +6,11 @@ DROP PROCEDURE IF EXISTS upgrade_article;
 DROP PROCEDURE IF EXISTS upgrade_book;
 DROP PROCEDURE IF EXISTS upgrade_contactPoint;
 DROP PROCEDURE IF EXISTS upgrade_event;
+DROP PROCEDURE IF EXISTS upgrade_invoice;
+DROP PROCEDURE IF EXISTS upgrade_person;
+DROP PROCEDURE IF EXISTS upgrade_localBusiness;
 
-CREATE PROCEDURE sql_update(schema_name VARCHAR(64))
+CREATE PROCEDURE sql_upgrade(schema_name VARCHAR(64))
 BEGIN
   DECLARE EXIT HANDLER FOR SQLEXCEPTION
   BEGIN
@@ -32,6 +35,12 @@ BEGIN
   CALL upgrade_contactPoint();
   -- EVENT
   CALL upgrade_event();
+  -- INVOICE
+  CALL upgrade_invoice();
+  -- PERSON
+  CALL upgrade_person();
+  -- LOCAL BUSINESS
+  CALL upgrade_localBusiness();
 
   COMMIT ;
 

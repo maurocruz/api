@@ -19,6 +19,7 @@ CREATE PROCEDURE upgrade_contactPoint()
 
     -- alter table
     ALTER TABLE `contactPoint`
+      CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
       DROP COLUMN `name`,
       DROP COLUMN `whatsapp`,
       DROP COLUMN `obs`,

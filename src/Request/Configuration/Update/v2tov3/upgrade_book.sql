@@ -35,6 +35,8 @@ CREATE PROCEDURE upgrade_book()
 
     -- alter table
     ALTER TABLE `book`
+      CHANGE COLUMN `creativeWork` `creativeWork` INT UNSIGNED NOT NULL,
+      CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
       DROP COLUMN `author`,
       DROP COLUMN `birthDate`,
       DROP COLUMN `deathDate`,

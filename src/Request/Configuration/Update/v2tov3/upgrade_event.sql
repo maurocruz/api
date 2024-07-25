@@ -30,10 +30,13 @@ CREATE PROCEDURE upgrade_event()
 
     -- insert thing_has_thing event_has_event
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-    SELECT `idHasPart`, 'Event', idIsPartOf, 'Event' FROM `event_has_event`;
+      SELECT t1.thing, 'Event', t2.thing, 'Event' FROM `event_has_event`
+        JOIN `event` AS t1 ON t1.idevent=idHasPart
+        JOIN `event` AS t2 ON t2.idevent=idIsPartOf;
 
     -- alter table
     ALTER TABLE `event`
+      CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
       DROP COLUMN `name`,
       DROP COLUMN `description`,
       DROP COLUMN `src`,
@@ -45,7 +48,6 @@ CREATE PROCEDURE upgrade_event()
       DROP COLUMN `dateModified`,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idevent`,`thing`),
-      ADD KEY `fk_event_thing_idx1` (`thing`),
       ADD KEY `fk_event_about_idx1` (`about`),
       ADD KEY `fk_event_location_idx1` (`location`),
       ADD KEY `fk_event_organizer_idx1` (`organizer`),

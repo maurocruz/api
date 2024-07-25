@@ -33,9 +33,12 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_contactPoint.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_event.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_invoice.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_person.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_localBusiness.sql'));
 
 		PDOConnect::run("SET @@autocommit=1;");
 
-		return PDOConnect::run("CALL sql_update('$schema_name');");
+		return PDOConnect::run("CALL sql_upgrade('$schema_name');");
 	}
 }

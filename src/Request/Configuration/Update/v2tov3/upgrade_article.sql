@@ -6,7 +6,7 @@ CREATE PROCEDURE upgrade_article()
       DROP COLUMN `additionalType`,
       CHANGE COLUMN `idarticle` `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `headline` `headline` VARCHAR(255) DEFAULT NULL,
-      ADD COLUMN `creativeWork` INT UNSIGNED NOT NULL AFTER `idarticle`,
+      ADD COLUMN `creativeWork` INT UNSIGNED DEFAULT NULL AFTER `idarticle`,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idarticle`,
       ADD COLUMN `backstory` TEXT,
       DROP PRIMARY KEY,
@@ -35,6 +35,8 @@ CREATE PROCEDURE upgrade_article()
 
     -- alter table
     ALTER TABLE `article`
+      CHANGE COLUMN `creativeWork` `creativeWork` INT UNSIGNED NOT NULL,
+      CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
       DROP COLUMN `headline`,
       DROP COLUMN `dateCreated`,
       DROP COLUMN `dateModified`,

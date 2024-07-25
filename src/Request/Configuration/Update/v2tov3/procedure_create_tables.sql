@@ -93,8 +93,34 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `imageObject` (
      `idimageObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
      `mediaObject` INT UNSIGNED NOT NULL,
+     `creativeWork` INT UNSIGNED NOT NULL,
+     `thing` INT UNSIGNED NOT NULL,
      PRIMARY KEY (`idimageObject`)
     ) ENGINE=InnoDB;
+
+    -- INVOICE
+    CREATE TABLE IF NOT EXISTS `invoice` (
+     `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+     `referencesOrder` INT UNSIGNED NOT NULL,
+     `totalPaymentDue` FLOAT NOT NULL,
+     `paymentDueDate` DATE NOT NULL,
+     `paymentDate` DATE DEFAULT NULL,
+     `paymentStatus` VARCHAR(45) DEFAULT NULL,
+     PRIMARY KEY (`idinvoice`,`referencesOrder`),
+     KEY `invoice_paymentDueDate_idx` (`paymentDueDate`),
+     KEY `invoice_referencesOrder_idx` (`referencesOrder`)
+    ) ENGINE=InnoDB;
+
+    -- LOCAL BUSINESS
+    CREATE TABLE IF NOT EXISTS `localBusiness` (
+      `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `organization` INT UNSIGNED NOT NULL ,
+      `location` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idlocalBusiness`,`thing`),
+      KEY `localBusiness_organization_idx` (`organization`),
+      KEY `localBusiness_place_idx` (`location`)
+    ) ENGINE = InnoDB;
 
     -- MEDIA OBJECT
     CREATE TABLE IF NOT EXISTS `mediaObject` (
@@ -111,10 +137,44 @@ CREATE PROCEDURE create_tables()
      KEY `fk_mediaObject_creativeWork_idx` (`creativeWork`)
     ) ENGINE = InnoDB;
 
+    -- ORGANIZATION
+    CREATE TABLE IF NOT EXISTS `organization` (
+      `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `areaServed` INT UNSIGNED DEFAULT NULL,
+      `hasOfferCatalog` text,
+      `legalName` VARCHAR(124) DEFAULT NULL,
+      `location` INT UNSIGNED DEFAULT NULL,
+      `logo` INT UNSIGNED DEFAULT NULL,
+      `taxId` VARCHAR(24) DEFAULT NULL,
+      PRIMARY KEY (`idorganization`,`thing`),
+      key `fk_organization_thing_idx` (`thing`)
+    ) ENGINE = InnoDB;
+
+    -- PERSON
+    CREATE TABLE IF NOT EXISTS `person` (
+      `idperson` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `givenName` VARCHAR(120) DEFAULT NULL,
+      `familyName` VARCHAR(120) DEFAULT NULL,
+      `additionalName` VARCHAR(45) DEFAULT NULL,
+      `taxId` VARCHAR(64) DEFAULT NULL,
+      `birthDate` DATE DEFAULT NULL,
+      `birthPlace` VARCHAR(45) DEFAULT NULL,
+      `deathDate` DATE DEFAULT NULL,
+      `deathPlace` VARCHAR(45) DEFAULT NULL,
+      `gender` VARCHAR(45) DEFAULT NULL,
+      `hasOccupation` VARCHAR(255) DEFAULT NULL,
+      `homeLocation` INT UNSIGNED NULL,
+      `memberOf` INT UNSIGNED NULL,
+      PRIMARY KEY (`idperson`,`thing`),
+      KEY (`givenName`,`familyName`)
+    ) ENGINE = InnoDB;
+
     -- THING
     CREATE TABLE IF NOT EXISTS `thing` (
      `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-     `additionalType` VARCHAR(255) NULL,
+     `additionalType` VARCHAR(255) DEFAULT NULL,
      `alternateName` VARCHAR(255) NULL,
      `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -123,7 +183,7 @@ CREATE PROCEDURE create_tables()
      `name` VARCHAR(255) NOT NULL,
      `mainEntityOfPage` VARCHAR(255) DEFAULT NULL,
      `type` VARCHAR(45) NOT NULL,
-     `url` VARCHAR(255) NULL,
+     `url` VARCHAR(255) DEFAULT NULL,
      PRIMARY KEY (`idthing`),
      KEY `thing_name` (`name`),
      KEY `thing_description` (`description`),
@@ -133,23 +193,25 @@ CREATE PROCEDURE create_tables()
 
     -- THING HAS IMAGEOBJECT
     CREATE TABLE IF NOT EXISTS `thing_has_imageObject` (
-     `idthing` INT UNSIGNED NOT NULL,
-     `idimageObject` INT UNSIGNED NOT NULL,
-     `position` INT UNSIGNED DEFAULT NULL,
-     `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
-     `caption` TEXT,
-     PRIMARY KEY (`idthing`, `idimageObject`)
+      `idthing` INT UNSIGNED NOT NULL,
+      `idimageObject` INT UNSIGNED NOT NULL,
+      `position` INT UNSIGNED DEFAULT NULL,
+      `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
+      `caption` TEXT,
+      PRIMARY KEY (`idthing`, `idimageObject`)
     ) ENGINE = InnoDB;
 
     -- THING_HAS_THING
     CREATE TABLE IF NOT EXISTS `thing_has_thing` (
-     `idHasPart` INT UNSIGNED NOT NULL,
-     `typeHasPart` VARCHAR(48) NOT NULL,
-     `idIsPartOf` INT UNSIGNED NOT NULL,
-     `typeIsPartOf` VARCHAR(48) NOT NULL,
-     PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`),
-     KEY `fk_thing_has_thing_hasPart_idx1` (`idHasPart`),
-     KEY `fk_thing_has_thing_isPartOf_idx1` (`idIsPartOf`)
+      `idHasPart` INT UNSIGNED NOT NULL,
+      `typeHasPart` VARCHAR(48) NOT NULL,
+      `idIsPartOf` INT UNSIGNED NOT NULL,
+      `typeIsPartOf` VARCHAR(48) NOT NULL,
+      `caption` VARCHAR(255) DEFAULT NULL,
+      `position` INT UNSIGNED DEFAULT 1,
+      PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`),
+      KEY `fk_thing_has_thing_hasPart_idx1` (`idHasPart`),
+      KEY `fk_thing_has_thing_isPartOf_idx1` (`idIsPartOf`)
     ) ENGINE = InnoDB;
 
   END;
