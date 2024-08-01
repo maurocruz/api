@@ -2,14 +2,13 @@ CREATE PROCEDURE create_tables()
   BEGIN
     -- CREATE TABLE article
     CREATE TABLE IF NOT EXISTS `article` (
-     `idarticle` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-     `creativeWork` INT(10) UNSIGNED NOT NULL,
-     `thing` INT(10) UNSIGNED NOT NULL,
+     `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+     `creativeWork` INT UNSIGNED NOT NULL,
+     `thing` INT UNSIGNED NOT NULL,
      `articleBody` TEXT,
      `articleSection` VARCHAR(255) DEFAULT NULL,
      `backstory` TEXT,
-     PRIMARY KEY (`idarticle`,`creativeWork`,`thing`),
-     KEY `fk_article_creativeWork_idx` (`creativeWork`)
+     PRIMARY KEY (`idarticle`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
 
     -- CREATE TABLE book
@@ -22,8 +21,7 @@ CREATE PROCEDURE create_tables()
       `illustrator` INT UNSIGNED NULL,
       `isbn` VARCHAR(18) NULL,
       `numberOfPages` VARCHAR(24) DEFAULT '',
-      PRIMARY KEY (`idbook`,`creativeWork`,`thing`),
-      KEY `fk_book_creativeWork_idx` (`creativeWork`)
+      PRIMARY KEY (`idbook`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
 
     -- CONTACT POINT
@@ -36,7 +34,7 @@ CREATE PROCEDURE create_tables()
       `telephone` VARCHAR(45) DEFAULT NULL,
       PRIMARY KEY (`idcontactPoint`,`thing`),
       KEY (`contactType`)
-    ) ENGINE=InnoDB;
+    ) ENGINE = InnoDB;
 
     -- CREATIVE WORK
     CREATE TABLE IF NOT EXISTS `creativeWork` (
@@ -62,8 +60,6 @@ CREATE PROCEDURE create_tables()
       `thumbnail` VARCHAR(255) DEFAULT NULL,
       `version` VARCHAR(50) DEFAULT '',
       PRIMARY KEY (`idcreativeWork`,`thing`),
-      KEY `fk_creativeWork_thing_idx` (`thing`),
-      KEY `fk_creativeWork_creativeWork_idx` (`isPartOf`),
       KEY `creativeWork_keywords_idx` (`keywords`)
     ) ENGINE = InnoDB;
 
@@ -80,13 +76,17 @@ CREATE PROCEDURE create_tables()
      `startDate` DATETIME DEFAULT NULL,
      `subEvent` INT UNSIGNED DEFAULT NULL,
      `superEvent` INT UNSIGNED DEFAULT NULL,
-     PRIMARY KEY (`idevent`,`thing`),
-     KEY `fk_event_thing_idx1` (`thing`),
-     KEY `fk_event_about_idx1` (`about`),
-     KEY `fk_event_location_idx1` (`location`),
-     KEY `fk_event_organizer_idx1` (`organizer`),
-     KEY `fk_event_subEvent_idx1` (`subEvent`),
-     KEY `fk_event_superEvent_idx1` (`superEvent`)
+     PRIMARY KEY (`idevent`,`thing`)
+    ) ENGINE = InnoDB;
+
+    -- GEO COORDINATES
+    CREATE TABLE IF NOT EXISTS `geoCoordinates` (
+      `idgeoCoordinates` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `address` INT UNSIGNED DEFAULT NULL,
+      `elevation` INT DEFAULT NULL,
+      `latitude` DECIMAL(18,14) DEFAULT NULL,
+      `longitude` DECIMAL(18,14) DEFAULT NULL,
+      PRIMARY KEY (`idgeoCoordinates`)
     ) ENGINE = InnoDB;
 
     -- IMAGE OBJECT
@@ -133,8 +133,7 @@ CREATE PROCEDURE create_tables()
      `height` INT DEFAULT NULL,
      `width` INT DEFAULT NULL,
      `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     PRIMARY KEY (`idmediaObject`,`creativeWork`),
-     KEY `fk_mediaObject_creativeWork_idx` (`creativeWork`)
+     PRIMARY KEY (`idmediaObject`,`creativeWork`)
     ) ENGINE = InnoDB;
 
     -- ORGANIZATION
@@ -147,8 +146,7 @@ CREATE PROCEDURE create_tables()
       `location` INT UNSIGNED DEFAULT NULL,
       `logo` INT UNSIGNED DEFAULT NULL,
       `taxId` VARCHAR(24) DEFAULT NULL,
-      PRIMARY KEY (`idorganization`,`thing`),
-      key `fk_organization_thing_idx` (`thing`)
+      PRIMARY KEY (`idorganization`,`thing`)
     ) ENGINE = InnoDB;
 
     -- PERSON
@@ -169,6 +167,15 @@ CREATE PROCEDURE create_tables()
       `memberOf` INT UNSIGNED NULL,
       PRIMARY KEY (`idperson`,`thing`),
       KEY (`givenName`,`familyName`)
+    ) ENGINE = InnoDB;
+
+    -- PLACE
+    CREATE TABLE IF NOT EXISTS `place` (
+      `idplace` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `geo` INT UNSIGNED DEFAULT NULL,
+      `publicAccess` BOOLEAN DEFAULT FALSE,
+      PRIMARY KEY (`idplace`,`thing`)
     ) ENGINE = InnoDB;
 
     -- THING
@@ -209,9 +216,7 @@ CREATE PROCEDURE create_tables()
       `typeIsPartOf` VARCHAR(48) NOT NULL,
       `caption` VARCHAR(255) DEFAULT NULL,
       `position` INT UNSIGNED DEFAULT 1,
-      PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`),
-      KEY `fk_thing_has_thing_hasPart_idx1` (`idHasPart`),
-      KEY `fk_thing_has_thing_isPartOf_idx1` (`idIsPartOf`)
+      PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`)
     ) ENGINE = InnoDB;
 
   END;

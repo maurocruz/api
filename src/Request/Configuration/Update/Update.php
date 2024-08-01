@@ -11,7 +11,6 @@ class Update
 		$schema_name = PDOConnect::getDbname();
 
 
-
 		PDOConnect::run("ALTER TABLE `catalog` DROP INDEX `idx_2`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_1`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_2`;");
@@ -23,6 +22,7 @@ class Update
 
 		PDOConnect::run("SET autocommit=0;");
 
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_procedures.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
 		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_create_tables.sql'));
 		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_drop_keys.sql'));
@@ -35,9 +35,14 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_person.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_localBusiness.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_organization.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_place.sql'));
 
 		PDOConnect::run("SET @@autocommit=1;");
 
-		return PDOConnect::run("CALL sql_upgrade('$schema_name');");
+		$returns = PDOConnect::run("CALL sql_upgrade('$schema_name');");
+
+		PDOConnect::run("CALL drop_procedures();");
+
+		return $returns;
 	}
 }
