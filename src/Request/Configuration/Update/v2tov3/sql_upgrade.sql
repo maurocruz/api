@@ -9,6 +9,7 @@ DROP PROCEDURE IF EXISTS upgrade_event;
 DROP PROCEDURE IF EXISTS upgrade_invoice;
 DROP PROCEDURE IF EXISTS upgrade_person;
 DROP PROCEDURE IF EXISTS upgrade_localBusiness;
+DROP PROCEDURE IF EXISTS upgrade_organization;
 
 CREATE PROCEDURE sql_upgrade(schema_name VARCHAR(64))
 BEGIN
@@ -41,6 +42,8 @@ BEGIN
   CALL upgrade_person();
   -- LOCAL BUSINESS
   CALL upgrade_localBusiness();
+  -- ORGANIZATION
+  CALL upgrade_organization();
 
   COMMIT ;
 

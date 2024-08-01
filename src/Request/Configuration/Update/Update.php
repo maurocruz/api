@@ -21,8 +21,6 @@ class Update
 		PDOConnect::run("ALTER TABLE `product` DROP INDEX `idx_1`;");
 
 
-
-
 		PDOConnect::run("SET autocommit=0;");
 
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
@@ -36,6 +34,7 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_invoice.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_person.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_localBusiness.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_organization.sql'));
 
 		PDOConnect::run("SET @@autocommit=1;");
 

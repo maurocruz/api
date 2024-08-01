@@ -6,7 +6,7 @@ CREATE PROCEDURE upgrade_localBusiness()
       CHANGE COLUMN `idlocalBusiness` `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `additionalType` `additionalType` VARCHAR(255) DEFAULT NULL,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idlocalBusiness`,
-      DROP PRIMARY KEY,
+      DROP PRIMARY KEY ,
       ADD PRIMARY KEY (`idlocalBusiness`);
 
     ALTER TABLE `thing`
@@ -15,7 +15,7 @@ CREATE PROCEDURE upgrade_localBusiness()
     -- insert thing
     INSERT INTO `thing` (`idlocalBusiness`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateCreated`,`dateModified`,`type`)
     SELECT `idlocalBusiness`,`name`,`additionalType`,
-           SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,256) as description,
+           SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
            CONCAT(`description`,IF(`disambiguatingDescription`, CONCAT(' ',`disambiguatingDescription`),'')) as disambiguatingDescription,
            `url`,`dateCreated`,`dateModified`,'LocalBusiness'
     FROM `localBusiness`;
