@@ -136,6 +136,22 @@ CREATE PROCEDURE create_tables()
      PRIMARY KEY (`idmediaObject`,`creativeWork`)
     ) ENGINE = InnoDB;
 
+    -- OFFER
+    CREATE TABLE IF NOT EXISTS `offer` (
+      `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `itemOffered` INT NOT NULL,
+      `itemOfferedType` VARCHAR(45) NOT NULL,
+      `offeredBy` INT DEFAULT NULL,
+      `offeredByType` VARCHAR(45) DEFAULT NULL,
+      `price` FLOAT NOT NULL,
+      `priceCurrency` VARCHAR(45) NOT NULL DEFAULT 'R$',
+      `validThrough` DATETIME DEFAULT NULL,
+      `availability` VARCHAR(45) DEFAULT NULL,
+      `elegibleQuantity` INT DEFAULT NULL,
+      `elegibleDuration` VARCHAR(45) DEFAULT NULL,
+      PRIMARY KEY (`idoffer`)
+    ) ENGINE = InnoDB;
+
     -- ORGANIZATION
     CREATE TABLE IF NOT EXISTS `organization` (
       `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -176,6 +192,26 @@ CREATE PROCEDURE create_tables()
       `geo` INT UNSIGNED DEFAULT NULL,
       `publicAccess` BOOLEAN DEFAULT FALSE,
       PRIMARY KEY (`idplace`,`thing`)
+    ) ENGINE = InnoDB;
+
+    --  POSTAL ADDRESS
+    CREATE TABLE IF NOT EXISTS `postalAddress` (
+      `idpostalAddress` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `streetAddress` VARCHAR(255) DEFAULT NULL,
+      `addressLocality` VARCHAR(80) DEFAULT NULL,
+      `addressRegion` VARCHAR(45) DEFAULT NULL,
+      `addressCountry` VARCHAR(45) DEFAULT NULL,
+      `postalCode` VARCHAR(45) DEFAULT NULL,
+      PRIMARY KEY (`idpostalAddress`)
+    ) ENGINE = InnoDB;
+
+    -- PRODUCT
+    CREATE TABLE IF NOT EXISTS `product` (
+      `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `category` varchar(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
+      `manufacturer` int DEFAULT NULL,
+      PRIMARY KEY (`idproduct`,`thing`)
     ) ENGINE = InnoDB;
 
     -- THING

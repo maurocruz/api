@@ -1,6 +1,4 @@
-
 -- DROP PROCEDURES
-
 CREATE PROCEDURE drop_procedures()
 BEGIN
   DROP PROCEDURE IF EXISTS sql_upgrade;
@@ -16,4 +14,5 @@ BEGIN
   DROP PROCEDURE IF EXISTS upgrade_localBusiness;
   DROP PROCEDURE IF EXISTS upgrade_organization;
   DROP PROCEDURE IF EXISTS upgrade_place;
+  DROP PROCEDURE IF EXISTS upgrade_product;
 END;
