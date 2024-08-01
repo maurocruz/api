@@ -37,6 +37,8 @@ BEGIN
   CALL upgrade_place();
   -- PRODUCT
   CALL upgrade_product();
+  -- service
+  CALL upgrade_service();
 
   COMMIT ;
 

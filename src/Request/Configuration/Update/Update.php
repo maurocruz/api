@@ -23,7 +23,7 @@ class Update
 		PDOConnect::run("SET autocommit=0;");
 
 
-		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_procedures.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/drop_procedures.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
 		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_create_tables.sql'));
 		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_drop_keys.sql'));
@@ -38,12 +38,11 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_organization.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_place.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_product.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_service.sql'));
 
-
-		PDOConnect::run("CALL drop_procedures();");
 		$returns = PDOConnect::run("CALL sql_upgrade('$schema_name');");
-		PDOConnect::run("CALL drop_procedures();");
 
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/drop_procedures.sql'));
 
 		PDOConnect::run("SET @@autocommit=1;");
 

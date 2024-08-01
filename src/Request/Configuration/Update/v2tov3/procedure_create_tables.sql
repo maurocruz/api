@@ -209,9 +209,21 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `product` (
       `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `thing` INT UNSIGNED NOT NULL,
-      `category` varchar(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
+      `category` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
       `manufacturer` int DEFAULT NULL,
       PRIMARY KEY (`idproduct`,`thing`)
+    ) ENGINE = InnoDB;
+
+    -- SERVICE
+    CREATE TABLE IF NOT EXISTS `service` (
+      `idservice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `provider` INT UNSIGNED NOT NULL,
+      `providerType` VARCHAR(45) NOT NULL,
+      `category` VARCHAR(100) DEFAULT NULL,
+      `serviceType` VARCHAR(255) DEFAULT NULL,
+      `termsOfService` TEXT,
+      PRIMARY KEY (`idservice`),
+      KEY `service_provider_idx` (`provider`)
     ) ENGINE = InnoDB;
 
     -- THING
