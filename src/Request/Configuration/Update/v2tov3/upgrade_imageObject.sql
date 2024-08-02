@@ -11,12 +11,14 @@ CREATE PROCEDURE upgrade_imageObject()
       ADD PRIMARY KEY (`idimageObject`);
 
     -- insert thing
-    INSERT INTO `thing` (`name`,`dateCreated`,`type`)
-      SELECT `contentUrl`,`uploadDate`,'imageObject' from `imageObject` WHERE `contentUrl` <> '';
+    ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
+    INSERT INTO `thing` (`idimageObject`,`name`,`dateCreated`,`type`)
+      SELECT `idimageObject`,`contentUrl`,`uploadDate`,'imageObject' from `imageObject` WHERE `contentUrl` <> '';
     -- update this
     UPDATE `imageObject`
-      JOIN `thing` ON `imageObject`.contentUrl=`thing`.name AND `imageObject`.uploadDate=`thing`.dateCreated
+      JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
       SET `imageObject`.thing=`thing`.idthing;
+    ALTER TABLE `thing` DROP COLUMN `idimageObject`;
 
     -- insert parent
     INSERT INTO `creativeWork` (`thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyrightHolder`)

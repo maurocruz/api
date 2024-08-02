@@ -40,6 +40,7 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_product.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_service.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_taxon.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_videoObject.sql'));
 
 		$returns = PDOConnect::run("CALL sql_upgrade('$schema_name');");
 

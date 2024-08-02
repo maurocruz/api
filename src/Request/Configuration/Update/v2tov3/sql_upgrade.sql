@@ -41,6 +41,8 @@ BEGIN
   CALL upgrade_service();
   -- TAXON
   CALL upgrade_taxon();
+  -- VIDEO OBJECT
+  CALL upgrade_videoObject();
 
   COMMIT ;
 

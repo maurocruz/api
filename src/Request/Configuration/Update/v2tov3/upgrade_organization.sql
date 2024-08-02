@@ -35,8 +35,7 @@ CREATE PROCEDURE upgrade_organization()
       ADD PRIMARY KEY (`idorganization`);
 
     -- INSERT THING
-    ALTER TABLE `thing`
-      ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
+    ALTER TABLE `thing` ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
     -- insert thing
     INSERT INTO `thing` (`idorganization`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateCreated`,`dateModified`,`type`)
     SELECT `idorganization`,
@@ -54,8 +53,7 @@ CREATE PROCEDURE upgrade_organization()
       JOIN `thing` ON thing.idorganization = organization.idorganization
     SET organization.thing = thing.idthing;
     -- drop column
-    ALTER TABLE `thing`
-      DROP COLUMN `idorganization`;
+    ALTER TABLE `thing` DROP COLUMN `idorganization`;
 
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)

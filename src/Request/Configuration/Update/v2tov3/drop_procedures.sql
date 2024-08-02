@@ -15,3 +15,4 @@
   DROP PROCEDURE IF EXISTS upgrade_product;
   DROP PROCEDURE IF EXISTS upgrade_service;
   DROP PROCEDURE IF EXISTS upgrade_taxon;
+  DROP PROCEDURE IF EXISTS upgrade_videoObject;

@@ -124,16 +124,18 @@ CREATE PROCEDURE create_tables()
 
     -- MEDIA OBJECT
     CREATE TABLE IF NOT EXISTS `mediaObject` (
-     `idmediaObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-     `creativeWork` INT UNSIGNED NOT NULL,
-     `thing` int unsigned not null,
-     `contentSize` VARCHAR(100) DEFAULT NULL,
-     `contentUrl` VARCHAR(255) NOT NULL,
-     `encodingFormat` VARCHAR(50) DEFAULT NULL,
-     `height` INT DEFAULT NULL,
-     `width` INT DEFAULT NULL,
-     `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     PRIMARY KEY (`idmediaObject`,`creativeWork`)
+      `idmediaObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL ,
+      `bitrate` DECIMAL(6,2) DEFAULT NULL,
+      `duration` TIME DEFAULT NULL,
+      `contentSize` VARCHAR(100) DEFAULT NULL,
+      `contentUrl` VARCHAR(255) NOT NULL,
+      `encodingFormat` VARCHAR(50) DEFAULT NULL,
+      `height` INT DEFAULT NULL,
+      `width` INT DEFAULT NULL,
+      `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (`idmediaObject`,`creativeWork`)
     ) ENGINE = InnoDB;
 
     -- OFFER
@@ -246,7 +248,6 @@ CREATE PROCEDURE create_tables()
       PRIMARY KEY (`idtaxon`,`thing`)
     ) ENGINE = InnoDB;
 
-
     -- THING
     CREATE TABLE IF NOT EXISTS `thing` (
      `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -286,6 +287,15 @@ CREATE PROCEDURE create_tables()
       `caption` VARCHAR(255) DEFAULT NULL,
       `position` INT UNSIGNED DEFAULT 1,
       PRIMARY KEY (`idHasPart`,`idIsPartOf`,`typeHasPart`,`typeIsPartOf`)
+    ) ENGINE = InnoDB;
+
+    -- VIDEO OBJECT
+    CREATE TABLE IF NOT EXISTS `videoObject` (
+      `idvideoObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `mediaObject` INT UNSIGNED NOT NULL,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idvideoObject`)
     ) ENGINE = InnoDB;
 
   END;
