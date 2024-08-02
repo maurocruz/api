@@ -37,8 +37,10 @@ BEGIN
   CALL upgrade_place();
   -- PRODUCT
   CALL upgrade_product();
-  -- service
+  -- SERVIC
   CALL upgrade_service();
+  -- TAXON
+  CALL upgrade_taxon();
 
   COMMIT ;
 

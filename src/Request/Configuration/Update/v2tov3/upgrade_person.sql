@@ -10,16 +10,13 @@ CREATE PROCEDURE upgrade_person()
       DROP PRIMARY KEY ,
       ADD PRIMARY KEY (`idperson`);
 
-    ALTER TABLE `thing`
-      ADD COLUMN `idperson` INT UNSIGNED DEFAULT NULL;
-
     -- insert thing
+    ALTER TABLE `thing` ADD COLUMN `idperson` INT UNSIGNED DEFAULT NULL;
     INSERT INTO `thing` (`idperson`,`name`,`url`,`dateModified`,`dateCreated`,`type`)
       SELECT idperson,CONCAT(`givenName`, IF(familyName is NOT NULL,CONCAT(' ',familyName),'')) as name,`url`,`dateModified`,`dateRegistration`, 'Person' FROM `person`;
     -- atualiza tabela
-    UPDATE `person`
-      JOIN `thing` ON thing.idperson=person.idperson
-    SET person.thing = thing.idthing;
+    UPDATE `person` JOIN `thing` ON thing.idperson=person.idperson SET person.thing = thing.idthing;
+    ALTER TABLE `thing` DROP COLUMN `idperson`;
 
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
@@ -32,8 +29,6 @@ CREATE PROCEDURE upgrade_person()
     SELECT `thing`,`idimageObject`,`person_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `person_has_imageObject`
       JOIN `person` ON `person_has_imageObject`.idperson = person.idperson;
 
-    ALTER TABLE `thing`
-      DROP COLUMN `idperson`;
 
     ALTER TABLE `person`
       CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,

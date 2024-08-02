@@ -226,6 +226,27 @@ CREATE PROCEDURE create_tables()
       KEY `service_provider_idx` (`provider`)
     ) ENGINE = InnoDB;
 
+    -- TAXON
+    CREATE TABLE IF NOT EXISTS `taxon` (
+      `idtaxon` INT unsigned NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `taxonRank` VARCHAR(255) DEFAULT NULL,
+      `vernacularName` VARCHAR(255) DEFAULT NULL,
+      `parentTaxon` VARCHAR(255) DEFAULT NULL,
+      `scientificNameAuthorship` VARCHAR(255) DEFAULT NULL,
+      `occurrence` VARCHAR(255) DEFAULT NULL,
+      `flowering` VARCHAR(100) DEFAULT NULL,
+      `fructification` VARCHAR(100) DEFAULT NULL,
+      `height` TEXT,
+      `roots` TEXT,
+      `leafs` TEXT,
+      `flowers` TEXT,
+      `fruits` TEXT,
+      `citations` TEXT,
+      PRIMARY KEY (`idtaxon`,`thing`)
+    ) ENGINE = InnoDB;
+
+
     -- THING
     CREATE TABLE IF NOT EXISTS `thing` (
      `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
