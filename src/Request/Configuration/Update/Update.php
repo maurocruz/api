@@ -25,8 +25,8 @@ class Update
 
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/drop_procedures.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
-		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_create_tables.sql'));
-		PDOConnect::run(file_get_contents(__DIR__.'/v2tov3/procedure_drop_keys.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_create_tables.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));
@@ -41,6 +41,9 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_service.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_taxon.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_videoObject.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_webPage.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_webPageElement.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_webSite.sql'));
 
 		$returns = PDOConnect::run("CALL sql_upgrade('$schema_name');");
 

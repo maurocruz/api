@@ -47,9 +47,8 @@ CREATE PROCEDURE upgrade_article()
       DROP COLUMN `publisherType`,
       DROP COLUMN `position`,
       DROP PRIMARY KEY,
-      ADD PRIMARY KEY (`idarticle`,`creativeWork`,`thing`),
-      ADD INDEX `fk_article_creativeWork_idx` (`creativeWork`),
-      ADD INDEX `fk_article_thing_idx` (`thing`);
+      ADD PRIMARY KEY (`idarticle`,`creativeWork`,`thing`);
+
     -- drop old relationship
     DROP TABLE `article_has_imageObject`;
 END ;

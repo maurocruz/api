@@ -16,3 +16,6 @@
   DROP PROCEDURE IF EXISTS upgrade_service;
   DROP PROCEDURE IF EXISTS upgrade_taxon;
   DROP PROCEDURE IF EXISTS upgrade_videoObject;
+  DROP PROCEDURE IF EXISTS upgrade_webPage;
+  DROP PROCEDURE IF EXISTS upgrade_webPageElement;
+  DROP PROCEDURE IF EXISTS upgrade_webSite;

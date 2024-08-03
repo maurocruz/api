@@ -211,9 +211,17 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `product` (
       `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `thing` INT UNSIGNED NOT NULL,
-      `category` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT '',
-      `manufacturer` int DEFAULT NULL,
+      `category` VARCHAR(64) NOT NULL DEFAULT '',
+      `manufacturer` INT DEFAULT NULL,
       PRIMARY KEY (`idproduct`,`thing`)
+    ) ENGINE = InnoDB;
+
+    -- PROPERTY VALUE
+    CREATE TABLE IF NOT EXISTS `propertyValue` (
+      `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `name` VARCHAR(80) NOT NULL,
+      `value` VARCHAR(255) NOT NULL,
+      PRIMARY KEY (`idpropertyValue`)
     ) ENGINE = InnoDB;
 
     -- SERVICE
@@ -262,9 +270,9 @@ CREATE PROCEDURE create_tables()
      `type` VARCHAR(45) NOT NULL,
      `url` VARCHAR(255) DEFAULT NULL,
      PRIMARY KEY (`idthing`),
-     KEY `thing_name` (`name`),
-     KEY `thing_description` (`description`),
-     KEY `thing_url` (`url`),
+     KEY `thing_name_idx` (`name`),
+     KEY `thing_description_idx` (`description`),
+     KEY `thing_url_idx` (`url`),
      CONSTRAINT `thing_check_name` CHECK (`name` <> '')
     ) ENGINE = InnoDB;
 
@@ -296,6 +304,32 @@ CREATE PROCEDURE create_tables()
       `creativeWork` INT UNSIGNED NOT NULL,
       `thing` INT UNSIGNED NOT NULL,
       PRIMARY KEY (`idvideoObject`)
+    ) ENGINE = InnoDB;
+
+    -- WEB PAGE
+    CREATE TABLE IF NOT EXISTS `webPage` (
+      `idwebPage` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL,
+      `breadcrumb` text,
+      `primaryImageOfPage` INT UNSIGNED DEFAULT NULL,
+      PRIMARY KEY (`idwebPage`,`creativeWork`)
+    ) ENGINE = InnoDB;
+
+    -- WEB PAGE ELEMENT
+    CREATE TABLE IF NOT EXISTS `webPageElement` (
+      `idwebPageElement` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idwebPageElement`,`creativeWork`)
+    ) ENGINE = InnoDB;
+
+    -- WEB SITE
+    CREATE TABLE IF NOT EXISTS `webSite` (
+      `idwebSite` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idwebSite`,`creativeWork`)
     ) ENGINE = InnoDB;
 
   END;
