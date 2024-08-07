@@ -13,14 +13,14 @@ BEGIN
 
   -- insert thing
   ALTER TABLE `thing` ADD COLUMN `idvideoObject` INT UNSIGNED DEFAULT NULL;
-  INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`description`,`disambiguatingDescription`,`dateCreated`,`type`)
+  INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`description`,`dateCreated`,`type`)
     SELECT `idvideoObject`,`name`,`url`,
-       SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
-       `description`,`uploadDate`,'videoObject' from `videoObject` WHERE `name` <> '';
+      description,
+      `uploadDate`,
+      'videoObject'
+    FROM `videoObject` WHERE `name` <> '';
   -- update this
-  UPDATE `videoObject`
-    JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject
-    SET `videoObject`.thing = `thing`.idthing;
+  UPDATE `videoObject` JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject SET `videoObject`.thing = `thing`.idthing;
   ALTER TABLE `thing` DROP COLUMN `idvideoObject`;
 
   -- insert parent

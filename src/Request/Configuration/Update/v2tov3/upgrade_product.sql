@@ -12,19 +12,17 @@ BEGIN
   ALTER TABLE `thing` ADD COLUMN `idproduct` INT UNSIGNED DEFAULT NULL;
   -- insert thing
   INSERT INTO `thing` (`idproduct`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`dateCreated`,`dateModified`,`type`)
-  SELECT `idproduct`,
-    IF (`name` <> '', `name`, 'Undefined name'),
-    `additionalType`,
-    SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
-    CONCAT(SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255),IF(`disambiguatingDescription`, CONCAT(' ',`disambiguatingDescription`),'')) as disambiguatingDescription,
-    if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
-    `dateModified`,
-    'Product'
-  FROM `product`;
+    SELECT `idproduct`,
+      IF (`name` <> '', `name`, 'Undefined name'),
+      `additionalType`,
+      description,
+      SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
+      if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
+      `dateModified`,
+      'Product'
+    FROM `product`;
   -- set thing
-  UPDATE `product`
-    JOIN `thing` ON thing.idproduct = product.idproduct
-    SET product.thing = thing.idthing;
+  UPDATE `product` JOIN `thing` ON thing.idproduct = product.idproduct SET product.thing = thing.idthing;
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idproduct`;
 

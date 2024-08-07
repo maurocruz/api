@@ -12,22 +12,26 @@ CREATE PROCEDURE upgrade_localBusiness()
     ALTER TABLE `thing`
       ADD COLUMN `idlocalBusiness` INT UNSIGNED DEFAULT NULL;
 
+    -- INSERT THING
+    ALTER TABLE `thing` ADD COLUMN `idevent` INT UNSIGNED DEFAULT NULL;
     -- insert thing
     INSERT INTO `thing` (`idlocalBusiness`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateCreated`,`dateModified`,`type`)
     SELECT `idlocalBusiness`,`name`,`additionalType`,
-           SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
-           CONCAT(`description`,IF(`disambiguatingDescription`, CONCAT(' ',`disambiguatingDescription`),'')) as disambiguatingDescription,
-           `url`,`dateCreated`,`dateModified`,'LocalBusiness'
+       description,
+       SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
+       `url`,`dateCreated`,`dateModified`,'LocalBusiness'
     FROM `localBusiness`;
-
     -- update this
     UPDATE `localBusiness`
       JOIN `thing` ON thing.idlocalBusiness = localBusiness.idlocalBusiness
-    SET localBusiness.thing = thing.idthing;
+      SET localBusiness.thing = thing.idthing;
+    -- drop thing column
+    ALTER TABLE `thing` DROP COLUMN `idevent`;
 
+    -- set organization
     UPDATE `localBusiness`
       JOIN `organization` ON `organization`.`name` = `localBusiness`.`name`
-    SET `localBusiness`.organization = `organization`.idorganization
+      SET `localBusiness`.organization = `organization`.idorganization
     WHERE `localBusiness`.organization IS NULL;
 
     -- insert organization

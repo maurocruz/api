@@ -12,13 +12,17 @@ CREATE PROCEDURE upgrade_book()
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idbook`);
 
+    -- INSERT THING
+    ALTER TABLE `thing` ADD COLUMN `idbook` INT UNSIGNED DEFAULT NULL;
     -- insert thing
-    INSERT INTO `thing` (`name`,`dateCreated`, `dateModified`, `type`)
-    SELECT `name`,`dateCreated`, `dateModified`, 'Book' FROM `book`;
+    INSERT INTO `thing` (`idbook`,`name`,`dateCreated`, `dateModified`, `type`)
+    SELECT `idbook`,`name`,`dateCreated`, `dateModified`, 'Book' FROM `book`;
     -- update this
     UPDATE `book`
-      JOIN `thing` ON thing.name=book.name AND thing.dateCreated=book.dateCreated AND thing.dateModified=book.dateModified
-    SET book.thing=thing.idthing;
+      JOIN `thing` ON thing.idbook = book.idbook
+      SET book.thing=thing.idthing;
+    -- drop thing column
+    ALTER TABLE `thing` DROP COLUMN `idbook`;
 
     -- insert creativework
     INSERT INTO `creativeWork` (`thing`,`author`,`datePublished`,`keywords`,`locationCreated`,`publisher`,`version`)

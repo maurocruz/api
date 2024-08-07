@@ -10,14 +10,16 @@ CREATE PROCEDURE upgrade_imageObject()
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idimageObject`);
 
-    -- insert thing
+    -- INSERT THING
     ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
+    -- insere dados em thing
     INSERT INTO `thing` (`idimageObject`,`name`,`dateCreated`,`type`)
-      SELECT `idimageObject`,`contentUrl`,`uploadDate`,'imageObject' from `imageObject` WHERE `contentUrl` <> '';
+      SELECT `idimageObject`,IF(`contentUrl`,`contentUrl`,'Empty data'),`uploadDate`,'imageObject' from `imageObject`;
     -- update this
     UPDATE `imageObject`
       JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
       SET `imageObject`.thing=`thing`.idthing;
+    -- drop thing column
     ALTER TABLE `thing` DROP COLUMN `idimageObject`;
 
     -- insert parent

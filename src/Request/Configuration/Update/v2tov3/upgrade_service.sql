@@ -13,19 +13,17 @@ BEGIN
   ALTER TABLE `thing` ADD COLUMN `idservice` INT UNSIGNED DEFAULT NULL;
   -- insert thing
   INSERT INTO `thing` (`idservice`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`dateCreated`,`dateModified`,`type`)
-  SELECT `idservice`,
+    SELECT `idservice`,
          IF (`name` <> '', `name`, 'Undefined name'),
          `additionalType`,
-         SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
-         CONCAT(SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255),IF(`disambiguatingDescription`, CONCAT(' ',`disambiguatingDescription`),'')) as disambiguatingDescription,
+         description,
+         SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
          if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
          `dateModified`,
          'Service'
-  FROM `service`;
+    FROM `service`;
   -- set thing
-  UPDATE `service`
-    JOIN `thing` ON thing.idservice = service.idservice
-    SET service.thing = thing.idthing;
+  UPDATE `service` JOIN `thing` ON thing.idservice = service.idservice SET service.thing = thing.idthing;
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idservice`;
 

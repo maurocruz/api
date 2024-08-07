@@ -12,15 +12,19 @@ CREATE PROCEDURE upgrade_article()
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idarticle`);
 
+    -- INSERT THING
+    ALTER TABLE `thing` ADD COLUMN `idarticle` INT UNSIGNED DEFAULT NULL;
     -- insert thing
-    INSERT INTO `thing` (`name`,`dateCreated`, `dateModified`, `type`)
-      SELECT `headline`,`dateCreated`, `dateModified`, 'Article' FROM `article`;
+    INSERT INTO `thing` (`idarticle`,`name`,`dateCreated`, `dateModified`, `type`)
+      SELECT `idarticle`,`headline`,`dateCreated`, `dateModified`, 'Article' FROM `article`;
     -- update this
     UPDATE `article`
-      JOIN `thing` ON thing.name=article.headline AND thing.dateCreated=article.dateCreated AND thing.dateModified=article.dateModified
-      SET article.thing=thing.idthing;
+      JOIN `thing` ON thing.idarticle = article.idarticle
+      SET article.thing = thing.idthing;
+    -- drop thing column
+    ALTER TABLE `thing` DROP COLUMN `idarticle`;
 
-    -- insert parent
+    -- insert creative work
     INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`,`position`)
       SELECT `thing`,`headline`,`datePublished`,`author`,`publisher`,`position` FROM `article`;
     -- update child

@@ -263,15 +263,15 @@ CREATE PROCEDURE create_tables()
      `alternateName` VARCHAR(255) NULL,
      `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-     `description` VARCHAR(255),
-     `disambiguatingDescription` TEXT,
+     `description` TEXT,
+     `disambiguatingDescription` VARCHAR(255),
      `name` VARCHAR(255) NOT NULL,
      `mainEntityOfPage` VARCHAR(255) DEFAULT NULL,
      `type` VARCHAR(45) NOT NULL,
      `url` VARCHAR(255) DEFAULT NULL,
      PRIMARY KEY (`idthing`),
      KEY `thing_name_idx` (`name`),
-     KEY `thing_description_idx` (`description`),
+     KEY `thing_disambiguatingDescription_idx` (`disambiguatingDescription`),
      KEY `thing_url_idx` (`url`),
      CONSTRAINT `thing_check_name` CHECK (`name` <> '')
     ) ENGINE = InnoDB;

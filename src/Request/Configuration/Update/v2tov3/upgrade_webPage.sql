@@ -15,7 +15,7 @@ BEGIN
   INSERT INTO `thing` (`idwebPage`,`name`,`description`,`url`,`dateCreated`,`dateModified`,`type`)
     SELECT `idwebPage`,
       IF (`name` <> '', `name`, 'Undefined name'),
-      SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
+      description,
       `url`,
       if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
       `dateModified`,

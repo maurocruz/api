@@ -41,8 +41,8 @@ CREATE PROCEDURE upgrade_organization()
     SELECT `idorganization`,
        IF (`name` <> '', `name`, 'Undefined name'),
        `additionalType`,
-       SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255) as description,
-       CONCAT(SUBSTRING(REGEXP_REPLACE(description, '<[^>]*>+', ''),1,255),IF(`disambiguatingDescription`, CONCAT(' ',`disambiguatingDescription`),'')) as disambiguatingDescription,
+       description,
+       SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
        `url`,
        if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
        `dateModified`,
@@ -51,7 +51,7 @@ CREATE PROCEDURE upgrade_organization()
     -- set thing
     UPDATE `organization`
       JOIN `thing` ON thing.idorganization = organization.idorganization
-    SET organization.thing = thing.idthing;
+      SET organization.thing = thing.idthing;
     -- drop column
     ALTER TABLE `thing` DROP COLUMN `idorganization`;
 

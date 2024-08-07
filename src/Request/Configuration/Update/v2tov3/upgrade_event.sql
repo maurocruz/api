@@ -15,13 +15,17 @@ CREATE PROCEDURE upgrade_event()
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idevent`);
 
+    -- INSERT THING
+    ALTER TABLE `thing` ADD COLUMN `idevent` INT UNSIGNED DEFAULT NULL;
     -- insere dados em thing
-    INSERT INTO `thing` (`name`,`disambiguatingDescription`,`dateModified`,`dateCreated`,`type`)
-    SELECT `name`,`description`,`dateModified`,`dateCreated`, 'Event' FROM `event` WHERE `name` <> '';
+    INSERT INTO `thing` (`idevent`,`name`,`description`,`dateModified`,`dateCreated`,`type`)
+      SELECT `idevent`,`name`,`description`,`dateModified`,`dateCreated`, 'Event' FROM `event` WHERE `name` <> '';
     -- atualiza tabela
     UPDATE `event`
-      JOIN `thing` ON `event`.name=thing.name AND event.dateModified=thing.dateModified AND event.dateCreated=thing.dateCreated
-    SET event.thing=thing.idthing;
+      JOIN `thing` ON `event`.idevent = thing.idevent
+      SET event.thing = thing.idthing;
+    -- drop thing column
+    ALTER TABLE `thing` DROP COLUMN `idevent`;
 
     -- insert images
     INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)

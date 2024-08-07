@@ -10,10 +10,11 @@ CREATE PROCEDURE upgrade_person()
       DROP PRIMARY KEY ,
       ADD PRIMARY KEY (`idperson`);
 
-    -- insert thing
+    -- CREATE THING
     ALTER TABLE `thing` ADD COLUMN `idperson` INT UNSIGNED DEFAULT NULL;
+    -- insert thing
     INSERT INTO `thing` (`idperson`,`name`,`url`,`dateModified`,`dateCreated`,`type`)
-      SELECT idperson,CONCAT(`givenName`, IF(familyName is NOT NULL,CONCAT(' ',familyName),'')) as name,`url`,`dateModified`,`dateRegistration`, 'Person' FROM `person`;
+      SELECT idperson,CONCAT(`givenName`,IF(familyName is NOT NULL,CONCAT(' ',familyName),'')) as name,`url`,`dateModified`,`dateRegistration`, 'Person' FROM `person`;
     -- atualiza tabela
     UPDATE `person` JOIN `thing` ON thing.idperson=person.idperson SET person.thing = thing.idthing;
     ALTER TABLE `thing` DROP COLUMN `idperson`;
