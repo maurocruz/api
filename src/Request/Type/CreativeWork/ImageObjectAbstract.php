@@ -190,15 +190,15 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	}
 
 	/**
-	 * @param string $idimageObject
+	 * @param $idthing
 	 * @return array
 	 */
-	protected function getHasPart(string $idimageObject): array
+	protected function getHasPart($idthing): array
 	{
-		$data = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject'"]);
+		$data = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idthing`='$idthing'"]);
 		$newData = [];
 		foreach ($data as $value) {
-			$newData[] = ApiFactory::request()->type('thing')->get(['idthing'=>$value['idthing']])->ready()[0];
+			$newData[] = ApiFactory::request()->type('imageObject')->get(['idimageObject'=>$value['idimageObject']])->ready()[0];
 		}
 		return $newData;
 	}

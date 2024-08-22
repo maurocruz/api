@@ -30,6 +30,13 @@ CREATE PROCEDURE upgrade_person()
     SELECT `thing`,`idimageObject`,`person_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `person_has_imageObject`
       JOIN `person` ON `person_has_imageObject`.idperson = person.idperson;
 
+    -- IMAGES
+    UPDATE `thing`
+      join person ON person.thing = thing.idthing
+      join person_has_imageObject ON person_has_imageObject.idperson = person.idperson and person_has_imageObject.representativeOfPage <> 0
+      join imageObject ON imageObject.idimageObject = person_has_imageObject.idimageObject
+      join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
+    SET `thing`.image = `mediaObject`.contentUrl;
 
     ALTER TABLE `person`
       CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,

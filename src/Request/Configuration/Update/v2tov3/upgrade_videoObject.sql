@@ -13,10 +13,11 @@ BEGIN
 
   -- insert thing
   ALTER TABLE `thing` ADD COLUMN `idvideoObject` INT UNSIGNED DEFAULT NULL;
-  INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`description`,`dateCreated`,`type`)
+  INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`image`,`description`,`dateCreated`,`type`)
     SELECT `idvideoObject`,`name`,`url`,
-      description,
-      `uploadDate`,
+      thumbnailUrl,
+            description,
+`uploadDate`,
       'videoObject'
     FROM `videoObject` WHERE `name` <> '';
   -- update this

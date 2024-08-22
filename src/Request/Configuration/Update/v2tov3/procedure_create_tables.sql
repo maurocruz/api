@@ -265,8 +265,9 @@ CREATE PROCEDURE create_tables()
      `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
      `description` TEXT,
      `disambiguatingDescription` VARCHAR(255),
-     `name` VARCHAR(255) NOT NULL,
+     `image` VARCHAR(255) DEFAULT NULL,
      `mainEntityOfPage` VARCHAR(255) DEFAULT NULL,
+     `name` VARCHAR(255) NOT NULL,
      `type` VARCHAR(45) NOT NULL,
      `url` VARCHAR(255) DEFAULT NULL,
      PRIMARY KEY (`idthing`),
@@ -280,9 +281,10 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `thing_has_imageObject` (
       `idthing` INT UNSIGNED NOT NULL,
       `idimageObject` INT UNSIGNED NOT NULL,
+      `caption` TEXT,
+      `href` VARCHAR(255),
       `position` INT UNSIGNED DEFAULT NULL,
       `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
-      `caption` TEXT,
       PRIMARY KEY (`idthing`, `idimageObject`)
     ) ENGINE = InnoDB;
 

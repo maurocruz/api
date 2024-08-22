@@ -32,6 +32,14 @@ CREATE PROCEDURE upgrade_book()
       JOIN `creativeWork` ON creativeWork.thing=book.thing
     SET book.creativeWork=creativeWork.idcreativeWork;
 
+    -- IMAGES
+    UPDATE `thing`
+      join book ON book.thing = thing.idthing
+      join book_has_imageObject ON book_has_imageObject.idbook = book.idbook and book_has_imageObject.representativeOfPage <> 0
+      join imageObject ON imageObject.idimageObject = book_has_imageObject.idimageObject
+      join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
+    SET `thing`.image = `mediaObject`.contentUrl;
+
     -- insert images
     INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
     SELECT thing, idimageObject, `book_has_imageObject`.position, IF(representativeOfPage is null,0,1), caption FROM `book_has_imageObject`

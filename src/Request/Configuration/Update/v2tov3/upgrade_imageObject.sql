@@ -14,7 +14,7 @@ CREATE PROCEDURE upgrade_imageObject()
     ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
     -- insere dados em thing
     INSERT INTO `thing` (`idimageObject`,`name`,`dateCreated`,`type`)
-      SELECT `idimageObject`,IF(`contentUrl`,`contentUrl`,'Empty data'),`uploadDate`,'imageObject' from `imageObject`;
+      SELECT `idimageObject`,IF(`contentUrl` <> '' AND `contentUrl` IS NOT NULL,`contentUrl`,'Undefined name'),`uploadDate`,'imageObject' from `imageObject`;
     -- update this
     UPDATE `imageObject`
       JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject

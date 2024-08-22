@@ -43,12 +43,12 @@ BEGIN
   CALL upgrade_taxon();
   -- VIDEO OBJECT
   CALL upgrade_videoObject();
+  -- WEBSITE
+  CALL upgrade_webSite();
   -- WEBPAGE
   CALL upgrade_webPage();
   -- WEBPAGE ELEMENT
   CALL upgrade_webPageElement();
-  -- WEBSITE
-  CALL upgrade_webSite();
 
   COMMIT ;
 

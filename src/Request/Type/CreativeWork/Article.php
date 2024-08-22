@@ -25,7 +25,9 @@ class Article extends Entity
 		$about = $params['about'] ?? null;
 		$orderBY = $params['orderBy'] ?? null;
 		$properties = $params['properties'] ?? null;
-		if ($about || ($orderBY && strpos($orderBY,'datePublished') !== false)) {
+		$headline = $params['headline'] ?? null;
+		$datePublished = $params['datePublished'] ?? null;
+		if ($about || ($orderBY && strpos($orderBY,'datePublished') !== false) || $headline || $datePublished) {
 			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['type'=>'Article'] + $params)->ready();
 			if (!empty($dataCreativeWork)) {
 				foreach ($dataCreativeWork as $valueCreativeWork) {
@@ -41,11 +43,15 @@ class Article extends Entity
 			if (!empty($dataArticle)) {
 				foreach ($dataArticle as $value) {
 					// CREATIVE WORK
-					$idcreativeWork = $value['creativeWork'];
-					$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
-					// RESPONSE
-					if (isset($dataCreativeWork[0])) {
-						$returns[] = $value + $dataCreativeWork[0];
+					$idcreativeWork = $value['creativeWork'] ?? null;
+					if ($idcreativeWork) {
+						$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
+						// RESPONSE
+						if (isset($dataCreativeWork[0])) {
+							$returns[] = $value + $dataCreativeWork[0];
+						} else {
+							$returns[] = $value;
+						}
 					} else {
 						$returns[] = $value;
 					}

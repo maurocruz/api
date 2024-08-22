@@ -1,27 +1,26 @@
 -- ORGANIZATION
 CREATE PROCEDURE upgrade_organization()
   BEGIN
-
     -- mesclar dados duplicados
-    DROP table if exists `organization_tmp`;
+    DROP TABLE IF EXISTS `organization_tmp`;
     CREATE TABLE `organization_tmp` AS
-    SELECT
-      max(idorganization) as idorganization,
-      max(additionalType) as additionalType,
-      name,
-      max(description) as description,
-      max(disambiguatingDescription) as disambiguatingDescription,
-      max(legalName) as legalName,
-      max(taxId) as taxId,
-      max(url) as url,
-      max(hasOfferCatalog) as hasOfferCatalog,
-      max(location) as location,
-      max(address) as address,
-      max(areaServed) as areaServed,
-      max(dateCreated) as dateCreated,
-      max(dateModified) as dateModified
-    FROM pirenopolis02.organization group by name having count(name) > 1;
-    insert into `organization_tmp` select * from `organization` group by name having count(name) = 1;
+      SELECT
+        max(idorganization) as idorganization,
+        max(additionalType) as additionalType,
+        name,
+        max(description) as description,
+        max(disambiguatingDescription) as disambiguatingDescription,
+        max(legalName) as legalName,
+        max(taxId) as taxId,
+        max(url) as url,
+        max(hasOfferCatalog) as hasOfferCatalog,
+        max(location) as location,
+        max(address) as address,
+        max(areaServed) as areaServed,
+        max(dateCreated) as dateCreated,
+        max(dateModified) as dateModified
+      FROM organization GROUP BY name HAVING count(name) > 1;
+    INSERT INTO `organization_tmp` SELECT * FROM `organization` GROUP BY name HAVING count(name) = 1;
     RENAME TABLE `organization` TO `organization_old`, `organization_tmp` TO `organization`;
     DROP TABLE `organization_old`;
 
@@ -65,6 +64,14 @@ CREATE PROCEDURE upgrade_organization()
     INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
     SELECT `thing`,`idimageObject`,`organization_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `organization_has_imageObject`
       JOIN `organization` ON `organization_has_imageObject`.idorganization = organization.idorganization;
+
+    -- IMAGES
+    UPDATE `thing`
+      join organization ON organization.thing = thing.idthing
+      join organization_has_imageObject ON organization_has_imageObject.idorganization = organization.idorganization and organization_has_imageObject.representativeOfPage <> 0
+      join imageObject ON imageObject.idimageObject = organization_has_imageObject.idimageObject
+      join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
+    SET `thing`.image = `mediaObject`.contentUrl;
 
     -- has person
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption)

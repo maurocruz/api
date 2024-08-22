@@ -35,22 +35,25 @@ class WebPage extends Entity
 				$returns[] = $dataWebPage[0] + $item;
 			}
 		} elseif ($url) {
-			$data = PDOConnect::run("SELECT * FROM webPage
-LEFT JOIN creativeWork ON creativeWork.idcreativeWork=webPage.creativeWork
-LEFT JOIN thing ON creativeWork.thing=thing.idthing
-WHERE thing.url='$url';");
-
+			$data = PDOConnect::run("SELECT * FROM webPage LEFT JOIN creativeWork ON creativeWork.idcreativeWork=webPage.creativeWork LEFT JOIN thing ON creativeWork.thing=thing.idthing WHERE thing.url='$url';");
 			if (!empty($data)) {
 				foreach ($data as $item) {
 					$idthing = $item['idthing'];
 					$idcreativeWork = $item['creativeWork'];
-
 					if ($properties) {
-						if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork]);
+						if (strpos($properties, 'hasPart') !== false) $item['hasPart'] = parent::getProperties('webPageElement', ['isPartOf' => $idcreativeWork,'properties'=>'image,propertyValue','orderBy'=>'position']);
 						if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy'=>'position']);
 						if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webSite', ['creativeWork' => $isPartOf])[0];
+						if (strpos($properties, 'propertyValue') !== false) {
+							$query = "SELECT name, value FROM pirenopolis02.thing_has_thing
+                  JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
+                  WHERE typeHasPart='WebPage' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
+							$dataPropertyValue = PDOConnect::run($query);
+							foreach ($dataPropertyValue as $propertyValue) {
+								$item['identifier'][] = ['@type'=>'PropertyValue','name'=>$propertyValue['name'], 'value'=>$propertyValue['value']];
+							}
+						}
 					}
-
 					$returns[] = $item;
 				}
 			}

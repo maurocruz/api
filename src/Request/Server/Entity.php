@@ -5,7 +5,6 @@ namespace Plinct\Api\Request\Server;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Api\Request\Server\Relationship\Relationship;
 use Plinct\Api\Request\Server\Schema\Schema;
 
 abstract class Entity implements HttpRequestInterface
@@ -70,11 +69,7 @@ abstract class Entity implements HttpRequestInterface
    */
   public function get(array $params = []): array
   {
-    if (isset($params['tableHasPart']) && isset($params['idHasPart'])) {
-      $data = (new Relationship($params['tableHasPart'], (int) $params['idHasPart'], $this->table))->getRelationship($params);
-    } else {
-      $data = $this->getData($params);
-    }
+    $data = $this->getData($params);
     if (isset($data['error'])) {
       return $data;
     } else {

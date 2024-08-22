@@ -28,6 +28,11 @@ BEGIN
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idwebPage`;
 
+  -- UPDATE IS PART OF
+  UPDATE `webPage`
+    JOIN `webSite` ON webPage.ispartOf = webSite.idwebSite
+    SET webPage.isPartOf = webSite.creativeWork;
+
   -- insert in creativeWork
   INSERT INTO `creativeWork` (`thing`,`isPartOf`,`alternativeHeadline`)
     SELECT `thing`,`isPartOf`,`alternativeHeadline` FROM `webPage`;
@@ -35,6 +40,12 @@ BEGIN
   UPDATE `webPage`
     JOIN `creativeWork` ON creativeWork.thing = webPage.thing
     SET webPage.creativeWork = creativeWork.idcreativeWork;
+
+  -- has propertyValue
+  INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
+  SELECT `webPage`.thing, 'WebPage', `propertyValue`.idpropertyValue, 'PropertyValue' FROM `webPage_has_propertyValue`
+   JOIN `webPage` ON `webPage`.idwebPage = `webPage_has_propertyValue`.idwebPage
+   JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPage_has_propertyValue`.idpropertyValue;
 
   -- alter table
   ALTER TABLE `webPage`
@@ -48,5 +59,7 @@ BEGIN
     DROP COLUMN `url`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idwebPage`,`creativeWork`,`thing`);
+
+  DROP TABLE `webPage_has_propertyValue`;
 
 END;

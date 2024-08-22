@@ -32,6 +32,14 @@ CREATE PROCEDURE upgrade_event()
     SELECT `thing`,`idimageObject`,`event_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `event_has_imageObject`
       JOIN `event` ON `event_has_imageObject`.idevent=event.idevent;
 
+    -- IMAGES
+    UPDATE `thing`
+      join event ON event.thing = thing.idthing
+      join event_has_imageObject ON event_has_imageObject.idevent = event.idevent and event_has_imageObject.representativeOfPage <> 0
+      join imageObject ON imageObject.idimageObject = event_has_imageObject.idimageObject
+      join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
+    SET `thing`.image = `mediaObject`.contentUrl;
+
     -- insert thing_has_thing event_has_event
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
       SELECT t1.thing, 'Event', t2.thing, 'Event' FROM `event_has_event`

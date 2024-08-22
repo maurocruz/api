@@ -24,7 +24,6 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
-		$idimageObject = $params['idimageObject'] ?? null;
 	  $isPartOf = $params['isPartOf'] ?? null;
 	  $orderBy = $params['orderBy'] ?? null;
 	  $ordering = $params['ordering'] ?? "asc";
@@ -42,13 +41,18 @@ class ImageObject extends ImageObjectAbstract
 			}
 			$query .= ";";
 			$data = PDOConnect::run($query);
-			return parent::sortData($data);
 		} else if ($hasPart) {
-			return parent::getHasPart($idimageObject);
+			$data = parent::getHasPart($hasPart);
 		}  else {
 			$data = parent::getData($params);
-			return parent::sortData($data);
+			foreach ($data as $key => $value) {
+				$idmediaObject = $value['mediaObject'];
+				$dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject' => $idmediaObject])->ready();
+				$valueMediaObject = $dataMediaObject[0] ?? [];
+				$data[$key] = $value + $valueMediaObject;
+			}
 		}
+	  return parent::sortData($data);
   }
 
 	/**

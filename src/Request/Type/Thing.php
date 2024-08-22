@@ -23,20 +23,18 @@ class Thing extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
 		$properties = $params['properties'] ?? null;
 		$dataThing = parent::getData($params);
-
-		if (!empty($dataThing) && $properties !== null) {
+		if (!empty($dataThing)) {
 			foreach ($dataThing as $key => $value) {
 				$idthing = $value['idthing'];
-				if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
-				$returns[$key] = $value;
+				if ($properties) {
+					if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+				}
+				$dataThing[$key] = $value;
 			}
-		} else {
-			$returns = $dataThing;
 		}
-		return parent::sortData($returns);
+		return parent::sortData($dataThing);
 	}
 
 	/**

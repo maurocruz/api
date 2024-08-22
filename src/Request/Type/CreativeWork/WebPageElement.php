@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 
 class WebPageElement extends Entity
@@ -25,14 +26,23 @@ class WebPageElement extends Entity
 		$properties = $params['properties'] ?? null;
 	  $isPartOf = $params['isPartOf'] ?? null;
 	  if ($isPartOf) {
-		  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['isPartOf'=>$isPartOf])->ready();
+		  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get($params)->ready();
 		  foreach ($dataCreativeWork as $item) {
 			  $idcreativeWork = $item['idcreativeWork'];
+			  $idthing = $item['thing'];
 			  $dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
-				$idthing = $dataWebPage[0]['thing'];
 			  if ($properties) {
 				  if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
 				  if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
+					if (strpos($properties, 'propertyValue') !== false) {
+						$query = "SELECT name, value FROM pirenopolis02.thing_has_thing
+                  JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
+                  WHERE typeHasPart='WebPageElement' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
+						$dataPropertyValue = PDOConnect::run($query);
+						foreach ($dataPropertyValue as $propertyValue) {
+							$item['identifier'][] = ['@type'=>'PropertyValue','name'=>$propertyValue['name'], 'value'=>$propertyValue['value']];
+						}
+					}
 			  }
 			  $returns[] = $dataWebPage[0] + $item;
 		  }

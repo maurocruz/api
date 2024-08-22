@@ -31,6 +31,14 @@ BEGIN
   SELECT `thing`,`idimageObject`,`product_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `product_has_imageObject`
     JOIN `product` ON `product_has_imageObject`.idproduct = product.idproduct;
 
+  -- IMAGES
+  UPDATE `thing`
+    join product ON product.thing = thing.idthing
+    join product_has_imageObject ON product_has_imageObject.idproduct = product.idproduct and product_has_imageObject.representativeOfPage <> 0
+    join imageObject ON imageObject.idimageObject = product_has_imageObject.idimageObject
+    join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
+  SET `thing`.image = `mediaObject`.contentUrl;
+
   ALTER TABLE `product`
     CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
     DROP COLUMN `name`,

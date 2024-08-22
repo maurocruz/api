@@ -22,10 +22,24 @@ class MediaObject extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = parent::getData($params);
+		$returns = $this->getMediaObjectData($params);
 		return parent::sortData($returns);
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function getMediaObjectData(array $params = []): array
+	{
+		$data = parent::getData($params);
+		foreach ($data as $key => $item) {
+			$idcreativeWork = $item['creativeWork'];
+			$dataCreativeWork = (new CreativeWork())->getCreativeWorkData(['idcreativeWork'=>$idcreativeWork] + $params);
+			$data[$key] = $item + ($dataCreativeWork[0] ?? null);
+		}
+		return $data;
+	}
 	/**
 	 * @param array|null $params
 	 * @return array

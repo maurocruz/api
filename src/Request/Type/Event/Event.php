@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Event;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 
 class Event extends Entity
@@ -32,6 +33,14 @@ class Event extends Entity
 					if (stripos($properties,'location') !== false) {
 						$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'],'properties'=>'address'])->ready();
 						$value['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
+					}
+					// subEvent
+					if (stripos($properties,'subEvent') !== false) {
+						$query = "SELECT * FROM thing_has_thing where idHasPart=$idthing AND typeHasPart='Event';";
+						$dataIsPartOf = PDOConnect::run($query);
+						foreach ($dataIsPartOf as $valueSubEvent) {
+								$value['subEvent'][] = ['idevent'=>$valueSubEvent['idIsPartOf']];
+						}
 					}
 				}
 				$returns[] = $value + $dataThing[0];

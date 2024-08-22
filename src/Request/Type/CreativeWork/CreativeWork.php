@@ -22,21 +22,32 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
+		$returns = $this->getCreativeWorkData($params);
+		return parent::sortData($returns);
+	}
+
+	public function getCreativeWorkData(array $params = []): array
+	{
 		$properties = $params['properties'] ?? null;
 		$dataCreativeWork = parent::getData($params);
 		if (isset($dataCreativeWork['error'])) {
 			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($dataCreativeWork);
-		} elseif (!empty($dataCreativeWork) && $properties) {
-			foreach ($dataCreativeWork as $creativeWork) {
-				$author = $creativeWork['author'];
-				if (strpos($properties, 'author') !== false) $creativeWork['author'] = parent::getProperties('person', ['idperson' => $author, 'properties' => 'image']);
-				$returns[] = $creativeWork;
-			}
-		} else {
-			$returns = $dataCreativeWork;
 		}
-		return parent::sortData($returns);
+		if (!empty($dataCreativeWork)) {
+			foreach ($dataCreativeWork as $key => $creativeWork) {
+				$idthing = $creativeWork['thing'];
+				$author = $creativeWork['author'];
+				// get thing
+				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
+				$valueThing = $dataThing[0] ?? [];
+				// if properties
+				if ($properties) {
+					if (strpos($properties, 'author') !== false) $creativeWork['author'] = parent::getProperties('person', ['idperson' => $author, 'properties' => 'image']);
+				}
+				$dataCreativeWork[$key] = $creativeWork + $valueThing;
+			}
+		}
+		return $dataCreativeWork;
 	}
 
 	/**
