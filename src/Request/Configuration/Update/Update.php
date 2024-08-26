@@ -27,6 +27,7 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_create_tables.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_keys.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_set_image_in_thing.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));

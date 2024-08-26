@@ -38,12 +38,8 @@ BEGIN
   SELECT `thing`,`idimageObject`,`taxon_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `taxon_has_imageObject`
     JOIN `taxon` ON `taxon_has_imageObject`.idtaxon = taxon.idtaxon;
 
-  UPDATE `thing`
-    join taxon ON taxon.thing = thing.idthing
-    join (SELECT idtaxon, idimageObject FROM taxon_has_imageObject group by idtaxon order by position) as has ON has.idtaxon = taxon.idtaxon
-    join imageObject ON imageObject.idimageObject = has.idimageObject
-    join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
-  SET `thing`.image = `mediaObject`.contentUrl;
+  -- IMAGES
+  CALL set_image_in_thing('taxon');
 
   -- alter table
   ALTER TABLE `taxon`

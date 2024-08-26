@@ -43,12 +43,8 @@ BEGIN
   SELECT `thing`,`idimageObject`,`place_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `place_has_imageObject`
     JOIN `place` ON `place_has_imageObject`.idplace = place.idplace;
 
-  UPDATE `thing`
-    join place ON place.thing = thing.idthing
-    join (SELECT idplace, idimageObject FROM place_has_imageObject group by idplace order by position) as has ON has.idplace = place.idplace
-    join imageObject ON imageObject.idimageObject = has.idimageObject
-    join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
-  SET `thing`.image = `mediaObject`.contentUrl;
+  -- IMAGES
+  CALL set_image_in_thing('place');
 
   -- alter table
   ALTER TABLE `place`

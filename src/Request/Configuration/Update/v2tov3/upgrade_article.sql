@@ -33,12 +33,7 @@ CREATE PROCEDURE upgrade_article()
       SET article.creativeWork=creativeWork.idcreativeWork;
 
     -- IMAGES
-    UPDATE `thing`
-      join article ON article.thing = thing.idthing
-      join (SELECT idarticle, idimageObject FROM article_has_imageObject group by idarticle order by position) as has ON has.idarticle = article.idarticle
-      join imageObject ON imageObject.idimageObject = has.idimageObject
-      join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
-      SET `thing`.image = `mediaObject`.contentUrl;
+    CALL set_image_in_thing('article');
 
     INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
       SELECT `thing`,`idimageObject`,`article_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `article_has_imageObject`

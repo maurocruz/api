@@ -19,3 +19,4 @@
   DROP PROCEDURE IF EXISTS upgrade_webPage;
   DROP PROCEDURE IF EXISTS upgrade_webPageElement;
   DROP PROCEDURE IF EXISTS upgrade_webSite;
+  DROP PROCEDURE IF EXISTS set_image_in_thing;

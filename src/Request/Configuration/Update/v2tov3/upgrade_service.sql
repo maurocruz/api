@@ -32,12 +32,8 @@ BEGIN
   SELECT `thing`,`idimageObject`,`service_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `service_has_imageObject`
     JOIN `service` ON `service_has_imageObject`.idservice = service.idservice;
 
-  UPDATE `thing`
-    join service ON service.thing = thing.idthing
-    join (SELECT idservice, idimageObject FROM service_has_imageObject group by idservice order by position) as has ON has.idservice = service.idservice
-    join imageObject ON imageObject.idimageObject = has.idimageObject
-    join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
-  SET `thing`.image = `mediaObject`.contentUrl;
+  -- IMAGES
+  CALL set_image_in_thing('service');
 
   ALTER TABLE `service`
     CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
