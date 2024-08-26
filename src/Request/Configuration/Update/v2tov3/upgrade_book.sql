@@ -3,7 +3,7 @@ CREATE PROCEDURE upgrade_book()
     -- alter table
     ALTER TABLE `book`
       CHANGE COLUMN `idbook` `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      CHANGE COLUMN `datePublished` `datePublished` DATETIME DEFAULT NULL,
+      CHANGE COLUMN `datePublished` `datePublished` VARCHAR(19) DEFAULT NULL,
       ADD COLUMN `isbn` VARCHAR(18) NULL AFTER `idbook`,
       ADD COLUMN `illustrator` INT UNSIGNED NULL AFTER `idbook`,
       ADD COLUMN `bookFormat` VARCHAR(20) NULL AFTER `idbook`,
@@ -26,7 +26,7 @@ CREATE PROCEDURE upgrade_book()
 
     -- insert creativework
     INSERT INTO `creativeWork` (`thing`,`author`,`datePublished`,`keywords`,`locationCreated`,`publisher`,`version`)
-    SELECT `thing`,`author`,`datePublished`,`keywords`,`locationCreated`,`publisher`,`version` FROM `book`;
+    SELECT `thing`,`author`,CONCAT(`datePublished`,'-01-01 00:00:00') as datetime,`keywords`,`locationCreated`,`publisher`,`version` FROM `book`;
     -- update child
     UPDATE `book`
       JOIN `creativeWork` ON creativeWork.thing=book.thing
@@ -35,8 +35,8 @@ CREATE PROCEDURE upgrade_book()
     -- IMAGES
     UPDATE `thing`
       join book ON book.thing = thing.idthing
-      join book_has_imageObject ON book_has_imageObject.idbook = book.idbook and book_has_imageObject.representativeOfPage <> 0
-      join imageObject ON imageObject.idimageObject = book_has_imageObject.idimageObject
+      join (SELECT idbook, idimageObject FROM book_has_imageObject group by idbook order by position) as has ON has.idbook = book.idbook
+      join imageObject ON imageObject.idimageObject = has.idimageObject
       join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
     SET `thing`.image = `mediaObject`.contentUrl;
 
@@ -64,6 +64,7 @@ CREATE PROCEDURE upgrade_book()
       ADD PRIMARY KEY (`idbook`,`creativeWork`,`thing`),
       ADD INDEX `fk_book_creativeWork_idx` (`creativeWork`),
       ADD INDEX `fk_book_thing_idx` (`thing`);
+
     -- drop old relationship
     DROP TABLE `book_has_imageObject`;
 END ;

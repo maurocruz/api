@@ -35,8 +35,8 @@ CREATE PROCEDURE upgrade_event()
     -- IMAGES
     UPDATE `thing`
       join event ON event.thing = thing.idthing
-      join event_has_imageObject ON event_has_imageObject.idevent = event.idevent and event_has_imageObject.representativeOfPage <> 0
-      join imageObject ON imageObject.idimageObject = event_has_imageObject.idimageObject
+      join (SELECT idevent, idimageObject FROM event_has_imageObject group by idevent order by position) as has ON has.idevent = event.idevent
+      join imageObject ON imageObject.idimageObject = has.idimageObject
       join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
     SET `thing`.image = `mediaObject`.contentUrl;
 

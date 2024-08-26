@@ -65,11 +65,10 @@ CREATE PROCEDURE upgrade_organization()
     SELECT `thing`,`idimageObject`,`organization_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `organization_has_imageObject`
       JOIN `organization` ON `organization_has_imageObject`.idorganization = organization.idorganization;
 
-    -- IMAGES
     UPDATE `thing`
       join organization ON organization.thing = thing.idthing
-      join organization_has_imageObject ON organization_has_imageObject.idorganization = organization.idorganization and organization_has_imageObject.representativeOfPage <> 0
-      join imageObject ON imageObject.idimageObject = organization_has_imageObject.idimageObject
+      join (SELECT idorganization, idimageObject FROM organization_has_imageObject group by idorganization order by position) as has ON has.idorganization = organization.idorganization
+      join imageObject ON imageObject.idimageObject = has.idimageObject
       join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
     SET `thing`.image = `mediaObject`.contentUrl;
 

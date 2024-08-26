@@ -38,11 +38,10 @@ BEGIN
   SELECT `thing`,`idimageObject`,`taxon_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `taxon_has_imageObject`
     JOIN `taxon` ON `taxon_has_imageObject`.idtaxon = taxon.idtaxon;
 
-  -- IMAGES
   UPDATE `thing`
     join taxon ON taxon.thing = thing.idthing
-    join taxon_has_imageObject ON taxon_has_imageObject.idtaxon = taxon.idtaxon and taxon_has_imageObject.representativeOfPage <> 0
-    join imageObject ON imageObject.idimageObject = taxon_has_imageObject.idimageObject
+    join (SELECT idtaxon, idimageObject FROM taxon_has_imageObject group by idtaxon order by position) as has ON has.idtaxon = taxon.idtaxon
+    join imageObject ON imageObject.idimageObject = has.idimageObject
     join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
   SET `thing`.image = `mediaObject`.contentUrl;
 

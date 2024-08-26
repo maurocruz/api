@@ -21,24 +21,37 @@ class Book extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
-		$dataBook = parent::getData($params);
-		if (!empty($dataBook)) {
-			foreach ($dataBook as $value) {
-				// CREATIVE WORK
-				$idcreativeWork = $value['creativeWork'];
-				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
-				// RESPONSE
-				if (isset($dataCreativeWork[0])) {
-					$returns[] = $value + $dataCreativeWork[0];
-				} else {
-					$returns[] = $value;
+		$dataBook = [];
+		$orderBy = $params['orderBy'] ?? null;
+		if ($orderBy) {
+			$dataThing = ApiFactory::request()->type('thing')->get(['type'=>'Book'] + $params)->ready();
+			if (!empty($dataThing)) {
+				foreach ($dataThing as $key => $thing) {
+					$idthing = $thing['idthing'];
+					$dataItem = parent::getData(['thing'=>$idthing] + $params);
+					if (!empty($dataItem)) {
+						$dataBook[$key] = $dataItem[0];
+					}
 				}
 			}
-			return parent::sortData($returns);
 		} else {
-			return [];
+			$dataBook = parent::getData($params);
 		}
+
+		if (!empty($dataBook)) {
+			foreach ($dataBook as $key => $value) {
+				// CREATIVE WORK
+				$idcreativeWork = $value['creativeWork'];
+				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork])->ready();
+				// RESPONSE
+				if (isset($dataCreativeWork[0])) {
+					$dataBook[$key] = $value + $dataCreativeWork[0];
+				} else {
+					$dataBook[$key] = $value;
+				}
+			}
+		}
+		return parent::sortData($dataBook);
 	}
 
 	/**

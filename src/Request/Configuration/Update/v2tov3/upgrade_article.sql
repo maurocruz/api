@@ -35,8 +35,8 @@ CREATE PROCEDURE upgrade_article()
     -- IMAGES
     UPDATE `thing`
       join article ON article.thing = thing.idthing
-      join article_has_imageObject ON article_has_imageObject.idarticle = article.idarticle and article_has_imageObject.representativeOfPage <> 0
-      join imageObject ON imageObject.idimageObject = article_has_imageObject.idimageObject
+      join (SELECT idarticle, idimageObject FROM article_has_imageObject group by idarticle order by position) as has ON has.idarticle = article.idarticle
+      join imageObject ON imageObject.idimageObject = has.idimageObject
       join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
       SET `thing`.image = `mediaObject`.contentUrl;
 

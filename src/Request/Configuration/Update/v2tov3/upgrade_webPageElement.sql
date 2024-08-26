@@ -50,11 +50,10 @@ BEGIN
     SELECT `thing`,`idimageObject`,`href`,`webPageElement_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `webPageElement_has_imageObject`
     JOIN `webPageElement` ON `webPageElement_has_imageObject`.idwebPageElement=webPageElement.idwebPageElement;
 
-  -- IMAGES
   UPDATE `thing`
     join webPageElement ON webPageElement.thing = thing.idthing
-    join webPageElement_has_imageObject ON webPageElement_has_imageObject.idwebPageElement = webPageElement.idwebPageElement and webPageElement_has_imageObject.representativeOfPage <> 0
-    join imageObject ON imageObject.idimageObject = webPageElement_has_imageObject.idimageObject
+    join (SELECT idwebPageElement, idimageObject FROM webPageElement_has_imageObject group by idwebPageElement order by position) as has ON has.idwebPageElement = webPageElement.idwebPageElement
+    join imageObject ON imageObject.idimageObject = has.idimageObject
     join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
   SET `thing`.image = `mediaObject`.contentUrl;
 

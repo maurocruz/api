@@ -53,11 +53,10 @@ CREATE PROCEDURE upgrade_localBusiness()
     SELECT `thing`,`idimageObject`,`localBusiness_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `localBusiness_has_imageObject`
       JOIN `localBusiness` ON `localBusiness_has_imageObject`.idlocalBusiness = localBusiness.idlocalBusiness;
 
-    -- IMAGES
     UPDATE `thing`
       join localBusiness ON localBusiness.thing = thing.idthing
-      join localBusiness_has_imageObject ON localBusiness_has_imageObject.idlocalBusiness = localBusiness.idlocalBusiness and localBusiness_has_imageObject.representativeOfPage <> 0
-      join imageObject ON imageObject.idimageObject = localBusiness_has_imageObject.idimageObject
+      join (SELECT idlocalBusiness, idimageObject FROM localBusiness_has_imageObject group by idlocalBusiness order by position) as has ON has.idlocalBusiness = localBusiness.idlocalBusiness
+      join imageObject ON imageObject.idimageObject = has.idimageObject
       join mediaObject ON mediaObject.idmediaObject = imageObject.mediaObject
     SET `thing`.image = `mediaObject`.contentUrl;
 
