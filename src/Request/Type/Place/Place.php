@@ -26,8 +26,12 @@ class Place extends Entity
 				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
 				if ($properties) {
 					if (stripos($properties, 'address') !== false) {
-						$dataAddress = ApiFactory::request()->type('postalAddress')->get(['thing'=>$idthing])->ready();
-						$value['address'] = !empty($dataAddress) ? ApiFactory::response()->type('postalAddress')->setData($dataAddress)->ready() : null;
+						$idpostalAddress = $value['address'] ?? null;
+						if ($idpostalAddress) {
+							$dataAddress = ApiFactory::request()->type('postalAddress')->get(['idpostalAddress'=>$idpostalAddress])->ready();
+							$value['address'] = !empty($dataAddress) ? ApiFactory::response()->type('postalAddress')->setData($dataAddress)->ready()[0] : null;
+						}
+
 					}
 				}
 				$returns[] = $value + $dataThing[0];
