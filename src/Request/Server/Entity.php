@@ -82,7 +82,7 @@ abstract class Entity implements HttpRequestInterface
 	 * @param array $params
 	 * @return array|null
 	 */
-	public function getProperties(string $property, array $params): ?array
+	protected function getProperties(string $property, array $params): ?array
 	{
 		$data = ApiFactory::request()->type($property)->get($params)->ready();
 		return isset($data[0]) ? ApiFactory::response()->type($property)->setData($data)->ready() : null;
@@ -93,10 +93,10 @@ abstract class Entity implements HttpRequestInterface
 	 * @param bool $withThing
 	 * @return array
 	 */
-	protected function getData(array $params, bool $withThing = false): array
-	{
-		$data = new GetData($this->table);
-		$data->setParams($params);
+  protected function getData(array $params, bool $withThing = false): array
+  {
+    $data = new GetData($this->table);
+    $data->setParams($params);
 		$dataType = $data->render();
 		if ($withThing) {
 			foreach ($dataType as $key => $typeValue) {
@@ -110,7 +110,7 @@ abstract class Entity implements HttpRequestInterface
 			}
 		}
 		return $dataType;
-	}
+  }
 
 	protected function getThingFirst(string $type, array $params): ?array
 	{
@@ -119,14 +119,15 @@ abstract class Entity implements HttpRequestInterface
 		if (!empty($dataThing)) {
 			foreach ($dataThing as $key => $valueThing) {
 				$idthing = $valueThing['idthing'];
-				$dataType = $this->getData(['thing' => $idthing] + $params);
-				if (!empty($dataType)) {
-					$returns[$key] = $dataType[0] + $valueThing;
+				$dataTaxon = $this->getData(['thing' => $idthing] + $params);
+				if (!empty($dataTaxon)) {
+					$returns[$key] = $dataTaxon[0] + $valueThing;
 				}
 			}
 		}
 		return $returns;
 	}
+
 	/**
 	 * @param array|null $params
 	 * @return array
