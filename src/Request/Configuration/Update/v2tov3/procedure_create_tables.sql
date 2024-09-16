@@ -224,6 +224,20 @@ CREATE PROCEDURE create_tables()
       PRIMARY KEY (`idpropertyValue`)
     ) ENGINE = InnoDB;
 
+    -- RATING
+    CREATE TABLE IF NOT EXISTS `rating` (
+      `idrating` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
+      `author` INT DEFAULT NULL,
+      `bestRating` VARCHAR(50) DEFAULT NULL,
+      `ratingExplanation` VARCHAR(255) DEFAULT NULL,
+      `ratingValue` VARCHAR(50) NOT NULL,
+      `reviewAspect` VARCHAR(255) DEFAULT NULL,
+      `worstRating` VARCHAR(50) DEFAULT NULL,
+      PRIMARY KEY (`idrating`),
+      KEY `rating_ratingValue_idx` (`ratingValue`)
+    ) ENGINE = InnoDB;
+
     -- SERVICE
     CREATE TABLE IF NOT EXISTS `service` (
       `idservice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
