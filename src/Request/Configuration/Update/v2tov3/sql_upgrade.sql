@@ -31,10 +31,14 @@ BEGIN
   CALL upgrade_person();
   -- LOCAL BUSINESS
   CALL upgrade_localBusiness();
+  -- OFFER
+  CALL upgrade_offer();
   -- ORGANIZATION
   CALL upgrade_organization();
   -- PLACE
   CALL upgrade_place();
+  -- POSTAL ADDRESS
+  CALL upgrade_postalAddress();
   -- PRODUCT
   CALL upgrade_product();
   -- SERVIC
@@ -49,6 +53,8 @@ BEGIN
   CALL upgrade_webPage();
   -- WEBPAGE ELEMENT
   CALL upgrade_webPageElement();
+  -- ADD FOREIGN KEYS
+  CALL add_foreign_keys();
 
   COMMIT ;
 

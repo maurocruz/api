@@ -56,9 +56,7 @@ CREATE PROCEDURE upgrade_book()
       DROP COLUMN `publisher`,
       DROP COLUMN `version`,
       DROP PRIMARY KEY,
-      ADD PRIMARY KEY (`idbook`,`creativeWork`,`thing`),
-      ADD INDEX `fk_book_creativeWork_idx` (`creativeWork`),
-      ADD INDEX `fk_book_thing_idx` (`thing`);
+      ADD PRIMARY KEY (`idbook`,`creativeWork`,`thing`);
 
     -- drop old relationship
     DROP TABLE `book_has_imageObject`;

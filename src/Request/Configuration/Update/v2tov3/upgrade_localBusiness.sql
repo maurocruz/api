@@ -4,6 +4,8 @@ CREATE PROCEDURE upgrade_localBusiness()
     -- ALTER TABLE
     ALTER TABLE `localBusiness`
       CHANGE COLUMN `idlocalBusiness` `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      CHANGE COLUMN `organization` `organization` INT UNSIGNED DEFAULT NULL,
+      CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `additionalType` `additionalType` VARCHAR(255) DEFAULT NULL,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idlocalBusiness`,
       DROP PRIMARY KEY ,
@@ -33,6 +35,10 @@ CREATE PROCEDURE upgrade_localBusiness()
       JOIN `organization` ON `organization`.`name` = `localBusiness`.`name`
       SET `localBusiness`.organization = `organization`.idorganization
     WHERE `localBusiness`.organization IS NULL;
+
+    UPDATE `localBusiness`
+      SET `localBusiness`.organization = NULL
+      WHERE `localBusiness`.organization NOT IN (SELECT idorganization FROM organization);
 
     -- insert organization
     INSERT INTO `organization` (`hasOfferCatalog`,`location`)
@@ -78,10 +84,7 @@ CREATE PROCEDURE upgrade_localBusiness()
       DROP COLUMN `dateCreated`,
       DROP COLUMN `dateModified`,
       DROP PRIMARY KEY ,
-      ADD PRIMARY KEY (`idlocalBusiness`,`thing`),
-      ADD KEY `localBusiness_organization_idx` (`organization`),
-      ADD KEY `localBusiness_place_idx` (`location`)
-    ;
+      ADD PRIMARY KEY (`idlocalBusiness`,`thing`);
 
     DROP TABLE `localBusiness_has_contactPoint`;
     DROP TABLE `localBusiness_has_imageObject`;

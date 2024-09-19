@@ -1,6 +1,9 @@
 -- EVENT
 CREATE PROCEDURE upgrade_event()
   BEGIN
+
+    UPDATE `event` SET `superEvent`=null WHERE `superEvent`=0;
+
     -- alter table
     ALTER TABLE `event`
       DROP COLUMN `additionalType`,
@@ -54,12 +57,7 @@ CREATE PROCEDURE upgrade_event()
       DROP COLUMN `dateCreated`,
       DROP COLUMN `dateModified`,
       DROP PRIMARY KEY,
-      ADD PRIMARY KEY (`idevent`,`thing`),
-      ADD KEY `fk_event_about_idx1` (`about`),
-      ADD KEY `fk_event_location_idx1` (`location`),
-      ADD KEY `fk_event_organizer_idx1` (`organizer`),
-      ADD KEY `fk_event_subEvent_idx1` (`subEvent`),
-      ADD KEY `fk_event_superEvent_idx1` (`superEvent`);
+      ADD PRIMARY KEY (`idevent`,`thing`);
 
     -- drop relational tables
     DROP TABLE `event_has_event`;

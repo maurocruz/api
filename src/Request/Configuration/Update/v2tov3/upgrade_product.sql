@@ -4,6 +4,7 @@ BEGIN
   -- ALTER TABLE
   ALTER TABLE `product`
     CHANGE COLUMN `idproduct` `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `manufacturer` `manufacturer` INT UNSIGNED DEFAULT NULL,
     ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idproduct`,
     DROP PRIMARY KEY ,
     ADD PRIMARY KEY (`idproduct`);

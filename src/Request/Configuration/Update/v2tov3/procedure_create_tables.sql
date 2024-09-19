@@ -95,8 +95,8 @@ CREATE PROCEDURE create_tables()
      `mediaObject` INT UNSIGNED NOT NULL,
      `creativeWork` INT UNSIGNED NOT NULL,
      `thing` INT UNSIGNED NOT NULL,
-     PRIMARY KEY (`idimageObject`)
-    ) ENGINE=InnoDB;
+     PRIMARY KEY (`idimageObject`,`mediaObject`,`creativeWork`,`thing`)
+    ) ENGINE = InnoDB;
 
     -- INVOICE
     CREATE TABLE IF NOT EXISTS `invoice` (
@@ -109,19 +109,18 @@ CREATE PROCEDURE create_tables()
      PRIMARY KEY (`idinvoice`,`referencesOrder`),
      KEY `invoice_paymentDueDate_idx` (`paymentDueDate`),
      KEY `invoice_referencesOrder_idx` (`referencesOrder`)
-    ) ENGINE=InnoDB;
+    ) ENGINE = InnoDB;
 
     -- LOCAL BUSINESS
     CREATE TABLE IF NOT EXISTS `localBusiness` (
       `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `thing` INT UNSIGNED NOT NULL,
-      `organization` INT UNSIGNED NOT NULL ,
+      `organization` INT UNSIGNED DEFAULT NULL ,
       `location` INT UNSIGNED NOT NULL,
       PRIMARY KEY (`idlocalBusiness`,`thing`),
       KEY `localBusiness_organization_idx` (`organization`),
       KEY `localBusiness_place_idx` (`location`)
     ) ENGINE = InnoDB;
-
     -- MEDIA OBJECT
     CREATE TABLE IF NOT EXISTS `mediaObject` (
       `idmediaObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -135,9 +134,8 @@ CREATE PROCEDURE create_tables()
       `height` INT DEFAULT NULL,
       `width` INT DEFAULT NULL,
       `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (`idmediaObject`,`creativeWork`)
+      PRIMARY KEY (`idmediaObject`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
-
     -- OFFER
     CREATE TABLE IF NOT EXISTS `offer` (
       `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -153,7 +151,6 @@ CREATE PROCEDURE create_tables()
       `elegibleDuration` VARCHAR(45) DEFAULT NULL,
       PRIMARY KEY (`idoffer`)
     ) ENGINE = InnoDB;
-
     -- ORGANIZATION
     CREATE TABLE IF NOT EXISTS `organization` (
       `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -181,8 +178,7 @@ CREATE PROCEDURE create_tables()
       `deathPlace` VARCHAR(45) DEFAULT NULL,
       `gender` VARCHAR(45) DEFAULT NULL,
       `hasOccupation` VARCHAR(255) DEFAULT NULL,
-      `homeLocation` INT UNSIGNED NULL,
-      `memberOf` INT UNSIGNED NULL,
+      `homeLocation` INT UNSIGNED DEFAULT NULL,
       PRIMARY KEY (`idperson`,`thing`),
       KEY (`givenName`,`familyName`)
     ) ENGINE = InnoDB;
@@ -193,7 +189,7 @@ CREATE PROCEDURE create_tables()
       `thing` INT UNSIGNED NOT NULL,
       `geo` INT UNSIGNED DEFAULT NULL,
       `publicAccess` BOOLEAN DEFAULT FALSE,
-      PRIMARY KEY (`idplace`,`thing`)
+      PRIMARY KEY (`idplace`,`thing`,`geo`)
     ) ENGINE = InnoDB;
 
     --  POSTAL ADDRESS
@@ -212,7 +208,7 @@ CREATE PROCEDURE create_tables()
       `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `thing` INT UNSIGNED NOT NULL,
       `category` VARCHAR(64) NOT NULL DEFAULT '',
-      `manufacturer` INT DEFAULT NULL,
+      `manufacturer` INT UNSIGNED DEFAULT NULL,
       PRIMARY KEY (`idproduct`,`thing`)
     ) ENGINE = InnoDB;
 
@@ -227,14 +223,14 @@ CREATE PROCEDURE create_tables()
     -- RATING
     CREATE TABLE IF NOT EXISTS `rating` (
       `idrating` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `thing` INT UNSIGNED NOT NULL,
-      `author` INT DEFAULT NULL,
+      `about` INT UNSIGNED NOT NULL,
+      `author` VARCHAR(255) DEFAULT NULL,
       `bestRating` VARCHAR(50) DEFAULT NULL,
       `ratingExplanation` VARCHAR(255) DEFAULT NULL,
       `ratingValue` VARCHAR(50) NOT NULL,
       `reviewAspect` VARCHAR(255) DEFAULT NULL,
       `worstRating` VARCHAR(50) DEFAULT NULL,
-      PRIMARY KEY (`idrating`),
+      PRIMARY KEY (`idrating`,`about`),
       KEY `rating_ratingValue_idx` (`ratingValue`)
     ) ENGINE = InnoDB;
 
@@ -325,11 +321,11 @@ CREATE PROCEDURE create_tables()
     -- WEB PAGE
     CREATE TABLE IF NOT EXISTS `webPage` (
       `idwebPage` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `creativeWork` INT UNSIGNED NOT NULL,
       `thing` INT UNSIGNED NOT NULL,
+      `creativeWork` INT UNSIGNED NOT NULL,
       `breadcrumb` text,
       `primaryImageOfPage` INT UNSIGNED DEFAULT NULL,
-      PRIMARY KEY (`idwebPage`,`creativeWork`)
+      PRIMARY KEY (`idwebPage`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
 
     -- WEB PAGE ELEMENT

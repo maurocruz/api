@@ -54,6 +54,10 @@ CREATE PROCEDURE upgrade_organization()
     -- drop column
     ALTER TABLE `thing` DROP COLUMN `idorganization`;
 
+    UPDATE `organization`
+      SET `organization`.location = NULL
+      WHERE `organization`.location NOT IN (SELECT idplace FROM place);
+
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
     SELECT `organization`.thing, 'Organization', `contactPoint`.thing, 'ContactPoint' FROM `organization_has_contactPoint`
@@ -85,9 +89,7 @@ CREATE PROCEDURE upgrade_organization()
       DROP COLUMN `dateCreated`,
       DROP COLUMN `dateModified`,
       DROP PRIMARY KEY ,
-      ADD PRIMARY KEY (`idorganization`,`thing`),
-      ADD KEY `organization_place_idx` (`location`)
-    ;
+      ADD PRIMARY KEY (`idorganization`,`thing`);
 
     DROP TABLE `organization_has_contactPoint`;
     DROP TABLE `organization_has_imageObject`;

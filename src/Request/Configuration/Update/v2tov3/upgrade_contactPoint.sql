@@ -33,7 +33,6 @@ CREATE PROCEDURE upgrade_contactPoint()
       DROP COLUMN `obs`,
       DROP COLUMN `position`,
       DROP PRIMARY KEY,
-      ADD PRIMARY KEY (`idcontactPoint`,`thing`),
-      ADD INDEX `fk_contactPoint_thing_idx` (`thing`);
+      ADD PRIMARY KEY (`idcontactPoint`,`thing`);
 
 END ;

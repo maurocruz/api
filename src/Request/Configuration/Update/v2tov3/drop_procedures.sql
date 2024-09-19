@@ -10,8 +10,10 @@
   DROP PROCEDURE IF EXISTS upgrade_invoice;
   DROP PROCEDURE IF EXISTS upgrade_person;
   DROP PROCEDURE IF EXISTS upgrade_localBusiness;
+  DROP PROCEDURE IF EXISTS upgrade_offer;
   DROP PROCEDURE IF EXISTS upgrade_organization;
   DROP PROCEDURE IF EXISTS upgrade_place;
+  DROP PROCEDURE IF EXISTS upgrade_postalAddress;
   DROP PROCEDURE IF EXISTS upgrade_product;
   DROP PROCEDURE IF EXISTS upgrade_service;
   DROP PROCEDURE IF EXISTS upgrade_taxon;
@@ -20,3 +22,4 @@
   DROP PROCEDURE IF EXISTS upgrade_webPageElement;
   DROP PROCEDURE IF EXISTS upgrade_webSite;
   DROP PROCEDURE IF EXISTS set_image_in_thing;
+  DROP PROCEDURE IF EXISTS add_foreign_keys;

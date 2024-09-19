@@ -28,6 +28,7 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_create_tables.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_set_image_in_thing.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_add_foreign_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));
@@ -36,8 +37,10 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_invoice.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_person.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_localBusiness.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_offer.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_organization.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_place.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_postalAddress.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_product.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_service.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_taxon.sql'));

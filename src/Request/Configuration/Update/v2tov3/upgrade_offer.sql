@@ -1,0 +1,6 @@
+CREATE PROCEDURE upgrade_offer()
+BEGIN
+  ALTER TABLE `offer`
+    CHANGE COLUMN `idoffer` `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `itemOffered` `itemOffered` INT UNSIGNED DEFAULT NULL;
+END;
