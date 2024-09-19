@@ -136,6 +136,7 @@ CREATE PROCEDURE create_tables()
       `uploadDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (`idmediaObject`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
+
     -- OFFER
     CREATE TABLE IF NOT EXISTS `offer` (
       `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -151,6 +152,7 @@ CREATE PROCEDURE create_tables()
       `elegibleDuration` VARCHAR(45) DEFAULT NULL,
       PRIMARY KEY (`idoffer`)
     ) ENGINE = InnoDB;
+
     -- ORGANIZATION
     CREATE TABLE IF NOT EXISTS `organization` (
       `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,

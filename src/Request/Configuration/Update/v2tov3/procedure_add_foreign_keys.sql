@@ -50,7 +50,7 @@ BEGIN
     ADD KEY `fk_localBusiness_organization_idx` (`organization`),
     ADD KEY `fk_localBusiness_place_idx` (`location`),
     ADD CONSTRAINT `fk_localBusiness_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    -- ADD CONSTRAINT `fk_localBusiness_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_localBusiness_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_localBusiness_place` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- MEDIA OBJECT
   ALTER TABLE `mediaObject`

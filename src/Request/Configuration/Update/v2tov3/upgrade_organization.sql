@@ -58,6 +58,10 @@ CREATE PROCEDURE upgrade_organization()
       SET `organization`.location = NULL
       WHERE `organization`.location NOT IN (SELECT idplace FROM place);
 
+    UPDATE `localBusiness`
+    SET `localBusiness`.organization = NULL
+    WHERE `localBusiness`.organization NOT IN (SELECT idorganization FROM organization);
+
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
     SELECT `organization`.thing, 'Organization', `contactPoint`.thing, 'ContactPoint' FROM `organization_has_contactPoint`

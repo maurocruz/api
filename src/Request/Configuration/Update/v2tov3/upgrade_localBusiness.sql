@@ -33,30 +33,17 @@ CREATE PROCEDURE upgrade_localBusiness()
     -- set organization
     UPDATE `localBusiness`
       JOIN `organization` ON `organization`.`name` = `localBusiness`.`name`
-      SET `localBusiness`.organization = `organization`.idorganization
-    WHERE `localBusiness`.organization IS NULL;
-
-    UPDATE `localBusiness`
-      SET `localBusiness`.organization = NULL
-      WHERE `localBusiness`.organization NOT IN (SELECT idorganization FROM organization);
-
-    -- insert organization
-    INSERT INTO `organization` (`hasOfferCatalog`,`location`)
-      SELECT `hasOfferCatalog`,`location` FROM `localBusiness` WHERE `organization` IS NOT NULL;
-
-    UPDATE `localBusiness`
-      JOIN `organization` ON `localBusiness`.hasOfferCatalog = `organization`.hasOfferCatalog AND `localBusiness`.location = `organization`.location
-    SET `localBusiness`.organization=`organization`.idorganization;
+      SET `localBusiness`.organization = `organization`.idorganization;
 
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-    SELECT `localBusiness`.thing, 'LocalBusiness', `contactPoint`.thing, 'ContactPoint' FROM `localBusiness_has_contactPoint`
+      SELECT `localBusiness`.thing, 'LocalBusiness', `contactPoint`.thing, 'ContactPoint' FROM `localBusiness_has_contactPoint`
       JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_contactPoint`.idlocalBusiness
       JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `localBusiness_has_contactPoint`.idcontactPoint;
 
     -- has images
     INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-    SELECT `thing`,`idimageObject`,`localBusiness_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `localBusiness_has_imageObject`
+      SELECT `thing`,`idimageObject`,`localBusiness_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `localBusiness_has_imageObject`
       JOIN `localBusiness` ON `localBusiness_has_imageObject`.idlocalBusiness = localBusiness.idlocalBusiness;
 
     -- IMAGES
