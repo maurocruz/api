@@ -1,6 +1,8 @@
 CREATE PROCEDURE create_tables()
   BEGIN
-    -- CREATE TABLE article
+    -- AGGREGATE RATING
+
+    -- ARTICLE
     CREATE TABLE IF NOT EXISTS `article` (
      `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
      `creativeWork` INT UNSIGNED NOT NULL,
@@ -121,6 +123,7 @@ CREATE PROCEDURE create_tables()
       KEY `localBusiness_organization_idx` (`organization`),
       KEY `localBusiness_place_idx` (`location`)
     ) ENGINE = InnoDB;
+
     -- MEDIA OBJECT
     CREATE TABLE IF NOT EXISTS `mediaObject` (
       `idmediaObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -225,15 +228,26 @@ CREATE PROCEDURE create_tables()
     -- RATING
     CREATE TABLE IF NOT EXISTS `rating` (
       `idrating` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `about` INT UNSIGNED NOT NULL,
-      `author` VARCHAR(255) DEFAULT NULL,
+      `author` INT UNSIGNED NOT NULL,
       `bestRating` VARCHAR(50) DEFAULT NULL,
       `ratingExplanation` VARCHAR(255) DEFAULT NULL,
       `ratingValue` VARCHAR(50) NOT NULL,
       `reviewAspect` VARCHAR(255) DEFAULT NULL,
       `worstRating` VARCHAR(50) DEFAULT NULL,
-      PRIMARY KEY (`idrating`,`about`),
+      PRIMARY KEY (`idrating`,`author`),
       KEY `rating_ratingValue_idx` (`ratingValue`)
+    ) ENGINE = InnoDB;
+
+    -- REVIEW
+    CREATE TABLE IF NOT EXISTS `review` (
+      `idreview` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `creativeWork` INT UNSIGNED NOT NULL,
+      `thing` INT UNSIGNED NOT NULL,
+      `itemReviewed` INT UNSIGNED NOT NULL,
+      `reviewBody` TEXT,
+      `reviewRating` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idreview`,`thing`),
+      KEY `review_itemReviewed_idx` (`itemReviewed`)
     ) ENGINE = InnoDB;
 
     -- SERVICE

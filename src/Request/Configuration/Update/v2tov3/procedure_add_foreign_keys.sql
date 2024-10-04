@@ -87,8 +87,16 @@ BEGIN
     ADD CONSTRAINT `fk_product_manufacturer` FOREIGN KEY (`manufacturer`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- RATING
   ALTER TABLE `rating`
-    ADD KEY `fk_rating_about_idx` (`about`),
-    ADD CONSTRAINT `fk_rating_about` FOREIGN KEY (`about`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD KEY `fk_rating_author_idx` (`author`),
+    ADD CONSTRAINT `fk_rating_author` FOREIGN KEY (`author`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  -- REVIEW
+  ALTER TABLE `review`
+    ADD KEY `fk_review_thing_idx` (`thing`),
+    ADD KEY `fk_review_itemReviewed_idx` (`itemReviewed`),
+    ADD KEY `fk_review_reviewRating_idx` (`reviewRating`),
+    ADD CONSTRAINT `fk_review_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_review_itemReviewed` FOREIGN KEY (`itemReviewed`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_review_reviewRating` FOREIGN KEY (`reviewRating`) REFERENCES `rating` (`idrating`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- SERVICE
   ALTER TABLE `service`
     ADD KEY `fk_service_thing_idx` (`thing`),
