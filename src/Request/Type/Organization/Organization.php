@@ -21,7 +21,8 @@ class Organization extends Entity
 	  $returns = [];
 	  $properties = $params['properties'] ?? null;
 	  $data = parent::getData($params);
-	  if (!empty($data)) {
+
+		if (!empty($data)) {
 		  foreach ($data as $value) {
 			  $idthing = $value['thing'];
 			  $dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
@@ -39,10 +40,15 @@ class Organization extends Entity
 					  $dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'],'properties'=>'address'])->ready();
 					  $value['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
 				  }
+					if (stripos($properties,'product') !== false) {
+						$dataProduct = ApiFactory::request()->type('product')->get(['manufacturer' => $idthing] + $params)->ready();
+						$value['owns'] = isset($dataProduct[0]) ? ApiFactory::response()->type('product')->setData($dataProduct)->ready() : null;
+					}
 			  }
 			  $returns[] = $value + $dataThing[0];
 		  }
 	  }
+
 	  return parent::sortData($returns);
   }
 
