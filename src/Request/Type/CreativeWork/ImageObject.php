@@ -31,7 +31,7 @@ class ImageObject extends ImageObjectAbstract
 	  $hasPart = $params['hasPart'] ?? null;
 		// IS PART OF
 		if ($isPartOf) {
-			$query = "SELECT *, thing_has_imageObject.position FROM `thing_has_imageObject`"
+			$query = "SELECT *, thing_has_imageObject.caption, thing_has_imageObject.position FROM `thing_has_imageObject`"
 			. " LEFT JOIN `imageObject` ON `thing_has_imageObject`.`idimageObject`=`imageObject`.`idimageObject`"
 			. " RIGHT JOIN `mediaObject` ON `mediaObject`.`idmediaObject`=`imageObject`.`mediaObject`"
 			. " RIGHT JOIN `creativeWork` ON creativeWork.idcreativeWork=mediaObject.creativeWork"
