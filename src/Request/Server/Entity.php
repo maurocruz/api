@@ -139,7 +139,8 @@ abstract class Entity implements HttpRequestInterface
 	  if (empty($data)) {
 			$idvalue = $connect->lastInsertId();
 			$idname = "id".$this->table;
-			return ApiFactory::request()->type($this->table)->get([$idname=>$idvalue])->ready();
+			$data = ApiFactory::request()->type($this->table)->get([$idname=>$idvalue])->ready();
+			return ApiFactory::response()->message()->success("Successfully created", $data);
 	  } else {
 		  return ApiFactory::response()->message()->fail()->generic($data);
 	  }
@@ -153,11 +154,12 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function createWithParent(string $parentName, array $params = null, array $uploadedFiles = null): array
 	{
+		$params['type'] = $params['type'] ?? ucfirst($this->table);
 		// SAVE PARENT
 		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
-		if (isset($dataParent[0])) {
-			$idparent = $dataParent[0]['id'.lcfirst($parentName)];
-			$idthing = $dataParent[0]['idthing'] ?? $dataParent[0]['thing'];
+		if (isset($dataParent['status']) && $dataParent['status'] === 'success') {
+			$idparent = $dataParent['data'][0]['id'.lcfirst($parentName)];
+			$idthing = $dataParent['data'][0]['idthing'] ?? $dataParent['data'][0]['thing'];
 			// SAVE CHILD
 			return self::post([$parentName=>$idparent, 'thing'=>$idthing] + $params);
 		}
@@ -214,7 +216,7 @@ abstract class Entity implements HttpRequestInterface
 				return ApiFactory::response()->message()->fail()->returnIsEmpty();
 			}
 		}
-		return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
+		return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: $idchildName"]);
 	}
 
   /**
@@ -250,7 +252,6 @@ abstract class Entity implements HttpRequestInterface
 		}
 	}
 
-
 	/**
 	 * @param array $array
 	 * @return array
@@ -263,5 +264,21 @@ abstract class Entity implements HttpRequestInterface
 			$new_array[$key] = $value;
 		}
 		return $new_array;
+	}
+
+	/**
+	 * @param string $idHasPart
+	 * @param string $typeHasPart
+	 * @param string $idIsPartOf
+	 * @param string $typeIsPartOf
+	 * @return array
+	 */
+	protected function createRelationShip(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf): array
+	{
+		$connect = new ConnectBd("thing_has_thing");
+		$returns = $connect->created(['idHasPart'=>$idHasPart, 'typeHasPart'=>$typeHasPart, 'idIsPartOf'=>$idIsPartOf, 'typeIsPartOf'=>$typeIsPartOf]);
+		$sqlQuery = "UPDATE `thing_has_thing` SET position = position+1 WHERE idHasPart = '$idHasPart' AND typeHasPart = '$typeHasPart' AND typeIsPartOf = '$typeIsPartOf';";
+		$connect->run($sqlQuery);
+		return $returns;
 	}
 }

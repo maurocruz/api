@@ -64,7 +64,6 @@ class ImageObject extends ImageObjectAbstract
 		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
 		$idimageObject = $params['idimageObject'] ?? null;
 		$destination = $params['destination'] ?? $params['location'] ?? $params['imageFolder'] ?? '/public/images/';
-		$params['type'][] = "ImageObject";
 		$returns = [];
 		// UPLOAD FILES
 		if ($imagesUpload) {

@@ -47,7 +47,6 @@ class ProgramMembership extends Entity
 		$member = $params['member'] ?? null;
 		if ($name && $hostingOrganization && $member) {
 			$params['name'] = $name;
-			$params['type'][] = "ProgramMembership";
 			$dataProgramMembership = parent::createWithParent('thing', $params);
 			if (isset($dataProgramMembership[0])) {
 				$idprogramMembership = $dataProgramMembership[0]['idprogramMembership'];

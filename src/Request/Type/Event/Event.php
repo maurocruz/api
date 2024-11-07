@@ -82,7 +82,6 @@ class Event extends Entity
 	 */
   public function post(array $params = null): array
   {
-	  $params['type'][] = 'Event';
 		return parent::createWithParent('thing', $params);
   }
 

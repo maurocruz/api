@@ -74,7 +74,6 @@ class Person extends Entity
 	 */
   public function post(array $params = null, array $uploadedFiles = null): array
   {
-	  $params['type'][] = 'Person';
 		return parent::createWithParent('thing', $params, $uploadedFiles);
   }
 

@@ -20,12 +20,16 @@ class ConnectBd
 	}
 
 	/**
-	 * @param array $params
+	 * @param ?array $params
 	 * @return array
 	 */
-	public function created(array $params): array
+	public function created(?array $params): array
 	{
-		return PDOConnect::crud()->setTable($this->table)->created($params);
+		if ($params) {
+			return PDOConnect::crud()->setTable($this->table)->created($params);
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing("Params is null (".__FILE__.' on line '.__LINE__.")");
+		}
 	}
 
 	/**
@@ -68,11 +72,7 @@ class ConnectBd
 		if (empty($params)) {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		} else {
-			$data = PDOConnect::crud()->setTable($this->table)->erase($params);
-			if (isset($data['status']) && $data['status'] == 'success') {
-				return ApiFactory::response()->message()->success("Item deleted",$data);
-			}
-			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
+			return PDOConnect::crud()->setTable($this->table)->erase($params);
 		}
 	}
 

@@ -225,25 +225,13 @@ CREATE PROCEDURE create_tables()
       PRIMARY KEY (`idpropertyValue`)
     ) ENGINE = InnoDB;
 
-    -- RATING
-    CREATE TABLE IF NOT EXISTS `rating` (
-      `idrating` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `author` INT UNSIGNED NOT NULL,
-      `bestRating` VARCHAR(50) DEFAULT NULL,
-      `ratingExplanation` VARCHAR(255) DEFAULT NULL,
-      `ratingValue` VARCHAR(50) NOT NULL,
-      `reviewAspect` VARCHAR(255) DEFAULT NULL,
-      `worstRating` VARCHAR(50) DEFAULT NULL,
-      PRIMARY KEY (`idrating`,`author`),
-      KEY `rating_ratingValue_idx` (`ratingValue`)
-    ) ENGINE = InnoDB;
-
     -- REVIEW
     CREATE TABLE IF NOT EXISTS `review` (
       `idreview` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `creativeWork` INT UNSIGNED NOT NULL,
       `thing` INT UNSIGNED NOT NULL,
       `itemReviewed` INT UNSIGNED NOT NULL,
+      `reviewAspect` VARCHAR(64),
       `reviewBody` TEXT,
       `reviewRating` INT UNSIGNED NOT NULL,
       PRIMARY KEY (`idreview`,`thing`),
@@ -287,8 +275,8 @@ CREATE PROCEDURE create_tables()
      `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
      `additionalType` VARCHAR(255) DEFAULT NULL,
      `alternateName` VARCHAR(255) NULL,
-     `dateCreated` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-     `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+     `dateCreated` TIMESTAMP DEFAULT NULL,
+     `dateModified` TIMESTAMP DEFAULT NULL,
      `description` TEXT,
      `disambiguatingDescription` VARCHAR(255),
      `image` VARCHAR(255) DEFAULT NULL,
@@ -309,7 +297,7 @@ CREATE PROCEDURE create_tables()
       `idimageObject` INT UNSIGNED NOT NULL,
       `caption` TEXT,
       `href` VARCHAR(255),
-      `position` INT UNSIGNED DEFAULT NULL,
+      `position` INT NOT NULL DEFAULT 0,
       `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
       PRIMARY KEY (`idthing`, `idimageObject`)
     ) ENGINE = InnoDB;

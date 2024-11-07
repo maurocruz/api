@@ -56,7 +56,6 @@ class WebSite extends Entity
 		$description = $params['description'] ?? null;
 		$author = $params['author'] ?? null;
 		unset($params['type']);
-		$params['type'][] = "WebSite";
 		if ($name && $description && $author && $url) {
 			// SAVE CREATIVEWORK
 			return parent::createWithParent('creativeWork', $params);

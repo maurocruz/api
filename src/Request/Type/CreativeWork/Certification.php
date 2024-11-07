@@ -33,7 +33,6 @@ class Certification extends Entity implements HttpRequestInterface
 
 	public function post(array $params = null): array
 	{
-		$params['type'][] = "Certification";
 		$certificationIdentification = $params['certificationIdentification'] ?? null;
 		$issuedBy = $params['issuedBy'] ?? null;
 		if ($certificationIdentification && $issuedBy) {

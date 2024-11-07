@@ -52,7 +52,7 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array {
 		return Permissions::isRequiresSubscription()
-			? ApiFactory::user()->privileges()->filterGet($this->classActions->get($params))
+			? $this->classActions->get($params)
 			: ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 
@@ -63,12 +63,9 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function post(array $params = null, array $uploadedFiles = null): array
 	{
-		if(Permissions::isRequiresSubscription()) {
-			$data = $this->classActions->post($params, $uploadedFiles);
-			return empty($data) ? ApiFactory::response()->message()->success('Item added') : $data;
-		} else {
-			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
-		}
+		return Permissions::isRequiresSubscription()
+			?  $this->classActions->post($params, $uploadedFiles)
+			: ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
 	}
 
 	/**
@@ -77,27 +74,9 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function put(array $params = null): array
 	{
-		if (Permissions::isRequiresSubscription()) {
-			//$idname = "id".$this->classActions->getTable();
-			//$idvalue = $params[$idname] ?? null;
-			//if ($idvalue) {
-				//$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get([$idname=>$idvalue]),'put');
-				//if(isset($filter['status']) && $filter['status'] == 'fail') {
-					//return $filter;
-				//} else {
-					$putdata = $this->classActions->put($params);
-					if (empty($putdata)) {
-						return ApiFactory::response()->message()->success('Updated data', $putdata);
-					} else {
-						return  $putdata;
-					}
-					//return ApiFactory::response()->message()->fail()->generic($putdata);
-				//}
-			//}
-			//return ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
-		} else {
-			return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
-		}
+		return Permissions::isRequiresSubscription()
+			? $this->classActions->put($params)
+			: ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on line ' . __LINE__);
 	}
 
 	/**
@@ -106,14 +85,8 @@ class HttpRequest implements HttpRequestInterface
 	 */
 	public function delete(array $params): array
 	{
-		if (Permissions::isRequiresSubscription()) {
-			$filter = ApiFactory::user()->privileges()->filterGet($this->classActions->get($params),'delete');
-			if(isset($filter['status']) && $filter['status'] == 'fail') {
-				return $filter;
-			} else {
-				return $this->classActions->delete($params);
-			}
-		}
-		return  ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
+		return Permissions::isRequiresSubscription()
+			? $this->classActions->delete($params)
+			: ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__.' on line '.__LINE__);
 	}
 }

@@ -86,7 +86,6 @@ class WebPage extends Entity
 		$alternateName = $params['alternateName'] ?? $params['alternativeHeadline'] ?? null;
 		$isPartOf = $params['isPartOf'] ?? null;
 		$name = $params['name'] ?? null;
-		$params['type'][] = "WebPage";
 		if ($url && $alternateName && $isPartOf && $name) {
 			$params = $this->addBreadcrumb($params);
 			// get url host

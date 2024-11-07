@@ -17,10 +17,10 @@ BEGIN
     SELECT `idplace`,
       IF (`name` <> '', `name`, 'Undefined name'),
       `additionalType`,
-      description,
+      CONCAT(description,' ', disambiguatingDescription),
       SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
       `url`,
-      if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
+      `dateCreated`,
       `dateModified`,
       'Place'
     FROM `place`;
@@ -56,6 +56,11 @@ BEGIN
     DROP COLUMN `url`,
     DROP COLUMN `dateCreated`,
     DROP COLUMN `dateModified`,
+    DROP COLUMN `rank`,
+    DROP COLUMN `address`,
+    DROP COLUMN `elevation`,
+    DROP COLUMN `longitude`,
+    DROP COLUMN `latitude`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idplace`,`thing`);
 

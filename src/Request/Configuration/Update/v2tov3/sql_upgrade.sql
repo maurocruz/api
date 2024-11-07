@@ -56,6 +56,10 @@ BEGIN
   -- ADD FOREIGN KEYS
   CALL add_foreign_keys();
 
+  ALTER TABLE `thing`
+    CHANGE COLUMN `dateCreated` `dateCreated` TIMESTAMP,
+    CHANGE COLUMN `dateModified` `dateModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
   COMMIT ;
 
   SELECT CONCAT('Transação concluída com sucesso em ', schema_name) AS mensagem_sucesso;

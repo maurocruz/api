@@ -79,7 +79,6 @@ class Article extends Entity
 	 */
 	public function post(array $params = null): array
 	{
-		$params['type'][] = "Article";
 	  return parent::createWithParent('creativeWork',$params);
 	}
 

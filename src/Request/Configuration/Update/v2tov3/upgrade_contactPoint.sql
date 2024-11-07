@@ -5,7 +5,7 @@ CREATE PROCEDURE upgrade_contactPoint()
     ALTER TABLE `contactPoint`
       CHANGE COLUMN `idcontactPoint` `idcontactPoint` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idcontactPoint`,
-      ADD COLUMN `contactOption` VARCHAR(100) DEFAULT NULL AFTER `idcontactPoint`,
+      ADD COLUMN `contactOption` VARCHAR(100) DEFAULT NULL AFTER `thing`,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idcontactPoint`);
 

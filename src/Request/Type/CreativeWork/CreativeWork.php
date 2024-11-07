@@ -56,7 +56,6 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function post(array $params = null): array
 	{
-		$params['type'][] = 'CreativeWork';
 		if(isset($params['isPartOf']) && $params['isPartOf'] === '') {
 			unset($params['isPartOf']);
 		}

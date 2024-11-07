@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Type;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\GenericType;
 use Plinct\Api\Request\Server\HttpRequest;
 
 class Type
@@ -28,6 +29,10 @@ class Type
 	 * @var string
 	 */
 	private string $namespace;
+	/**
+	 * @var bool
+	 */
+	private bool $tableExists = false;
 
 	/**
 	 * @param string $type
@@ -42,9 +47,19 @@ class Type
 			__NAMESPACE__."\\CreativeWork\\".ucfirst($type),
 			__NAMESPACE__."\\Intangible\\".ucfirst($type)
 		];
-		foreach ($namesClasses as $classname) {
-			if (class_exists($classname)) {
-				$this->classActions = new $classname();
+
+		// check if table exists
+		$connectTable = ApiFactory::request()->server()->connectBd($this->type);
+		$checkTable = $connectTable->showTableStatus();
+		if (isset($checkTable['status']) && $checkTable['status'] === "success") {
+			$this->tableExists = true;
+			foreach ($namesClasses as $classname) {
+				if (class_exists($classname)) {
+					$this->classActions = new $classname();
+				}
+			}
+			if(!$this->classActions) {
+				$this->classActions = new GenericType($type);
 			}
 		}
 	}
@@ -117,7 +132,7 @@ class Type
 	 */
 	public function ready(): array
 	{
-		if (!!$this->classActions) {
+		if ($this->tableExists) {
 			$httpRequest = new HttpRequest($this->classActions);
 			switch ($this->method) {
 				case 'post':
@@ -132,12 +147,6 @@ class Type
 					return ApiFactory::response()->message()->fail()->generic();
 			}
 		} else {
-			// check if table exists
-			$connectTable = ApiFactory::request()->server()->connectBd($this->type);
-			$checkTable = $connectTable->showTableStatus();
-			if (isset($checkTable['status']) && $checkTable['status'] === 'success') {
-				return $connectTable->read($this->params);
-			}
 			return ApiFactory::response()->message()->fail()->thisTypeNotExists();
 		}
 	}

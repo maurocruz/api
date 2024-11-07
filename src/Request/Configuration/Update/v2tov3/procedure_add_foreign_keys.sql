@@ -31,7 +31,7 @@ BEGIN
   -- GEO COORDINATES
   ALTER TABLE `geoCoordinates`
     ADD KEY `fk_geoCoordinates_postalAddress_idx` (`address`),
-    ADD CONSTRAINT `fk_geoCoordinates_postalAddress` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD CONSTRAINT `fk_geoCoordinates_postalAddress` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL ON UPDATE NO ACTION;
   -- IMAGE OBJECT
   ALTER TABLE `imageObject`
     ADD KEY `fk_imageObject_thing_idx` (`thing`),
@@ -77,7 +77,7 @@ BEGIN
     ADD KEY `fk_place_thing_idx` (`thing`),
     ADD KEY `fk_place_geo_idx` (`geo`),
     ADD CONSTRAINT `fk_place_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    ADD CONSTRAINT `fk_place_geo` FOREIGN KEY (`geo`) REFERENCES `geoCoordinates` (`idgeoCoordinates`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD CONSTRAINT `fk_place_geo` FOREIGN KEY (`geo`) REFERENCES `geoCoordinates` (`idgeoCoordinates`) ON DELETE SET NULL ON UPDATE NO ACTION;
   -- POSTAL ADDRESS
   -- PRODUCT
   ALTER TABLE `product`
@@ -85,18 +85,12 @@ BEGIN
     ADD KEY `fk_product_manufacturer_idx` (`manufacturer`),
     ADD CONSTRAINT `fk_product_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_product_manufacturer` FOREIGN KEY (`manufacturer`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
-  -- RATING
-  ALTER TABLE `rating`
-    ADD KEY `fk_rating_author_idx` (`author`),
-    ADD CONSTRAINT `fk_rating_author` FOREIGN KEY (`author`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- REVIEW
   ALTER TABLE `review`
     ADD KEY `fk_review_thing_idx` (`thing`),
     ADD KEY `fk_review_itemReviewed_idx` (`itemReviewed`),
-    ADD KEY `fk_review_reviewRating_idx` (`reviewRating`),
     ADD CONSTRAINT `fk_review_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    ADD CONSTRAINT `fk_review_itemReviewed` FOREIGN KEY (`itemReviewed`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    ADD CONSTRAINT `fk_review_reviewRating` FOREIGN KEY (`reviewRating`) REFERENCES `rating` (`idrating`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD CONSTRAINT `fk_review_itemReviewed` FOREIGN KEY (`itemReviewed`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- SERVICE
   ALTER TABLE `service`
     ADD KEY `fk_service_thing_idx` (`thing`),

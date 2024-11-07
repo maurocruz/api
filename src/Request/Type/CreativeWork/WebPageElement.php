@@ -71,7 +71,6 @@ class WebPageElement extends Entity
 		$isPartOf = $params['isPartOf'] ?? null;
 		$text = $params['text'] ?? null;
 		$name = $params['name'] ?? null;
-		$params['type'][] = "WebPageElement";
 		if ($isPartOf && $text && $name) {
 			// get absolute url
 			$getCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();

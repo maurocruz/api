@@ -60,7 +60,6 @@ class Book extends Entity
 	 */
 	public function post(array $params = null): array
 	{
-		$params['type'][] = "Book";
 		return parent::createWithParent('creativeWork',$params);
 	}
 
