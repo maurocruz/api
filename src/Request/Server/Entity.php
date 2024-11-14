@@ -157,11 +157,16 @@ abstract class Entity implements HttpRequestInterface
 		$params['type'] = $params['type'] ?? ucfirst($this->table);
 		// SAVE PARENT
 		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
+		//var_dump($dataParent);
 		if (isset($dataParent['status']) && $dataParent['status'] === 'success') {
-			$idparent = $dataParent['data'][0]['id'.lcfirst($parentName)];
-			$idthing = $dataParent['data'][0]['idthing'] ?? $dataParent['data'][0]['thing'];
+			$value = $dataParent['data'][0];
+			foreach ($value as $key => $val) {
+				if (str_starts_with($key, 'id')) {
+					$params[substr($key,2)] = $val;
+				}
+			}
 			// SAVE CHILD
-			return self::post([$parentName=>$idparent, 'thing'=>$idthing] + $params);
+			return self::post($params);
 		}
 		return ApiFactory::response()->message()->fail()->generic($dataParent);
 	}

@@ -15,29 +15,28 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 {
 	/**
 	 * @param array $imagesUpload
-	 * @param string $destination
+	 * @param ?string $destination
 	 * @return array
 	 * @throws Exception
 	 */
-	protected function uploadFiles(array $imagesUpload, string $destination): array
+	protected function uploadFiles(array $imagesUpload, ?string $destination): array
 	{
+		$uploadsFolder = '/public/uploads/images/';
 		// create destination
 		$fileSystem = new FileSystem($destination);
 		// destination dir
-		if(!$destination) {
-			$uploadsFolder = '/public/uploads/images';
-			$imagesFolder = '/public/images';
-			if ($fileSystem->file_exists($uploadsFolder)) {
-				$destination = $imagesFolder;
-			} elseif ($fileSystem->file_exists($imagesFolder)) {
-				$destination = $uploadsFolder;
-			} else {
-				mkdir($_SERVER['DOCUMENT_ROOT'].$imagesFolder,0755,true);
-				$destination = $uploadsFolder;
+		if(!$destination || $destination == '') {
+			if (!$fileSystem->file_exists($uploadsFolder)) {
+				mkdir($_SERVER['DOCUMENT_ROOT'] . $imagesFolder, 0755, true);
 			}
-		} elseif (!$fileSystem->getDir()) {
-			mkdir($_SERVER['DOCUMENT_ROOT'].$destination,0755,true);
+			$destination = $uploadsFolder;
+		} else {
+			$destination = $uploadsFolder . ($destination[0] == '/' ? substr($destination, 1) : $destination);
+			if (!$fileSystem->file_exists($destination)) {
+				mkdir($_SERVER['DOCUMENT_ROOT'] . $destination, 0755, true);
+			}
 		}
+		$destination = str_ends_with($destination, '/') ? $destination : $destination."/";
 		$fileSystem->setDir($destination);
 		// save images
 		if(isset($imagesUpload['error'])) {
@@ -67,13 +66,13 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 					$filename = pathinfo($name)['filename'];
 					$newName = $prefix . substr(md5(StringTool::removeAccentsAndSpaces($filename)), 0, 16);
 					// large
-					$contentUrl = $newImage->createNewImage($destination . '/' . $newName . '.' . $extension, $largeWidth);
+					$contentUrl = $newImage->createNewImage($destination . $newName . '.' . $extension, $largeWidth);
 					// meddium
-					if ($meddiumWidth) $newImage->createNewImage($destination . '/' . $newName . '_m.' . $extension, (int) $meddiumWidth);
+					if ($meddiumWidth) $newImage->createNewImage($destination . $newName . '_m.' . $extension, (int) $meddiumWidth);
 					// small
-					$thumbnail = $smallWidth ? $newImage->createNewImage($destination . '/' . $newName . '_s.' . $extension, (int) $smallWidth) : $contentUrl;
+					$thumbnail = $smallWidth ? $newImage->createNewImage($destination . $newName . '_s.' . $extension, (int) $smallWidth) : $contentUrl;
 					// tiny
-					$newImage->createNewImage($destination . '/' . $newName . '_t.' . $extension, (int)$tinyWidth);
+					$newImage->createNewImage($destination . $newName . '_t.' . $extension, (int)$tinyWidth);
 					$data[] = ['status' => 'success', 'data' => ['contentUrl'=>$contentUrl,'thumbnail'=>$thumbnail]];
 				} else {
 					$data[] = ['status' => 'error', 'message' => FileSystem::returnMessageError($error)];
@@ -105,13 +104,11 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$params['thumbnail'] = $thumbnail;
 		// SAVE MEDIAOBJECT
 		$dataImageObject = parent::createWithParent('mediaObject', $params);
-
-		if (isset($dataImageObject[0]) && $isPartOf) {
-			$valueImage = $dataImageObject[0];
+		if (isset($dataImageObject['status']) && $dataImageObject['status'] == 'success' && $isPartOf) {
+			$valueImage = $dataImageObject['data'][0];
 			$idimageObject = $valueImage['idimageObject'];
 			self::saveThingHasImageObject((int) $isPartOf, (int) $idimageObject, $params);
 		}
-
 		return $dataImageObject;
 	}
 
@@ -123,6 +120,9 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 */
 	protected function saveThingHasImageObject(int $idthing, int $idimageObject, array $params): array
 	{
+		$maxPositionData = PDOConnect::run("select max(position) as maxpos from thing_has_imageObject where idthing='$idthing';");
+		$maxpos = $maxPositionData[0]['maxpos'];
+		$params['position'] = $maxpos === null ? 1 : $maxpos+1;
 		return PDOConnect::crud()->setTable('thing_has_imageObject')->created(['idthing'=>$idthing, 'idimageObject'=>$idimageObject] + $params);
 	}
 
@@ -180,7 +180,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 * @param $isPartOf
 	 * @return void
 	 */
-	protected function reorderingPosition($isPartOf)
+	protected function reorderingPosition($isPartOf): void
 	{
 		$connect = ApiFactory::request()->server()->connectBd('thing_has_imageObject');
 		$newData = $connect->read(['where' => "`idthing`='$isPartOf'", "orderBy" => "position"]);
