@@ -29,7 +29,7 @@ class Thing extends Entity implements HttpRequestInterface
 			foreach ($dataThing as $key => $value) {
 				$idthing = $value['idthing'];
 				if ($properties) {
-					if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					if (str_contains($properties, 'image')) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
 				}
 				$dataThing[$key] = $value;
 			}
@@ -45,6 +45,7 @@ class Thing extends Entity implements HttpRequestInterface
 	{
 		$name = $params['name'] ?? null;
 		$type = $params['type'] ?? null;
+		$params['dateCreated'] = date('Y-m-d H:i:s');
 		if ($name && $type) {
 			return parent::post($params);
 		}
