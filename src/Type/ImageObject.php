@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\Type;
 
 use Exception;
@@ -43,23 +41,18 @@ class ImageObject extends Entity
   {
 		// IMAGES IS PART OF
     if (isset($params['isPartOf'])) Return $this->getImageIsPartOf($params['isPartOf']);
-
     // vars
     $thumbnail = $params['thumbnail'] ?? null;
     $format = $params['format'] ?? null;
     if ($thumbnail == "on") $params['properties'] = "*";
     unset($params['thumbnail']);
-
     // GET
     $data = parent::get($params);
-
     // THUMBNAIL ON
     if ($thumbnail=='on') {
       $itemList = $data['itemListElement'] ?? $data;
-
       foreach ($itemList as $key => $value) {
         $item = $format ? $value['item'] : $value;
-
         if (!$item['thumbnail']) {
           $image = new Image($item['contentUrl']);
           $image->thumbnail("200");
@@ -80,7 +73,6 @@ class ImageObject extends Entity
         }
       }
     }
-
     return $data;
   }
 
@@ -89,38 +81,30 @@ class ImageObject extends Entity
 	 */
 	public function post(array $params = null, array $uploadedFiles = null): array
 	{
+		if (empty($params) || !isset($params['tableHasPart']) || !isset($params['idHasPart'])) {
+			return ApiFactory::response()->message()->fail()->generic($params, "Parameters missing.");
+		}
 		$returns = [];
-		$tableHasPart = $params['tableHasPart'] ?? null;
-		$idHasPart = $params['idHasPart'] ?? null;
+		$tableHasPart = $params['tableHasPart'];
+		$idHasPart = $params['idHasPart'];
+		$idIsPartOf = $params['idIsPartOf'] ?? $params['idimageObject'] ?? null;
 		$position = $params['position'] ?? 1;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$caption = $params['caption'] ?? null;
 		$destination = $params['pathDestinations'] ?? $params['location'] ?? $params['imageFolder'] ?? null;
 		unset($params['tableHasPart'], $params['idHasPart'], $params['pathDestinations'], $params['location'], $params['imageFolder']);
-
 		// UPLOAD FILES
 		if (isset($uploadedFiles['imageupload'])) {
+			$uploadsFolder = '/public/uploads/images/';
+			$dest = strpos($destination,'/') == 0 ? substr($destination,1) : $destination;
+			$destination = $uploadsFolder . $dest;
 			$fileSystem = new FileSystem($destination);
-			// destination dir
-			if(!$destination) {
-				$uploadsFolder = '/public/uploads/images';
-				$imagesFolder = '/public/images';
-				if ($fileSystem->file_exists($uploadsFolder)) {
-					$destination = $imagesFolder;
-				} elseif ($fileSystem->file_exists($imagesFolder)) {
-					$destination = $uploadsFolder;
-				} else {
-					mkdir($_SERVER['DOCUMENT_ROOT'].$imagesFolder,0755,true);
-					$destination = $uploadsFolder;
-				}
-			} elseif (!$fileSystem->getDir()) {
+			if (!$fileSystem->file_exists($destination)) {
 				mkdir($_SERVER['DOCUMENT_ROOT'].$destination,0755,true);
 			}
 			$fileSystem->setDir($destination);
-
 			// upload images
 			$uploadedFilesReturns = $fileSystem->uploadFiles($uploadedFiles['imageupload']);
-
 			foreach ($uploadedFilesReturns as $fileUploaded) {
 				if ($fileUploaded['status']) {
 					$imageSrc = str_replace($_SERVER['DOCUMENT_ROOT'], '', $fileUploaded['data']);
@@ -134,23 +118,21 @@ class ImageObject extends Entity
 					$imageParams['encodingFormat'] = $image->getEncodingFormat();
 					$newParams = array_merge($params, $imageParams);
 					$idIsPartOf = parent::post($newParams)['id'];
-
 					// ADDED ID IMAGEOBJECT IN RELATIONSHIP TABLE
 					if($tableHasPart && $idHasPart && $idIsPartOf) {
-						ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
+						ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', (string) $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
 						PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
 					}
 					$returns[] = array_merge(['idimageObject'=>$idIsPartOf], $newParams);
 				}
 			}
 		} else {
-			$idIsPartOf = $params['idIsPartOf'];
 			if($tableHasPart && $idHasPart && $idIsPartOf) {
-				$returnRel = ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
+				$returnRel = ApiFactory::server()->relationship($tableHasPart, $idHasPart, 'imageObject', (string) $idIsPartOf)->post(['position' => $position, 'representativeOfPage' => $representativeOfPage, 'caption' => $caption]);
 				$returnUpdate = PDOConnect::run("UPDATE {$tableHasPart}_has_imageObject SET position=position+1 WHERE `id$tableHasPart`=$idHasPart AND `idimageObject`!=$idIsPartOf");
-			}
-			if (empty($returnRel) && empty($returnUpdate)) {
-				$returns = ["status"=>"ok","message"=>"relationship added"];
+				if (empty($returnRel) && empty($returnUpdate)) {
+					$returns = ["status"=>"ok","message"=>"relationship added","data"=>[$returnRel, $returnUpdate]];
+				}
 			}
 		}
 		// SUCCESS
@@ -166,8 +148,48 @@ class ImageObject extends Entity
    */
   public function put(array $params = null): array
   {
+		$tableHasPart = $params['tableHasPart'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$idimageObject = $params['idimageObject'] ?? $params['idIsPartOf'] ?? null;
+		$newPosition = $params['position'] ?? null;
+		$caption = $params['caption'] ?? null;
+		$representativeOfPage = $params['representativeOfPage'] ?? null;
     unset($params['contentUrl']);
-    return parent::put($params);
+		// POSITION UPDATE
+		if ($tableHasPart && $idHasPart && $idimageObject && $newPosition) {
+			$changePosition = PDOConnect::run("UPDATE `{$tableHasPart}_has_imageObject` SET `position` = $newPosition WHERE `id{$tableHasPart}` = $idHasPart AND `idimageObject` = $idimageObject;");
+			// seleciona todas as imagens deste table has part
+			$sqlQuery = "SELECT * FROM {$tableHasPart}_has_imageObject WHERE `id{$tableHasPart}`=$idHasPart AND `idimageObject`<>$idimageObject ORDER BY position;";
+			$allData = PDOConnect::run($sqlQuery);
+			foreach ($allData as $key => $data) {
+				$idimageObjectKey = $data['idimageObject'];
+				$pos = $key + 1 >= $newPosition ? $key + 2 : $key + 1;
+				$sql = "UPDATE `{$tableHasPart}_has_imageObject` SET `position` = $pos WHERE `idimageObject`=$idimageObjectKey;";
+				$changePositions = PDOConnect::run($sql);
+			}
+			return ApiFactory::response()->message()->success()->success("Positions changed", [$changePositions, $changePosition]);
+		} elseif ($tableHasPart && $idHasPart && $idimageObject && $caption) {
+			$putCaption = PDOConnect::run("UPDATE `{$tableHasPart}_has_imageObject` SET `caption`='$caption' WHERE `id{$tableHasPart}`='$idHasPart' AND `idimageObject`='$idimageObject';");
+			if (isset($putCaption['error'])) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($putCaption['error']);
+			} else {
+				return ApiFactory::response()->message()->success()->success("Caption changed", $putCaption);
+			}
+		} elseif ($tableHasPart && $idHasPart && $idimageObject && $representativeOfPage) {
+			$putRepresentativeOfPage = PDOConnect::run("UPDATE `{$tableHasPart}_has_imageObject` SET `representativeOfPage`='$representativeOfPage' WHERE `id{$tableHasPart}`='$idHasPart' AND `idimageObject`='$idimageObject';");
+			if (isset($putRepresentativeOfPage['error'])) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($putRepresentationOfPage['error']);
+			} else {
+				$getAll = PDOConnect::run("SELECT * FROM {$tableHasPart}_has_imageObject WHERE `id{$tableHasPart}`=$idHasPart AND `idimageObject`<>$idimageObject;");
+				foreach ($getAll as $data) {
+					$idimageObjectKey = $data['idimageObject'];
+					PDOConnect::run("UPDATE `{$tableHasPart}_has_imageObject` SET `representativeOfPage`=0 WHERE `id{$tableHasPart}`='$idHasPart' AND `idimageObject`='$idimageObjectKey';");
+				}
+				return ApiFactory::response()->message()->success()->success("Representative of changed", $putRepresentativeOfPage);
+			}
+		} else {
+			return parent::put($params);
+		}
   }
 
 	public function delete(array $params): array
