@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api;
 
 use Plinct\Api\Middleware\CorsMiddleware;
@@ -9,8 +7,6 @@ use Plinct\Api\Server\Search\Search;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteCollectorProxy as Route;
-
-use Plinct\Api\Middleware\AuthMiddleware;
 
 return function(Route $route)
 {
@@ -34,7 +30,7 @@ return function(Route $route)
 	   */
 		$route->group('/user', function(Route $route) {
 			return ApiFactory::request()->routes()->user($route);
-		})->addMiddleware(new AuthMiddleware());
+		});
 
 	  /**
 	   * SEARCH

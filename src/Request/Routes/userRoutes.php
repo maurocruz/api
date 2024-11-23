@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Plinct\Api\Middleware\AuthMiddleware;
 use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -24,7 +25,7 @@ return function(Route $route)
 		$route->get('', function (Request $request, Response $response) {
 			$data = ApiFactory::server()->user()->httpRequest()->setPermission()->get($request->getQueryParams());
 			return ApiFactory::response()->write($response, $data);
-		});
+		})->addMiddleware(new AuthMiddleware());
 
 		/**
 		 * POST
@@ -32,7 +33,7 @@ return function(Route $route)
 		$route->post('', function (Request $request, response $response) {
 			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
 			return ApiFactory::response()->write($response, $data);
-		});
+		})->addMiddleware(new AuthMiddleware());
 
 		/**
 		 * PUT
@@ -51,7 +52,7 @@ return function(Route $route)
 				$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
 			}
 			return ApiFactory::response()->write($response, $data);
-		});
+		})->addMiddleware(new AuthMiddleware());
 
 		/**
 		 * DELETE
@@ -60,7 +61,7 @@ return function(Route $route)
 			$data = ApiFactory::server()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
 			return ApiFactory::response()->write($response, $data);
 		});
-	});
+	})->addMiddleware(new AuthMiddleware());
 
 	$route->group('/privileges', function(Route $route) {
 		return ApiFactory::request()->routes()->userPrivileges($route);
