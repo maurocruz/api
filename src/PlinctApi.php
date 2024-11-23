@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api;
 
 use Slim\App;
@@ -15,28 +13,34 @@ class PlinctApi
     /**
      * @var App
      */
-    protected $slimApp;
+    protected App $slimApp;
     /**
      * @var string
      */
-    public static $ISSUER = "https://plinct.com.br";
+    public static string $ISSUER = "https://plinct.com.br";
     /**
      * @var string
      */
-    public static $JWT_SECRET_API_KEY = "202103emplenapandemia";
+    public static string $JWT_SECRET_API_KEY = "202103emplenapandemia";
     /**
      * @var float|int
      */
     public static $JWT_EXPIRE = 60*60*24*7;
 
-    public static $soloineApi = "https://plinct.com.br/soloine";
+    public static string $soloineApi = "https://plinct.com.br/soloine";
 
     /**
      * @param App $slimApp
      */
     public function __construct(App $slimApp)
     {
-        $this->slimApp = $slimApp;
+			$slimApp->addRoutingMiddleware();
+			// for enable routes PUT and DELETE
+	    $slimApp->addBodyParsingMiddleware();
+			// error handling
+	    $slimApp->addErrorMiddleware(true,true,true);
+      //
+			$this->slimApp = $slimApp;
     }
 
     /**
