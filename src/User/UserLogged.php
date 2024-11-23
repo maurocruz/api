@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Plinct\Api\User;
 
 use Firebase\JWT\ExpiredException;
@@ -29,10 +27,8 @@ class UserLogged extends UserAbstract
 			$payload = $token;
 		}
 		$idUserLogged = $payload->uid;
-		parent::setIduser($idUserLogged);
-
+		parent::setIduser((string) $idUserLogged);
 		$userData = (new UserActions())->get(['iduser'=>$idUserLogged]);
-
 		if (!isset($userData['status']) || $userData['status'] !== 'fail') {
 			$userValues = $userData[0];
 			parent::setName($userValues['name']);
@@ -42,6 +38,9 @@ class UserLogged extends UserAbstract
 		}
 	}
 
+	/**
+	 * @return array|null
+	 */
 	public static function getProperties(): ?array
 	{
 		return self::$iduser ? [
@@ -58,7 +57,6 @@ class UserLogged extends UserAbstract
 	public static function comparePermissions(array $userInvestigated): array
 	{
 		$permissions = [];
-
 		foreach($userInvestigated as $valueInvestigated) {
 			// SE FOR DO MESMO USUARIO
 			if (self::$iduser == $valueInvestigated['iduser']) {
