@@ -45,9 +45,9 @@ class Type
 			__NAMESPACE__.'\\'.ucfirst($type),
 			__NAMESPACE__.'\\'.ucfirst($type).'\\'.ucfirst($type),
 			__NAMESPACE__."\\CreativeWork\\".ucfirst($type),
-			__NAMESPACE__."\\Intangible\\".ucfirst($type)
+			__NAMESPACE__."\\Intangible\\".ucfirst($type),
+			__NAMESPACE__."\\Place\\".ucfirst($type)
 		];
-
 		// check if table exists
 		$connectTable = ApiFactory::request()->server()->connectBd($this->type);
 		$checkTable = $connectTable->showTableStatus();

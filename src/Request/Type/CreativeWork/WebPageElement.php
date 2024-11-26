@@ -25,27 +25,35 @@ class WebPageElement extends Entity
 		$returns = [];
 		$properties = $params['properties'] ?? null;
 	  $isPartOf = $params['isPartOf'] ?? null;
+		$orderBy = $params['orderBy'] ?? null;
+		$ordering = $params['ordering'] ?? null;
 	  if ($isPartOf) {
-		  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get($params)->ready();
-		  foreach ($dataCreativeWork as $item) {
-			  $idcreativeWork = $item['idcreativeWork'];
-			  $idthing = $item['thing'];
-			  $dataWebPage = parent::getData(['creativeWork'=>$idcreativeWork] + $params);
-			  if ($properties) {
-				  if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
-				  if (strpos($properties, 'isPartOf') !== false) $item['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
+			$sql = "SELECT * FROM `webPageElement` 
+  LEFT JOIN `creativeWork` ON `webPageElement`.creativeWork = `creativeWork`.idcreativeWork 
+  LEFT JOIN `thing` ON `webPageElement`.thing = `thing`.idthing 
+         WHERE `creativeWork`.isPartOf = $isPartOf";
+			if ($orderBy) {
+				$sql .= " ORDER BY `$orderBy` $ordering";
+			}
+			$sql .= ";";
+			$data = PDOConnect::run($sql);
+			foreach ($data as $key => $item) {
+				$idthing = $item['thing'];
+				if ($properties) {
+					if (strpos($properties, 'image') !== false) $data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					if (strpos($properties, 'isPartOf') !== false) $data[$key]['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
 					if (strpos($properties, 'propertyValue') !== false) {
-						$query = "SELECT name, value FROM pirenopolis02.thing_has_thing
+						$query = "SELECT name, value FROM thing_has_thing
                   JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
                   WHERE typeHasPart='WebPageElement' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
 						$dataPropertyValue = PDOConnect::run($query);
 						foreach ($dataPropertyValue as $propertyValue) {
-							$item['identifier'][] = ['@type'=>'PropertyValue','name'=>$propertyValue['name'], 'value'=>$propertyValue['value']];
+							$data[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => $propertyValue['name'], 'value' => $propertyValue['value']];
 						}
 					}
-			  }
-			  $returns[] = $dataWebPage[0] + $item;
-		  }
+				}
+				$returns = $data;
+			}
 	  } else {
 		  $data = parent::getData($params);
 		  foreach ($data as $value) {

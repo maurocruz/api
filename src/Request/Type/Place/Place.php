@@ -26,6 +26,7 @@ class Place extends Entity
 		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
 		$nameLike = $params['nameLike'] ?? null;
 		$reviewAspect = $params['reviewAspect'] ?? null;
+		$additionalTypeLike = $params['additionalTypeLike'] ?? null;
 
 		$sqlQuery = "SELECT *, AVG(reviewRating) as ratingValue, COUNT(reviewRating) as reviewCount FROM `place` 
   INNER JOIN `thing` ON `thing`.idthing = `place`.`thing`";
@@ -42,9 +43,10 @@ class Place extends Entity
 			$sqlQuery .= " WHERE `place`.idplace = '$idplace'";
 		} else if ($idthing) {
 			$sqlQuery .= " WHERE `thing`.idthing = '$idthing'";
-		} else {
-			$sqlQuery .= " GROUP BY idthing";
+		} elseif ($additionalTypeLike) {
+			$sqlQuery .= " WHERE `thing`.additionalType LIKE '%$additionalTypeLike%'";
 		}
+		$sqlQuery .= " GROUP BY `place`.idplace";
 		if ($orderBy) {	$sqlQuery .= ' ORDER BY ' . $orderBy . " ".$ordering; }
 		if ($limit) {	$sqlQuery .= ' LIMIT ' . $limit;	}
 		if ($offset) {	$sqlQuery .= ' OFFSET ' . $offset;	}
@@ -53,7 +55,6 @@ class Place extends Entity
 
 		foreach ($data as $key => $place) {
 			if ($place['idplace'] == null) return [];
-
 			$address = $place['idpostalAddress']
 				? ApiFactory::response()->type('PostalAddress')->setData([[
 					'idpostalAddress' => $place['idpostalAddress'],
