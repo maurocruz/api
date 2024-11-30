@@ -11,6 +11,8 @@
   DROP PROCEDURE IF EXISTS upgrade_person;
   DROP PROCEDURE IF EXISTS upgrade_localBusiness;
   DROP PROCEDURE IF EXISTS upgrade_offer;
+  DROP PROCEDURE IF EXISTS upgrade_order;
+  DROP PROCEDURE IF EXISTS upgrade_orderItem;
   DROP PROCEDURE IF EXISTS upgrade_organization;
   DROP PROCEDURE IF EXISTS upgrade_place;
   DROP PROCEDURE IF EXISTS upgrade_postalAddress;

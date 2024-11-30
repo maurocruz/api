@@ -25,14 +25,10 @@ BEGIN
   CALL upgrade_contactPoint();
   -- EVENT
   CALL upgrade_event();
-  -- INVOICE
-  CALL upgrade_invoice();
   -- PERSON
   CALL upgrade_person();
   -- LOCAL BUSINESS
   CALL upgrade_localBusiness();
-  -- OFFER
-  CALL upgrade_offer();
   -- ORGANIZATION
   CALL upgrade_organization();
   -- PLACE
@@ -43,6 +39,14 @@ BEGIN
   CALL upgrade_product();
   -- SERVIC
   CALL upgrade_service();
+  -- ORDER
+  CALL upgrade_order();
+  -- ORDERiTEM
+  CALL upgrade_orderItem();
+  -- OFFER
+  CALL upgrade_offer();
+  -- INVOICE
+  CALL upgrade_invoice();
   -- TAXON
   CALL upgrade_taxon();
   -- VIDEO OBJECT

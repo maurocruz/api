@@ -6,7 +6,7 @@ BEGIN
     CHANGE COLUMN `idproduct` `idproduct` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     CHANGE COLUMN `manufacturer` `manufacturer` INT UNSIGNED DEFAULT NULL,
     ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idproduct`,
-    DROP PRIMARY KEY ,
+    DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idproduct`);
 
   -- INSERT THING
@@ -43,9 +43,9 @@ BEGIN
     DROP COLUMN `disambiguatingDescription`,
     DROP COLUMN `dateCreated`,
     DROP COLUMN `dateModified`,
-    DROP PRIMARY KEY ,
-    ADD PRIMARY KEY (`idproduct`,`thing`)
-  ;
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`idproduct`,`thing`);
 
   DROP TABLE `product_has_imageObject`;
+  DROP TABLE `product_has_offer`;
 END;

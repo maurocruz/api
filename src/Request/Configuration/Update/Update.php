@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Configuration\Update;
 
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
@@ -10,7 +9,7 @@ class Update
 	{
 		$schema_name = PDOConnect::getDbname();
 
-
+		/** Alterções exclusivas do site pirenopolis.tur.br */
 		PDOConnect::run("ALTER TABLE `catalog` DROP INDEX `idx_2`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_1`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_2`;");
@@ -18,10 +17,12 @@ class Update
 		PDOConnect::run("ALTER TABLE `localBusiness` DROP INDEX `idx_1`;");
 		PDOConnect::run("ALTER TABLE `localBusiness_has_imageObject` DROP INDEX `idx_1`;");
 		PDOConnect::run("ALTER TABLE `product` DROP INDEX `idx_1`;");
-
+		PDOConnect::run("UPDATE `order` SET `seller` = '259' WHERE (`seller` = '49');");
+		PDOConnect::run("UPDATE `offer` SET `offeredBy` = '259' WHERE (`offeredBy` = '49');");
+		PDOConnect::run("DELETE FROM `order` WHERE `customer` is null || `seller` is null;");
+		PDOConnect::run("DELETE FROM `offer` WHERE `itemOffered` is null || `offeredBy` is null;");
 
 		PDOConnect::run("SET autocommit=0;");
-
 
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/drop_procedures.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
@@ -38,6 +39,8 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_person.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_localBusiness.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_offer.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_order.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_orderItem.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_organization.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_place.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_postalAddress.sql'));

@@ -4,12 +4,14 @@ CREATE PROCEDURE upgrade_invoice()
     -- ALTER TABLE
     ALTER TABLE `invoice`
       CHANGE COLUMN `idinvoice` `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      DROP COLUMN `customer`,
-      DROP COLUMN `customerType`,
-      DROP COLUMN `provider`,
-      DROP COLUMN `providerType`,
+      CHANGE COLUMN `paymentDueDate` `scheduledPaymentDate` DATE NOT NULL,
+      CHANGE COLUMN `paymentDate` `paymentDueDate` DATE DEFAULT NULL,
+      CHANGE COLUMN `referencesOrder` `referencesOrder` INT UNSIGNED NOT NULL ,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idinvoice`,`referencesOrder`);
 
+    DELETE `invoice` FROM invoice
+      LEFT JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
+    WHERE `order`.idorder IS NULL ;
   END ;
 

@@ -6,7 +6,7 @@ BEGIN
     CHANGE COLUMN `idservice` `idservice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     CHANGE COLUMN `provider` `provider` INT UNSIGNED NOT NULL,
     ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idservice`,
-    DROP PRIMARY KEY ,
+    DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idservice`);
 
   -- INSERT THING
@@ -43,9 +43,9 @@ BEGIN
     DROP COLUMN `disambiguatingDescription`,
     DROP COLUMN `dateCreated`,
     DROP COLUMN `dateModified`,
-    DROP PRIMARY KEY ,
-    ADD PRIMARY KEY (`idservice`,`thing`)
-  ;
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`idservice`,`thing`);
 
   DROP TABLE `service_has_imageObject`;
+  DROP TABLE `service_has_offer`;
 END;

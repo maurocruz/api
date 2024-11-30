@@ -103,14 +103,12 @@ CREATE PROCEDURE create_tables()
     -- INVOICE
     CREATE TABLE IF NOT EXISTS `invoice` (
      `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-     `referencesOrder` INT UNSIGNED NOT NULL,
-     `totalPaymentDue` FLOAT NOT NULL,
-     `paymentDueDate` DATE NOT NULL,
-     `paymentDate` DATE DEFAULT NULL,
+     `paymentDueDate` DATE DEFAULT NULL,
      `paymentStatus` VARCHAR(45) DEFAULT NULL,
-     PRIMARY KEY (`idinvoice`,`referencesOrder`),
-     KEY `invoice_paymentDueDate_idx` (`paymentDueDate`),
-     KEY `invoice_referencesOrder_idx` (`referencesOrder`)
+     `referencesOrder` INT UNSIGNED NOT NULL,
+     `scheduledPaymentDate` DATE NOT NULL,
+     `totalPaymentDue` FLOAT NOT NULL,
+     PRIMARY KEY (`idinvoice`)
     ) ENGINE = InnoDB;
 
     -- LOCAL BUSINESS
@@ -143,17 +141,36 @@ CREATE PROCEDURE create_tables()
     -- OFFER
     CREATE TABLE IF NOT EXISTS `offer` (
       `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `itemOffered` INT NOT NULL,
-      `itemOfferedType` VARCHAR(45) NOT NULL,
-      `offeredBy` INT DEFAULT NULL,
-      `offeredByType` VARCHAR(45) DEFAULT NULL,
+      `availability` VARCHAR(45) DEFAULT NULL,
+      `elegibleDuration` VARCHAR(45) DEFAULT NULL,
+      `elegibleQuantity` INT DEFAULT NULL,
+      `itemOffered` INT UNSIGNED NOT NULL,
+      `offeredBy` INT UNSIGNED NOT NULL,
       `price` FLOAT NOT NULL,
       `priceCurrency` VARCHAR(45) NOT NULL DEFAULT 'R$',
       `validThrough` DATETIME DEFAULT NULL,
-      `availability` VARCHAR(45) DEFAULT NULL,
-      `elegibleQuantity` INT DEFAULT NULL,
-      `elegibleDuration` VARCHAR(45) DEFAULT NULL,
       PRIMARY KEY (`idoffer`)
+    ) ENGINE = InnoDB;
+
+    -- ORDER
+    CREATE TABLE IF NOT EXISTS `order` (
+      `idorder` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `customer` INT UNSIGNED NOT NULL,
+      `discount` INT DEFAULT '0',
+      `orderDate` DATE,
+      `orderStatus` VARCHAR(45) DEFAULT NULL,
+      `paymentDueDate` DATE,
+      `seller` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idorder`)
+    ) ENGINE = InnoDB;
+
+    -- ORDER ITEM
+    CREATE TABLE IF NOT EXISTS  `orderItem` (
+      `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `orderQuantity`INT UNSIGNED NOT NULL DEFAULT '1',
+      `orderedItem` INT UNSIGNED NOT NULL,
+      `referencesOrder` INT UNSIGNED NOT NULL,
+      PRIMARY KEY (`idorderItem`)
     ) ENGINE = InnoDB;
 
     -- ORGANIZATION
