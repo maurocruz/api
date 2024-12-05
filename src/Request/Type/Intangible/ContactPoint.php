@@ -33,7 +33,7 @@ ORDER BY `thing_has_thing`.position;
 ";
 			$data = PDOConnect::run($sqlQuery);
 		} else {
-			$data = parent::getData($params, true);
+			$data = parent::getData($params);
 		}
 		$returns = ApiFactory::response()->type('ContactPoint')->setData($data)->setParams($params)->ready();
 		return $this->sortData($returns);

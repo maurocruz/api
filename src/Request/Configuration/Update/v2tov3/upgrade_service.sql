@@ -27,6 +27,11 @@ BEGIN
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idservice`;
 
+  UPDATE `service`
+    LEFT JOIN `organization` ON `organization`.idorganization = `service`.provider AND `providerType` = 'organization'
+    LEFT JOIN `person` ON `person`.idperson = `service`.provider AND `providerType` = 'person'
+  SET `service`.provider = IF(`providerType`='organization', IF(`organization`.thing IS NOT NULL, `organization`.thing, `service`.provider),IF(`person`.thing IS NOT NULL,`person`.thing, `service`.provider));
+
   -- insert images
   INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
   SELECT `thing`,`idimageObject`,`service_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `service_has_imageObject`
@@ -43,6 +48,7 @@ BEGIN
     DROP COLUMN `disambiguatingDescription`,
     DROP COLUMN `dateCreated`,
     DROP COLUMN `dateModified`,
+    DROP COLUMN `providerType`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idservice`,`thing`);
 

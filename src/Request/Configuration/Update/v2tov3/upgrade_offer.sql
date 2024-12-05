@@ -4,6 +4,8 @@ BEGIN
     CHANGE COLUMN `idoffer` `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     CHANGE COLUMN `itemOffered` `itemOffered` INT UNSIGNED NOT NULL,
     CHANGE COLUMN `offeredBy` `offeredBy` INT UNSIGNED NOT NULL,
+    CHANGE COLUMN `elegibleQuantity` `eligibleQuantity` VARCHAR(45) NULL DEFAULT NULL,
+    CHANGE COLUMN `elegibleDuration` `eligibleDuration` VARCHAR(45) NULL DEFAULT NULL,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idoffer`);
 

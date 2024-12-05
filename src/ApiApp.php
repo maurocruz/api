@@ -8,7 +8,7 @@ use Plinct\Api\Middleware\LoggedUserMiddleware;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Slim\App;
 
-class PlinctApp
+class ApiApp
 {
   /**
    * @var App

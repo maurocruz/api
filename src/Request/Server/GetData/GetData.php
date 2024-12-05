@@ -33,7 +33,11 @@ class GetData extends GetDataAbstract
     $this->setFields();
     // QUERY
     $this->setQuery();
-		//
+		// JOIN
+	  if ($this->joins) {
+		  $this->query .= " ".$join;
+	  }
+		// ERROR
     if($this->error) {
         return $this->error;
     }

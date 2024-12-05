@@ -34,27 +34,65 @@ abstract class GetDataAbstract
    * @var ?array
    */
   protected ?array $error = null;
+	/**
+	 * @var bool
+	 */
+	private bool $hasThing = false;
 
-  /**
-   *
-   */
+	protected ?string $joins = null;
+
+	/**
+	 * @return void
+	 */
   protected function setQuery(): void
   {
 	  $this->query = "SELECT $this->fields FROM `$this->table`";
+	  if ($this->hasThing) {
+		  $this->query .= " LEFT JOIN `thing` ON `thing`.idthing = `$this->table`.thing ";
+	  }
   }
 
 	/**
+	 * @param string $joins
+	 */
+	public function setJoins(string $joins): void
+	{
+		$this->joins = $joins;
+	}
+
+	/**
+	 * @param string $table
+	 * @return void
 	 */
 	protected function setProperties(string $table): void
 	{
-		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
-		$properties = [];
-	  foreach ($columnsTable as $value) {
-			$properties[] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
-	  }
-		$this->properties = array_merge($this->properties, $properties);
+		$propertiesTable = self::getColumnNames($table);
+		$propertiesThing = [];
+		if (!!array_search('thing',$propertiesTable)) {
+			$this->hasThing = true;
+			$propertiesThing = self::getColumnNames('thing');
+		}
+		$this->properties = array_merge($this->properties, $propertiesTable, $propertiesThing);
 	}
 
+	/**
+	 * @param string $table
+	 * @return array
+	 */
+	private function getColumnNames(string $table): array
+	{
+		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
+		$properties = [];
+		foreach ($columnsTable as $value) {
+			$properties[] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
+		}
+		return $properties;
+	}
+
+	/**
+	 * @param string $property
+	 * @return bool
+	 */
 	private function isProperty(string $property): bool
 	{
 		return in_array($property, $this->properties);

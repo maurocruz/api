@@ -90,26 +90,17 @@ abstract class Entity implements HttpRequestInterface
 
 	/**
 	 * @param array $params
-	 * @param bool $withThing
+	 * @param $joins
 	 * @return array
 	 */
-  protected function getData(array $params, bool $withThing = false): array
+  protected function getData(array $params, $joins = false): array
   {
     $data = new GetData($this->table);
+	  if ($joins) {
+			$data->setJoins($joins);
+	  }
     $data->setParams($params);
-		$dataType = $data->render();
-		if ($withThing) {
-			foreach ($dataType as $key => $typeValue) {
-				$idthing = $typeValue['thing'] ?? null;
-				if ($idthing) {
-					$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-					if (!empty($dataThing)) {
-						$dataType[$key] = $typeValue + $dataThing[0];
-					}
-				}
-			}
-		}
-		return $dataType;
+	  return $data->render();
   }
 
 	protected function getThingFirst(string $type, array $params): ?array

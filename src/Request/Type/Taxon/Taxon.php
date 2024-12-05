@@ -33,7 +33,7 @@ class Taxon extends Entity
 			$returns = parent::getThingFirst('Taxon', $params);
 		}
 		else {
-			$returns = parent::getData($params, true);
+			$returns = parent::getData($params);
 		}
 
 		// PROPERTIES

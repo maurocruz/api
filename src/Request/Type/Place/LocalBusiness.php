@@ -15,7 +15,11 @@ class LocalBusiness extends Entity
 
 	public function get(array $params = []): array
 	{
-		$additionalTypeLike = $params['additionalTypeLike'] ?? null;
+		$data = parent::getData($params);
+		foreach ($data as $key => $value) {
+			unset($data[$key]['organization']);
+		}
+		/*$additionalTypeLike = $params['additionalTypeLike'] ?? null;
 		$orderBy = $params['orderBy'] ?? null;
 		$ordering = $params['ordering'] ?? null;
 		$nameLike = $params['nameLike'] ?? null;
@@ -95,7 +99,7 @@ LEFT JOIN `review` ON `review`.itemReviewed=`thing`.idthing";
 			unset($data[$key]['reviewCount']);
 			// publicAccess
 			$data[$key]['publicAccess'] = (bool) $localBusiness['publicAccess'];
-		}
+		}*/
 		return parent::sortData($data);
 	}
 

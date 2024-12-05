@@ -19,6 +19,7 @@ class Update
 		PDOConnect::run("ALTER TABLE `product` DROP INDEX `idx_1`;");
 		PDOConnect::run("UPDATE `order` SET `seller` = '259' WHERE (`seller` = '49');");
 		PDOConnect::run("UPDATE `offer` SET `offeredBy` = '259' WHERE (`offeredBy` = '49');");
+		PDOConnect::run("UPDATE `service` SET `provider` = '259' WHERE (`provider` = '49');");
 		PDOConnect::run("DELETE FROM `order` WHERE `customer` is null || `seller` is null;");
 		PDOConnect::run("DELETE FROM `offer` WHERE `itemOffered` is null || `offeredBy` is null;");
 

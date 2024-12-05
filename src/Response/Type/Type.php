@@ -60,10 +60,16 @@ class Type
 				return $this->data;
 			} else {
 				$newData = [];
-				foreach ($this->data as $value) {
+				if (isset($this->data[0])) {
+					foreach ($this->data as $value) {
+						$typeSchema = new TypeSchema($this->type);
+						$typeSchema->setValue($value);
+						$newData[] = $typeSchema->ready();
+					}
+				} else {
 					$typeSchema = new TypeSchema($this->type);
-					$typeSchema->setValue($value);
-					$newData[] = $typeSchema->ready();
+					$typeSchema->setValue($this->data);
+					$newData = $typeSchema->ready();
 				}
 				// ITEM LIST
 				if ($format == 'ItemList') {

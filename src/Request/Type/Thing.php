@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Plinct\Api\Request\Type;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 
@@ -24,7 +25,18 @@ class Thing extends Entity implements HttpRequestInterface
 	public function get(array $params = []): array
 	{
 		$properties = $params['properties'] ?? null;
-		$dataThing = parent::getData($params);
+		$idthing = $params['idthing'] ?? null;
+		$hasPart = array_key_exists('hasPart', $params);
+		if ($hasPart && $idthing) {
+			$sqlQuery = "SELECT * FROM thing";
+			$sqlQuery .= " LEFT JOIN organization ON organization.thing = thing.idthing";
+			$sqlQuery .= " LEFT JOIN person ON person.thing = thing.idthing";
+			$sqlQuery .=" WHERE idthing = $idthing";
+			$sqlQuery .= ";";
+			$dataThing = PDOConnect::run($sqlQuery);
+		} else {
+			$dataThing = parent::getData($params);
+		}
 		if (!empty($dataThing)) {
 			foreach ($dataThing as $key => $value) {
 				$idthing = $value['idthing'];

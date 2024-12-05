@@ -5,7 +5,7 @@ namespace Plinct\Api\Request\User\Auth;
 use Exception;
 use Firebase\JWT\JWT;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\PlinctApp;
+use Plinct\Api\ApiApp;
 use Plinct\Api\Request\User\UserActions;
 use Plinct\Tool\ToolBox;
 
@@ -18,7 +18,7 @@ class Authentication
 	public function login($params): array
 	{
 		$password = $params['password'] ?? null;
-		$logger = ToolBox::Logger('auth', PlinctApp::getLogdir().'auth.log');
+		$logger = ToolBox::Logger('auth', ApiApp::getLogdir().'auth.log');
 		// NO DATA RECEIVED
 		if (!isset($params['email']) || !isset($password)) {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing();
@@ -28,8 +28,8 @@ class Authentication
 			return ApiFactory::response()->message()->fail()->invalidEmail();
 		}
 		$email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
-		$iss = $params['iss'] ?? PlinctApp::$ISSUER;
-		$exp = $params['exp'] ?? PlinctApp::$JWT_EXPIRE;
+		$iss = $params['iss'] ?? ApiApp::$ISSUER;
+		$exp = $params['exp'] ?? ApiApp::$JWT_EXPIRE;
 		// GET DATA
 		$data = (new UserActions())->get(["email" => $email ]);
 		// ERROR
@@ -50,7 +50,7 @@ class Authentication
 				"name" => $value['name'],
 				"uid" => $value['iduser']
 			];
-			return ApiFactory::response()->message()->success("Access authorized",['token'=>JWT::encode($payload, PlinctApp::$JWT_SECRET_API_KEY)]);
+			return ApiFactory::response()->message()->success("Access authorized",['token'=>JWT::encode($payload, ApiApp::$JWT_SECRET_API_KEY)]);
 		}
 		// USER NOT AUTHORIZED
 		return ApiFactory::response()->message()->fail()->userExistsButNotLogged();

@@ -12,10 +12,10 @@ class ApiFactory
 {
 	/**
 	 * @param App $slimApp
-	 * @return PlinctApp
+	 * @return ApiApp
 	 */
-	public static function create(App $slimApp): PlinctApp {
-		return new PlinctApp($slimApp);
+	public static function create(App $slimApp): ApiApp {
+		return new ApiApp($slimApp);
 	}
 
 	/**

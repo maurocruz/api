@@ -142,8 +142,8 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `offer` (
       `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `availability` VARCHAR(45) DEFAULT NULL,
-      `elegibleDuration` VARCHAR(45) DEFAULT NULL,
-      `elegibleQuantity` INT DEFAULT NULL,
+      `eligibleDuration` VARCHAR(45) DEFAULT NULL,
+      `eligibleQuantity` INT DEFAULT NULL,
       `itemOffered` INT UNSIGNED NOT NULL,
       `offeredBy` INT UNSIGNED NOT NULL,
       `price` FLOAT NOT NULL,

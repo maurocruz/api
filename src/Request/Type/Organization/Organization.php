@@ -19,16 +19,16 @@ class Organization extends Entity
   public function get(array $params = []): array
   {
 	  $returns = [];
-	  $properties = $params['properties'] ?? null;
+	  $properties = $params['properties'] ?? '';
+		$makesOffer = $params['makesOffer'] ?? null;
 	  $data = parent::getData($params);
 		if (isset($data['error'])) {
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} elseif (!empty($data)) {
 		  foreach ($data as $value) {
 			  $idthing = $value['thing'];
-			  $dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
 			  // PROPERTIES
-			  if ($properties) {
+			  if ($properties || $makesOffer) {
 				  if (stripos($properties, 'contactPoint') !== false) {
 					  $dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['thing' => $idthing])->ready();
 					  $value['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
@@ -41,8 +41,20 @@ class Organization extends Entity
 					  $dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'],'properties'=>'address'])->ready();
 					  $value['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
 				  }
+					if (stripos($properties,'offer') !== false || $makesOffer == 'offers') {
+						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing] + $params)->ready();
+						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
+					}
+				  if (stripos($properties,'product') !== false || $makesOffer == 'product') {
+					  $dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'product'] + $params)->ready();
+					  $value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
+				  }
+					if (stripos($properties,'service') !== false || $makesOffer == 'service') {
+						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'service'] + $params)->ready();
+						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
+					}
 			  }
-			  $returns[] = $value + $dataThing[0];
+			  $returns[] = $value;
 		  }
 	  }
 	  return parent::sortData($returns);

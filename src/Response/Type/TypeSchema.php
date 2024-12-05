@@ -27,7 +27,7 @@ class TypeSchema extends TypeSchemaAbstract
 			$value['@type'] = $value['type'];
 		}
 		foreach ($value as $key => $valueItem) {
-			if(is_string($key) && substr($key,0,2) === 'id' && !is_array($valueItem)) {
+			if(is_string($key) && substr($key,0,2) === 'id' && !is_array($valueItem) && !is_null($valueItem)) {
 				$this->setIdentifier($key, (string) $valueItem);
 				unset($value[$key]);
 			}
@@ -35,6 +35,9 @@ class TypeSchema extends TypeSchemaAbstract
 				if ($valueItem) {
 					$this->setIdentifier($key, $valueItem);
 				}
+			}
+			if ($valueItem === null) {
+				unset($value[$key]);
 			}
 		}
 		unset($value['type']);
