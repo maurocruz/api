@@ -13,5 +13,5 @@ class User extends Entity
 	/**
 	 * @var string
 	 */
-	protected string $type = "Person";
+	protected string $type = "User";
 }
