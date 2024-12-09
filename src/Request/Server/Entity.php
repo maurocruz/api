@@ -93,12 +93,10 @@ abstract class Entity implements HttpRequestInterface
 	 * @param $joins
 	 * @return array
 	 */
-  protected function getData(array $params, $joins = false): array
+  protected function getData(array $params, $joins = null): array
   {
     $data = new GetData($this->table);
-	  if ($joins) {
-			$data->setJoins($joins);
-	  }
+		$data->setJoins($joins);
     $data->setParams($params);
 	  return $data->render();
   }
@@ -276,5 +274,12 @@ abstract class Entity implements HttpRequestInterface
 		$sqlQuery = "UPDATE `thing_has_thing` SET position = position+1 WHERE idHasPart = '$idHasPart' AND typeHasPart = '$typeHasPart' AND typeIsPartOf = '$typeIsPartOf';";
 		$connect->run($sqlQuery);
 		return $returns;
+	}
+
+	protected static function propertiesToArray(string $properties): array
+	{
+		$propertiesArray = explode(',',$properties);
+		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
+		return $propertiesArray;
 	}
 }

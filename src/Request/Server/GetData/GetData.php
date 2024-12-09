@@ -35,7 +35,7 @@ class GetData extends GetDataAbstract
     $this->setQuery();
 		// JOIN
 	  if ($this->joins) {
-		  $this->query .= " ".$join;
+		  $this->query .= " ".$this->joins;
 	  }
 		// ERROR
     if($this->error) {

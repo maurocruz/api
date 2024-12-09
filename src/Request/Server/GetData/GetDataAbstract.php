@@ -38,7 +38,9 @@ abstract class GetDataAbstract
 	 * @var bool
 	 */
 	private bool $hasThing = false;
-
+	/**
+	 * @var string|null
+	 */
 	protected ?string $joins = null;
 
 	/**
@@ -53,9 +55,9 @@ abstract class GetDataAbstract
   }
 
 	/**
-	 * @param string $joins
+	 * @param ?string $joins
 	 */
-	public function setJoins(string $joins): void
+	public function setJoins(?string $joins): void
 	{
 		$this->joins = $joins;
 	}
