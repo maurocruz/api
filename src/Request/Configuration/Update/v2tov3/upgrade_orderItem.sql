@@ -2,6 +2,7 @@ CREATE PROCEDURE upgrade_orderItem()
 BEGIN
   ALTER TABLE `orderItem`
     CHANGE COLUMN `idorderItem` `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    CHANGE COLUMN `offer` `offer` INT UNSIGNED NOT NULL,
     CHANGE COLUMN `referencesOrder` `referencesOrder` INT UNSIGNED NOT NULL,
     CHANGE COLUMN `orderedItem` `orderedItem` INT UNSIGNED NOT NULL,
     DROP PRIMARY KEY,
@@ -16,8 +17,9 @@ BEGIN
     LEFT JOIN `order` ON `orderItem`.referencesOrder = `order`.idorder
   WHERE `order`.idorder IS NULL;
 
+  DELETE FROM `orderItem` WHERE `offer` is null OR `offer`=0;
+
   ALTER TABLE `orderItem`
-    DROP COLUMN `offer`,
     DROP COLUMN `orderedItemType`,
     DROP COLUMN `orderItemStatus`,
     DROP PRIMARY KEY,

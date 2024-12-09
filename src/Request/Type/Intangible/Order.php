@@ -34,13 +34,14 @@ class Order extends Entity
 				];
 				unset($data[$key]['tags']);
 				if ($properties) {
+					$idorder = $value['idorder'];
 					// CUSTOMER
 					if (stripos($properties, 'customer') !== false) {
 						$customer = $value['customer'];
 						$customerTypeData = PDOConnect::run("SELECT `type` FROM `thing` WHERE `idthing` = ? LIMIT 1", [$customer]);
 						if (isset($customerTypeData[0])) {
 							$customerType = lcfirst($customerTypeData[0]['type']);
-							$dataCustomer = ApiFactory::request()->type($customerType)->get(['thing' => $customer])->ready();
+							$dataCustomer = ApiFactory::request()->type($customerType)->get(['thing'=>$customer])->ready();
 							if(isset($dataCustomer[0])) {
 								$data[$key]['customer'] = ApiFactory::response()->type($customerType)->setData($dataCustomer[0])->ready();
 							}
@@ -52,7 +53,7 @@ class Order extends Entity
 						$sellerTypeData = PDOConnect::run("SELECT `type` FROM `thing` WHERE `idthing` = ? LIMIT 1", [$seller]);
 						if (isset($sellerTypeData[0])) {
 							$sellerType = lcfirst($sellerTypeData[0]['type']);
-							$dataSeller = ApiFactory::request()->type($sellerType)->get(['thing' => $seller])->ready();
+							$dataSeller = ApiFactory::request()->type($sellerType)->get(['thing'=>$seller,'properties'=>'hasOfferCatalog'] + $params)->ready();
 							if(isset($dataSeller[0])) {
 								$data[$key]['seller'] = ApiFactory::response()->type($sellerType)->setData($dataSeller[0])->ready();
 							}
@@ -60,10 +61,16 @@ class Order extends Entity
 					}
 					// INVOICE
 					if (stripos($properties, 'invoice') !== false) {
-						$idorder = $value['idorder'];
-						$dataInvoice = ApiFactory::request()->type('invoice')->get(['referencesOrder' => $idorder])->ready();
+						$dataInvoice = ApiFactory::request()->type('invoice')->get(['referencesOrder'=>$idorder])->ready();
 						if(isset($dataInvoice[0])) {
 							$data[$key]['partOfInvoice'] = ApiFactory::response()->type('invoice')->setData($dataInvoice)->ready();
+						}
+					}
+					// ORDER ITEM
+					if (stripos($properties, 'orderItem') !== false) {
+						$dataOrderItem = ApiFactory::request()->type('orderItem')->get(['referencesOrder'=>$idorder,'properties'=>'orderedItem,offer'])->ready();
+						if(isset($dataOrderItem[0])) {
+							$data[$key]['orderedItem'] = ApiFactory::response()->type('orderItem')->setData($dataOrderItem)->ready();
 						}
 					}
 				}

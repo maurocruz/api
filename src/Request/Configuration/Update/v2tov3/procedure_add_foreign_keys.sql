@@ -72,8 +72,10 @@ BEGIN
     ADD CONSTRAINT `fk_order_seller` FOREIGN KEY (`seller`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- ORDER ITEM
   ALTER TABLE `orderItem`
+    ADD KEY `fk_orderItem_offer_idx` (`offer`),
     ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
     ADD KEY `fk_referencesOrder_thing_idx` (`referencesOrder`),
+    ADD CONSTRAINT `fk_orderedItem_offer` FOREIGN KEY (`offer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_referencesOrder_thing` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- ORGANIZATION

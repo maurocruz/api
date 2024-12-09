@@ -20,6 +20,8 @@ class Organization extends Entity
   {
 	  $returns = [];
 	  $properties = $params['properties'] ?? '';
+		$propertiesArray = explode(',',$properties);
+		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
 		$makesOffer = $params['makesOffer'] ?? null;
 	  $data = parent::getData($params);
 		if (isset($data['error'])) {
@@ -29,29 +31,30 @@ class Organization extends Entity
 			  $idthing = $value['thing'];
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
-				  if (stripos($properties, 'contactPoint') !== false) {
-					  $dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['thing' => $idthing])->ready();
-					  $value['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
+				  if (in_array('location', $propertiesArray)) {
+						$location = $value['location'];
+					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
+						$value['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
 				  }
-				  if (stripos($properties,'imageObject') !== false || stripos($properties,'image') !== false) {
+				  if (in_array('imageObject', $propertiesArray) || in_array('image', $propertiesArray)) {
 					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$idthing])->ready();
 					  $value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 				  }
-				  if (stripos($properties,'location') !== false) {
-					  $dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'],'properties'=>'address'])->ready();
-					  $value['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready() : null;
-				  }
-					if (stripos($properties,'offer') !== false || $makesOffer == 'offers') {
+					if (in_array('offer', $propertiesArray) || $makesOffer == 'offers') {
 						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing] + $params)->ready();
 						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
 					}
-				  if (stripos($properties,'product') !== false || $makesOffer == 'product') {
+				  if (in_array('product', $propertiesArray) || $makesOffer == 'product') {
 					  $dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'product'] + $params)->ready();
 					  $value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
 				  }
-					if (stripos($properties,'service') !== false || $makesOffer == 'service') {
+					if (in_array('service', $propertiesArray) || $makesOffer == 'service') {
 						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'service'] + $params)->ready();
 						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
+					}
+					if (in_array('hasOfferCatalog', $propertiesArray)) {
+						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing] + $params)->ready();
+						$value['hasOfferCatalog'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->setParams(['format'=>'ItemList'])->ready() : null;
 					}
 			  }
 			  $returns[] = $value;

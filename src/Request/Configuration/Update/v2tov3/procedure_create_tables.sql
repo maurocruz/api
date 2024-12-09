@@ -167,6 +167,7 @@ CREATE PROCEDURE create_tables()
     -- ORDER ITEM
     CREATE TABLE IF NOT EXISTS  `orderItem` (
       `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `offer` INT UNSIGNED NOT NULL,
       `orderQuantity`INT UNSIGNED NOT NULL DEFAULT '1',
       `orderedItem` INT UNSIGNED NOT NULL,
       `referencesOrder` INT UNSIGNED NOT NULL,
