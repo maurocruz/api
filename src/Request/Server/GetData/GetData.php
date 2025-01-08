@@ -1,26 +1,49 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server\GetData;
 
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class GetData extends GetDataAbstract
 {
-  /**
-   * @param $table
-   */
-  public function __construct($table)
+	/**
+	 * @param $table
+	 * @param bool $withThings
+	 */
+  public function __construct($table, bool $withThings = true)
   {
     $this->table = $table;
-	  $this->setProperties($table);
+	  $this->setProperties($table, $withThings);
   }
 
 	/**
-	 * @param mixed $params
+	 * @param ?string $joins
+	 * @return GetData
 	 */
-	public function setParams($params): GetDataAbstract
+	public function setJoins(?string $joins): GetData
+	{
+		$this->joins = $joins;
+		return $this;
+	}
+
+	/**
+	 * @param $params
+	 * @return $this
+	 */
+	public function setParams($params): GetData
 	{
 		$this->params = $params;
+		return $this;
+	}
+
+	/**
+	 * @param ?string $where
+	 * @return $this
+	 */
+	public function setWhere(?string $where): GetData
+	{
+		if ($where) {
+			$this->where[] = $where;
+		}
 		return $this;
 	}
 
@@ -41,10 +64,10 @@ class GetData extends GetDataAbstract
     if($this->error) {
         return $this->error;
     }
+	  // WHERE
+	  $this->whereCondition();
     // PARAMS
     if ($this->params) {
-	    // WHERE
-	    $this->whereCondition();
       $this->finalConditions();
     }
     $this->query .= ";";

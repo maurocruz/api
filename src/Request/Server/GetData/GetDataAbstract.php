@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server\GetData;
 
 use Plinct\Api\ApiFactory;
@@ -22,10 +21,18 @@ abstract class GetDataAbstract
    * @var string
    */
   protected string $table;
+	/**
+	 * @var string|null
+	 */
+	protected ?string $joins = null;
   /**
    * @var array
    */
   protected array $params = [];
+	/**
+	 * @var array
+	 */
+	protected array $where = [];
 	/**
 	 * @var array
 	 */
@@ -38,10 +45,6 @@ abstract class GetDataAbstract
 	 * @var bool
 	 */
 	private bool $hasThing = false;
-	/**
-	 * @var string|null
-	 */
-	protected ?string $joins = null;
 
 	/**
 	 * @return void
@@ -54,24 +57,18 @@ abstract class GetDataAbstract
 	  }
   }
 
-	/**
-	 * @param ?string $joins
-	 */
-	public function setJoins(?string $joins): void
-	{
-		$this->joins = $joins;
-	}
 
 	/**
 	 * @param string $table
+	 * @param bool $withThings
 	 * @return void
 	 */
-	protected function setProperties(string $table): void
+	protected function setProperties(string $table, bool $withThings): void
 	{
 		$propertiesTable = self::getColumnNames($table);
 		$propertiesThing = [];
 		if (!!array_search('thing',$propertiesTable)) {
-			$this->hasThing = true;
+			$this->hasThing = $withThings;
 			$propertiesThing = self::getColumnNames('thing');
 		}
 		$this->properties = array_merge($this->properties, $propertiesTable, $propertiesThing);
@@ -132,16 +129,15 @@ abstract class GetDataAbstract
    */
   protected function whereCondition(): void
   {
-		$whereCondition = null;
 	  foreach ($this->params as $key => $value) {
 			//  WHERE WITH PARAMS
 		  if ($key == 'where') {
-			  $whereCondition[] = $value;
+			  $this->where[] = $value;
 		  }
 		  // ID
 		  if ($key == 'id') {
 			  $idname = "id$this->table";
-			  $whereCondition[] = "`$idname`=$value";
+			  $this->where[] = "`$idname`=$value";
 		  }
 		  // LIKE CONDITION
 		  if (is_string($key)) {
@@ -152,7 +148,7 @@ abstract class GetDataAbstract
 					foreach ($valuesLike as $item) {
 						$likeWhere[] = "LOWER(REPLACE(`$likeProperty`,' ','')) LIKE LOWER(REPLACE('%$item%',' ',''))";
 					}
-					$whereCondition[] = implode(' AND ', $likeWhere);
+					$this->where[] = implode(' AND ', $likeWhere);
 				}
 			}
 	  }
@@ -161,10 +157,18 @@ abstract class GetDataAbstract
 		  $propertyValue = $this->params[$value] ?? null;
 		  if ($propertyValue !== null) {
 			  $fieldValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
-			  $whereCondition[] = "`$value`='$fieldValue'";
+				if (str_contains($fieldValue,'|')) {
+					//$orArray = [];
+					foreach (explode('|', $fieldValue) as $orValue) {
+						$orArray[] = "`$value`='$orValue'";
+					}
+					$this->where[] = "(" . implode(" OR ", $orArray) . ")";
+				} else {
+					$this->where[] = "`$value`='$fieldValue'";
+				}
 		  }
 	  }
-	  $this->query .= $whereCondition ? " WHERE " . implode(" AND ", $whereCondition) : null;
+	  $this->query .= !empty($this->where) ? " WHERE " . implode(" AND ", array_filter($this->where)) : null;
   }
 
 	/**
