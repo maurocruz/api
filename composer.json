@@ -13,7 +13,8 @@
         "php": "^7.4|^8.0",
         "slim/psr7": "1.*",
         "tuupola/slim-jwt-auth": "3.*",
-        "phpmailer/phpmailer": "^6.0"
+        "phpmailer/phpmailer": "^6.0",
+        "ext-intl": "*"
     },
     "autoload": {
         "psr-4": {

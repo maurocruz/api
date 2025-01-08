@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Organization;
 
 use Plinct\Api\ApiFactory;
@@ -31,30 +30,41 @@ class Organization extends Entity
 			  $idthing = $value['thing'];
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
+					// LOCATION
 				  if (in_array('location', $propertiesArray)) {
 						$location = $value['location'];
 					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
 						$value['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
 				  }
+					// IMAGE OBJECT
 				  if (in_array('imageObject', $propertiesArray) || in_array('image', $propertiesArray)) {
 					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$idthing])->ready();
 					  $value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 				  }
+					// OFFERS
 					if (in_array('offer', $propertiesArray) || $makesOffer == 'offers') {
 						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing] + $params)->ready();
 						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
 					}
+					// PRODUCTS
 				  if (in_array('product', $propertiesArray) || $makesOffer == 'product') {
 					  $dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'product'] + $params)->ready();
 					  $value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
 				  }
+					// SERVICES
 					if (in_array('service', $propertiesArray) || $makesOffer == 'service') {
 						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing,'type'=>'service'] + $params)->ready();
 						$value['makesOffer'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->ready() : null;
 					}
+					// OFFER CATALOG
 					if (in_array('hasOfferCatalog', $propertiesArray)) {
+						unset($params['thing']);
+						unset($params['idthing']);
 						$dataOffer = ApiFactory::request()->type('offer')->get(['offeredBy' => $idthing] + $params)->ready();
 						$value['hasOfferCatalog'] = isset($dataOffer[0]) ? ApiFactory::response()->type('offer')->setData($dataOffer)->setParams(['format'=>'ItemList'])->ready() : null;
+						if ($value['hasOfferCatalog']) {
+							$value['hasOfferCatalog']['@type'] = 'OfferCatalog';
+						}
 					}
 			  }
 			  $returns[] = $value;

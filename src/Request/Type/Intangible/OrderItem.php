@@ -54,12 +54,6 @@ class OrderItem extends Entity
 					unset($data[$key]['eligibleDuration']);
 				}
 			}
-			$data[$key]['identifier'][] = [
-				"@type" => "PropertyValue",
-				"name" => "referencesOrder",
-				"value" => $value['referencesOrder']
-			];
-			unset($data[$key]['referencesOrder']);
 		}
 		return parent::sortData($data);
 	}

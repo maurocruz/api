@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Event;
 
 use Plinct\Api\ApiFactory;
@@ -15,65 +14,32 @@ class Event extends Entity
 
 	public function get(array $params = []): array
 	{
-		$returns = [];
-		$properties = $params['properties'] ?? null;
-		$name = $params['name'] ?? null;
-		$startDate = $params['startDate'] ?? null;
-		if ($name) {
-			$dataThing = ApiFactory::request()->type('thing')->get($params)->ready();
-			if (empty($dataThing)) {
-				return ApiFactory::response()->message()->fail()->generic();
-			} else {
-					foreach ($dataThing as $thing) {
-						$idthing = $thing['idthing'];
-						if ($startDate && strlen($startDate) === 10) {
-							unset($params['startDate']);
-							$params['startDateLike'] = $startDate;
-						}
-						$dataEvent = parent::getData(['thing'=>$idthing] + $params);
-						if (!empty($dataEvent)) {
-							$value = $dataEvent[0];
-							$returns[] = $thing + self::getValuesProperties($properties, $value, $idthing);
-						}
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$data = parent::getData($params);
+		// PROPERTIES
+		if (!empty($data) && $properties) {
+			foreach ($data as $key => $value) {
+				$idthing = $value['thing'];
+				if (in_array('imageObject', $properties) || in_array('image', $properties)) {
+					$dataImageObject = ApiFactory::request()->type('imageObject')->get(['hasPart' => $idthing])->ready();
+					$data[$key]['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
+				}
+				// location
+				if (in_array('location',$properties)) {
+					$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'], 'properties' => 'address'])->ready();
+					$data[$key]['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready()[0] : null;
+				}
+				// subEvent
+				if (in_array('subEvent', $properties)) {
+					$query = "SELECT * FROM thing_has_thing where idHasPart=$idthing AND typeHasPart='Event';";
+					$dataIsPartOf = PDOConnect::run($query);
+					foreach ($dataIsPartOf as $valueSubEvent) {
+						$data[$key]['subEvent'][] = ['idevent' => $valueSubEvent['idIsPartOf']];
 					}
-			}
-		} else {
-			$data = parent::getData($params);
-			if (!empty($data)) {
-				foreach ($data as $value) {
-					$idthing = $value['thing'];
-					$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-					// PROPERTIES
-					$returns[] = self::getValuesProperties($properties, $value, $idthing) + $dataThing[0];
 				}
 			}
 		}
-		return parent::sortData($returns);
-	}
-
-	private function getValuesProperties(string $properties, array $value, int $idthing): ?array
-	{
-		if ($properties) {
-			// image
-			if (stripos($properties, 'imageObject') !== false || stripos($properties, 'image') !== false) {
-				$dataImageObject = ApiFactory::request()->type('imageObject')->get(['hasPart' => $idthing])->ready();
-				$value['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
-			}
-			// location
-			if (stripos($properties, 'location') !== false) {
-				$dataPlace = ApiFactory::request()->type('place')->get(['idplace' => $value['location'], 'properties' => 'address'])->ready();
-				$value['location'] = isset($dataPlace[0]) ? ApiFactory::response()->type('place')->setData($dataPlace)->ready()[0] : null;
-			}
-			// subEvent
-			if (stripos($properties, 'subEvent') !== false) {
-				$query = "SELECT * FROM thing_has_thing where idHasPart=$idthing AND typeHasPart='Event';";
-				$dataIsPartOf = PDOConnect::run($query);
-				foreach ($dataIsPartOf as $valueSubEvent) {
-					$value['subEvent'][] = ['idevent' => $valueSubEvent['idIsPartOf']];
-				}
-			}
-		}
-		return $value;
+		return parent::sortData($data);
 	}
 
 	/**

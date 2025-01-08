@@ -2,7 +2,6 @@
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 
 class Offer extends Entity
@@ -15,82 +14,63 @@ class Offer extends Entity
 		$this->setTable('offer');
   }
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$isValidThrough = array_key_exists('isValidThrough', $params);
-		$availability = $params['availability'] ?? null;
-		$type = $params['type'] ?? null;
-
-		$sqlQuery = "SELECT * FROM offer LEFT JOIN thing ON thing.idthing = offer.itemOffered";
-		if ($type == 'service' || $type === null) {
-			$sqlQuery .= " LEFT JOIN `service` ON `service`.thing = thing.idthing AND thing.type = 'service'";
-		}
-		if ($type == 'product' || $type === null) {
-			$sqlQuery .= " LEFT JOIN `product` ON `product`.thing = thing.idthing AND thing.type = 'product'";
-		}
-		if ($isValidThrough || $availability) {
-			$sqlQuery .= " WHERE";
-		}
-		if ($availability) {
-			$sqlQuery .= " availability = '$availability'";
-		}
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$where = null;
 		if ($isValidThrough) {
-			$sqlQuery .= " AND validThrough >= CURDATE()";
+			$where = "`validThrough` >= CURDATE()";
 		}
-		$sqlQuery .= ";";
-		$data = PDOConnect::run($sqlQuery);
-
-		foreach ($data as $key => $value) {
-			if (!isset($value['idservice']) && !isset($value['idproduct'])) {
-				unset($data[$key]);
-			} else {
-				$itemOffered = [
-					'idthing' => $value['idthing'],
-					'additionalType' => $value['additionalType'],
-					'alternateName' => $value['alternateName'],
-					'dateCreated' => $value['dateCreated'],
-					'dateModified' => $value['dateModified'],
-					'description' => $value['description'],
-					'disambiguatingDescription' => $value['disambiguatingDescription'],
-					'image' => $value['image'],
-					'mainEntityOfPage' => $value['mainEntityOfPage'],
-					'name' => $value['name'],
-					'type' => $value['type'],
-					'url' => $value['url'],
-				];
-				if (isset($value['idservice'])) {
-					$itemOffered['idservice'] = $value['idservice'];
-					$itemOffered['thing'] = $value['thing'];
-					$itemOffered['provider'] = $value['provider'];
-					$itemOffered['category'] = $value['category'];
-					$itemOffered['serviceType'] = $value['serviceType'];
-					$itemOffered['termsOfService'] = $value['termsOfService'];
+		$data = parent::getData($params, null, $where);
+		if (isset($data['error'])) {
+			return $data;
+		}
+		if ($properties) {
+			foreach ($data as $key => $value) {
+				//  itemOffered
+				if ($properties && in_array('itemOffered', $properties)) {
+					$itemOfferd = $value['itemOffered'];
+					$dataItemOffered = ApiFactory::request()->type('thing')->get(['idthing' => $itemOfferd, 'hasPart'=>true])->ready();
+					if (isset($dataItemOffered[0])) {
+						$typeItemOffered = $dataItemOffered[0]['type'];
+						$data[$key]['itemOffered'] = ApiFactory::response()->type($typeItemOffered)->setData($dataItemOffered[0])->ready();
+					}
 				}
-				unset($value['idthing']);
-				unset($value['additionalType']);
-				unset($value['alternateName']);
-				unset($value['dateCreated']);
-				unset($value['dateModified']);
-				unset($value['description']);
-				unset($value['disambiguatingDescription']);
-				unset($value['image']);
-				unset($value['mainEntityOfPage']);
-				unset($value['name']);
-				unset($value['type']);
-				unset($value['url']);
-				unset($value['idservice']);
-				unset($value['thing']);
-				unset($value['provider']);
-				unset($value['category']);
-				unset($value['serviceType']);
-				unset($value['termsOfService']);
-				unset($value['idproduct']);
-				unset($value['manufacturer']);
-
-				$value['itemOffered'] = ApiFactory::response()->type($itemOffered['type'])->setData($itemOffered)->ready();
-				$data[$key] = $value;
+				// offeredBy
+				if ($properties && in_array('offeredBy', $properties)) {
+					$offeredBy = $value['offeredBy'];
+					$dataOfferedBy = ApiFactory::request()->type('thing')->get(['idthing' => $offeredBy, 'hasPart'=>true])->ready();
+					if (isset($dataOfferedBy[0])) {
+						$typeOfferedBy = $dataOfferedBy[0]['type'];
+						$data[$key]['offeredBy'] = ApiFactory::response()->type($typeOfferedBy)->setData($dataOfferedBy[0])->ready();
+					}
+				}
 			}
 		}
 		return parent::sortData($data);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function post(?array $params = null): array
+	{
+		$params['dateCreated'] = date("Y-m-d H:i:s");
+		return parent::post($params);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function put(array $params = null): array
+	{
+		return parent::update('thing', $params);
 	}
 }

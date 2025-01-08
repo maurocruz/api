@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Action;
 
 use Plinct\Api\ApiFactory;
@@ -22,11 +21,17 @@ class Action extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
+		$properties = parent::propertiesToArray($params['properties'] ?? null);
 		$data = $this->getData($params);
-		if (isset($data['error'])) {
-			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
-		} else {
-			//var_dump($data);
+		if ($properties) {
+			foreach ($data as $key => $value) {
+				if (in_array('agent',$properties)) {
+					$agent = $value['agent'];
+					$dataAgent = ApiFactory::request()->type('user')->get(['iduser'=>$agent])->ready();
+					$value['agent'] = isset($dataAgent[0]) ? ApiFactory::response()->type('thing')->setData($dataAgent[0])->ready() : null;
+				}
+				$data[$key] = $value;
+			}
 		}
 		return $this->sortData($data);
 	}

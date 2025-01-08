@@ -30,7 +30,7 @@ class Thing extends Entity implements HttpRequestInterface
 				$idthing = $value['idthing'];
 				$type = $value['type'];
 				if ($hasPart) {
-					$dataHasPart = ApiFactory::request()->type(lcfirst($type))->get(['thing' => $idthing])->ready();
+					$dataHasPart = ApiFactory::request()->type(lcfirst($type))->get(['thing' => $idthing] + $params)->ready();
 				}
 				if ($properties) {
 					if (str_contains($properties, 'image')) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
