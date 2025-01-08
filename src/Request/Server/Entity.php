@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Api\Request\Server\Schema\Schema;
 
 abstract class Entity implements HttpRequestInterface
 {
@@ -70,11 +68,7 @@ abstract class Entity implements HttpRequestInterface
   public function get(array $params = []): array
   {
     $data = $this->getData($params);
-    if (isset($data['error'])) {
-      return $data;
-    } else {
-      return (new Schema($this->table, $this->properties, $this->hasTypes))->buildSchema($params, $data);
-    }
+		return self::sortData($data);
   }
 
 	/**
@@ -90,17 +84,24 @@ abstract class Entity implements HttpRequestInterface
 
 	/**
 	 * @param array $params
-	 * @param $joins
+	 * @param ?string $joins
+	 * @param string|null $where
 	 * @return array
 	 */
-  protected function getData(array $params, $joins = null): array
+  protected function getData(array $params, ?string $joins = null, ?string $where = null): array
   {
     $data = new GetData($this->table);
 		$data->setJoins($joins);
     $data->setParams($params);
+		$data->setWhere($where);
 	  return $data->render();
   }
 
+	/**
+	 * @param string $type
+	 * @param array $params
+	 * @return array|null
+	 */
 	protected function getThingFirst(string $type, array $params): ?array
 	{
 		$returns = [];
@@ -174,7 +175,7 @@ abstract class Entity implements HttpRequestInterface
 			$idname = "id$this->table";
 			$idvalue = $params[$idname] ?? null;
 			if ($idvalue) {
-				$getData = new GetData($this->table);
+				$getData = new GetData($this->table, false);
 				$rowUpdated = $getData->setParams([$idname => $idvalue])->render();
 				$data['data'] = $rowUpdated;
 			}
@@ -192,14 +193,15 @@ abstract class Entity implements HttpRequestInterface
 		$idchildName = 'id'.$this->table;
 		$idchildValue = $params[$idchildName] ?? null;
 		if ($idchildValue) {
-			$dataChild = self::getData([$idchildName=>$idchildValue]);
+			$getData = new GetData($this->table, false);
+			$dataChild = $getData->setParams([$idchildName=>$idchildValue])->render();
 			if (!empty($dataChild)) {
 				$putChild = self::put($params);
 				if ($putChild['status'] === 'success') {
 					$idparent = $putChild['data'][0][$parentName];
 					$putParent = ApiFactory::request()->type($parentName)->put(['id'.$parentName=>$idparent] + $params)->ready();
 					if ($putParent['status'] === 'success') {
-						return ApiFactory::response()->message()->success('CreativeWork was updated', [$putChild, $putParent]);
+						return ApiFactory::response()->message()->success("$this->table was updated", [$putChild, $putParent]);
 					} else {
 						return ApiFactory::response()->message()->error()->anErrorHasOcurred($putParent);
 					}
@@ -276,8 +278,13 @@ abstract class Entity implements HttpRequestInterface
 		return $returns;
 	}
 
-	protected static function propertiesToArray(string $properties): array
+	/**
+	 * @param string|null $properties
+	 * @return false|string[]|null
+	 */
+	protected static function propertiesToArray(string $properties = null)
 	{
+		if (!$properties) return null;
 		$propertiesArray = explode(',',$properties);
 		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
 		return $propertiesArray;
