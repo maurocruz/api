@@ -5,7 +5,8 @@ BEGIN
   ALTER TABLE `webPageElement`
     CHANGE COLUMN `idwebPageElement` `idwebPageElement` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     ADD COLUMN `creativeWork` INT UNSIGNED DEFAULT NULL AFTER `idwebPageElement`,
-    ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idwebPageElement`,
+    ADD COLUMN `cssSelector` TEXT AFTER `creativeWork`,
+    ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `cssSelector`,
     DROP PRIMARY KEY ,
     ADD PRIMARY KEY (`idwebPageElement`);
 

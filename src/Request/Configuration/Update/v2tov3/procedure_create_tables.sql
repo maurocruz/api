@@ -1,6 +1,16 @@
 CREATE PROCEDURE create_tables()
   BEGIN
-    -- AGGREGATE RATING
+    -- ACTION
+    CREATE TABLE IF NOT EXISTS `action` (
+      `idaction` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `actionStatus` VARCHAR(255),
+      `agent` INT UNSIGNED NOT NULL,
+      `endTime` DATETIME NOT NULL,
+      `object` INT UNSIGNED NOT NULL,
+      `result` VARCHAR(255),
+      `startTime` DATETIME NOT NULL,
+      PRIMARY KEY (`idaction`,`object`)
+    ) ENGINE = InnoDB;
 
     -- ARTICLE
     CREATE TABLE IF NOT EXISTS `article` (
@@ -56,7 +66,7 @@ CREATE PROCEDURE create_tables()
       `license` VARCHAR(100) DEFAULT NULL,
       `locationCreated` VARCHAR(100) DEFAULT NULL,
       `maintainer` INT UNSIGNED DEFAULT NULL,
-      `position` INT UNSIGNED DEFAULT NULL,
+      `position` VARCHAR(100),
       `publisher` VARCHAR(255) DEFAULT NULL,
       `text` TEXT,
       `thumbnail` VARCHAR(255) DEFAULT NULL,
@@ -103,8 +113,10 @@ CREATE PROCEDURE create_tables()
     -- INVOICE
     CREATE TABLE IF NOT EXISTS `invoice` (
      `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+     `customer` INT UNSIGNED NOT NULL,
      `paymentDueDate` DATE DEFAULT NULL,
      `paymentStatus` VARCHAR(45) DEFAULT NULL,
+     `provider` INT UNSIGNED NOT NULL,
      `referencesOrder` INT UNSIGNED NOT NULL,
      `scheduledPaymentDate` DATE NOT NULL,
      `totalPaymentDue` FLOAT NOT NULL,
@@ -141,6 +153,7 @@ CREATE PROCEDURE create_tables()
     -- OFFER
     CREATE TABLE IF NOT EXISTS `offer` (
       `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      `thing` INT UNSIGNED NOT NULL,
       `availability` VARCHAR(45) DEFAULT NULL,
       `eligibleDuration` VARCHAR(45) DEFAULT NULL,
       `eligibleQuantity` INT DEFAULT NULL,
@@ -170,7 +183,7 @@ CREATE PROCEDURE create_tables()
       `offer` INT UNSIGNED NOT NULL,
       `orderQuantity`INT UNSIGNED NOT NULL DEFAULT '1',
       `orderedItem` INT UNSIGNED NOT NULL,
-      `referencesOrder` INT UNSIGNED NOT NULL,
+      `orderItemNumber` INT UNSIGNED NOT NULL,
       PRIMARY KEY (`idorderItem`)
     ) ENGINE = InnoDB;
 
@@ -354,6 +367,7 @@ CREATE PROCEDURE create_tables()
     CREATE TABLE IF NOT EXISTS `webPageElement` (
       `idwebPageElement` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `creativeWork` INT UNSIGNED NOT NULL,
+      `cssSelector` TEXT,
       `thing` INT UNSIGNED NOT NULL,
       PRIMARY KEY (`idwebPageElement`,`creativeWork`)
     ) ENGINE = InnoDB;

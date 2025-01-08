@@ -13,5 +13,13 @@ CREATE PROCEDURE upgrade_invoice()
     DELETE `invoice` FROM invoice
       LEFT JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
     WHERE `order`.idorder IS NULL ;
+
+    UPDATE `invoice`
+      JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
+    SET `invoice`.customer=`order`.customer, `invoice`.provider = `order`.seller;
+
+    ALTER TABLE `invoice`
+      DROP COLUMN `customerType`,
+      DROP COLUMN `providerType`;
   END ;
 

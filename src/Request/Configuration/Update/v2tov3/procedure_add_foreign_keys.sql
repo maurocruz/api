@@ -60,8 +60,10 @@ BEGIN
     ADD CONSTRAINT `fk_mediaObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- OFFER
   ALTER TABLE `offer`
+    ADD KEY `fk_offer_thing_idx` (`thing`),
     ADD KEY `fk_offer_itemOffered_thing_idx` (`itemOffered`),
     ADD KEY `fk_offer_offeredBy_thing_idx` (`offeredBy`),
+    ADD CONSTRAINT `fk_offer_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_offer_itemOffered_thing` FOREIGN KEY (`itemOffered`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_offer_offeredBy_thing` FOREIGN KEY (`offeredBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- ORDER
@@ -74,10 +76,10 @@ BEGIN
   ALTER TABLE `orderItem`
     ADD KEY `fk_orderItem_offer_idx` (`offer`),
     ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
-    ADD KEY `fk_referencesOrder_thing_idx` (`referencesOrder`),
+    ADD KEY `fk_orderItemNumber_thing_idx` (`orderItemNumber`),
     ADD CONSTRAINT `fk_orderedItem_offer` FOREIGN KEY (`offer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE NO ACTION,
     ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    ADD CONSTRAINT `fk_referencesOrder_thing` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+    ADD CONSTRAINT `fk_orderItemNumber_thing` FOREIGN KEY (`orderItemNumber`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- ORGANIZATION
   ALTER TABLE `organization`
     ADD KEY `fk_organization_thing_idx` (`thing`),
