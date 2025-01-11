@@ -103,7 +103,7 @@ class Relationship extends RelationshipAbstract
 				}
 			}
     }
-	  return $query ? PDOConnect::run($query) : [];
+	  return isset($query) ? PDOConnect::run($query) : [];
   }
   /**
    * @param array $params
