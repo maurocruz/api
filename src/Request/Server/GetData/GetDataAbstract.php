@@ -158,13 +158,12 @@ abstract class GetDataAbstract
 		  if ($propertyValue !== null) {
 			  $fieldValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
 				if (str_contains($fieldValue,'|')) {
-					//$orArray = [];
 					foreach (explode('|', $fieldValue) as $orValue) {
-						$orArray[] = "`$value`='$orValue'";
+						$orArray[] = "`{$this->table}`.`$value`='$orValue'";
 					}
 					$this->where[] = "(" . implode(" OR ", $orArray) . ")";
 				} else {
-					$this->where[] = "`$value`='$fieldValue'";
+					$this->where[] = "`{$this->table}`.`$value`='$fieldValue'";
 				}
 		  }
 	  }
