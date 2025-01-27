@@ -222,8 +222,10 @@ abstract class Entity implements HttpRequestInterface
    */
   public function delete(array $params): array
   {
+		$limit = $params['limit'] ?? '1';
+		unset($params['limit']);
 		$connect = new ConnectBd($this->table);
-		return $connect->delete($params);
+		return $connect->delete($params, $limit);
   }
 
 	/**

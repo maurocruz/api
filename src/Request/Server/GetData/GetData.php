@@ -15,6 +15,11 @@ class GetData extends GetDataAbstract
 	  $this->setProperties($table, $withThings);
   }
 
+	public function setLeftJoin(string $table, string $condition)
+	{
+		$this->properties = array_merge($this->properties,parent::getColumnNames($table));
+		$this->setJoins("left join `$table` on $condition");
+	}
 	/**
 	 * @param ?string $joins
 	 * @return GetData
@@ -45,6 +50,26 @@ class GetData extends GetDataAbstract
 			$this->where[] = $where;
 		}
 		return $this;
+	}
+
+	public function getQuery(): string
+	{
+		// FIELDS
+		$this->setFields();
+		// QUERY
+		$this->setQuery();
+		// JOIN
+		if ($this->joins) {
+			$this->query .= " ".$this->joins;
+		}
+		// WHERE
+		$this->whereCondition();
+		// PARAMS
+		if ($this->params) {
+			$this->finalConditions();
+		}
+		$this->query .= ";";
+		return $this->query;
 	}
 
   /**

@@ -137,7 +137,7 @@ class Crud
     $query .= $limit ? " LIMIT $limit" : null;
     $query .= ";";
     $run = PDOConnect::run($query);
-		$rows = $run['rows'];
+		$rows = $run['rows'] ?? null;
 	  if ((int) $rows > 0) {
       return ['status'=>'success', 'message'=>"Deleted successfully. $rows rows affected."];
     } else {

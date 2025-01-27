@@ -65,14 +65,15 @@ class ConnectBd
 
 	/**
 	 * @param array $params
+	 * @param string $limit
 	 * @return array
 	 */
-	public function delete(array $params): array
+	public function delete(array $params, string $limit = '1'): array
 	{
 		if (empty($params)) {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		} else {
-			return PDOConnect::crud()->setTable($this->table)->erase($params);
+			return PDOConnect::crud()->setTable($this->table)->erase($params, $limit);
 		}
 	}
 

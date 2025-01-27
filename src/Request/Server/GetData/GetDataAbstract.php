@@ -10,9 +10,9 @@ abstract class GetDataAbstract
 	 */
 	const __LIMIT__ = '200';
   /**
-   * @var string
+   * @var ?string
    */
-  protected string $query;
+  protected ?string $query = null;
   /**
    * @var string
    */
@@ -57,7 +57,6 @@ abstract class GetDataAbstract
 	  }
   }
 
-
 	/**
 	 * @param string $table
 	 * @param bool $withThings
@@ -78,7 +77,7 @@ abstract class GetDataAbstract
 	 * @param string $table
 	 * @return array
 	 */
-	private function getColumnNames(string $table): array
+	protected function getColumnNames(string $table): array
 	{
 		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
 		$properties = [];
@@ -101,27 +100,20 @@ abstract class GetDataAbstract
    */
   protected function setFields(): void
   {
-		$fieldsArray = [];
-    if (isset($this->params['fields'])) {
-			$fields = $this->params['fields'];
-			if (str_contains($fields,'count')) {
-				$this->fields = $fields;
-			} else {
-				$fields = $fields.',thing,type';
-				unset($this->params['fields']);
-				foreach (explode(',', $fields) as $field) {
-					if (in_array($field, $this->properties)) {
-						$fieldsArray[] = $field;
-					}
+	  $fields = $this->params['fields'] ?? null;
+		if ($fields !== null) {
+			$fieldsArray = array_merge(explode(',', $fields), array_filter($this->properties, function ($value) {
+				if (substr($value, 0, 2) === 'id') {
+					return $value;
 				}
-				// ID IS REQUIRED IF THERE IS A hasType PROPERTY
-				$idname = "id$this->table";
-				if (!str_contains($fields, $idname)) {
-					$fieldsArray[] = $idname;
-				}
-				$this->fields = implode(',', $fieldsArray);
+				return null;
+			}));
+			if(in_array('idthing', $fieldsArray)) {
+				$fieldsArray[] = 'dateCreated';
+				$fieldsArray[] = 'dateModified';
 			}
-    }
+			$this->fields = implode(',',$fieldsArray);
+		}
   }
 
   /**
@@ -157,13 +149,17 @@ abstract class GetDataAbstract
 		  $propertyValue = $this->params[$value] ?? null;
 		  if ($propertyValue !== null) {
 			  $fieldValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
+
+
 				if (str_contains($fieldValue,'|')) {
 					foreach (explode('|', $fieldValue) as $orValue) {
 						$orArray[] = "`{$this->table}`.`$value`='$orValue'";
 					}
 					$this->where[] = "(" . implode(" OR ", $orArray) . ")";
-				} else {
+				}	elseif (($this->table == 'thing') === ($value == 'idthing')) {
 					$this->where[] = "`{$this->table}`.`$value`='$fieldValue'";
+				} elseif (in_array($value, $this->properties) && ($value == 'idthing')) {
+					$this->where[] = "`thing`.`idthing`='$fieldValue'";
 				}
 		  }
 	  }
@@ -189,7 +185,7 @@ abstract class GetDataAbstract
 			$orderByArray = [];
 			foreach (explode(',', $orderBy) as $value) {
 				$item = str_replace([' desc', ' asc'], '', trim($value));
-				if ($this->isProperty($item)) {
+				if ($this->isProperty($item) || $item == 'rand()') {
 					$orderByArray[] = trim($value);
 				}
 			}
