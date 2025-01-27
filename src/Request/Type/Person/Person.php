@@ -1,9 +1,8 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Person;
 
-use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Person extends Entity
 {
@@ -21,50 +20,43 @@ class Person extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
-		$properties = $params['properties'] ?? null;
-		$programName = $params['programName'] ?? $params['memberOf'] ?? null;
-		if ($programName) {
-			$dataProgramMembership = ApiFactory::request()->type('programMembership')->get(['programName'=>$programName] + $params)->ready();
-			if(!empty($dataProgramMembership)) {
-				foreach($dataProgramMembership as $programMembership) {
-					$member = $programMembership['member'];
-					$dataPerson = parent::getData(['idperson'=>$member,'properties'=>'image'] + $params);
-					if (!empty($dataPerson)) {
-						$valuePerson = $dataPerson[0];
-						$valuePerson['memberOf'] = $programMembership;
-						$returns[] = $valuePerson;
-					}
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$data = (new GetData('person'))->setParams($params)->render();
+		if ($properties) {
+			foreach ($data as $key => $item) {
+				$idthing = $item['idthing'];
+				$idperson = $item['idperson'];
+				// ABOUT
+				if (in_array('about',$properties)) {
+					$data[$key]['about'] = parent::getProperties('creativeWork', ['about' => $idthing]);
 				}
-				$returns = $this->getProps($returns, $properties);
+				// CONTACT POINT
+				if (in_array('contactPoint', $properties)) {
+					$data[$key]['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
+				}
+				// HAS CERTIFICATION
+				if (in_array('hasCertification', $properties)) {
+					$data[$key]['hasCertification'] = parent::getProperties('certification', ['about' => $idthing]);
+				}
+				// HOME LOCATION
+				if (in_array('homeLocation', $properties)) {
+					$data[$key]['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
+				}
+				// IMAGE
+				if (in_array(['image','imageObject'], $properties)) {
+					$data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+				}
+				// MEMBER OF
+				if (in_array('memberOf', $properties)) {
+					$data[$key]['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
+				}
+				// MAIN ENTITY OF PAGE
+				if (in_array('mainEntityOfPage', $properties)) {
+					$data[$key]['mainEntityOfPage'] = parent::getProperties('webPage', ['url' =>$value['mainEntityOfPage'] ?? $value['url'], 'properties' => 'image,hasPart']);
+				}
 			}
-		} else {
-			$dataPerson = parent::getData($params);
-			$returns = $this->getProps($dataPerson, $properties);
 		}
-		return parent::sortData($returns);
-	}
-
-	private function getProps(array $dataPerson, $properties): array
-	{
-		$returns = [];
-		if (!empty($dataPerson) && $properties) {
-			foreach ($dataPerson as $value) {
-				$idthing = $value['idthing'];
-				$idperson = $value['idperson'];
-				if (strpos($properties, 'about') !== false) $value['about'] = parent::getProperties('creativeWork', ['about' => $idthing]);
-				if (strpos($properties, 'contactPoint') !== false) $value['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
-				if (strpos($properties, 'hasCertification') !== false) $value['hasCertification'] = parent::getProperties('certification', ['about' => $idthing]);
-				if (strpos($properties, 'homeLocation') !== false) $value['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
-				if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
-				if (strpos($properties, 'memberOf') !== false) $value['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
-				if (strpos($properties, 'mainEntityOfPage') !== false) $value['mainEntityOfPage'] = parent::getProperties('webPage', ['url' =>$value['mainEntityOfPage'] ?? $value['url'], 'properties' => 'image,hasPart']);
-				$returns[] = $value;
-			}
-		} else {
-			$returns = $dataPerson;
-		}
-		return $returns;
+		return parent::sortData($data);
 	}
 
 	/**

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Response\Type;
 
 class TypeSchema extends TypeSchemaAbstract
@@ -59,6 +58,6 @@ class TypeSchema extends TypeSchemaAbstract
 		if (array_key_exists('identifier', $this->value)) {
 			$this->identifier = array_merge($this->identifier, $this->value['identifier']);
 		}
-		return array_merge($this->contextSchema, $this->thingData, $this->value, ['identifier'=>$this->identifier]);
+		return array_merge($this->contextSchema, $this->thingData, $this->value, !empty($this->identifier) ? ['identifier'=>$this->identifier] : []);
 	}
 }

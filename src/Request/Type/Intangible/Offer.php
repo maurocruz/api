@@ -62,7 +62,7 @@ class Offer extends Entity
 	public function post(?array $params = null): array
 	{
 		$params['dateCreated'] = date("Y-m-d H:i:s");
-		return parent::post($params);
+		return parent::createWithParent('thing',$params);
 	}
 
 	/**

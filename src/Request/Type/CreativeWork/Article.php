@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Article extends Entity
 {
@@ -21,56 +21,23 @@ class Article extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
-		$about = $params['about'] ?? null;
-		$orderBY = $params['orderBy'] ?? null;
-		$properties = $params['properties'] ?? null;
-		$headline = $params['headline'] ?? null;
-		$datePublished = $params['datePublished'] ?? null;
-		if ($about || ($orderBY && strpos($orderBY,'datePublished') !== false) || $headline || $datePublished) {
-			$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['type'=>'Article'] + $params)->ready();
-			if (!empty($dataCreativeWork)) {
-				foreach ($dataCreativeWork as $valueCreativeWork) {
-					$idcreativeWork = $valueCreativeWork['idcreativeWork'];
-					$dataArticle = parent::get(['creativeWork'=>$idcreativeWork] + $params);
-					if(!empty($dataArticle)) {
-						$returns[] = $dataArticle[0] + $valueCreativeWork;
-					}
-				}
-			}
-		} else {
-			$dataArticle = parent::getData($params);
-			if (!empty($dataArticle)) {
-				foreach ($dataArticle as $value) {
-					// CREATIVE WORK
-					$idcreativeWork = $value['creativeWork'] ?? null;
-					if ($idcreativeWork) {
-						$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork] + $params)->ready();
-						// RESPONSE
-						if (isset($dataCreativeWork[0])) {
-							$returns[] = $value + $dataCreativeWork[0];
-						} else {
-							$returns[] = $value;
-						}
-					} else {
-						$returns[] = $value;
-					}
-				}
-			} else {
-				$returns = $dataArticle;
-			}
-		}
-		// PROPERTIES
-		if ($properties) {
-			$data = $returns;
-			$returns = [];
-			foreach($data as $item) {
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('article');
+		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=article.creativeWork');
+		$getData->setParams($params);
+		$data = $getData->render();
+		if (!empty($data) && $properties) {
+			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
-				if (strpos($properties, 'image') !== false) $item['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
-				$returns[] = $item;
+				if (in_array('image', $properties)) {
+					$dataImage = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					if (isset($dataImage[0])) {
+						$data[$key] = ApiFactory::response()->type('imageObject')->setData($dataImage)->ready();
+					}
+				}
 			}
 		}
-		return parent::sortData($returns);
+		return parent::sortData($data);
 	}
 
 	/**

@@ -22,23 +22,25 @@ class Thing extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$properties = $params['properties'] ?? null;
+		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$hasPart = array_key_exists('hasPart', $params);
-		$dataThing = parent::getData($params);
-		if (!empty($dataThing)) {
-			foreach ($dataThing as $key => $value) {
+		$data = parent::getData($params);
+		if (!empty($data)) {
+			foreach ($data as $key => $value) {
 				$idthing = $value['idthing'];
 				$type = $value['type'];
 				if ($hasPart) {
 					$dataHasPart = ApiFactory::request()->type(lcfirst($type))->get(['thing' => $idthing] + $params)->ready();
 				}
 				if ($properties) {
-					if (str_contains($properties, 'image')) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					if (in_array('image',$properties)) {
+						$value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					}
 				}
-				$dataThing[$key] = isset($dataHasPart[0]) ? $dataHasPart[0] + $value : $value;
+				$data[$key] = isset($dataHasPart[0]) ? $dataHasPart[0] + $value : $value;
 			}
 		}
-		return parent::sortData($dataThing);
+		return parent::sortData($data);
 	}
 
 	/**

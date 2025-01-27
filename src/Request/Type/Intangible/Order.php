@@ -22,24 +22,56 @@ class Order extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
-		$data = parent::getData($params);
-		if (isset($data['error'])) {
-			// ERROR
+		$customerNameLike = $params['customerNameLike'] ?? $params['nameLike'] ?? null;
+		$seller = $params['seller'] ?? null;
+		$orderStatus = $params['orderStatus'] ?? null;
+		$orderBy = $params['orderBy'] ?? null;
+		$ordering = $params['ordering'] ?? null;
+		$limit = $params['limit'] ?? null;
+		if ($customerNameLike !== null && $seller !== null) {
+			$sqlQuery = "SELECT idorder, seller, customer, orderStatus, orderDate FROM `order` 
+left join `localBusiness` on `localBusiness`.thing=`order`.customer
+left join `thing` as locThing on locThing.idthing=`localBusiness`.thing
+left join `organization` on `organization`.thing=`order`.customer
+left join `thing` as orgThing on orgThing.idthing=`organization`.thing
+left join `person` on person.thing = `order`.customer 
+left join `thing` as prsThing on prsThing.idthing=`person`.thing
+WHERE `order`.`seller`='$seller' 
+AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$customerNameLike%' OR `locThing`.`name` LIKE '%$customerNameLike%')";
+			if ($orderStatus !== null) {
+				$sqlQuery .= " AND `order`.orderStatus='$orderStatus'";
+			}
+			if ($orderBy !== null) {
+				$sqlQuery .= " ORDER BY $orderBy $ordering";
+			}
+			if ($limit !== null) {
+				$sqlQuery .= " LIMIT $limit";
+			}
+			$sqlQuery .= ";";
+			$data = PDOConnect::run($sqlQuery);
+		} else {
+			$data = parent::getData($params);
+		}
+		if (isset($data['error'])) { // ERROR
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} elseif (!empty($data)) {
 			foreach ($data as $key => $value) {
-				// tags
-				$data[$key]['identifier'][] = [
-					'@type' => 'PropertyValue',
-          'name' => 'tags',
-          'value' => $value['tags']
-				];
-				unset($data[$key]['tags']);
+				$tags = $value['tags'] ?? null;
+				if ($tags !== null) {
+					// tags
+					$data[$key]['identifier'][] = [
+						'@type' => 'PropertyValue',
+						'name' => 'tags',
+						'value' => $value['tags']
+					];
+					unset($data[$key]['tags']);
+				}
 				// properties
 				if (!!$properties) {
 					$idorder = $value['idorder'];
 					// ACCEPTED OFFER
 					if (in_array('acceptedOffer', $properties)) {
+						$acceptedOffer = null;
 						$dataOrderItem = ApiFactory::request()->type('orderItem')->get(['orderItemNumber'=>$idorder,'properties'=>'offer,orderedItem']+$params)->ready();
 						if (isset($dataOrderItem[0])) {
 							foreach ($dataOrderItem as $kOI => $orderItem) {
@@ -54,7 +86,7 @@ class Order extends Entity
 					}
 					// ACTION
 					if (in_array('action',$properties)) {
-						$dataHistory = ApiFactory::request()->type('action')->get(['object'=>$idorder,'properties'=>'agent','orderBy'=>'endTime','ordering'=>'desc'])->ready();
+						$dataHistory = ApiFactory::request()->type('action')->get(['targetCollection'=>$idorder,'properties'=>'agent','orderBy'=>'endTime','ordering'=>'desc'])->ready();
 						if (isset($dataHistory[0])) {
 							$data[$key]['potentialAction'] = ApiFactory::response()->type('action')->setData($dataHistory)->ready();
 						}
@@ -73,20 +105,26 @@ class Order extends Entity
 					}
 					// INVOICE
 					if (in_array('invoice',$properties )) {
-						$dataInvoice = ApiFactory::request()->type('invoice')->get(['referencesOrder'=>$idorder])->ready();
+						$dataInvoice = ApiFactory::request()->type('invoice')->get(['referencesOrder'=>$idorder,'orderBy'=>'scheduledPaymentDate','ordering'=>'desc'])->ready();
 						if(isset($dataInvoice[0])) {
 							$data[$key]['partOfInvoice'] = ApiFactory::response()->type('invoice')->setData($dataInvoice)->ready();
 						}
 					}
 					// ORDER ITEM
 					if (in_array('orderedItem',$properties) && !in_array('acceptedOffer',$properties)) {
-						$dataOrderItem = ApiFactory::request()->type('orderItem')->get(['orderItemNumber'=>$idorder,'properties'=>'orderedItem'])->ready();
+						$orderItemParams = ['orderItemNumber'=>$idorder,'properties'=>'orderedItem'];
+						if (isset($params['orderedItem'])) {
+							$orderItemParams = array_merge($orderItemParams, ['orderedItem' => $params['orderedItem']]);
+						}
+						$dataOrderItem = ApiFactory::request()->type('orderItem')->get($orderItemParams)->ready();
 						if(isset($dataOrderItem[0])) {
 							$data[$key]['orderedItem'] = ApiFactory::response()->type('orderItem')->setData($dataOrderItem)->ready();
+						} elseif (isset($params['orderedItem']) && empty($dataOrderItem)) {
+							unset($data[$key]);
 						}
 					}
 					// SELLER
-					if (in_array('seller',$properties)) {
+					if (in_array('seller',$properties) && isset($data[$key])) {
 						$seller = $value['seller'];
 						$sellerData = ApiFactory::request()->type('thing')->get(['idthing'=>$seller] + $params)->ready();
 						if (isset($sellerData[0])) {

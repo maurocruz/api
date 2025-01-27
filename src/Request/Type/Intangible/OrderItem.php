@@ -34,7 +34,7 @@ class OrderItem extends Entity
 						'@type' => "Offer",
 						'idoffer' => $value['idoffer'],
 						'itemOffered' => $value['itemOffered'],
-						'offeredBy' => $value['offeredBy'],
+						'offeredBy' => $value['offeredBy'] ?? null,
 						'price' => $value['price'],
 						'priceCurrency' => $value['priceCurrency'],
 						'validThrough' => $value['validThrough'],

@@ -35,32 +35,4 @@ class Action extends Entity implements HttpRequestInterface
 		}
 		return $this->sortData($data);
 	}
-
-	/**
-	 * @param array|null $params
-	 * @return array
-	 */
-	public function post(array $params = null): array
-	{
-		$params['type'][] = 'Action';
-		return parent::createWithParent('thing', $params);
-	}
-
-	/**
-	 * @param array|null $params
-	 * @return array
-	 */
-	public function put(array $params = null): array
-	{
-		return parent::update('thing', $params);
-	}
-
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-	public function delete(array $params): array
-	{
-		return parent::erase('thing', $params);
-	}
 }
