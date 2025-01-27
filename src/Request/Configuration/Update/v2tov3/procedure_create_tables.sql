@@ -9,6 +9,8 @@ CREATE PROCEDURE create_tables()
       `object` INT UNSIGNED NOT NULL,
       `result` VARCHAR(255),
       `startTime` DATETIME NOT NULL,
+      `targetCollection` INT UNSIGNED NOT NULL,
+      `type` VARCHAR(45) NOT NULL DEFAULT 'Action',
       PRIMARY KEY (`idaction`,`object`)
     ) ENGINE = InnoDB;
 
@@ -272,9 +274,10 @@ CREATE PROCEDURE create_tables()
     -- SERVICE
     CREATE TABLE IF NOT EXISTS `service` (
       `idservice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      `provider` INT UNSIGNED NOT NULL,
-      `providerType` VARCHAR(45) NOT NULL,
       `category` VARCHAR(100) DEFAULT NULL,
+      `isRelatedTo` INT UNSIGNED DEFAULT NULL,
+      `provider` INT UNSIGNED NOT NULL,
+      `serviceOutput` INT UNSIGNED DEFAULT NULL,
       `serviceType` VARCHAR(255) DEFAULT NULL,
       `termsOfService` TEXT,
       PRIMARY KEY (`idservice`),

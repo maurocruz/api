@@ -41,6 +41,8 @@ BEGIN
   CALL upgrade_service();
   -- ORDER
   CALL upgrade_order();
+  -- ACTION
+  CALL upgrade_action();
   -- ORDERiTEM
   CALL upgrade_orderItem();
   -- OFFER

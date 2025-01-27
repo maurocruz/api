@@ -32,6 +32,7 @@ class Update
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_set_image_in_thing.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_add_foreign_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_action.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_book.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_contactPoint.sql'));

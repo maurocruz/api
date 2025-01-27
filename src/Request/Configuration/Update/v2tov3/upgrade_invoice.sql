@@ -19,6 +19,8 @@ CREATE PROCEDURE upgrade_invoice()
     SET `invoice`.customer=`order`.customer, `invoice`.provider = `order`.seller;
 
     ALTER TABLE `invoice`
+      CHANGE COLUMN `customer` `customer` INT UNSIGNED NOT NULL ,
+      CHANGE COLUMN `provider` `provider` INT UNSIGNED NOT NULL ,
       DROP COLUMN `customerType`,
       DROP COLUMN `providerType`;
   END ;

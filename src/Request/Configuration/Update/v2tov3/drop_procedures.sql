@@ -3,6 +3,7 @@
   DROP PROCEDURE IF EXISTS create_tables;
   DROP PROCEDURE IF EXISTS drop_keys;
   DROP PROCEDURE IF EXISTS upgrade_imageObject;
+  DROP PROCEDURE IF EXISTS upgrade_action;
   DROP PROCEDURE IF EXISTS upgrade_article;
   DROP PROCEDURE IF EXISTS upgrade_book;
   DROP PROCEDURE IF EXISTS upgrade_contactPoint;
