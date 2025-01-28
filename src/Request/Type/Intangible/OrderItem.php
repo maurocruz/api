@@ -6,11 +6,18 @@ use Plinct\Api\Request\Server\Entity;
 
 class OrderItem extends Entity
 {
+	/**
+	 *
+	 */
   public function __construct()
   {
 		$this->setTable('orderItem');
   }
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$properties = $params['properties'] ?? '';
@@ -72,11 +79,11 @@ class OrderItem extends Entity
 		if ($items) {
 			$returns = [];
 			foreach ($items as $item) {
-				$referencesOrder = $item['referencesOrder'] ?? null;
+				$orderItemNumber = $item['orderItemNumber'] ?? null;
 				$orderedItem = $item['orderedItem'] ?? null;
 				$offer = $item['offer'] ?? null;
 				$orderQuantity = $item['orderQuantity'] ?? null;
-				if ($referencesOrder && $orderedItem && $offer && $orderQuantity) {
+				if ($orderItemNumber && $orderedItem && $offer && $orderQuantity) {
 					$dataPost = parent::post($item);
 					if (array_key_exists('status',$dataPost) && $dataPost['status'] == 'success') {
 						$returns['status'] = "success";
