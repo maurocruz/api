@@ -12,21 +12,42 @@ class GetData extends GetDataAbstract
   public function __construct($table, bool $withThings = true)
   {
     $this->table = $table;
-	  $this->setProperties($table, $withThings);
+	  $this->setProperties($table);
+		if ($withThings) {
+			foreach ($this->properties[$table] as $property) {
+				if ($property === 'thing') {
+					$this->setLeftJoin('thing',"`thing`.idthing = `$this->table`.thing");
+				}
+			}
+		}
   }
 
-	public function setLeftJoin(string $table, string $condition)
+	/**
+	 * @param string $fields
+	 */
+	public function setFields(string $fields): void
 	{
-		$this->properties = array_merge($this->properties,parent::getColumnNames($table));
-		$this->setJoins("left join `$table` on $condition");
+		$this->fields[] = $fields;
 	}
+
+	/**
+	 * @param string $table
+	 * @param string $condition
+	 * @return void
+	 */
+	public function setLeftJoin(string $table, string $condition): void
+	{
+		$this->setProperties($table);
+		$this->setJoins("LEFT JOIN `$table` ON $condition");
+	}
+
 	/**
 	 * @param ?string $joins
 	 * @return GetData
 	 */
 	public function setJoins(?string $joins): GetData
 	{
-		$this->joins = $joins;
+		$this->joins[] = $joins;
 		return $this;
 	}
 
@@ -54,21 +75,7 @@ class GetData extends GetDataAbstract
 
 	public function getQuery(): string
 	{
-		// FIELDS
-		$this->setFields();
-		// QUERY
 		$this->setQuery();
-		// JOIN
-		if ($this->joins) {
-			$this->query .= " ".$this->joins;
-		}
-		// WHERE
-		$this->whereCondition();
-		// PARAMS
-		if ($this->params) {
-			$this->finalConditions();
-		}
-		$this->query .= ";";
 		return $this->query;
 	}
 
@@ -77,25 +84,6 @@ class GetData extends GetDataAbstract
    */
   public function render(): array
   {
-    // FIELDS
-    $this->setFields();
-    // QUERY
-    $this->setQuery();
-		// JOIN
-	  if ($this->joins) {
-		  $this->query .= " ".$this->joins;
-	  }
-		// ERROR
-    if($this->error) {
-        return $this->error;
-    }
-	  // WHERE
-	  $this->whereCondition();
-    // PARAMS
-    if ($this->params) {
-      $this->finalConditions();
-    }
-    $this->query .= ";";
-    return PDOConnect::run($this->query);
+    return PDOConnect::run($this->getQuery());
   }
 }

@@ -14,17 +14,17 @@ abstract class GetDataAbstract
    */
   protected ?string $query = null;
   /**
-   * @var string
+   * @var ?array
    */
-  protected string $fields = '*';
+  protected ?array $fields = null;
   /**
    * @var string
    */
   protected string $table;
 	/**
-	 * @var string|null
+	 * @var array|null
 	 */
-	protected ?string $joins = null;
+	protected ?array $joins = [];
   /**
    * @var array
    */
@@ -41,79 +41,66 @@ abstract class GetDataAbstract
    * @var ?array
    */
   protected ?array $error = null;
-	/**
-	 * @var bool
-	 */
-	private bool $hasThing = false;
 
 	/**
 	 * @return void
 	 */
   protected function setQuery(): void
   {
-	  $this->query = "SELECT $this->fields FROM `$this->table`";
-	  if ($this->hasThing) {
-		  $this->query .= " LEFT JOIN `thing` ON `thing`.idthing = `$this->table`.thing ";
+	  // FIELDS
+	  $fields = $this->buildFields();
+	  // QUERY
+	  $this->query = "SELECT $fields FROM `$this->table`";
+	  // JOIN
+	  if ($this->joins) {
+		  $this->query .= " " . implode(' ',$this->joins);
 	  }
+	  // WHERE
+	  $this->whereCondition();
+	  // PARAMS
+	  if ($this->params) {
+		  $this->finalConditions();
+	  }
+	  $this->query .= ";";
   }
 
 	/**
 	 * @param string $table
-	 * @param bool $withThings
-	 * @return void
 	 */
-	protected function setProperties(string $table, bool $withThings): void
-	{
-		$propertiesTable = self::getColumnNames($table);
-		$propertiesThing = [];
-		if (!!array_search('thing',$propertiesTable)) {
-			$this->hasThing = $withThings;
-			$propertiesThing = self::getColumnNames('thing');
-		}
-		$this->properties = array_merge($this->properties, $propertiesTable, $propertiesThing);
-	}
-
-	/**
-	 * @param string $table
-	 * @return array
-	 */
-	protected function getColumnNames(string $table): array
+	protected function setProperties(string $table): void
 	{
 		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
-		$properties = [];
 		foreach ($columnsTable as $value) {
-			$properties[] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
+			$this->properties[$table][] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
 		}
-		return $properties;
 	}
 
 	/**
-	 * @param string $property
-	 * @return bool
+	 * @param ?string $property
+	 * @return false|string
 	 */
-	private function isProperty(string $property): bool
+	private function isProperty(?string $property): false|string
 	{
-		return in_array($property, $this->properties);
+		if ($property) {
+			foreach ($this->properties as $table => $prop) {
+				if (in_array($property, $prop)) {
+					return $table;
+				}
+			}
+		}
+		return false;
 	}
 
   /**
    */
-  protected function setFields(): void
+  protected function buildFields(): string
   {
-	  $fields = $this->params['fields'] ?? null;
-		if ($fields !== null) {
-			$fieldsArray = array_merge(explode(',', $fields), array_filter($this->properties, function ($value) {
-				if (substr($value, 0, 2) === 'id') {
-					return $value;
-				}
-				return null;
-			}));
-			if(in_array('idthing', $fieldsArray)) {
-				$fieldsArray[] = 'dateCreated';
-				$fieldsArray[] = 'dateModified';
-			}
-			$this->fields = implode(',',$fieldsArray);
+		if (array_key_exists('fields', $this->params)) {
+			$this->fields[] = $this->params['fields'];
+		} elseif (!$this->fields) {
+			$this->fields = ['*'];
 		}
+		return implode(',', $this->fields);
   }
 
   /**
@@ -134,32 +121,37 @@ abstract class GetDataAbstract
 		  // LIKE CONDITION
 		  if (is_string($key)) {
 				$likeProperty = stristr($key,"like", true);
-				if ($likeProperty && array_search($likeProperty, $this->properties)) {
-					$valuesLike = explode(',', $value);
-					$likeWhere = [];
-					foreach ($valuesLike as $item) {
-						$likeWhere[] = "LOWER(REPLACE(`$likeProperty`,' ','')) LIKE LOWER(REPLACE('%$item%',' ',''))";
+				if (!!$likeProperty) {
+					foreach ($this->properties as $table => $property) {
+						if (in_array($likeProperty,$property)) {
+							$valuesLike = preg_split('/([,|])/',$value);
+							$likeWhere = [];
+							foreach ($valuesLike as $item) {
+								$likeWhere[] = "(LOWER(TRIM(`$table`.$likeProperty)) LIKE LOWER(TRIM('%$item%')))";
+							}
+							if (str_contains($value,"|")) {
+								$this->where[] = implode(' OR ', $likeWhere);
+							} else {
+								$this->where[] = implode(' AND ', $likeWhere);
+							}
+						}
 					}
-					$this->where[] = implode(' AND ', $likeWhere);
 				}
 			}
 	  }
 		// PROPERTIES WITH PARAMS
-	  foreach ($this->properties as $value) {
-		  $propertyValue = $this->params[$value] ?? null;
-		  if ($propertyValue !== null) {
-			  $fieldValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
-
-
-				if (str_contains($fieldValue,'|')) {
-					foreach (explode('|', $fieldValue) as $orValue) {
-						$orArray[] = "`{$this->table}`.`$value`='$orValue'";
+	  foreach ($this->params as $propertyNeedle => $propertyValue) {
+		  foreach ($this->properties as $table => $value) {
+				if(in_array($propertyNeedle, $value)) {
+					$propertyValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
+					if (str_contains($propertyValue,'|')) {
+						foreach (explode('|', $propertyValue) as $orValue) {
+							$orArray[] = "`{$table}`.`$propertyNeedle`='$orValue'";
+						}
+						$this->where[] = "(" . implode(" OR ", $orArray) . ")";
+					} else {
+						$this->where[] = "`$table`.$propertyNeedle='$propertyValue'";
 					}
-					$this->where[] = "(" . implode(" OR ", $orArray) . ")";
-				}	elseif (($this->table == 'thing') === ($value == 'idthing')) {
-					$this->where[] = "`{$this->table}`.`$value`='$fieldValue'";
-				} elseif (in_array($value, $this->properties) && ($value == 'idthing')) {
-					$this->where[] = "`thing`.`idthing`='$fieldValue'";
 				}
 		  }
 	  }
@@ -177,16 +169,18 @@ abstract class GetDataAbstract
 		$limit = $this->params['limit'] ?? self::__LIMIT__;
 		$offset = $this->params['offset'] ?? null;
     // GROUP BY
-		if ($groupBy && $this->isProperty($groupBy)) {
-	    $this->query .= " GROUP BY $groupBy";
+		$tableGb = $this->isProperty($groupBy);
+		if ($groupBy && $tableGb) {
+	    $this->query .= " GROUP BY `$tableGb`.$groupBy";
     }
     // ORDER BY
 		if ($orderBy) {
 			$orderByArray = [];
 			foreach (explode(',', $orderBy) as $value) {
 				$item = str_replace([' desc', ' asc'], '', trim($value));
-				if ($this->isProperty($item) || $item == 'rand()') {
-					$orderByArray[] = trim($value);
+				$tableOb = $this->isProperty($item);
+				if ($tableOb || $item == 'rand()') {
+					$orderByArray[] = ($tableOb ? "`$tableOb`." : null) . trim($value);
 				}
 			}
 			$orderFiltered = implode(',', $orderByArray);
@@ -195,7 +189,7 @@ abstract class GetDataAbstract
 			}
 		}
 		// LIMIT
-		if ($limit != 'none' && $limit != '' && !str_contains($this->fields,'count')) {
+		if ($limit != 'none' && $limit != '' && !in_array('count(*)',$this->fields)) {
 			$this->query .= " LIMIT $limit";
 			// OFFSET
 			if ($offset) {

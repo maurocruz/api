@@ -257,7 +257,7 @@ abstract class Entity implements HttpRequestInterface
 	protected function sortData(array $array): array
 	{
 		$new_array = array();
-		foreach ($array as $key => $value) {
+		foreach (array_values($array) as $key => $value) {
 			ksort($value);
 			$new_array[$key] = $value;
 		}
@@ -282,9 +282,9 @@ abstract class Entity implements HttpRequestInterface
 
 	/**
 	 * @param string|null $properties
-	 * @return false|string[]|null
+	 * @return string[]|null
 	 */
-	protected static function propertiesToArray(string $properties = null)
+	protected static function propertiesToArray(string $properties = null): ?array
 	{
 		if (!$properties) return null;
 		$propertiesArray = explode(',',$properties);
