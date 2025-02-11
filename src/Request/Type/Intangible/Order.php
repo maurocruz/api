@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Order extends Entity
 {
@@ -50,7 +51,9 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 			$sqlQuery .= ";";
 			$data = PDOConnect::run($sqlQuery);
 		} else {
-			$data = parent::getData($params);
+			$getData = new GetData('order');
+			$getData->setParams($params);
+			$data = $getData->render();
 		}
 		if (isset($data['error'])) { // ERROR
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
@@ -72,7 +75,7 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 					// ACCEPTED OFFER
 					if (in_array('acceptedOffer', $properties)) {
 						$acceptedOffer = null;
-						$dataOrderItem = ApiFactory::request()->type('orderItem')->get(['orderItemNumber'=>$idorder,'properties'=>'offer,orderedItem']+$params)->ready();
+						$dataOrderItem = ApiFactory::request()->type('orderItem')->get(['orderItemNumber'=>$idorder,'properties'=>'offer,orderedItem'])->ready();
 						if (isset($dataOrderItem[0])) {
 							foreach ($dataOrderItem as $kOI => $orderItem) {
 								$acceptedOffer[] = $orderItem['offer'];
@@ -94,13 +97,28 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 					// CUSTOMER
 					if (in_array('customer',$properties)) {
 						$customer = $value['customer'];
-						$customerTypeData = PDOConnect::run("SELECT `type` FROM `thing` WHERE `idthing` = ? LIMIT 1", [$customer]);
+						// THING
+						$thingGetData = new GetData('thing');
+						$thingGetData->setParams(['idthing'=>$customer] + (array_key_exists('additionalTypeLike', $params) ? ['additionalTypeLike'=>$params['additionalTypeLike']] : []));
+						$customerTypeData = $thingGetData->render();
 						if (isset($customerTypeData[0])) {
 							$customerType = lcfirst($customerTypeData[0]['type']);
-							$dataCustomer = ApiFactory::request()->type($customerType)->get(['thing'=>$customer])->ready();
+							$customerParams = ['idthing'=>$customer, 'properties'=>''];
+							if (in_array('location',$properties)) {
+								$customerParams['properties'] .= ',location';
+							}
+							if (in_array('review',$properties)) {
+								$customerParams['properties'] .= ',review';
+							}
+							if (in_array('contactPoint',$properties)) {
+								$customerParams['properties'] .= ',contactPoint';
+							}
+							$dataCustomer = ApiFactory::request()->type($customerType)->get($customerParams)->ready();
 							if(isset($dataCustomer[0])) {
 								$data[$key]['customer'] = ApiFactory::response()->type($customerType)->setData($dataCustomer[0])->ready();
 							}
+						} else {
+							unset($data[$key]);
 						}
 					}
 					// INVOICE
@@ -116,10 +134,13 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 						if (isset($params['orderedItem'])) {
 							$orderItemParams = array_merge($orderItemParams, ['orderedItem' => $params['orderedItem']]);
 						}
+						if (isset($params['idservice'])) {
+							$orderItemParams = array_merge($orderItemParams, ['idservice' => $params['idservice']]);
+						}
 						$dataOrderItem = ApiFactory::request()->type('orderItem')->get($orderItemParams)->ready();
-						if(isset($dataOrderItem[0])) {
+						if(isset($dataOrderItem[0]) && isset($data[$key])) {
 							$data[$key]['orderedItem'] = ApiFactory::response()->type('orderItem')->setData($dataOrderItem)->ready();
-						} elseif (isset($params['orderedItem']) && empty($dataOrderItem)) {
+						} else {
 							unset($data[$key]);
 						}
 					}

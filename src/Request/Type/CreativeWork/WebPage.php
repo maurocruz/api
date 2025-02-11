@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
 class WebPage extends Entity
@@ -23,15 +24,22 @@ class WebPage extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
-		$data = parent::getData($params,'left join `creativeWork` on `webPage`.creativeWork = `creativeWork`.idcreativeWork');
+		$getData = new GetData('webPage');
+		$getData->setParams($params);
+		$getData->setLeftJoin('creativeWork',"`webPage`.creativeWork = `creativeWork`.idcreativeWork");
+		$data = $getData->render();
 		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['idthing'];
 				$idcreativeWork = $item['idcreativeWork'];
 				$isPartOf = $item['isPartOf'];
+				// IMAGE
+				if(in_array('image',$properties)) {
+					$data[$key]['image'] =  parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf'=>$idcreativeWork])->ready();
+					$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf'=>$idcreativeWork,'properties'=>'image,propertyValue','orderBy'=>'position'])->ready();
 					if (isset($dataWebPageElement[0])) {
 						$data[$key]['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPageElement)->ready();
 					}

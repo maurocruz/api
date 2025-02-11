@@ -1,105 +1,98 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class LocalBusiness extends Entity
 {
+	/**
+	 *
+	 */
   public function __construct()
   {
 		$this->setTable("localBusiness");
   }
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
-		$data = parent::getData($params);
-		foreach ($data as $key => $value) {
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('localBusiness');
+		if ($properties) {
+			// LOCATION
+			if (in_array('location', $properties)) {
+				$getData->setLeftJoin('place', '`place`.idplace=`localBusiness`.location');
+				$getData->setLeftJoin('geoCoordinates', '`geoCoordinates`.idgeoCoordinates = `place`.geo');
+				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `geoCoordinates`.address');
+				$getData->setLeftJoin('organization', '`organization`.idorganization=`localBusiness`.organization');
+			}
+			// review
+			if (in_array('review', $properties)) {
+				$getData->setFields('*, AVG(reviewRating) AS ratingValue, COUNT(reviewRating) AS reviewCount');
+				$getData->setLeftJoin('review', '`review`.itemReviewed=`thing`.idthing');
+			}
+		}
+		$getData->setParams($params);
+		$data = $getData->render();
+		foreach ($data as $key => $item) {
+			$idthing = $item['idthing'];
+			if ($properties) {
+				// CONTACT POINT
+				if (in_array('contactPoint', $properties)) {
+					$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['typeHasPart'=>'LocalBusiness','idHasPart'=>$idthing])->ready();
+					if ($dataContactPoint) {
+						$data[$key]['contactPoint'] = ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready();
+					}
+				}
+				// LOCATION
+				if (in_array('location', $properties)) {
+					$address = $item['idpostalAddress'] ? ApiFactory::response()->type('PostalAddress')->setData([[
+						'idpostalAddress' => $item['idpostalAddress'],
+						'addressCountry' => $item['addressCountry'],
+						"addressLocality" => $item['addressLocality'],
+						"addressRegion" => $item['addressRegion'],
+						"streetAddress" => $item['streetAddress'],
+						"postalCode" => $item['postalCode']
+					]])->ready() : null;
+					$geo = $item['idgeoCoordinates'] ? ApiFactory::response()->type('GeoCoordinates')->setData([[
+						'address' => $address[0] ?? null,
+						'elevation' => $item['elevation'],
+						'latitude' => $item['latitude'],
+						'longitude' => $item['longitude'],
+						'idgeoCoordinates' => $item['idgeoCoordinates']
+					]])->ready() : null;
+					$data[$key]['geo'] = $geo[0] ?? null;
+					unset($data[$key]['address']);
+					unset($data[$key]['idpostalAddress']);
+					unset($data[$key]['idgeoCoordinates']);
+					unset($data[$key]['addressCountry']);
+					unset($data[$key]['addressLocality']);
+					unset($data[$key]['addressRegion']);
+					unset($data[$key]['streetAddress']);
+					unset($data[$key]['postalCode']);
+					unset($data[$key]['elevation']);
+					unset($data[$key]['latitude']);
+					unset($data[$key]['longitude']);
+					unset($data[$key]['location']);
+					// publicAccess
+					$data[$key]['publicAccess'] = (bool)$item['publicAccess'];
+				}
+				// REVIEW
+				if (in_array('review', $properties)) {
+					// aggregateRating
+					$data[$key]['aggregateRating'] = $item['ratingValue'] ? ["@type" => "AggregateRating", "ratingValue" => $item['ratingValue'], "reviewCount" => $item['reviewCount']] : null;
+					unset($data[$key]['idreview']);
+					unset($data[$key]['ratingValue']);
+					unset($data[$key]['reviewCount']);
+				}
+			}
 			unset($data[$key]['organization']);
 		}
-		/*$additionalTypeLike = $params['additionalTypeLike'] ?? null;
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = $params['ordering'] ?? null;
-		$nameLike = $params['nameLike'] ?? null;
-		$idlocalBusiness = $params['idlocalBusiness'] ?? null;
-		$idthing = $params['idthing'] ?? null;
-
-		$sql = "SELECT *, AVG(reviewRating) AS ratingValue, COUNT(reviewRating) AS reviewCount FROM `localBusiness` 
-  INNER JOIN `thing` ON `thing`.idthing=`localBusiness`.thing";
-  	if ($nameLike) {
-			$sql .= " AND `thing`.`name` LIKE '%$nameLike%'";
-		}
-		$sql .= " LEFT JOIN `place` ON `place`.idplace=`localBusiness`.location 
-LEFT JOIN `geoCoordinates` on `geoCoordinates`.idgeoCoordinates = `place`.geo 
-LEFT JOIN `postalAddress` ON `postalAddress`.idpostalAddress = `geoCoordinates`.`address` 
-LEFT JOIN `organization` ON `organization`.idorganization=`localBusiness`.organization
-LEFT JOIN `review` ON `review`.itemReviewed=`thing`.idthing";
-		if ($idlocalBusiness) {
-			$sql .= " WHERE `place`.idplace = '$idlocalBusiness'";
-		} else if ($idthing) {
-			$sql .= " WHERE `thing`.idthing = '$idthing'";
-		} elseif ($additionalTypeLike !== null) {
-			$sql .= " WHERE `additionalType` LIKE '%$additionalTypeLike%'";
-		}
-		$sql .= " GROUP BY `localBusiness`.idlocalBusiness";
-		if ($orderBy !== null) {
-			$sql .= " ORDER BY $orderBy $ordering";
-		}
-		$sql .= ";";
-		$data = PDOConnect::run($sql);
-		foreach ($data as $key => $localBusiness) {
-			if ($localBusiness['idlocalBusiness'] == null) return [];
-			$address = $localBusiness['idpostalAddress']
-				? ApiFactory::response()->type('PostalAddress')->setData([[
-					'idpostalAddress' => $localBusiness['idpostalAddress'],
-					'addressCountry' => $localBusiness['addressCountry'],
-					"addressLocality" => $localBusiness['addressLocality'],
-					"addressRegion" => $localBusiness['addressRegion'],
-					"streetAddress" => $localBusiness['streetAddress'],
-					"postalCode" => $localBusiness['postalCode']
-				]])->ready()
-				: null;
-			$geo = $localBusiness['idgeoCoordinates']
-				? ApiFactory::response()->type('GeoCoordinates')->setData([[
-					'address' => $address[0] ?? null,
-					'elevation' => $localBusiness['elevation'],
-					'latitude' => $localBusiness['latitude'],
-					'longitude' => $localBusiness['longitude'],
-					'idgeoCoordinates' => $localBusiness['idgeoCoordinates']
-				]])->ready()
-				: null;
-
-			$data[$key]['geo'] = $geo[0] ?? null;
-
-			unset($data[$key]['address']);
-			unset($data[$key]['idpostalAddress']);
-			unset($data[$key]['idgeoCoordinates']);
-			unset($data[$key]['idreview']);
-			unset($data[$key]['addressCountry']);
-			unset($data[$key]['addressLocality']);
-			unset($data[$key]['addressRegion']);
-			unset($data[$key]['streetAddress']);
-			unset($data[$key]['postalCode']);
-			unset($data[$key]['elevation']);
-			unset($data[$key]['latitude']);
-			unset($data[$key]['longitude']);
-			unset($data[$key]['location']);
-			unset($data[$key]['organization']);
-			// aggregateRating
-			$data[$key]['aggregateRating'] = $localBusiness['ratingValue']
-				? [
-					"@type" => "AggregateRating",
-					"ratingValue" => $localBusiness['ratingValue'],
-					"reviewCount" => $localBusiness['reviewCount'],
-				]
-				: null;
-			unset($data[$key]['ratingValue']);
-			unset($data[$key]['reviewCount']);
-			// publicAccess
-			$data[$key]['publicAccess'] = (bool) $localBusiness['publicAccess'];
-		}*/
 		return parent::sortData($data);
 	}
 

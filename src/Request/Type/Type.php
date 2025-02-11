@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type;
 
 use Plinct\Api\ApiFactory;
@@ -134,18 +133,13 @@ class Type
 	{
 		if ($this->tableExists) {
 			$httpRequest = new HttpRequest($this->classActions);
-			switch ($this->method) {
-				case 'post':
-					return $httpRequest->withPrivileges('c',$this->namespace,2)->post($this->params, $this->uploadedFiles);
-				case 'put':
-					return $httpRequest->withPrivileges('u', $this->namespace, 2)->put($this->params);
-				case 'get':
-					return $httpRequest->setPermission()->get($this->params);
-				case 'delete':
-					return $httpRequest->withPrivileges('d',$this->namespace,2)->delete($this->params);
-				default:
-					return ApiFactory::response()->message()->fail()->generic();
-			}
+			return match ($this->method) {
+				'post' => $httpRequest->withPrivileges('c', $this->namespace, 2)->post($this->params, $this->uploadedFiles),
+				'put' => $httpRequest->withPrivileges('u', $this->namespace, 2)->put($this->params),
+				'get' => $httpRequest->setPermission()->get($this->params),
+				'delete' => $httpRequest->withPrivileges('d', $this->namespace, 2)->delete($this->params),
+				default => ApiFactory::response()->message()->fail()->generic(),
+			};
 		} else {
 			return ApiFactory::response()->message()->fail()->thisTypeNotExists();
 		}

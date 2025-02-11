@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class OrderItem extends Entity
 {
@@ -20,23 +21,35 @@ class OrderItem extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$properties = $params['properties'] ?? '';
-		$offer = stripos($properties, 'offer') !== false;
-		$join = $offer !== false ? "LEFT JOIN `offer` ON `offer`.idoffer=`orderItem`.offer" : null;
-		$data = parent::getData($params, $join);
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		//$offer = stripos($properties, 'offer') !== false;
+		//$join = $offer !== false ? "LEFT JOIN `offer` ON `offer`.idoffer=`orderItem`.offer" : null;
+		$getData = new GetData('orderItem');
+		if (in_array('offer', $properties)) {
+			$getData->setLeftJoin('offer', '`offer`.idoffer=`orderItem`.offer');
+		}
+		$getData->setParams($params);
+		$data = $getData->render();
+
 		foreach ($data as $key=>$value) {
-			if (!empty($properties)) {
+			if ($properties) {
 				// ORDERED iTEM
-				if(stripos($properties, 'orderedItem') !== false) {
+				if(in_array('orderedItem', $properties)) {
 					$orderedItem = $value['orderedItem'];
-					$dataThing = ApiFactory::request()->type('thing')->get(['idthing'=>$orderedItem,'hasPart'=>true])->ready();
+					$paramsOrderedItems = ['idthing'=>$orderedItem,'hasPart'=>true];
+					if (isset($params['idservice'])) {
+						$paramsOrderedItems = $paramsOrderedItems + ['idservice'=>$params['idservice']];
+					}
+					$dataThing = ApiFactory::request()->type('thing')->get($paramsOrderedItems)->ready();
 					if (isset($dataThing[0])) {
 						$type = $dataThing[0]['type'];
 						$data[$key]['orderedItem'] = ApiFactory::response()->type($type)->setData($dataThing[0])->ready();
+					} elseif (isset($params['idservice'])) {
+						unset($data[$key]);
 					}
 				}
 				// OFFER
-				if ($offer) {
+				if (in_array('offer',$properties)) {
 					$dataOffer = [
 						'@type' => "Offer",
 						'idoffer' => $value['idoffer'],
@@ -59,6 +72,8 @@ class OrderItem extends Entity
 					unset($data[$key]['availability']);
 					unset($data[$key]['eligibleQuantity']);
 					unset($data[$key]['eligibleDuration']);
+				} else {
+					unset($data[$key]['offer']);
 				}
 			}
 		}

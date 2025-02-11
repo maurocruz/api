@@ -25,6 +25,7 @@ class Action extends Entity implements HttpRequestInterface
 		$data = $this->getData($params);
 		if ($properties) {
 			foreach ($data as $key => $value) {
+				// AGENT
 				if (in_array('agent',$properties)) {
 					$agent = $value['agent'];
 					$dataAgent = ApiFactory::request()->type('user')->get(['iduser'=>$agent])->ready();

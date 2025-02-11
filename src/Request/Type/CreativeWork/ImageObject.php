@@ -1,10 +1,10 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Tool\Image\Image;
 
 class ImageObject extends ImageObjectAbstract
@@ -24,23 +24,19 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
-	  $isPartOf = $params['isPartOf'] ?? null;
-	  $orderBy = $params['orderBy'] ?? null;
-	  $ordering = $params['ordering'] ?? "asc";
+		$idHasPart = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+		unset($params['isPartOf']);
+		unset($params['idHasPart']);
 	  $hasPart = $params['hasPart'] ?? null;
-		// IS PART OF
-		if ($isPartOf) {
-			$query = "SELECT *, thing_has_imageObject.caption, thing_has_imageObject.position FROM `thing_has_imageObject`"
-			. " LEFT JOIN `imageObject` ON `thing_has_imageObject`.`idimageObject`=`imageObject`.`idimageObject`"
-			. " RIGHT JOIN `mediaObject` ON `mediaObject`.`idmediaObject`=`imageObject`.`mediaObject`"
-			. " RIGHT JOIN `creativeWork` ON creativeWork.idcreativeWork=mediaObject.creativeWork"
-			. " LEFT JOIN thing ON thing.idthing=`imageObject`.`thing`"
-			. " WHERE `thing_has_imageObject`.`idthing`='$isPartOf'";
-			if ($orderBy) {
-				$query .= " ORDER BY `thing_has_imageObject`.$orderBy $ordering";
-			}
-			$query .= ";";
-			$data = PDOConnect::run($query);
+		// IF IMAGE OBJECT IS PART OF
+		if ($idHasPart) {
+			$getDate = new GetData('thing_has_imageObject');
+			$getDate->setParams($params + ['where'=>"`thing_has_imageObject`.idthing=$idHasPart"]);
+			$getDate->setLeftJoin('imageObject','`thing_has_imageObject`.idimageObject=`imageObject`.idimageObject');
+			$getDate->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
+			$getDate->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
+			$getDate->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
+			$data = $getDate->render();
 		} else if ($hasPart) {
 			$data = parent::getHasPart($hasPart);
 		}  else {
@@ -51,6 +47,9 @@ class ImageObject extends ImageObjectAbstract
 				$valueMediaObject = $dataMediaObject[0] ?? [];
 				$data[$key] = $value + $valueMediaObject;
 			}
+		}
+		foreach ($data as $key => $value) {
+			$data[$key]['representativeOfPage'] = !!$value['representativeOfPage'];
 		}
 	  return parent::sortData($data);
   }

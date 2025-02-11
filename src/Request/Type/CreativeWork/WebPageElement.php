@@ -1,10 +1,10 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class WebPageElement extends Entity
 {
@@ -22,27 +22,27 @@ class WebPageElement extends Entity
    */
   public function get(array $params = []): array
   {
-		$returns = [];
-		$properties = $params['properties'] ?? null;
-	  $isPartOf = $params['isPartOf'] ?? null;
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = $params['ordering'] ?? null;
-	  if ($isPartOf) {
-			$sql = "SELECT * FROM `webPageElement` 
-  LEFT JOIN `creativeWork` ON `webPageElement`.creativeWork = `creativeWork`.idcreativeWork 
-  LEFT JOIN `thing` ON `webPageElement`.thing = `thing`.idthing 
-         WHERE `creativeWork`.isPartOf = $isPartOf";
-			if ($orderBy) {
-				$sql .= " ORDER BY `$orderBy` $ordering";
-			}
-			$sql .= ";";
-			$data = PDOConnect::run($sql);
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('webPageElement');
+		$getData->setParams($params);
+		$getData->setLeftJoin("creativeWork","`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
+		$data = $getData->render();
+		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
-				if ($properties) {
-					if (strpos($properties, 'image') !== false) $data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
-					if (strpos($properties, 'isPartOf') !== false) $data[$key]['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
-					if (strpos($properties, 'propertyValue') !== false) {
+				// IMAGE
+				if (in_array('image',$properties)) {
+					$dataImageObject = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					if ($dataImageObject) {
+						$data[$key]['image'] = $dataImageObject;
+					}
+				}
+				// IS PART OF
+				if (in_array('isPartOf', $properties)) {
+					$data[$key]['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
+				}
+				// PROPERTY VALUE
+				if (in_array('propertyValue', $properties)) {
 						$query = "SELECT name, value FROM thing_has_thing
                   JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
                   WHERE typeHasPart='WebPageElement' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
@@ -51,23 +51,9 @@ class WebPageElement extends Entity
 							$data[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => $propertyValue['name'], 'value' => $propertyValue['value']];
 						}
 					}
-				}
-				$returns = $data;
 			}
-	  } else {
-		  $data = parent::getData($params);
-		  foreach ($data as $value) {
-			  $idcreativeWork = $value['creativeWork'];
-			  $dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork' => $idcreativeWork])->ready();
-			  $idthing = $dataCreativeWork[0]['thing'];
-				// PROPERTIES
-			  if ($properties) {
-				  if (strpos($properties, 'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
-			  }
-			  $returns[] = $value + $dataCreativeWork[0];
-		  }
-	  }
-	  return parent::sortData($returns);
+		}
+	  return parent::sortData($data);
   }
 
 	/**
@@ -95,6 +81,10 @@ class WebPageElement extends Entity
 		}
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function put(array $params = null): array
 	{
 		$idwebPageElement = $params['idwebPageElement'] ?? $params['webPageElement'] ?? null;

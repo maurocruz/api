@@ -31,13 +31,18 @@ class Thing extends Entity implements HttpRequestInterface
 				$type = $value['type'];
 				if ($hasPart) {
 					$dataHasPart = ApiFactory::request()->type(lcfirst($type))->get(['thing' => $idthing] + $params)->ready();
-				}
-				if ($properties) {
-					if (in_array('image',$properties)) {
-						$value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					if (isset($dataHasPart[0])) {
+						$data[$key] = $dataHasPart[0] + $value;
+					} elseif (isset($params["id".lcfirst($type)])) {
+						unset($data[$key]);
 					}
 				}
-				$data[$key] = isset($dataHasPart[0]) ? $dataHasPart[0] + $value : $value;
+				if ($properties) {
+					// IMAGE OBJECT
+					if (in_array('image',$properties)) {
+						$data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					}
+				}
 			}
 		}
 		return parent::sortData($data);

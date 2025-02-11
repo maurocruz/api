@@ -1,10 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Tool\TypeBuilder;
 
 class ContactPoint extends Entity
@@ -23,20 +22,24 @@ class ContactPoint extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$hasPart = $params['hasPart'] ?? null;
-		if ($hasPart !== null) {
-			$sqlQuery = "SELECT * FROM `contactPoint` 
-JOIN `thing` ON `thing`.idthing = `contactPoint`.thing
-JOIN `thing_has_thing` ON `thing_has_thing`.idIsPartOf = `thing`.idthing
-WHERE `thing_has_thing`.idHasPart = '{$hasPart}' AND `thing_has_thing`.typeIsPartOf = 'ContactPoint'
-ORDER BY `thing_has_thing`.position;
-";
-			$data = PDOConnect::run($sqlQuery);
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		if ($typeHasPart !== null && $idHasPart !== null) {
+			$dataGet = new GetData('thing_has_thing');
+			$dataGet->setLeftJoin('thing','`thing`.idthing=`thing_has_thing`.idIsPartOf');
+			$dataGet->setLeftJoin('contactPoint','`contactPoint`.thing=`thing`.idthing');
+			$dataGet->setParams($params + ['limit'=>'none','typeIsPartOf'=>'ContactPoint']);
 		} else {
-			$data = parent::getData($params);
+			$dataGet = new GetData('contactPoint');
+			$dataGet->setParams($params);
 		}
-		$returns = ApiFactory::response()->type('ContactPoint')->setData($data)->setParams($params)->ready();
-		return $this->sortData($returns);
+		$data = $dataGet->render();
+		foreach ($data as $key => $value) {
+			unset($data[$key]['position']);
+			unset($data[$key]['typeHasPart']);
+			unset($data[$key]['typeIsPartOf']);
+		}
+		return $this->sortData($data);
 	}
 
 	/**
