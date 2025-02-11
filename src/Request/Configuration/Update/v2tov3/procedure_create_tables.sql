@@ -25,7 +25,7 @@ CREATE PROCEDURE create_tables()
      PRIMARY KEY (`idarticle`,`creativeWork`,`thing`)
     ) ENGINE = InnoDB;
 
-    -- CREATE TABLE book
+    -- BOOK
     CREATE TABLE IF NOT EXISTS `book` (
       `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       `creativeWork` INT UNSIGNED NOT NULL,

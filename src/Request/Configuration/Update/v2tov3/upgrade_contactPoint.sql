@@ -22,6 +22,8 @@ CREATE PROCEDURE upgrade_contactPoint()
     UPDATE `contactPoint`
       JOIN `thing` ON thing.idcontactPoint = contactPoint.idcontactPoint
       SET contactPoint.thing = thing.idthing;
+    -- options
+    UPDATE `contactPoint` SET `contactOption` = 'whatsapp' WHERE `whatsapp` = '1';
     -- drop thing column
     ALTER TABLE `thing` DROP COLUMN `idcontactPoint`;
 
