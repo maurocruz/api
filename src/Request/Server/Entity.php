@@ -286,7 +286,7 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected static function propertiesToArray(string $properties = null): ?array
 	{
-		if (!$properties) return null;
+		if (!$properties) return [];
 		$propertiesArray = explode(',',$properties);
 		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
 		return $propertiesArray;

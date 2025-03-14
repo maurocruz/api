@@ -5,38 +5,47 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class GeoCoordinates extends Entity
 {
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->setTable('geoCoordinates');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
+		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$tableHasPart = $params['tableHasPart'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		if ($tableHasPart !== null && $idHasPart !== null) {
-			$sqlQuery = "SELECT * FROM `geoCoordinates` 
-  			LEFT JOIN `$tableHasPart` ON `$tableHasPart`.geo = `geoCoordinates`.idgeoCoordinates
-        LEFT JOIN `postalAddress` ON `postalAddress`.idpostalAddress = `geoCoordinates`.address
-      	WHERE `$tableHasPart`.id$tableHasPart='$idHasPart'";
-			$sqlQuery .= ";";
-			$data = PDOConnect::run($sqlQuery);
-		} else {
-			$data = $this->getData($params);
+		$getData = new GetData('geoCoordinates');
+		if ($tableHasPart == 'place' && $idHasPart !== null) {
+			$getData->setLeftJoin($tableHasPart,"`$tableHasPart`.geo = `geoCoordinates`.idgeoCoordinates");
 		}
+		if (in_array('address', $properties)) {
+			$getData->setLeftJoin('postalAddress',"`postalAddress`.idpostalAddress = `geoCoordinates`.address");
+		}
+		$getData->setParams($params);
+		$data = $getData->render();
+
 		foreach ($data as $key => $item) {
 			$item['address'] = isset($item['idpostalAddress'])
-				? ApiFactory::response()->type('postalAddress')->setData([[
+				? ApiFactory::response()->type('postalAddress')->setData([
 					"idpostalAddress" => $item['idpostalAddress'],
 					"addressCountry" => $item['addressCountry'],
 					"addressLocality" => $item['addressLocality'],
 					"addressRegion" => $item['addressRegion'],
 					"postalCode" => $item['postalCode'],
 					"streetAddress" => $item['streetAddress'],
-				]])->ready() : null;
+				])->ready() : null;
 
 			unset($item['idpostalAddress']);
 			unset($item['geo']);
@@ -52,6 +61,10 @@ class GeoCoordinates extends Entity
 		return $this->sortData($data);
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function post(array $params = null): array
 	{
 		$tableHasPart = $params['tableHasPart'] ?? false;
@@ -162,6 +175,15 @@ class GeoCoordinates extends Entity
 	{
 		$idgeoCoordinates = $params['idgeoCoordinates'] ?? null;
 		if ($idgeoCoordinates !== null) {
+			// delete address
+			$dataGeoCoordinates = parent::getData(['idgeoCoordinates'=>$idgeoCoordinates]);
+			if (isset($dataGeoCoordinates[0])) {
+				$value = $dataGeoCoordinates[0];
+				if($value['address']) {
+					$idpostalAddress = $value['address'];
+					ApiFactory::request()->type('postalAddress')->delete(['idpostalAddress' => $idpostalAddress])->ready();
+				}
+			}
 			return parent::delete($params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: idgeoCoordinates']);

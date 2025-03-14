@@ -25,6 +25,7 @@ class ImageObject extends ImageObjectAbstract
   public function get(array $params = []): array
   {
 		$idHasPart = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+		$fields = $params['fields'] ?? null;
 		unset($params['isPartOf']);
 		unset($params['idHasPart']);
 	  $hasPart = $params['hasPart'] ?? null;
@@ -37,19 +38,28 @@ class ImageObject extends ImageObjectAbstract
 			$getDate->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
 			$getDate->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
 			$data = $getDate->render();
-		} else if ($hasPart) {
+		}
+		// HAS PART
+		else if ($hasPart) {
 			$data = parent::getHasPart($hasPart);
-		}  else {
-			$data = parent::getData($params);
-			foreach ($data as $key => $value) {
-				$idmediaObject = $value['mediaObject'];
-				$dataMediaObject = ApiFactory::request()->type('mediaObject')->get(['idmediaObject' => $idmediaObject])->ready();
-				$valueMediaObject = $dataMediaObject[0] ?? [];
-				$data[$key] = $value + $valueMediaObject;
-			}
+		}
+		// COUNT
+		else if ($fields == 'count') {
+			$getDate = new GetData('imageObject', false);
+			$getDate->setFields("count(idimageObject) as count");
+			$data = $getDate->render();
+		}
+		else {
+			$getDate = new GetData('imageObject');
+			$getDate->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
+			$getDate->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
+			$getDate->setParams($params);
+			$data = $getDate->render();
 		}
 		foreach ($data as $key => $value) {
-			$data[$key]['representativeOfPage'] = !!$value['representativeOfPage'];
+			if (isset($value['representativeOfPage'])) {
+				$data[$key]['representativeOfPage'] = !!$value['representativeOfPage'];
+			}
 		}
 	  return parent::sortData($data);
   }

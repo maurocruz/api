@@ -5,6 +5,7 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Review extends Entity
 {
@@ -13,27 +14,15 @@ class Review extends Entity
 		$this->setTable('review');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
-		$itemReviewed = $params['itemReviewed'] ?? null;
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = $params['ordering'] ?? null;
-		$idreview = $params['idreview'] ?? null;
-		//
-		$sqlQuery = "SELECT * FROM `review` "
-			."LEFT JOIN `thing` ON `thing`.idthing = `review`.thing "
-			."LEFT JOIN `creativeWork` ON `creativeWork`.idcreativeWork = `review`.creativeWork";
-		if ($idreview) {
-			$sqlQuery .= " WHERE `review`.idreview = '$idreview'";
-		} elseif ($itemReviewed) {
-			$sqlQuery .= " WHERE `review`.itemReviewed = '$itemReviewed'";
-		}
-		if ($orderBy) {
-			$sqlQuery .= " ORDER BY `{$orderBy}` $ordering";
-		}
-		$sqlQuery .= ";";
-		$data = PDOConnect::run($sqlQuery);
-
+		$getData = new GetData('review');
+		$getData->setParams($params);
+		$data = $getData->render();
 		return $this->sortData($data);
 	}
 

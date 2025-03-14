@@ -22,6 +22,7 @@ BEGIN
     ADD CONSTRAINT `fk_creativeWork_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
   -- EVENT
   ALTER TABLE `event`
+    ADD KEY `fk_event_location_idx` (`location`),
     ADD KEY `fk_event_thing_idx` (`thing`),
     ADD KEY `fk_event_subEvent_idx` (`subEvent`),
     ADD KEY `fk_event_superEvent_idx` (`superEvent`),

@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -31,7 +28,7 @@ return function (Route $route)
 		} elseif ($format == "geojson") {
 			$data = ApiFactory::response()->format()->geojson($placeData)->ready();
 		} else {
-			$data = ApiFactory::response()->type('place')->setData($placeData)->ready();
+			$data = ApiFactory::response()->type('place')->setData($placeData)->setParams($params)->ready();
 		}
 		return ApiFactory::response()->write($response, $data);
 	});

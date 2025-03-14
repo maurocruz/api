@@ -4,7 +4,6 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Tool\TypeBuilder;
 
 class ContactPoint extends Entity
 {
@@ -56,15 +55,13 @@ class ContactPoint extends Entity
 		if($name && $idHasPart && $typeHasPart && ($telephone || $email)) {
 			// insert data in contatc point and return new idthing
 			$dataNewContactPoint = $this->createWithParent('thing', $params);
-			if (isset($dataNewContactPoint[0])) {
-				$value = $dataNewContactPoint[0];
-				$typeBuilder = new TypeBuilder($value);
-				$idcontactPoint = $typeBuilder->getId();
-				$idthing = $typeBuilder->getPropertyValue('idthing');
+			if (isset($dataNewContactPoint['status']) && $dataNewContactPoint['status'] === "success") {
+				$value = $dataNewContactPoint['data'][0];
+				$idthing = $value['idthing'];
 				// insert row in relationship thing_has_thing
 				$returns = parent::createRelationShip($idHasPart, $typeHasPart, $idthing, "ContactPoint");
 				if (empty($returns)) {
-					return $this->get(['idcontactPoint' => $idcontactPoint]);
+					return $dataNewContactPoint;
 				} else {
 					return ApiFactory::response()->message()->fail()->generic($returns);
 				}
@@ -72,7 +69,7 @@ class ContactPoint extends Entity
 				return ApiFactory::response()->message()->fail()->generic($dataNewContactPoint);
 			}
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, idHasPartOf, typeHasPartOf and telephone or email']);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, idHasPart, typeHasPart and telephone or email']);
 		}
 	}
 
@@ -91,6 +88,11 @@ class ContactPoint extends Entity
 	 */
 	public function delete(array $params): array
 	{
-		return parent::erase('thing', $params);
+		$idcontactPoint = $params['idcontactPoint'] ?? null;
+		if ($idcontactPoint !== null) {
+			return parent::erase('thing', ['idcontactPoint'=>$idcontactPoint]);
+		} else {
+			return ApiFactory::response()->message()->fail()->generic('Contact Point not found');
+		}
 	}
 }

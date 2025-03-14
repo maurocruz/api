@@ -8,6 +8,7 @@ CREATE PROCEDURE upgrade_event()
     ALTER TABLE `event`
       DROP COLUMN `additionalType`,
       CHANGE COLUMN `idevent` `idevent` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+      CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `superEvent` `superEvent` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `organizerId` `organizer` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `directed` `director` INT UNSIGNED DEFAULT NULL,
