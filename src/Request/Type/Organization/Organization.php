@@ -27,6 +27,11 @@ class Organization extends Entity
 			  $idthing = $value['thing'];
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
+					// CONTACT POINT
+				  if (in_array('contactPoint', $properties)) {
+						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['typeHasPart'=>'organization','idHasPart'=>$idthing])->ready();
+						$data[$key]['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
+				  }
 					// LOCATION
 				  if (in_array('location', $properties)) {
 						$location = $value['location'];
@@ -35,7 +40,7 @@ class Organization extends Entity
 				  }
 					// IMAGE OBJECT
 				  if (in_array('imageObject', $properties) || in_array('image', $properties)) {
-					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['isPartOf'=>$idthing])->ready();
+					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['idHasPart'=>$idthing])->ready();
 					  $data[$key]['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 				  }
 					// OFFERS
@@ -69,16 +74,28 @@ class Organization extends Entity
 	  return parent::sortData($data);
   }
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function post(array $params = null): array
 	{
 		return parent::createWithParent('thing',$params);
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function put(array $params = null): array
 	{
 		return parent::update('thing',$params);
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function delete(array $params): array
 	{
 		return parent::erase('thing',$params);

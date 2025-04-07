@@ -22,7 +22,7 @@ class Certification extends Entity implements HttpRequestInterface
 		if (!empty($dataCert) && $properties) {
 			foreach ($dataCert as $certificate) {
 				$about = $certificate['about'];
-				if (strpos($properties, 'about') !== false) $certificate['about'] = parent::getProperties('thing', ['idthing' => $about, 'properties' => 'image'])[0];
+				if (str_contains($properties, 'about')) $certificate['about'] = parent::getProperties('thing', ['idthing' => $about, 'properties' => 'image'])[0];
 				$returns[] = $certificate;
 			}
 		} else {

@@ -24,41 +24,54 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
-		$idHasPart = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
 		$fields = $params['fields'] ?? null;
-		unset($params['isPartOf']);
-		unset($params['idHasPart']);
-	  $hasPart = $params['hasPart'] ?? null;
+	  $isPartOf = $params['isPartOf'] ?? null;
+		$idimageObject = $params['idimageObject'] ?? null;
+	  unset($params['isPartOf']);
+	  unset($params['idHasPart']);
 		// IF IMAGE OBJECT IS PART OF
 		if ($idHasPart) {
-			$getDate = new GetData('thing_has_imageObject');
-			$getDate->setParams($params + ['where'=>"`thing_has_imageObject`.idthing=$idHasPart"]);
-			$getDate->setLeftJoin('imageObject','`thing_has_imageObject`.idimageObject=`imageObject`.idimageObject');
-			$getDate->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
-			$getDate->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
-			$getDate->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
-			$data = $getDate->render();
+			$getData = new GetData('thing_has_imageObject');
+			$getData->setFields('*,thing_has_imageObject.caption,thing_has_imageObject.href,thing_has_imageObject.position');
+			$getData->setLeftJoin('imageObject','`thing_has_imageObject`.idimageObject=`imageObject`.idimageObject');
+			$getData->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
+			$getData->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
+			$getData->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
+			$getData->setParams($params + ['where'=>"`thing_has_imageObject`.idthing=$idHasPart"]);
+			$data = $getData->render();
 		}
 		// HAS PART
-		else if ($hasPart) {
-			$data = parent::getHasPart($hasPart);
+		else if ($isPartOf && $idimageObject) {
+			$getData = new GetData('thing_has_imageObject');
+			$getData->setLeftJoin('thing','`thing`.idthing=`thing_has_imageObject`.idthing');
+			$getData->setParams($params);
+			$data = $getData->render();
 		}
 		// COUNT
 		else if ($fields == 'count') {
-			$getDate = new GetData('imageObject', false);
-			$getDate->setFields("count(idimageObject) as count");
-			$data = $getDate->render();
+			$getData = new GetData('imageObject', false);
+			$getData->setFields("count(idimageObject) as count");
+			$data = $getData->render();
 		}
 		else {
-			$getDate = new GetData('imageObject');
-			$getDate->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
-			$getDate->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
-			$getDate->setParams($params);
-			$data = $getDate->render();
+			$getData = new GetData('imageObject');
+			$getData->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
+			$getData->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
+			$getData->setParams($params);
+			$data = $getData->render();
 		}
 		foreach ($data as $key => $value) {
 			if (isset($value['representativeOfPage'])) {
 				$data[$key]['representativeOfPage'] = !!$value['representativeOfPage'];
+			}
+			if ($isPartOf && $idimageObject) {
+				$typeHasPart = lcfirst($value['type']);
+				$idHasPart = $value['idthing'];
+				$dataHasPart = ApiFactory::request()->type($typeHasPart)->get(['thing'=>$idHasPart])->ready();
+				if(isset($dataHasPart[0])) {
+					$data[$key] = $value + $dataHasPart[0];
+				}
 			}
 		}
 	  return parent::sortData($data);
@@ -70,7 +83,7 @@ class ImageObject extends ImageObjectAbstract
 	public function post(array $params = null, ?array $uploadedFiles = null): array
 	{
 		$imagesUpload = $uploadedFiles['imageupload'] ?? null;
-		$isPartOf = $params['isPartOf'] ?? $params['thing'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
 		$idimageObject = $params['idimageObject'] ?? null;
 		$destination = $params['destination'] ?? $params['location'] ?? $params['imageFolder'] ?? null;
 		$returns = null;
@@ -84,6 +97,10 @@ class ImageObject extends ImageObjectAbstract
 						$saveImageObject = parent::saveImageObject($fileUploaded['data'], $params);
 						if (!empty($saveImageObject) && $saveImageObject['status'] == 'success') {
 							$returns[] = ApiFactory::response()->message()->success("ImageObject created and file uploaded", $saveImageObject['data'][0] ?? null);
+							if ($idHasPart) {
+								$idimageObject = $saveImageObject['data'][0]['idimageObject'];
+								$returns[] = parent::saveThingHasImageObject((int) $idHasPart, (int) $idimageObject);
+							}
 						} else {
 							return ApiFactory::response()->message()->fail()->generic($saveImageObject);
 						}
@@ -101,8 +118,8 @@ class ImageObject extends ImageObjectAbstract
 			}
 		}
 		// save relational if not uploded images
-		else if($isPartOf && $idimageObject) {
-			return parent::saveThingHasImageObject((int) $isPartOf, (int) $idimageObject, $params);
+		else if($idHasPart && $idimageObject) {
+			return parent::saveThingHasImageObject((int) $idHasPart, (int) $idimageObject, $params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing($params);
 		}
@@ -115,14 +132,13 @@ class ImageObject extends ImageObjectAbstract
   public function put(array $params = null): array
   {
 		$idimageObject = $params['idimageObject'] ?? null;
-		$isPartOf = $params['isPartOf'] ?? null;
-		if($idimageObject && $isPartOf) {
+		$idHasPart = $params['idHasPart'] ?? null;
+		if($idimageObject && $idHasPart) {
 			// IF RELATIONSHIP
-			return parent::updateHasTable($params, $isPartOf);
+			return parent::updateHasTable($params, $idHasPart);
 		} else if ($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
 			if (!empty($dataImageObject)) {
-				//
 				$putImageObject = parent::put($params);
 				if ($putImageObject['status'] === 'success') {
 					$idmediaObject = $dataImageObject[0]['mediaObject'];
@@ -147,12 +163,12 @@ class ImageObject extends ImageObjectAbstract
 	 */
 	public function delete(array $params): array
 	{
-		$idimageObject = $params['idimageObject'] ?? $params['imageObject'] ?? null;
-		$idthing = $params['isPartOf'] ?? $params['idthing'] ?? null;
-		if($idthing) {
-			$deleteReturn =  PDOConnect::crud()->setTable('thing_has_imageObject')->erase(['idthing'=>$idthing,'idimageObject'=>$idimageObject]);
+		$idimageObject = $params['idimageObject'] ?? $params['idIsPartOf'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		if($idHasPart) {
+			$deleteReturn =  PDOConnect::crud()->setTable('thing_has_imageObject')->erase(['idthing'=>$idHasPart,'idimageObject'=>$idimageObject]);
 			if ($deleteReturn['status'] === 'success') {
-				parent::reorderingPosition($idthing);
+				parent::reorderingPosition($idHasPart);
 			}
 			return $deleteReturn;
 		} else if($idimageObject) {

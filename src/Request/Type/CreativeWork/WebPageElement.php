@@ -32,7 +32,7 @@ class WebPageElement extends Entity
 				$idthing = $item['thing'];
 				// IMAGE
 				if (in_array('image',$properties)) {
-					$dataImageObject = parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					$dataImageObject = parent::getProperties('imageObject', ['idHasPart' => $idthing]);
 					if ($dataImageObject) {
 						$data[$key]['image'] = $dataImageObject;
 					}

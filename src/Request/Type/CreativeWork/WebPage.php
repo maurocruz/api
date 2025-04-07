@@ -35,7 +35,7 @@ class WebPage extends Entity
 				$isPartOf = $item['isPartOf'];
 				// IMAGE
 				if(in_array('image',$properties)) {
-					$data[$key]['image'] =  parent::getProperties('imageObject', ['isPartOf' => $idthing]);
+					$data[$key]['image'] =  parent::getProperties('imageObject', ['idHasPart' => $idthing]);
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {

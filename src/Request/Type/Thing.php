@@ -40,7 +40,7 @@ class Thing extends Entity implements HttpRequestInterface
 				if ($properties) {
 					// IMAGE OBJECT
 					if (in_array('image',$properties)) {
-						$data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+						$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
 					}
 				}
 			}

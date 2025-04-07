@@ -27,12 +27,12 @@ class Event extends Entity
 				$location = $value['location'];
 				// image object
 				if (in_array('imageObject', $properties) || in_array('image', $properties)) {
-					$dataImageObject = ApiFactory::request()->type('imageObject')->get(['hasPart' => $idthing])->ready();
+					$dataImageObject = ApiFactory::request()->type('imageObject')->get(['idHasPart' => $idthing])->ready();
 					$data[$key]['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 				}
 				// location
 				if (in_array('location',$properties)) {
-					$dataLocation = ApiFactory::request()->type('place')->get(['idplace'=>$location])->ready();
+					$dataLocation = ApiFactory::request()->type('place')->get(['idplace'=>$location, 'properties'=>'geo'])->ready();
 					if(isset($dataLocation[0])){
 						$data[$key]['location'] = ApiFactory::response()->type('place')->setData($dataLocation[0])->ready();
 					}

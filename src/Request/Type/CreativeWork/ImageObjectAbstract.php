@@ -5,6 +5,7 @@ use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Tool\FileSystem\FileSystem;
 use Plinct\Tool\Image\Image;
@@ -117,7 +118,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 * @param array $params
 	 * @return string[]
 	 */
-	protected function saveThingHasImageObject(int $idthing, int $idimageObject, array $params): array
+	protected function saveThingHasImageObject(int $idthing, int $idimageObject, array $params = []): array
 	{
 		$maxPositionData = PDOConnect::run("select max(position) as maxpos from thing_has_imageObject where idthing='$idthing';");
 		$maxpos = $maxPositionData[0]['maxpos'];
@@ -132,16 +133,42 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 	 */
 	public function updateHasTable(array $params, string $isPartOf): array
 	{
+		$idthing = $params['idHasPart'] ?? $params['idthing'] ?? null;
 		$idimageObject = (int) $params['idimageObject'];
 		$position = isset($params['position']) ? (int) $params['position'] : null;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$caption = $params['caption'] ?? null;
-		$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where'=>"`idimageObject`='$idimageObject' AND `idthing`='$isPartOf'"]);
-		$idthing = $dataItem[0]['idthing'];
+		$returns = [];
+		// get idthing
+		if (!$idthing) {
+			$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where' => "`idimageObject`='$idimageObject' AND `idthing`='$isPartOf'"]);
+			$idthing = $dataItem[0]['idthing'];
+		}
 		// representative of page
 		if ($representativeOfPage ) {
-			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>0],"`idthing`='$isPartOf'");
-			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>$representativeOfPage],"`idimageObject`='$idimageObject'");
+			$dataZeroAll = PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>0],"`idthing`='$isPartOf'");
+			if (!empty($dataZeroAll)) {
+				return $dataZeroAll;
+			}
+			$dataRepresentative = PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>$representativeOfPage],"`idimageObject`='$idimageObject'");
+			if (!empty($dataRepresentative)) {
+				return $dataRepresentative;
+			} else {
+				$returns[] = ApiFactory::response()->message()->success('Image representativeOfPage is updated', $dataRepresentative);
+			}
+			// update image in thing: get contentUrl in mediaObject -> put image in thing
+			$dataImageObject = (new GetData('imageObject'))
+				->setParams(['idimageObject'=>$idimageObject])
+				->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject')
+				->render();
+			if (isset($dataImageObject[0])) {
+				$contentUrl = $dataImageObject[0]['contentUrl'];
+				// update thing
+				$dataThing = ApiFactory::request()->type('thing')->put(['idthing'=>$idthing,'image'=>$contentUrl])->ready();
+				if (isset($dataThing['status']) && $dataThing['status'] == 'success') {
+					$returns[] = $dataThing;
+				}
+			}
 		}
 		// position
 		if ($position) {
@@ -172,7 +199,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		if ($caption) {
 			PDOConnect::crud()->setTable('thing_has_imageObject')->update(['caption'=>$caption],"`idimageObject`='$idimageObject'");
 		}
-		return ApiFactory::response()->message()->success("thing has imageObject has updated");
+		return ApiFactory::response()->message()->success("thing has imageObject has updated", $returns);
 	}
 
 	/**

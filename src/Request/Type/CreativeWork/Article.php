@@ -30,7 +30,7 @@ class Article extends Entity
 			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
 				if (in_array('image', $properties)) {
-					$dataImage = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					$dataImage = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
 					if (isset($dataImage[0])) {
 						$data[$key] = ApiFactory::response()->type('imageObject')->setData($dataImage)->ready();
 					}

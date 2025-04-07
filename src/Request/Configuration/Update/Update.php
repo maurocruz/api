@@ -9,7 +9,7 @@ class Update
 	{
 		$schema_name = PDOConnect::getDbname();
 
-		/** Alterções exclusivas do site pirenopolis.tur.br */
+		/** Alterações exclusivas do site pirenopolis.tur.br */
 		PDOConnect::run("ALTER TABLE `catalog` DROP INDEX `idx_2`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_1`;");
 		PDOConnect::run("ALTER TABLE `galleries` DROP INDEX `idx_2`;");
@@ -22,15 +22,16 @@ class Update
 		PDOConnect::run("UPDATE `service` SET `provider` = '259' WHERE (`provider` = '49');");
 		PDOConnect::run("DELETE FROM `order` WHERE `customer` is null || `seller` is null;");
 		PDOConnect::run("DELETE FROM `offer` WHERE `itemOffered` is null || `offeredBy` is null;");
+		PDOConnect::run("ALTER TABLE `pirenopolis03`.`webPage` DROP COLUMN `jsonwebpage`, DROP COLUMN `showdescription`, DROP COLUMN `showtitle`;");
 
 		PDOConnect::run("SET autocommit=0;");
 
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/drop_procedures.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/sql_upgrade.sql'));
-		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_create_tables.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/../Install/procedure_create_tables.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_drop_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_set_image_in_thing.sql'));
-		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/procedure_add_foreign_keys.sql'));
+		PDOConnect::run(file_get_contents(__DIR__ . '/../Install/procedure_add_foreign_keys.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_imageObject.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_action.sql'));
 		PDOConnect::run(file_get_contents(__DIR__ . '/v2tov3/upgrade_article.sql'));

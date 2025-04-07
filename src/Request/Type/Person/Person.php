@@ -44,7 +44,7 @@ class Person extends Entity
 				}
 				// IMAGE
 				if (in_array(['image','imageObject'], $properties)) {
-					$data[$key]['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
+					$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
 				}
 				// MEMBER OF
 				if (in_array('memberOf', $properties)) {
