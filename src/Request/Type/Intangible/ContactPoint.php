@@ -49,11 +49,23 @@ class ContactPoint extends Entity
 	{
 		$idHasPart = $params['idHasPart'] ?? null;
 		$typeHasPart = $params['typeHasPart'] ?? null;
+		$contactType = $params['contactType'] ?? null;
 		$telephone = $params['telephone'] ?? null;
 		$email = $params['email'] ?? null;
-		$name = $params['name'] ?? $params['contactType'] ?? $telephone ?? $email ?? null;
-		if($name && $idHasPart && $typeHasPart && ($telephone || $email)) {
+		if (!!$params['name']) {
+			$name = $params['name'];
+		} else if (!!$contactType) {
+			$name = $contactType;
+		} elseif (!!$telephone) {
+			$name = $telephone;
+		} elseif (!!$email) {
+			$name = $email;
+		} else {
+			$name = null;
+		}
+		if(!!$name && !!$idHasPart && !!$typeHasPart && (!!$telephone || !!$email)) {
 			// insert data in contatc point and return new idthing
+			$params['name'] = $name;
 			$dataNewContactPoint = $this->createWithParent('thing', $params);
 			if (isset($dataNewContactPoint['status']) && $dataNewContactPoint['status'] === "success") {
 				$value = $dataNewContactPoint['data'][0];

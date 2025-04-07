@@ -7,6 +7,8 @@ use Plinct\Api\Middleware\GatewayMiddleware;
 use Plinct\Api\Middleware\LoggedUserMiddleware;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Slim\App;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 class ApiApp
 {
@@ -25,10 +27,13 @@ class ApiApp
   /**
    * @var float|int
    */
-  public static $JWT_EXPIRE = 60*60*24*7;
-
+  public static int|float $JWT_EXPIRE = 60*60*24*7;
+	/**
+	 * @var string
+	 */
   public static string $soloineApi = "https://plinct.com.br/soloine";
 
+	public static string $HOST;
 	/**
 	 * @var string|null
 	 */
@@ -40,6 +45,10 @@ class ApiApp
   public function __construct(App $slimApp)
   {
     $this->slimApp = $slimApp;
+		$slimApp->add(function (Request $request, RequestHandler $handler) {
+			self::$HOST = $request->getUri()->getScheme().'://'.$request->getUri()->getHost();
+			return $handler->handle($request);
+		});
   }
 
   /**
@@ -50,7 +59,7 @@ class ApiApp
    * @param $password
    * @param array $options
    */
-  public function connect($driver, $host, $dbname, $username, $password, array $options = [])
+  public function connect($driver, $host, $dbname, $username, $password, array $options = []): void
   {
     PDOConnect::setUsername($username);
     PDOConnect::setPassword($password);
@@ -76,7 +85,8 @@ class ApiApp
   /**
    * @return mixed
    */
-  public function run() {
+  public function run(): mixed
+  {
 		$this->slimApp->addBodyParsingMiddleware();
 		$this->slimApp->addMiddleware(new GatewayMiddleware())
 			->addMiddleware(new LoggedUserMiddleware())

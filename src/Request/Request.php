@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request;
 
 use Plinct\Api\Request\Configuration\Configuration;

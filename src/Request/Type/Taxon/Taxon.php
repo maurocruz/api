@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Taxon;
 
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Taxon extends Entity
 {
@@ -11,41 +11,56 @@ class Taxon extends Entity
 		parent::setTable('taxon');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
-		$name = $params['name'] ?? null;
-		$orderBy = $params['orderBy'] ?? null;
-		$nameLike = $params['nameLike'] ?? null;
-		$vernacularNameLike = $params['vernacularNameLike'] ?? null;
-		$properties = $params['properties'] ?? null;
-
-		if ($nameLike || $vernacularNameLike) {
-			$dataThing = parent::getThingFirst('Taxon', ['nameLike'=>$nameLike,'orderBy'=>'name']);
-			$dataTaxon = parent::getData(['vernacularNameLike'=>$vernacularNameLike,'orderBy'=>'vernacularName'], true);
-			$returns = array_merge($dataThing, $dataTaxon);
-			$newData = [];
-			array_walk($returns, function ($item, $key) use (&$newData) {
-				$newData[$item['thing']] = $item;
-			});
-			$returns = $newData;
-		}
-		elseif ($name || $orderBy) {
-			$returns = parent::getThingFirst('Taxon', $params);
-		}
-		else {
-			$returns = parent::getData($params);
-		}
-
-		// PROPERTIES
-		if ($properties) {
-			foreach ($returns as $key => $value) {
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('taxon');
+		$getData->setParams($params);
+		$data = $getData->render();
+		if (!empty($data) && $properties) {
+			foreach ($data as $key => $value) {
 				$idtaxon = $value['idtaxon'];
 				$idthing = $value['thing'];
-				if (stripos($properties,'childTaxon') !== false) $value['childTaxon'] = parent::getProperties('taxon',['parentTaxon' => $idtaxon]);
-				if (stripos($properties,'image') !== false) $value['image'] = parent::getProperties('imageObject', ['isPartOf' => $idthing, 'orderBy' => 'position']);
-				$returns[$key] = $value;
+				// CHILD TAXON
+				if (in_array('childTaxon', $properties)) {
+					$data[$key]['childTaxon'] = parent::getProperties('taxon',['parentTaxon' => $idtaxon]);
+				}
+				if (in_array('image', $properties)) {
+					$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
+				}
 			}
 		}
-		return $this->sortData($returns);
+		return $this->sortData($data);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function post(array $params = null): array
+	{
+		return parent::createWithParent('thing',$params);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function put(array $params = null): array
+	{
+		return parent::update('thing',$params);
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function delete(array $params): array
+	{
+		return parent::erase('thing',$params);
 	}
 }

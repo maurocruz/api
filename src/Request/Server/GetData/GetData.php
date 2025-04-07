@@ -33,12 +33,13 @@ class GetData extends GetDataAbstract
 	/**
 	 * @param string $table
 	 * @param string $condition
-	 * @return void
+	 * @return GetData
 	 */
-	public function setLeftJoin(string $table, string $condition): void
+	public function setLeftJoin(string $table, string $condition): GetData
 	{
 		$this->setProperties($table);
 		$this->setJoins("LEFT JOIN `$table` ON $condition");
+		return $this;
 	}
 
 	/**

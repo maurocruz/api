@@ -68,7 +68,7 @@ CREATE PROCEDURE create_tables()
       `license` VARCHAR(100) DEFAULT NULL,
       `locationCreated` VARCHAR(100) DEFAULT NULL,
       `maintainer` INT UNSIGNED DEFAULT NULL,
-      `position` VARCHAR(100),
+      `position` INT DEFAULT 0,
       `publisher` VARCHAR(255) DEFAULT NULL,
       `text` TEXT,
       `thumbnail` VARCHAR(255) DEFAULT NULL,

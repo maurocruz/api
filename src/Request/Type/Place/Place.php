@@ -23,6 +23,7 @@ class Place extends Entity
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$orderBy = $params['orderBy'] ?? null;
+		$fields = $params['fields'] ?? null;
 		$getData = new GetData('place');
 		if (in_array('geo',$properties)) {
 			$getData->setLeftJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates = `place`.geo');
@@ -35,6 +36,10 @@ class Place extends Entity
 		}
 		$getData->setParams($params);
 		$data = $getData->render();
+
+		if ($fields && str_contains($fields,'count') && isset($data[0])) {
+			return $data[0];
+		}
 
 		foreach ($data as $key => $place) {
 			if (!isset($place['idplace']) || $place['idplace'] == null) return [];

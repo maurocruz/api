@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\Request\Type\CreativeWork\WebPage;
@@ -13,10 +12,11 @@ class Breadcrumb
   public function get($params): array
   {
 		$parseUrl = parse_url($params['url']);
-		$baseUrl = $parseUrl['scheme'] . '://' . $parseUrl['host'];
+		$baseUrl = isset($parseUrl['scheme']) && isset($parseUrl['host']) ? $parseUrl['scheme'] . '://' . $parseUrl['host'] : null;
     $urlArray = array_filter(explode("/",$parseUrl['path']));
     $key = count($urlArray);
     $items[] = self::item($key, $params['url'], $params['alternativeHeadline'] ?? $params['alternateName'] ?? $params['name'] ?? null);
+
     if ($key > 1) {
       end($urlArray);
       while(current($urlArray)) {
@@ -29,22 +29,22 @@ class Breadcrumb
         }
       }
     }
-		$reverseArray =array_reverse($items);
+		$reverseArray = array_reverse($items);
 		return ["@context" => "https://schema.org", "@type" => "BreadcrumbList", "itemListElement" => $reverseArray];
   }
 
 	/**
 	 * @param array $urlArray
-	 * @param string $baseUrl
-	 * @return array
+	 * @param string|null $baseUrl
+	 * @return array|null
 	 */
-  private static function getNewParams(array $urlArray, string $baseUrl): ?array
+  private static function getNewParams(array $urlArray, ?string $baseUrl): ?array
   {
     $parentUrl = $baseUrl . DIRECTORY_SEPARATOR . implode("/", $urlArray);
     $newParams = ["url" => $parentUrl];
     $parentData = (new WebPage())->get($newParams);
-		$name = $parentData[0]['alternateName'] ?? $parentData[0]['alternativeHeadline'] ?? null;
-    return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $name) : null;
+		$name = $parentData[0]['alternateName'] ?? $parentData[0]['alternativeHeadline'] ?? $parentData[0]['name'] ?? null;
+    return isset($parentData[0]) ? self::item(count($urlArray), $parentUrl, $name) : self::item(count($urlArray), $parentUrl, end($urlArray)) ;
   }
 
 	/**
