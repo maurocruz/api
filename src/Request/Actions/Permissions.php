@@ -1,14 +1,12 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\Actions;
 
 class Permissions
 {
+	/**
+	 * @var bool
+	 */
 	private static bool $requiresSubscription = false;
-
-	private ?string $method = null;
 
 	/**
 	 * @param bool $requiresSubscription
@@ -25,5 +23,4 @@ class Permissions
 	{
 		return self::$requiresSubscription;
 	}
-
 }

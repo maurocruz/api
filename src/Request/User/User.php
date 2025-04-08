@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
@@ -8,7 +7,6 @@ use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\Auth\Authentication;
 use Plinct\Api\Request\User\Permission\Permissions;
 use Plinct\Api\Request\User\Privileges\Privileges;
-use Plinct\PDO\PDOConnect;
 
 class User
 {
@@ -52,21 +50,33 @@ class User
 		return new Authentication();
 	}
 
+	/**
+	 * @return Actions
+	 */
 	public function actions(): Actions
 	{
 		return new Actions();
 	}
 
+	/**
+	 * @return HttpRequest
+	 */
 	public function httpRequest(): HttpRequest
 	{
 		return new HttpRequest(new UserActions());
 	}
 
+	/**
+	 * @return Permissions
+	 */
 	public function permissions(): Permissions
 	{
 		return new Permissions();
 	}
 
+	/**
+	 * @return Privileges
+	 */
 	public function privileges(): Privileges
 	{
 		return new Privileges();
@@ -78,13 +88,4 @@ class User
 	public function userLogged(): UserLogged {
 		return new UserLogged();
 	}
-
-  public function createSqlTable($type = null) : array
-  {
-	  $data = PDOConnect::run(file_get_contents(__DIR__ . '/User.sql'));
-	  if (array_key_exists("error", $data)) {
-		  return $data;
-	  }
-	  return [ "message" => "Sql table for ".$type. " created successfully!" ];
-  }
 }

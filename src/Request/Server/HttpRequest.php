@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\ApiFactory;
@@ -8,20 +7,15 @@ use Plinct\Api\Request\Actions\Permissions;
 class HttpRequest implements HttpRequestInterface
 {
 	/**
-	 * @var object|HttpRequestInterface
+	 * @var HttpRequestInterface
 	 */
-	private object $classActions;
+	private HttpRequestInterface $classActions;
 
 	/**
 	 * @param HttpRequestInterface $classActions
 	 */
 	public function __construct(HttpRequestInterface $classActions) {
 		$this->classActions = $classActions;
-	}
-
-	public function getTable(): string
-	{
-		return $this->classActions->getTable();
 	}
 
 	/**

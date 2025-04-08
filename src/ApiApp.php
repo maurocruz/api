@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api;
 
 use Plinct\Api\Middleware\CorsMiddleware;
@@ -31,8 +30,6 @@ class ApiApp
 	/**
 	 * @var string
 	 */
-  public static string $soloineApi = "https://plinct.com.br/soloine";
-
 	public static string $HOST;
 	/**
 	 * @var string|null

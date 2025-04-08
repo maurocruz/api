@@ -1,11 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\User\Privileges\PrivilegesActions;
-use Plinct\Cms\View\WebSite\Type\TypeBuilder;
 
 class UserActions implements HttpRequestInterface
 {
@@ -24,7 +22,7 @@ class UserActions implements HttpRequestInterface
 		$dataUser->setParams($params);
 		$data = $dataUser->render();
 		// GET PERMISSIONS
-		if (isset($params['properties']) && strpos($params['properties'], 'privileges') !== false) {
+		if (isset($params['properties']) && str_contains($params['properties'], 'privileges')) {
 			foreach ($data as $key => $valueData) {
 				$iduser = $valueData['iduser'];
 				$dataPrivileges = (new PrivilegesActions())->get(['iduser' => $iduser]);
@@ -79,15 +77,6 @@ class UserActions implements HttpRequestInterface
 		} else {
 			// get iduser
 			$iduser = ApiFactory::request()->server()->connectBd('user')->lastInsertId();
-			// save person
-			$dataPerson = ApiFactory::request()->type('person')->httpRequest()->setPermission()->post(['name'=>$name]);
-			if (!empty($dataPerson)) {
-				$valuePerson = $dataPerson[0];
-				$typeBuilder = new TypeBuilder('person',$valuePerson);
-				$idthing = $typeBuilder->getPropertyValue('idthing');
-				// save contactPoint
-				ApiFactory::request()->type('contactPoint')->httpRequest()->setPermission()->post(['thing'=>$idthing,'email'=>$email]);
-			}
 			// return
 			return ApiFactory::response()->message()->success('User registered successfully', ['iduser' => $iduser]);
 		}
@@ -109,13 +98,5 @@ class UserActions implements HttpRequestInterface
 	public function delete($params): array
 	{
 		return ApiFactory::request()->server()->connectBd('user')->delete($params);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTable(): string
-	{
-		return self::tableName;
 	}
 }

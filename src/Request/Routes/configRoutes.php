@@ -1,6 +1,4 @@
 <?php
-declare(strict_types=1);
-
 use Plinct\Api\Middleware\AuthMiddleware;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -11,9 +9,11 @@ use Plinct\Api\ApiFactory;
 return function(Route $route) {
 
 	$route->get('', function (Request $request, Response $response) {
-		return ApiFactory::response()->write($response, ['config'=>'config']);
+		return ApiFactory::response()->write($response, ['config'=>['modules enabled'=> ['Install modules','database','update']]]);
 	});
 
+
+	// INSTALL MODULES
 	$route->post('/install', function (Request $request, Response $response) {
 		$params = $request->getParsedBody();
 		$module = $params['module'] ?? null;
@@ -27,12 +27,13 @@ return function(Route $route) {
 			$params = $request->getQueryParams();
 			$data = ['message'=>'No action was taken'];
 			$tableName = $params['showTableStatus'] ?? null;
-			$schema = $params['schema'] ?? null;
+			$action = $params['action'] ?? null;
 			if ($tableName) {
 				$data = ApiFactory::request()->server()->connectBd($tableName)->showTableStatus();
 			}
-			if ($schema === 'init') {
-				$data = ApiFactory::request()->configuration()->module()->initApplication();
+			// ACTION
+			if ($action === 'install') {
+				$data = ApiFactory::request()->configuration()->module()->install($params);
 			}
 			return ApiFactory::response()->write($response, $data);
 		});

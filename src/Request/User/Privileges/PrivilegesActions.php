@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\User\Privileges;
 
 use Plinct\Api\ApiFactory;
@@ -12,12 +9,6 @@ use Plinct\Api\Request\User\UserLogged;
 class PrivilegesActions implements HttpRequestInterface
 {
 	const TABLENAME = 'user_privileges';
-
-
-	public function getTable(): string
-	{
-		return self::TABLENAME;
-	}
 
 	/**
 	 * @param array $params

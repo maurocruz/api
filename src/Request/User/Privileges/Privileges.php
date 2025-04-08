@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\User\Privileges;
 
 use Plinct\Api\ApiFactory;
@@ -25,7 +22,7 @@ class Privileges extends PrivilegesAbstract
 	 * @param int|null $function
 	 * @return void
 	 */
-	public function withPrivileges(string $action, string $namespace, int $function = null)
+	public function withPrivileges(string $action, string $namespace, int $function = null): void
 	{
 		// IF SUPERUSER
 		if (UserLogged::isSuperUser()) Permissions::setRequiresSubscription(true);
@@ -35,7 +32,7 @@ class Privileges extends PrivilegesAbstract
 			foreach ($permissions as $value) {
 				if (
 					$value['function'] >= $function
-					&& strpos($value['actions'], $action) !== false
+					&& str_contains($value['actions'], $action)
 					&& ($value['namespace'] === 'all' || $value['namespace'] == $namespace)
 				)
 					Permissions::setRequiresSubscription(true);

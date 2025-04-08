@@ -1,29 +1,46 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Configuration\Module;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Configuration\Module\database\Database;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
 class Module
 {
-	const SQL_DIR = __DIR__.'/database/sql/';
+	const SQL_DIR = __DIR__.'/database/';
 
 	/**
-	 * @return Database
+	 * @param array|null $params
+	 * @return string[]
 	 */
-	public function database(): Database
+	public function install(?array $params = null): array
 	{
-		return new Database();
-	}
-
-	/**
-	 * @return array
-	 */
-	public function initApplication(): array
-	{
-		return $this->database()->createTable('user','thing','person','place','contactPoint','creativeWork','mediaObject','imageObject');
+		$name = $params['name'] ?? null;
+		$email = $params['email'] ?? null;
+		$password = $params['password'] ?? null;
+		$passwordRepeat = $params['passwordRepeat'] ?? null;
+		if ($name && $email && $password && $passwordRepeat) {
+			// check if user table exists
+			$userTableExists = ApiFactory::request()->server()->connectBd('user')->showTableStatus();
+			if (isset($userTableExists['status']) && $userTableExists['status'] === 'fail') {
+				$install = $this->installModule('user');
+				if (isset($install['status']) && $install['status'] === 'success') {
+					$dataRegister = ApiFactory::request()->user()->authentication()->register($params);
+					if (isset($dataRegister['status']) && $dataRegister['status'] === 'success'){
+						$iduser = $dataRegister['data']['iduser'];
+						$paramsPrivileges = ['iduser' => $iduser, 'function' => '5', 'action' => 'crud', 'namespace' => 'all', 'userCreator'=>$iduser];
+						$dataPrivileges = ApiFactory::request()->server()->connectBd('user_privileges')->created($paramsPrivileges);
+						$dataRegister['data']['privileges'] = empty($dataPrivileges) ? $paramsPrivileges : ['status'=>'fail','message'=>'Privileges not set'];
+					}
+					return $dataRegister;
+				} else {
+					return ['status'=>'fail','message'=>'Unable to install user module'];
+				}
+			} else {
+				return ['status'=>'fail','message'=>'Database already installed'];
+			}
+		} else {
+			return ['status'=>'fail','message'=>'Mandatory fields (name, email, password and passwordRepeat) are missing'];
+		}
 	}
 
 

@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Plinct\Api\ApiFactory;

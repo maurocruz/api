@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Plinct\Api\ApiFactory;
@@ -120,11 +119,11 @@ class Crud
 
   /**
    * DELETE
-   * @param string | array $where
+   * @param array | string $where
    * @param null $limit
    * @return array
    */
-  public function erase($where, $limit = null): array
+  public function erase(array|string $where, $limit = null): array
   {
 		if (is_array($where)) {
 			$whereArray = null;
