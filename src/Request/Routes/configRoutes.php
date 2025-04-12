@@ -9,15 +9,25 @@ use Plinct\Api\ApiFactory;
 return function(Route $route) {
 
 	$route->get('', function (Request $request, Response $response) {
-		return ApiFactory::response()->write($response, ['config'=>['modules enabled'=> ['Install modules','database','update']]]);
+		return ApiFactory::response()->write($response, ApiFactory::request()->configuration()->index());
 	});
 
+	// INIT
+	$route->get('/init', function (Request $request, Response $response) {
+		$params = $request->getQueryParams();
+		$data = ApiFactory::request()->configuration()->module()->init($params);
+		return ApiFactory::response()->write($response, $data);
+	});
 
 	// INSTALL MODULES
-	$route->post('/install', function (Request $request, Response $response) {
+	$route->post('/installModule', function (Request $request, Response $response) {
 		$params = $request->getParsedBody();
 		$module = $params['module'] ?? null;
-		$data = ApiFactory::request()->configuration()->module()->installModule($module);
+		if ($module) {
+			$data = ApiFactory::request()->configuration()->module()->installModule($module);
+		} else {
+			$data = ['status'=>'fail','message'=>'Module was not created! Name is null!'];
+		}
 		return ApiFactory::response()->write($response, $data);
 	})->addMiddleware(new AuthMiddleware());
 
@@ -27,13 +37,8 @@ return function(Route $route) {
 			$params = $request->getQueryParams();
 			$data = ['message'=>'No action was taken'];
 			$tableName = $params['showTableStatus'] ?? null;
-			$action = $params['action'] ?? null;
 			if ($tableName) {
 				$data = ApiFactory::request()->server()->connectBd($tableName)->showTableStatus();
-			}
-			// ACTION
-			if ($action === 'install') {
-				$data = ApiFactory::request()->configuration()->module()->install($params);
 			}
 			return ApiFactory::response()->write($response, $data);
 		});

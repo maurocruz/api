@@ -31,6 +31,11 @@ class ApiApp
 	 * @var string
 	 */
 	public static string $HOST;
+	/*
+	 *
+	 */
+	public static string $DB_NAME;
+
 	/**
 	 * @var string|null
 	 */
@@ -58,10 +63,27 @@ class ApiApp
    */
   public function connect($driver, $host, $dbname, $username, $password, array $options = []): void
   {
+		self::setDBNAME($dbname);
     PDOConnect::setUsername($username);
     PDOConnect::setPassword($password);
     PDOConnect::connect($driver, $host, $dbname, $username, $password, $options);
   }
+
+	/**
+	 * @param string $DB_NAME
+	 */
+	public static function setDBNAME(string $DB_NAME): void
+	{
+		self::$DB_NAME = $DB_NAME;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getDBNAME(): string
+	{
+		return self::$DB_NAME;
+	}
 
 	/**
 	 * @param string|null $logdir

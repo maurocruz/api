@@ -4,15 +4,13 @@ namespace Plinct\Api\Request\Configuration\Module;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 
-class Module
+class ModuleController
 {
-	const SQL_DIR = __DIR__.'/database/';
-
 	/**
 	 * @param array|null $params
 	 * @return string[]
 	 */
-	public function install(?array $params = null): array
+	public function init(?array $params = null): array
 	{
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;
@@ -22,10 +20,13 @@ class Module
 			// check if user table exists
 			$userTableExists = ApiFactory::request()->server()->connectBd('user')->showTableStatus();
 			if (isset($userTableExists['status']) && $userTableExists['status'] === 'fail') {
-				$install = $this->installModule('user');
+				// RUN SQL
+				$install = self::runSql(__DIR__ . '/database/user.sql', 'User');
 				if (isset($install['status']) && $install['status'] === 'success') {
+					// REGISTER USER
 					$dataRegister = ApiFactory::request()->user()->authentication()->register($params);
-					if (isset($dataRegister['status']) && $dataRegister['status'] === 'success'){
+					if (isset($dataRegister['status']) && $dataRegister['status'] === 'success') {
+						// GRANT PRIVILEGES
 						$iduser = $dataRegister['data']['iduser'];
 						$paramsPrivileges = ['iduser' => $iduser, 'function' => '5', 'action' => 'crud', 'namespace' => 'all', 'userCreator'=>$iduser];
 						$dataPrivileges = ApiFactory::request()->server()->connectBd('user_privileges')->created($paramsPrivileges);
@@ -43,30 +44,51 @@ class Module
 		}
 	}
 
-
 	/**
-	 * @param ?string $name
+	 * @param string $name
 	 * @return string[]
 	 */
-	public function installModule(?string $name): array
+	public function installModule(string $name): array
 	{
-		if (!$name) return ['message'=>'Module was not created! Name is null!'];
-		$tableName = lcfirst($name);
-		$checkTable = ApiFactory::request()->server()->connectBd($tableName)->showTableStatus();
-		if ($checkTable['status'] === 'fail') {
-			$sqlFile = self::SQL_DIR.lcfirst($name).".sql";
-			if (file_exists($sqlFile)) {
-				$data = PDOConnect::run(file_get_contents($sqlFile));
-				if(empty($data)) {
-					return ['status'=>'success','message'=>'Module has been created'];
-				} else {
-					return ['status'=>'fail','message'=>'fail','data'=>$data];
-				}
-			} else {
-				return ['status'=>'fail','message'=>'Module was not created! SQL file does not exists'];
-			}
+		$modules = new Modules();
+		if (method_exists($modules, lcfirst($name))) {
+			return $modules->$name();
 		} else {
-			return $checkTable;
+			return ['status'=>'fail','message'=>'Module not exists!'];
+		}
+	}
+
+	/**
+	 * @param string $moduleName
+	 * @param array $dependencies
+	 * @return string[]
+	 */
+	public static function installer(string $moduleName, array $dependencies = [] ): array
+	{
+		$modules = new Modules();
+		foreach ($dependencies as $dependency) {
+			if (method_exists($modules, lcfirst($dependency))) {
+				$install = $modules->$dependency();
+				if(isset($install['status']) && $install['status'] == 'fail') {
+					return $install;
+				}
+			}
+		}
+		return self::runSql(__DIR__."/database/".lcfirst($moduleName).".sql", ucfirst($moduleName));
+	}
+
+	/**
+	 * @param string $filename
+	 * @param string $moduleName
+	 * @return array|string[]
+	 */
+	private static function runSql(string $filename, string $moduleName): array
+	{
+		$data = PDOConnect::run(file_get_contents($filename));
+		if (empty($data)) {
+			return ['status'=>'success','message'=>"Module $moduleName was created!"];
+		} else {
+			return ['status' => 'fail', 'message' => "Module $moduleName was not created!", 'data' => $data];
 		}
 	}
 }

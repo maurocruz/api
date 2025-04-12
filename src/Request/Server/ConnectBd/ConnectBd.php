@@ -6,14 +6,14 @@ use Plinct\Api\ApiFactory;
 class ConnectBd
 {
 	/**
-	 * @var string
+	 * @var ?string
 	 */
-	private string $table;
+	private ?string $table;
 
 	/**
-	 * @param string $table
+	 * @param ?string $table
 	 */
-	public function __construct(string $table)
+	public function __construct(?string $table = null)
 	{
 		$this->table = $table;
 	}
@@ -83,6 +83,13 @@ class ConnectBd
 		return PDOConnect::lastInsertId();
 	}
 
+	/**
+	 * @return array
+	 */
+	public function showTables(): array
+	{
+		return PDOConnect::run("show tables;");
+	}
 	/**
 	 * @return array
 	 */
