@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\User;
 
 abstract class UserAbstract
@@ -28,9 +25,9 @@ abstract class UserAbstract
 	private static ?array $privileges = null;
 
 	/**
-	 * @param ?int $iduser
+	 * @param int $iduser
 	 */
-	protected static function setIduser(int $iduser)
+	protected static function setIduser(int $iduser): void
 	{
 		self::$iduser = $iduser;
 	}
@@ -118,11 +115,11 @@ abstract class UserAbstract
 		 if ($privilegess) {
 			foreach ($privilegess as $value) {
 				if ($value['function'] == 5
-					&& strpos($value['actions'], 'c') !== false
-					&& strpos($value['actions'], 'r') !== false
-					&& strpos($value['actions'], 'u') !== false
-					&& strpos($value['actions'], 'd') !== false
-					&& (isset($value['namespace']) && strpos($value['namespace'], 'all') !== false)
+					&& str_contains($value['action'], 'c')
+					&& str_contains($value['action'], 'r')
+					&& str_contains($value['action'], 'u')
+					&& str_contains($value['action'], 'd')
+					&& (isset($value['namespace']) && str_contains($value['namespace'], 'all'))
 				) return true;
 			}
 		}

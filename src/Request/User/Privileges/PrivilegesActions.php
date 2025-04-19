@@ -33,7 +33,7 @@ class PrivilegesActions implements HttpRequestInterface
 		// SE NÃO COMPARA
 		foreach (UserLogged::getPrivileges() as $valueLoggedPrivileges) {
 			if (
-				ApiFactory::user()->privileges()->permittedActions($params['actions'], $valueLoggedPrivileges['actions'])
+				ApiFactory::user()->privileges()->permittedActions($params['action'], $valueLoggedPrivileges['action'])
 				&& $params['function'] < $valueLoggedPrivileges['function']
 				&& ($valueLoggedPrivileges['namespace'] === 'all' || $params['namespace'] === $valueLoggedPrivileges['namespace'])
 			) {

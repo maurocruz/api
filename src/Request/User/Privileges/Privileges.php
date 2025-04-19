@@ -6,7 +6,7 @@ use Plinct\Api\Request\Actions\Permissions;
 use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\UserLogged;
 
-class Privileges extends PrivilegesAbstract
+class Privileges
 {
 	/**
 	 * @return HttpRequest
@@ -32,7 +32,7 @@ class Privileges extends PrivilegesAbstract
 			foreach ($permissions as $value) {
 				if (
 					$value['function'] >= $function
-					&& str_contains($value['actions'], $action)
+					&& str_contains($value['action'], $action)
 					&& ($value['namespace'] === 'all' || $value['namespace'] == $namespace)
 				)
 					Permissions::setRequiresSubscription(true);
@@ -130,10 +130,10 @@ class Privileges extends PrivilegesAbstract
 	public function permittedActions(string $needled, string $haystacked): bool
 	{
 		$returns = false;
-		if (strpos($needled,'c') !== false) $returns = strpos($haystacked,'c') !== false;
-		if (strpos($needled,'r') !== false) $returns = strpos($haystacked,'r') !== false;
-		if (strpos($needled,'u') !== false) $returns = strpos($haystacked,'u') !== false;
-		if (strpos($needled,'d') !== false) $returns = strpos($haystacked,'d') !== false;
+		if (str_contains($needled, 'c')) $returns = str_contains($haystacked, 'c');
+		if (str_contains($needled, 'r')) $returns = str_contains($haystacked, 'r');
+		if (str_contains($needled, 'u')) $returns = str_contains($haystacked, 'u');
+		if (str_contains($needled, 'd')) $returns = str_contains($haystacked, 'd');
 		return $returns;
 	}
 }

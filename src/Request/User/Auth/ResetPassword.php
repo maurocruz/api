@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\User\Auth;
 
 use DateInterval;
@@ -81,7 +80,7 @@ class ResetPassword
         $password = $params['password'] ?? null;
         $repeatPassword = $params['repeatPassword'] ?? null;
 
-        // PASSWORD DOES NOT EQUAL A THE REPEAT
+        // PASSWORD DOES NOT EQUAL THE REPEAT
         if ($password !== $repeatPassword)
 					return ApiFactory::response()->message()->fail()->passwordRepeatIsIncorrect();
 
@@ -175,7 +174,7 @@ class ResetPassword
 						$message = sprintf(_("An email has been sent to %s from %s to confirm your identity and change your password."), $parseBody['email'], $parseBody['mailUsername']);
             return ApiFactory::response()->message()->success($message);
 
-        } catch (Exception $e) {
+        } catch (Exception) {
             return ApiFactory::response()->message()->error()->anErrorHasOcurred($phpMail->ErrorInfo);
         }
 

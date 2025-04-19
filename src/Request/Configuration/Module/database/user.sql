@@ -42,11 +42,11 @@ CREATE TABLE IF NOT EXISTS `user_privileges` (
   `iduser_privileges` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `iduser` INT UNSIGNED NOT NULL,
   `function` INT UNSIGNED NOT NULL DEFAULT '1',
-  `actions` CHAR(4) NOT NULL DEFAULT 'r',
+  `action` CHAR(4) NOT NULL DEFAULT 'r',
   `namespace` VARCHAR(45) NOT NULL DEFAULT '',
   `userCreator` INT NULL DEFAULT NULL,
   PRIMARY KEY (`iduser_privileges`,`iduser`),
-  UNIQUE INDEX `unique` (`function`,`iduser`,`namespace`,`actions`),
+  UNIQUE INDEX `unique` (`function`,`iduser`,`namespace`,`action`),
   INDEX `fk_user_privileges_user_idx` (`iduser`),
   CONSTRAINT `fk_user_privileges_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB;

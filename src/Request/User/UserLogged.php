@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\User;
 
 use Firebase\JWT\ExpiredException;
@@ -14,12 +13,12 @@ class UserLogged extends UserAbstract
 	 * @param $token
 	 * @return void
 	 */
-	public static function created($token)
+	public static function created($token): void
 	{
 		if (is_string($token)) {
 			try {
 				$payload = JWT::decode($token, new Key(ApiApp::$JWT_SECRET_API_KEY,'HS256'));
-			} catch (ExpiredException $e) {
+			} catch (ExpiredException) {
 				$explodeToken = explode(".", $token);
 				$payload = json_decode(base64_decode($explodeToken[1]));
 			}
@@ -81,7 +80,7 @@ class UserLogged extends UserAbstract
 	 */
 	public function isPermitted(?int $function = null, string $actions = null, string $namespace = null): bool {
 			foreach (self::getPrivileges() as $value) {
-				$returns =  $function >= $value['function'] && strpos($value['actions'], $actions) !== false && $namespace == $value['namespace'];
+				$returns =  $function >= $value['function'] && str_contains($value['action'], $actions) && $namespace == $value['namespace'];
 				if ($returns === true) return true;
 			}
 			return false;

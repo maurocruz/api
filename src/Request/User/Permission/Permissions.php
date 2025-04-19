@@ -1,11 +1,8 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\User\Permission;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\HttpRequest;
-use Plinct\Api\Request\User\UserLogged;
 
 class Permissions
 {
@@ -20,7 +17,7 @@ class Permissions
 	/**
 	 * Verifica se o usuário logado, o que lê e requisita,
 	 * tem função igual ou maior que o author dos dados.
-	 * UserLogged.function >= userCreator.function
+	 * UserLogged.function ≥ userCreator.function
 	 *
 	 * @param $data
 	 * @return array
@@ -31,7 +28,8 @@ class Permissions
 		$boolean = false;
 
 		foreach ($data as $value) {
-			if (UserLogged::getIduser() !== $value['userCreator']) {
+			$iduser = ApiFactory::user()->userLogged()->getIduser();
+			if ($iduser !== $value['userCreator']) {
 				$boolean = true;
 			}
 			if ($boolean) $newData[] = $value;
