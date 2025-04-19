@@ -14,14 +14,14 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE = InnoDB;
 
 -- PASSWORD RESET
-CREATE TABLE IF NOT EXISTS `passwordReset` (
+CREATE TABLE IF NOT EXISTS `user_passwordReset` (
   `iduser` INT UNSIGNED NOT NULL,
   `selector` VARCHAR(16) NULL DEFAULT NULL,
   `token` VARCHAR(64) NULL DEFAULT NULL,
   `expires` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`iduser`),
-  INDEX `fk_passwordReset_user_idx` (`iduser`),
-  CONSTRAINT `fk_passwordReset_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE NO ACTION
+  INDEX `fk_user_passwordReset_user_idx` (`iduser`),
+  CONSTRAINT `fk_user_passwordReset_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE = InnoDB;
 
 -- HISTORY

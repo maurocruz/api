@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
@@ -53,14 +52,12 @@ class WebSite extends Entity
 	{
 		$name = $params['name'] ?? null;
 		$url = $params['url'] ?? null;
-		$description = $params['description'] ?? null;
-		$author = $params['author'] ?? null;
 		unset($params['type']);
-		if ($name && $description && $author && $url) {
+		if ($name &&  $url) {
 			// SAVE CREATIVEWORK
 			return parent::createWithParent('creativeWork', $params);
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, description, author and url']);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name and url']);
 		}
 	}
 

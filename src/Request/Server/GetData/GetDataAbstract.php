@@ -142,11 +142,12 @@ abstract class GetDataAbstract
 		// PROPERTIES WITH PARAMS
 	  foreach ($this->params as $propertyNeedle => $propertyValue) {
 		  foreach ($this->properties as $table => $value) {
-				if(in_array($propertyNeedle, $value)) {
+				if($value && in_array($propertyNeedle, $value)) {
 					$propertyValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
-					if (str_contains($propertyValue,'|')) {
+					if ($propertyValue && str_contains($propertyValue,'|')) {
+						$orArray = [];
 						foreach (explode('|', $propertyValue) as $orValue) {
-							$orArray[] = "`{$table}`.`$propertyNeedle`='$orValue'";
+							$orArray[] = "`$table`.`$propertyNeedle`='$orValue'";
 						}
 						$this->where[] = "(" . implode(" OR ", $orArray) . ")";
 					} else {

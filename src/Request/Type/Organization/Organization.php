@@ -25,6 +25,7 @@ class Organization extends Entity
 		} elseif (!empty($data)) {
 		  foreach ($data as $key => $value) {
 			  $idthing = $value['thing'];
+			  $location = $value['location'] ?? null;
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
 					// CONTACT POINT
@@ -33,8 +34,7 @@ class Organization extends Entity
 						$data[$key]['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
 				  }
 					// LOCATION
-				  if (in_array('location', $properties)) {
-						$location = $value['location'];
+				  if ($location && in_array('location', $properties)) {
 					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
 						$data[$key]['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
 				  }

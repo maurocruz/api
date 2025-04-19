@@ -17,7 +17,7 @@ class ModuleController
 		$password = $params['password'] ?? null;
 		$passwordRepeat = $params['passwordRepeat'] ?? null;
 		if ($name && $email && $password && $passwordRepeat) {
-			// check if user table exists
+			// check if table 'user' exists
 			$userTableExists = ApiFactory::request()->server()->connectBd('user')->showTableStatus();
 			if (isset($userTableExists['status']) && $userTableExists['status'] === 'fail') {
 				// RUN SQL
@@ -30,7 +30,7 @@ class ModuleController
 						$iduser = $dataRegister['data']['iduser'];
 						$paramsPrivileges = ['iduser' => $iduser, 'function' => '5', 'action' => 'crud', 'namespace' => 'all', 'userCreator'=>$iduser];
 						$dataPrivileges = ApiFactory::request()->server()->connectBd('user_privileges')->created($paramsPrivileges);
-						$dataRegister['data']['privileges'] = empty($dataPrivileges) ? $paramsPrivileges : ['status'=>'fail','message'=>'Privileges not set'];
+						$dataRegister['data']['privileges'] = empty($dataPrivileges) ? $paramsPrivileges : ['status'=>'fail','message'=>'Privileges not set','data'=>$dataPrivileges];
 					}
 					return $dataRegister;
 				} else {

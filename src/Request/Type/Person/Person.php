@@ -32,7 +32,7 @@ class Person extends Entity
 				}
 				// CONTACT POINT
 				if (in_array('contactPoint', $properties)) {
-					$data[$key]['contactPoint'] = parent::getProperties('contactPoint', ['thing' => $idthing]);
+					$data[$key]['contactPoint'] = parent::getProperties('contactPoint', ['typeHasPart'=>'Person','idHasPart' => $idthing]);
 				}
 				// HAS CERTIFICATION
 				if (in_array('hasCertification', $properties)) {
@@ -40,7 +40,7 @@ class Person extends Entity
 				}
 				// HOME LOCATION
 				if (in_array('homeLocation', $properties)) {
-					$data[$key]['homeLocation'] = parent::getProperties('place', ['idplace' => $value['homeLocation'], 'properties' => 'address']);
+					$data[$key]['homeLocation'] = parent::getProperties('place', ['idplace' => $item['homeLocation'], 'properties' => 'address']);
 				}
 				// IMAGE
 				if (in_array(['image','imageObject'], $properties)) {
@@ -52,7 +52,7 @@ class Person extends Entity
 				}
 				// MAIN ENTITY OF PAGE
 				if (in_array('mainEntityOfPage', $properties)) {
-					$data[$key]['mainEntityOfPage'] = parent::getProperties('webPage', ['url' =>$value['mainEntityOfPage'] ?? $value['url'], 'properties' => 'image,hasPart']);
+					$data[$key]['mainEntityOfPage'] = parent::getProperties('webPage', ['url' =>$value['mainEntityOfPage'] ?? $item['url'], 'properties' => 'image,hasPart']);
 				}
 			}
 		}
