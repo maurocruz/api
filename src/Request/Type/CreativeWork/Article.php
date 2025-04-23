@@ -29,10 +29,19 @@ class Article extends Entity
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
+				$author = $item['author'];
+				// IMAGE OBJECT
 				if (in_array('image', $properties)) {
 					$dataImage = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
 					if (isset($dataImage[0])) {
-						$data[$key] = ApiFactory::response()->type('imageObject')->setData($dataImage)->ready();
+						$data[$key]['image'] = ApiFactory::response()->type('imageObject')->setData($dataImage)->ready();
+					}
+				}
+				// AUTHOR
+				if (in_array('author', $properties)) {
+					$dataAuthor = parent::getProperties('person', ['idthing'=>$author]);
+					if (isset($dataAuthor[0])) {
+						$data[$key]['author'] = ApiFactory::response()->type('person')->setData($dataAuthor[0])->ready();
 					}
 				}
 			}
