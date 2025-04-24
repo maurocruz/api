@@ -28,6 +28,9 @@ class WebPage extends Entity
 		$getData->setParams($params);
 		$getData->setLeftJoin('creativeWork',"`webPage`.creativeWork = `creativeWork`.idcreativeWork");
 		$data = $getData->render();
+		if (isset($data['error'])) {
+			return $data;
+		}
 		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['idthing'];

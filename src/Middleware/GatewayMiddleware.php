@@ -19,7 +19,7 @@ class GatewayMiddleware implements MiddlewareInterface {
 			$response = $handler->handle($request);
 			if (PDOConnect::testConnection() === false) {
 				$response = new Response();
-				ApiFactory::response()->write($response, ['status'=>'fail', 'message'=>'Database not found!']);
+				ApiFactory::response()->write($response, PDOConnect::getError());
 			}
       return $response;
     }

@@ -15,7 +15,7 @@ class ApiFactory
 	 */
 	public static function create(App $slimApp): ApiApp
 	{
-		// for enable routes PUT and DELETE
+		// for enabling routes PUT and DELETE
 		$slimApp->addBodyParsingMiddleware();
 		// error handling
 		$slimApp->addErrorMiddleware(true,true,true);

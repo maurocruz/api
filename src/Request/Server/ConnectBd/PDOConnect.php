@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Server\ConnectBd;
 
 use Exception;
@@ -37,16 +36,16 @@ class PDOConnect
    */
   private static string $PASSWORD;
 
-  /**
-   * @param $driver
-   * @param $host
-   * @param $dbname
-   * @param $username
-   * @param $password
-   * @param array $options
-   * @return Exception|PDO|PDOException
-   */
-  public static function connect($driver, $host, $dbname, $username, $password, array $options = [])
+	/**
+	 * @param $driver
+	 * @param $host
+	 * @param $dbname
+	 * @param $username
+	 * @param $password
+	 * @param array $options
+	 * @return PDOException|PDO|Exception|null
+	 */
+  public static function connect($driver, $host, $dbname, $username, $password, array $options = []): PDOException|PDO|Exception|null
   {
     self::$DRIVER = $driver;
     self::$HOST = $host;
@@ -81,14 +80,14 @@ class PDOConnect
   /**
    *
    */
-  public static function disconnect()
+  public static function disconnect(): void
   {
       self::$PDOConnect = null;
   }
 
   public static function testConnection(): bool
   {
-    return (bool)self::$PDOConnect;
+    return (bool) self::$PDOConnect;
   }
 
   /**

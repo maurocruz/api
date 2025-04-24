@@ -96,6 +96,9 @@ class ConnectBd
 	public function showTableStatus(): array {
 		$query = "SHOW TABLE STATUS FROM ".PDOConnect::getDbname()." WHERE name='$this->table';";
 		$data = PDOConnect::run($query);
+		if (isset($data['error'])) {
+			return $data;
+		}
 		return empty($data) ? ['status'=>'fail','message'=>'table not exists' ] : ['status'=>'success', 'message' => 'table exist', 'data'=> $data];
 	}
 
