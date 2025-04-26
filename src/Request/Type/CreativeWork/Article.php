@@ -39,7 +39,7 @@ class Article extends Entity
 				}
 				// AUTHOR
 				if (in_array('author', $properties)) {
-					$dataAuthor = parent::getProperties('person', ['idthing'=>$author]);
+					$dataAuthor = parent::getProperties('person', ['idperson'=>$author]);
 					if (isset($dataAuthor[0])) {
 						$data[$key]['author'] = ApiFactory::response()->type('person')->setData($dataAuthor[0])->ready();
 					}
