@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class VideoObject extends Entity
 {
@@ -13,14 +13,11 @@ class VideoObject extends Entity
 
 	public function get(array $params = []): array
 	{
-		$data = parent::getData($params);
-		if (!empty($data)) {
-			foreach ($data as $key => $item) {
-				$idmediaObject = $item['mediaObject'];
-				$dataMediaObject = (new MediaObject())->getMediaObjectData(['idmediaObject'=>$idmediaObject] + $params);
-				$data[$key] = $item + $dataMediaObject[0];
-			}
-		}
+		$getData = new GetData('videoObject');
+		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=videoObject.creativeWork');
+		$getData->setLeftJoin('mediaObject','mediaObject.idmediaObject=videoObject.mediaObject');
+		$getData->setParams($params);
+		$data = $getData->render();
 		return parent::sortData($data);
 	}
 }

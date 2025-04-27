@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 
 class CreativeWork extends Entity implements HttpRequestInterface
@@ -22,32 +22,36 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = $this->getCreativeWorkData($params);
-		return parent::sortData($returns);
-	}
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('creativeWork');
+		$getData->setParams($params);
+		$data = $getData->render();
 
-	public function getCreativeWorkData(array $params = []): array
-	{
-		$properties = $params['properties'] ?? null;
-		$dataCreativeWork = parent::getData($params);
-		if (isset($dataCreativeWork['error'])) {
-			return  ApiFactory::response()->message()->error()->anErrorHasOcurred($dataCreativeWork);
-		}
-		if (!empty($dataCreativeWork)) {
-			foreach ($dataCreativeWork as $key => $creativeWork) {
-				$idthing = $creativeWork['thing'];
-				$author = $creativeWork['author'];
-				// get thing
-				$dataThing = ApiFactory::request()->type('thing')->get(['idthing' => $idthing])->ready();
-				$valueThing = $dataThing[0] ?? [];
-				// if properties
-				if ($properties) {
-					if (strpos($properties, 'author') !== false) $creativeWork['author'] = parent::getProperties('person', ['idperson' => $author, 'properties' => 'image']);
+		if (!empty($data)) {
+			foreach ($data as $key => $value) {
+				$idcreativeWork = $value['idcreativeWork'];
+				$type = $value['type'];
+				if ($type !== 'creativeWork' && $type !== 'thing') {
+					$getDataCreativeWork = new GetData(lcfirst($type));
+					$getDataCreativeWork->setParams(['creativeWork'=>$idcreativeWork]);
+					$dataCreativeWork = $getDataCreativeWork->render();
+					if (isset($dataCreativeWork[0])) {
+						$data[$key] = $dataCreativeWork[0] + $value;
+					}
 				}
-				$dataCreativeWork[$key] = $creativeWork + $valueThing;
+				if ($properties) {
+					// AUTHOR
+					if (in_array('author', $properties)) {
+						$author = $value['author'];
+						$dataAuthor = $author ? parent::getProperties('person', ['idperson'=>$author]) : null;
+						if (isset($dataAuthor[0])) {
+							$data[$key]['author'] = ApiFactory::response()->type('person')->setData($dataAuthor)->ready();
+						}
+					}
+				}
 			}
 		}
-		return $dataCreativeWork;
+		return parent::sortData($data);
 	}
 
 	/**

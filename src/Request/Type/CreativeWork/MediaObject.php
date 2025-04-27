@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 
 class MediaObject extends Entity implements HttpRequestInterface
@@ -22,24 +22,29 @@ class MediaObject extends Entity implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = $this->getMediaObjectData($params);
-		return parent::sortData($returns);
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('mediaObject');
+		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=mediaObject.creativeWork');
+		$getData->setParams($params);
+		$data = $getData->render();
+
+		if (!empty($data)) {
+			foreach ($data as $key => $value) {
+				$idmediaObject = $value['idmediaObject'];
+				$type = $value['type'];
+				if ($type !== 'mediaObject' && $type !== 'thing') {
+					$getDataMediaObject = new GetData(lcfirst($type));
+					$getDataMediaObject->setParams(['mediaObject'=>$idmediaObject]);
+					$dataMediaObject = $getDataMediaObject->render();
+					if (isset($dataMediaObject[0])) {
+						$data[$key] = $dataMediaObject[0] + $value;
+					}
+				}
+			}
+		}
+		return parent::sortData($data);
 	}
 
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-	public function getMediaObjectData(array $params = []): array
-	{
-		$data = parent::getData($params);
-		foreach ($data as $key => $item) {
-			$idcreativeWork = $item['creativeWork'];
-			$dataCreativeWork = (new CreativeWork())->getCreativeWorkData(['idcreativeWork'=>$idcreativeWork] + $params);
-			$data[$key] = $item + ($dataCreativeWork[0] ?? null);
-		}
-		return $data;
-	}
 	/**
 	 * @param array|null $params
 	 * @return array
