@@ -24,6 +24,7 @@ class ImageObject extends ImageObjectAbstract
    */
   public function get(array $params = []): array
   {
+		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$idHasPart = $params['idHasPart'] ?? null;
 		$fields = $params['fields'] ?? null;
 	  $isPartOf = $params['isPartOf'] ?? null;
@@ -53,11 +54,11 @@ class ImageObject extends ImageObjectAbstract
 			$getData = new GetData('imageObject', false);
 			$getData->setFields("count(idimageObject) as count");
 			$data = $getData->render();
-		}
-		else {
+		} else {
 			$getData = new GetData('imageObject');
 			$getData->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
 			$getData->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
+			if ($idimageObject) $getData->setWhere("idimageObject=$idimageObject");
 			$getData->setParams($params);
 			$data = $getData->render();
 		}
@@ -71,6 +72,24 @@ class ImageObject extends ImageObjectAbstract
 				$dataHasPart = ApiFactory::request()->type($typeHasPart)->get(['thing'=>$idHasPart])->ready();
 				if(isset($dataHasPart[0])) {
 					$data[$key] = $value + $dataHasPart[0];
+				}
+			}
+			if ($properties) {
+				// ABOUT
+				if (in_array('mentions', $properties)) {
+					$dataGetHasPart = new GetData('thing_has_imageObject');
+					$dataGetHasPart->setLeftJoin('thing','`thing`.idthing=`thing_has_imageObject`.idthing');
+					$dataGetHasPart->setParams($params);
+					$dataHasPart = $dataGetHasPart->render();
+					if (isset($dataHasPart[0])) {
+						foreach ($dataHasPart as $keyHasPart => $valueHasPart) {
+							$typeHasPart = lcfirst($valueHasPart['type']);
+							$dataHasPart = ApiFactory::request()->type($typeHasPart)->get(['thing'=>$valueHasPart['idthing']])->ready();
+							if(isset($dataHasPart[0])) {
+								$data[$key]['mentions'][] = ApiFactory::response()->type($typeHasPart)->setData($dataHasPart[0])->ready();;
+							}
+						}
+					}
 				}
 			}
 		}
