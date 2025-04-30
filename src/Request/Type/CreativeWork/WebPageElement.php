@@ -23,6 +23,7 @@ class WebPageElement extends Entity
   public function get(array $params = []): array
   {
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$isPartOf = $params['isPartOf'] ?? null;
 		$getData = new GetData('webPageElement');
 		$getData->setParams($params);
 		$getData->setLeftJoin("creativeWork","`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
@@ -63,9 +64,8 @@ class WebPageElement extends Entity
 	public function post(array $params = null): array
 	{
 		$isPartOf = $params['isPartOf'] ?? null;
-		$text = $params['text'] ?? null;
 		$name = $params['name'] ?? null;
-		if ($isPartOf && $text && $name) {
+		if ($isPartOf && $name) {
 			// get absolute url
 			$getCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
 			if(!empty($getCreativeWork)) {
