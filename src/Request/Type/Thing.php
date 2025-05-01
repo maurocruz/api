@@ -13,7 +13,6 @@ class Thing extends Entity implements HttpRequestInterface
 	public function __construct()
 	{
 		$this->setTable('thing');
-		$this->setProperties(['contactPoint']);
 	}
 
 	/**

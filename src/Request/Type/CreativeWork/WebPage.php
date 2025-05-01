@@ -42,7 +42,7 @@ class WebPage extends Entity
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf'=>$idcreativeWork,'properties'=>'image,propertyValue','orderBy'=>'position'])->ready();
+					$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf'=>$idcreativeWork,'properties'=>'propertyValue','orderBy'=>'position'])->ready();
 					if (isset($dataWebPageElement[0])) {
 						$data[$key]['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPageElement)->ready();
 					}
@@ -56,7 +56,7 @@ class WebPage extends Entity
 				}
 				// PROPERTY
 				if (in_array('propertyValue', $properties)) {
-					$sql = "SELECT name, value FROM thing_has_thing JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue WHERE typeHasPart='WebPage' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
+					$sql = "SELECT name, value, idpropertyValue FROM thing_has_thing JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue WHERE typeHasPart='WebPage' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
 					$dataPropertyValue = PDOConnect::run($sql);
 					if (isset($dataPropertyValue[0])) {
 						$data[$key]['identifier'] = ApiFactory::response()->type('propertyValue')->setData($dataPropertyValue)->ready();

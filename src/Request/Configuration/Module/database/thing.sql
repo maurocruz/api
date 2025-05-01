@@ -27,15 +27,15 @@ CREATE TABLE IF NOT EXISTS `thing_has_thing` (
   `caption` VARCHAR(255) NULL DEFAULT NULL,
   `position` INT UNSIGNED NULL DEFAULT '1',
   PRIMARY KEY (`idHasPart`, `idIsPartOf`, `typeHasPart`, `typeIsPartOf`),
-  INDEX `fk_thing_has_thing_idHasPart_idx` (`idHasPart` ASC) VISIBLE,
-  INDEX `fk_thing_has_thing_idIsPartOf_idx` (`idIsPartOf` ASC) VISIBLE,
+  INDEX `fk_thing_has_thing_idHasPart_idx` (`idHasPart`),
+  INDEX `fk_thing_has_thing_idIsPartOf_idx` (`idIsPartOf`),
   CONSTRAINT `fk_thing_has_thing_idHasPart` FOREIGN KEY (`idHasPart`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
   CONSTRAINT `fk_thing_has_thing_idIsPartOf` FOREIGN KEY (`idIsPartOf`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
 -- PROPERTY VALUE
 CREATE TABLE IF NOT EXISTS `propertyValue` (
-  `idpropertyValue` INT NOT NULL AUTO_INCREMENT,
+  `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `value` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`idpropertyValue`)
