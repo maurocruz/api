@@ -44,12 +44,12 @@ class WebPageElement extends Entity
 				}
 				// PROPERTY VALUE
 				if (in_array('propertyValue', $properties)) {
-						$query = "SELECT name, value FROM thing_has_thing
+						$query = "SELECT name, value, idpropertyValue FROM thing_has_thing
                   JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
                   WHERE typeHasPart='WebPageElement' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
 						$dataPropertyValue = PDOConnect::run($query);
-						foreach ($dataPropertyValue as $propertyValue) {
-							$data[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => $propertyValue['name'], 'value' => $propertyValue['value']];
+						if (isset($dataPropertyValue[0])) {
+							$data[$key]['identifier'] = ApiFactory::response()->type('propertyValue')->setData($dataPropertyValue)->ready();
 						}
 					}
 			}
