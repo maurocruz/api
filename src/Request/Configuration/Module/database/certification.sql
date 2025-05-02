@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS `certification`(
   KEY `certification_organization_idx` (`issuedBy`),
   KEY `certification_about_idx` (`about`),
   CONSTRAINT `fk_certification_creativeWork_idx` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE,
-  CONSTRAINT `fk_certification_organization_idx` FOREIGN KEY (`issuedBy`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE
+  CONSTRAINT `fk_certification_organization_idx` FOREIGN KEY (`issuedBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
