@@ -18,9 +18,9 @@ class Relationship
 	 */
 	private string $typeIsPartOf;
 	/**
-	 * @var string
+	 * @var ?string
 	 */
-	private string $idIsPartOf;
+	private ?string $idIsPartOf;
 
 	/**
 	 * @param string $typeHasPart
@@ -38,7 +38,6 @@ class Relationship
 
 	public function get()
 	{
-
 	}
 
 	public function post()
