@@ -1,14 +1,15 @@
 <?php
 namespace Plinct\Api\Request\User;
 
-use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Actions\Actions;
+use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequest;
 use Plinct\Api\Request\User\Auth\Authentication;
 use Plinct\Api\Request\User\Permission\Permissions;
 use Plinct\Api\Request\User\Privileges\Privileges;
 
-class User
+class User extends Entity
 {
 	/**
 	 * @param array|null $params
@@ -16,30 +17,30 @@ class User
 	 */
 	public function get(array $params = null): array
 	{
-		$dataBd = ApiFactory::request()->server()->getDataInBd('user');
-		$dataBd->setParams($params);
-		$data = $dataBd->render();
-		$newData = [];
-		foreach ($data as $item) {
-			$privileges = ApiFactory::request()->server()->getDataInBd('user_privileges')->setParams(['iduser'=>$item['iduser']])->render();
-			if (UserLogged::isSuperUser()) {
-				$item['privileges'] = $privileges;
-				$newData[] = $item;
-			} elseif (empty($privileges) || $item['iduser'] === UserLogged::iduser()) {
-				$item['privileges'] = $privileges;
-				$newData[] = $item;
-			} else {
-				foreach ($privileges as $privilegeItem) {
-					foreach (UserLogged::getPrivileges() as $privilegeUserLogged) {
-						if ($privilegeUserLogged['function'] >= $privilegeItem['function']) {
-							$item['privileges'] = $privilegeItem;
-							$newData[] = $item;
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$params['fields'] = $params['fields'] ?? 'iduser,name,email,dateCreated,dateModified';
+		$dataGet = New GetData('user');
+		$dataGet->setParams($params);
+		$data = $dataGet->render();
+		if (!empty($data) && $properties) {
+			foreach ($data as $key => $value) {
+				$iduser = $value['iduser'];
+				// PRIVILEGES
+				if (in_array(('privileges'), $properties)) {
+					$dataPrivileges = (new GetData('user_privileges'))->setParams(['iduser'=>$iduser])->render();
+					if (isset($dataPrivileges[0])) {
+						if (in_array(('userCreator'), $properties)) {
+							foreach ($dataPrivileges as $keyPrivileges => $valuePrivileges) {
+								$dataUserCreator = (new GetData('user'))->setParams(['iduser'=>$valuePrivileges['userCreator'],'fields'=>'iduser,name'])->render();
+								$dataPrivileges[$keyPrivileges]['userCreator'] = $dataUserCreator[0];
+							}
 						}
+						$data[$key]['privileges'] = $dataPrivileges;
 					}
 				}
 			}
 		}
-		return $newData;
+		return $data;
 	}
 
 	/**
