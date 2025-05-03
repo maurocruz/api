@@ -2,6 +2,7 @@
 namespace Plinct\Api\Request\User;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
 use Plinct\Api\Request\User\Privileges\PrivilegesActions;
 
@@ -18,7 +19,7 @@ class UserActions implements HttpRequestInterface
 	 */
 	public function get(array $params = []): array
 	{
-		$dataUser = ApiFactory::request()->server()->getDataInBd(self::tableName);
+		$dataUser = new GetData(self::tableName);
 		$dataUser->setParams($params);
 		$data = $dataUser->render();
 		// GET PERMISSIONS
