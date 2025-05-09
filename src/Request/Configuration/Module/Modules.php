@@ -80,7 +80,7 @@ class Modules
 	 */
 	public function organization(): array
 	{
-		return ModuleController::installer('Organization', ['Thing','Place']);
+		return ModuleController::installer('Organization', ['Thing','Place','Person','Role']);
 	}
 
 	/**
@@ -123,6 +123,9 @@ class Modules
 		return ModuleController::installer('Service', ['Thing','ImageObject']);
 	}
 
+	/**
+	 * @return array
+	 */
 	public function taxon(): array
 	{
 		return ModuleController::installer('Taxon', ['Thing','ImageObject']);
@@ -143,6 +146,7 @@ class Modules
 	{
 		return ModuleController::installer('VideoObject',['ImageObject']);
 	}
+
 	/**
 	 * @return array
 	 */
