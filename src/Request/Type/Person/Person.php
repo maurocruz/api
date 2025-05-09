@@ -21,8 +21,16 @@ class Person extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		$data = (new GetData('person'))->setParams($params)->render();
-		if ($properties) {
+		$memberOf = $params['memberOf'] ?? null;
+		$getData = new GetData('person');
+		$getData->setParams($params);
+		// MEMBER OF
+		if ($memberOf) {
+			$getData->setLeftJoin('role','role.person=person.idperson');
+			$getData->setWhere("`role`.`organization`='$memberOf'");
+		}
+		$data = $getData->render();
+		if (!empty($data) && $properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['idthing'];
 				$idperson = $item['idperson'];
@@ -48,7 +56,11 @@ class Person extends Entity
 				}
 				// MEMBER OF
 				if (in_array('memberOf', $properties)) {
-					$data[$key]['memberOf'] = parent::getProperties('programMembership', ['member' => $idperson]);
+					if ($memberOf) {
+						$data[$key]['memberOf'] = parent::getProperties('role', ['organization' => $memberOf, 'person' => $idperson]);
+					} else {
+						$data[$key]['memberOf'] = parent::getProperties('role', ['person' => $idperson]);
+					}
 				}
 				// MAIN ENTITY OF PAGE
 				if (in_array('mainEntityOfPage', $properties)) {

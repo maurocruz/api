@@ -104,7 +104,7 @@ class ContactPoint extends Entity
 		if ($idcontactPoint !== null) {
 			return parent::erase('thing', ['idcontactPoint'=>$idcontactPoint]);
 		} else {
-			return ApiFactory::response()->message()->fail()->generic('Contact Point not found');
+			return ApiFactory::response()->message()->fail()->generic(['Contact Point not found']);
 		}
 	}
 }

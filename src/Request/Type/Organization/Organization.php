@@ -25,6 +25,7 @@ class Organization extends Entity
 		} elseif (!empty($data)) {
 		  foreach ($data as $key => $value) {
 			  $idthing = $value['thing'];
+				$idorganization = $value['idorganization'];
 			  $location = $value['location'] ?? null;
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
@@ -33,15 +34,22 @@ class Organization extends Entity
 						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['typeHasPart'=>'organization','idHasPart'=>$idthing])->ready();
 						$data[$key]['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
 				  }
-					// LOCATION
-				  if ($location && in_array('location', $properties)) {
-					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
-						$data[$key]['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
-				  }
 					// IMAGE OBJECT
 				  if (in_array('imageObject', $properties) || in_array('image', $properties)) {
 					  $dataImageObject = ApiFactory::request()->type('imageObject')->get(['idHasPart'=>$idthing])->ready();
 					  $data[$key]['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
+				  }
+				  // LOCATION
+				  if ($location && in_array('location', $properties)) {
+					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
+					  $data[$key]['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
+				  }
+					// MEMBER
+				  if (in_array('member', $properties)) {
+						$dataMember = ApiFactory::request()->type('role')->get(['organization' => $idorganization,'properties' => 'member,memberOf'])->ready();
+						if (isset($dataMember[0])) {
+							$data[$key]['member'] = ApiFactory::response()->type('role')->setData($dataMember)->ready();
+						}
 				  }
 					// OFFERS
 					if (in_array('offer', $properties) || $makesOffer == 'offers') {

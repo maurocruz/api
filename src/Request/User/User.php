@@ -32,7 +32,9 @@ class User extends Entity
 						if (in_array(('userCreator'), $properties)) {
 							foreach ($dataPrivileges as $keyPrivileges => $valuePrivileges) {
 								$dataUserCreator = (new GetData('user'))->setParams(['iduser'=>$valuePrivileges['userCreator'],'fields'=>'iduser,name'])->render();
-								$dataPrivileges[$keyPrivileges]['userCreator'] = $dataUserCreator[0];
+								if (isset($dataUserCreator[0])) {
+									$dataPrivileges[$keyPrivileges]['userCreator'] = $dataUserCreator[0];
+								}
 							}
 						}
 						$data[$key]['privileges'] = $dataPrivileges;
