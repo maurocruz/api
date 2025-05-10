@@ -9,7 +9,7 @@ use Plinct\Api\Request\Configuration\Update\Update;
 class Configuration
 {
 
-	public function index(): array
+	public function index(string $dbName = null): array
 	{
 		// MODULES AVAILABLE
 		$modulesAvailable = [
@@ -31,7 +31,7 @@ class Configuration
 		];
 		// MODULES ENABLED
 		$dataModulesEnabled = ApiFactory::request()->server()->connectBd()->showTables();
-    $dbName = ApiApp::getDBNAME();
+    $dbName = $dbName ?? ApiApp::getDBNAME();
 		$tablesInDb = [];
 		$modulesEnabled = [];
 		foreach ($dataModulesEnabled as $moduleEnable) {
