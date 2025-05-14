@@ -4,7 +4,6 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Cms\CmsFactory;
 
 class Role extends Entity
 {
@@ -18,16 +17,21 @@ class Role extends Entity
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$getData = new GetData('role');
 		$getData->setParams($params);
+
 		$data = $getData->render();
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $value) {
 				// MEMBER
-				IF (in_array('member', $properties) || in_array('person', $properties)) {
-					$dataMember = parent::getProperties('person', ['idperson' => $value['person']]);
+				if (in_array('member', $properties) || in_array('person', $properties)) {
+					$personParams['idperson'] = $value['person'];
+					$personParams['properties'] = 'memberOf';
+					if (in_array('image', $properties)){
+						$personParams['properties'] .= ',image';
+					}
+					$dataMember = parent::getProperties('person', $personParams);
 					if (isset($dataMember[0])) {
 						$data[$key]['member'] = ApiFactory::response()->type('person')->setData($dataMember[0])->ready();
 					}
-
 				}
 				// MEMBER OF
 				if (in_array('memberOf', $properties) || in_array('organization', $properties)) {

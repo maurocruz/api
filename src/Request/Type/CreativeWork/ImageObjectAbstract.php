@@ -26,9 +26,6 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$fileSystem = new FileSystem($destination);
 		// destination dir
 		if(!$destination || $destination == '') {
-			if (!$fileSystem->file_exists($uploadsFolder)) {
-				mkdir($_SERVER['DOCUMENT_ROOT'] . $imagesFolder, 0755, true);
-			}
 			$destination = $uploadsFolder;
 		} else {
 			$destination = $uploadsFolder . ($destination[0] == '/' ? substr($destination, 1) : $destination);
@@ -50,9 +47,9 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 					$width = $newImage->getWidth();
 					$ratio = 1.618; // number gold
 					$largeWidth = 1280;
-					$meddiumWidth = $largeWidth / $ratio;
-					$smallWidth = $meddiumWidth / $ratio;
-					$tinyWidth = $smallWidth / $ratio;
+					$meddiumWidth = round($largeWidth / $ratio); // 791
+					$smallWidth = round($meddiumWidth / $ratio); // 489
+					$tinyWidth = round($smallWidth / $ratio); // 302
 					if ($width < $largeWidth) {
 						$largeWidth = $width;
 						$meddiumWidth = null;
@@ -139,6 +136,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$caption = $params['caption'] ?? null;
 		$returns = [];
+		$dataItem = [];
 		// get idthing
 		if (!$idthing) {
 			$dataItem = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where' => "`idimageObject`='$idimageObject' AND `idthing`='$isPartOf'"]);
