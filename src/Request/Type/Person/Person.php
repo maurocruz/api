@@ -51,7 +51,7 @@ class Person extends Entity
 					$data[$key]['homeLocation'] = parent::getProperties('place', ['idplace' => $item['homeLocation'], 'properties' => 'address']);
 				}
 				// IMAGE
-				if (in_array(['image','imageObject'], $properties)) {
+				if (in_array('image', $properties) || in_array('imageObject', $properties)) {
 					$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
 				}
 				// MEMBER OF
@@ -59,7 +59,7 @@ class Person extends Entity
 					if ($memberOf) {
 						$data[$key]['memberOf'] = parent::getProperties('role', ['organization' => $memberOf, 'person' => $idperson]);
 					} else {
-						$data[$key]['memberOf'] = parent::getProperties('role', ['person' => $idperson]);
+						$data[$key]['memberOf'] = parent::getProperties('role', ['person' => $idperson] + $params);
 					}
 				}
 				// MAIN ENTITY OF PAGE
