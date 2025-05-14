@@ -121,11 +121,14 @@ class WebPage extends Entity
 	 * @param array|null $params
 	 * @return mixed
 	 */
-	private function addBreadcrumb(array $params = null): array {
-		$breadcrumb = new Breadcrumb();
-		$bredcrumArray = $breadcrumb->get($params);
-		$breadcrumbJson = json_encode($bredcrumArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-		$params['breadcrumb'] = $breadcrumbJson;
+	private function addBreadcrumb(array $params = null): array
+	{
+		if (isset($params['url']) && (isset($params['alternativeHeadline']) || isset($params['alternateName']) || isset($params['name']))) {
+			$breadcrumb = new Breadcrumb();
+			$bredcrumArray = $breadcrumb->get($params);
+			$breadcrumbJson = json_encode($bredcrumArray, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			$params['breadcrumb'] = $breadcrumbJson;
+		}
 		return $params;
 	}
 }
