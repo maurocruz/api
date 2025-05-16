@@ -59,7 +59,7 @@ class Person extends Entity
 					if ($memberOf) {
 						$data[$key]['memberOf'] = parent::getProperties('role', ['organization' => $memberOf, 'person' => $idperson]);
 					} else {
-						$data[$key]['memberOf'] = parent::getProperties('role', ['person' => $idperson] + $params);
+						$data[$key]['memberOf'] = parent::getProperties('role', ['person' => $idperson, 'properties'=>'memberOf']);
 					}
 				}
 				// MAIN ENTITY OF PAGE
