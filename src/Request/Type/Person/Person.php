@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Request\Type\Person;
 
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 
@@ -34,9 +35,17 @@ class Person extends Entity
 			foreach ($data as $key => $item) {
 				$idthing = $item['idthing'];
 				$idperson = $item['idperson'];
+				$address = $item['address'] ?? null;
 				// ABOUT
 				if (in_array('about',$properties)) {
 					$data[$key]['about'] = parent::getProperties('creativeWork', ['about' => $idthing]);
+				}
+				// ADDRESS
+				if (in_array('address',$properties)) {
+					$dataAddress = ApiFactory::request()->type('postalAddress')->get(['idpostalAddress' => $address])->ready();
+					if (isset($dataAddress[0])) {
+						$data[$key]['address'] = ApiFactory::response()->type('postalAddress')->setData($dataAddress[0])->ready();
+					}
 				}
 				// CONTACT POINT
 				if (in_array('contactPoint', $properties)) {
