@@ -130,7 +130,7 @@ abstract class Entity implements HttpRequestInterface
 			$idvalue = $connect->lastInsertId();
 			$idname = "id".$this->table;
 			$data = ApiFactory::request()->type($this->table)->get([$idname=>$idvalue])->ready();
-			return ApiFactory::response()->message()->success("Successfully created", $data);
+			return ApiFactory::response()->message()->success("$this->table successfully created", $data);
 	  } else {
 		  return ApiFactory::response()->message()->fail()->generic($data);
 	  }
