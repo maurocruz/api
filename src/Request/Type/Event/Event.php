@@ -67,6 +67,12 @@ class Event extends Entity
 		$endDate = $params['endDate'] ?? null;
 		$location = $params['location'] ?? null;
 		if ($name && $startDate && $endDate && $location) {
+			if (isset($params['superEvent']) && $params['superEvent'] == '') {
+				$params['superEvent'] = null;
+			}
+			if (isset($params['organizer']) && $params['organizer'] == '') {
+				$params['organizer'] = null;
+			}
 			return parent::createWithParent('thing',$params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name, startDate, endDate, location']);
