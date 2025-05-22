@@ -102,19 +102,13 @@ class WebPage extends Entity
 		return parent::update('creativeWork',$params);
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function delete(array $params): array
 	{
-		$idwebPage = $params['idwebPage'] ?? $params['webPage'] ?? null;
-		if ($idwebPage) {
-			$datawebPage = parent::getData(['idwebPage'=>$idwebPage]);
-			if (!empty($datawebPage)) {
-				return ApiFactory::request()->type('creativeWork')->delete(['idcreativeWork'=>$datawebPage[0]['creativeWork']])->ready();
-			} else {
-				return ApiFactory::response()->message()->fail()->generic($params,'WebPage id not found');
-			}
-		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idwebPage or webPage"]);
-		}
+		return parent::erase('creativeWork',$params);
 	}
 
 	/**

@@ -81,17 +81,6 @@ class CreativeWork extends Entity implements HttpRequestInterface
 	 */
 	public function delete(array $params): array
 	{
-		$idcreativeWork = $params['idcreativeWork'] ?? $params['creativeWork'] ?? null;
-		if ($idcreativeWork) {
-			$dataCreativeWork = parent::getData(['idcreativeWork'=>$idcreativeWork]);
-			if (!empty($dataCreativeWork)) {
-				$idthing = $dataCreativeWork[0]['thing'];
-				return ApiFactory::request()->type('thing')->delete(['idthing'=>$idthing])->ready();
-			}else {
-				return ApiFactory::response()->message()->fail()->generic($params,'CreativeWork id not found');
-			}
-		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idcreativeWork or creativeWork"]);
-		}
+		return parent::erase('thing',$params);
 	}
 }
