@@ -31,6 +31,7 @@ class WebPageElement extends Entity
 		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
+				$isPartOf = $item['isPartOf'];
 				// IMAGE
 				if (in_array('image',$properties)) {
 					$dataImageObject = parent::getProperties('imageObject', ['idHasPart' => $idthing]);
@@ -40,7 +41,7 @@ class WebPageElement extends Entity
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$data[$key]['isPartOf'] = parent::getProperties('webPage', ['creativeWork' => $isPartOf])[0];
+					$data[$key]['isPartOf'] = parent::getProperties('creativeWork', ['idcreativeWork' => $isPartOf])[0];
 				}
 				// PROPERTY VALUE
 				if (in_array('propertyValue', $properties)) {

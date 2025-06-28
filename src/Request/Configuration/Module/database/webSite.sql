@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS `webPage` (
   `idwebPage` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `thing` INT UNSIGNED NOT NULL,
   `creativeWork` INT UNSIGNED NOT NULL,
-  `isPartOf` INT NULL DEFAULT NULL,
   `breadcrumb` TEXT NULL DEFAULT NULL,
   `primaryImageOfPage` INT(10) UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`idwebPage`, `creativeWork`, `thing`),
