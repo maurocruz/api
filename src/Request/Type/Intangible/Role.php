@@ -24,7 +24,9 @@ class Role extends Entity
 				// MEMBER
 				if (in_array('member', $properties) || in_array('person', $properties)) {
 					$personParams['idperson'] = $value['person'];
-					$personParams['properties'] = 'memberOf';
+					if (in_array('memberOf', $properties)) {
+						$personParams['properties'] = 'memberOf';
+					}
 					if (in_array('image', $properties)){
 						$personParams['properties'] .= ',image';
 					}
