@@ -88,7 +88,7 @@ class Modules
 	 */
 	public function person(): array
 	{
-		return ModuleController::installer('Person', ['Thing','ImageObject','ContactPoint','Place']);
+		return ModuleController::installer('Person', ['Thing','ImageObject','ContactPoint','Place','Organization','Role']);
 	}
 
 	/**

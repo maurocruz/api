@@ -143,7 +143,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 			$idthing = $dataItem[0]['idthing'];
 		}
 		// representative of page
-		if ($representativeOfPage ) {
+		if (array_key_exists('representativeOfPage',$params)) {
 			$dataZeroAll = PDOConnect::crud()->setTable('thing_has_imageObject')->update(['representativeOfPage'=>0],"`idthing`='$isPartOf'");
 			if (!empty($dataZeroAll)) {
 				return $dataZeroAll;
@@ -152,7 +152,8 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 			if (!empty($dataRepresentative)) {
 				return $dataRepresentative;
 			} else {
-				$returns[] = ApiFactory::response()->message()->success('Image representativeOfPage is updated', $dataRepresentative);
+				$dataThing = PDOConnect::crud()->setTable('thing_has_imageObject')->read(['where' => "`idimageObject`='$idimageObject' AND `idthing`='$isPartOf'"]);
+				$returns[] = ApiFactory::response()->message()->success('Image representativeOfPage is updated', $dataThing);
 			}
 			// update image in thing: get contentUrl in mediaObject -> put image in thing
 			$dataImageObject = (new GetData('imageObject'))
@@ -162,7 +163,7 @@ abstract class ImageObjectAbstract extends Entity implements HttpRequestInterfac
 			if (isset($dataImageObject[0])) {
 				$contentUrl = $dataImageObject[0]['contentUrl'];
 				// update thing
-				$dataThing = ApiFactory::request()->type('thing')->put(['idthing'=>$idthing,'image'=>$contentUrl])->ready();
+				$dataThing = ApiFactory::request()->type('thing')->put(['idthing'=>$idthing,'image'=>$representativeOfPage ? $contentUrl : null])->ready();
 				if (isset($dataThing['status']) && $dataThing['status'] == 'success') {
 					$returns[] = $dataThing;
 				}

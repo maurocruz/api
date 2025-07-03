@@ -170,10 +170,14 @@ abstract class GetDataAbstract
 		$limit = $this->params['limit'] ?? self::__LIMIT__;
 		$offset = $this->params['offset'] ?? null;
     // GROUP BY
-		$tableGb = $this->isProperty($groupBy);
-		if ($groupBy && $tableGb) {
-	    $this->query .= " GROUP BY `$tableGb`.$groupBy";
-    }
+		if ($groupBy && strtolower(substr($groupBy,0,9)) == 'substring') {
+			$this->query .= " GROUP BY $groupBy";
+		} else {
+			$tableGb = $this->isProperty($groupBy);
+			if ($groupBy && $tableGb) {
+				$this->query .= " GROUP BY `$tableGb`.$groupBy";
+			}
+		}
     // ORDER BY
 		if ($orderBy) {
 			$orderByArray = [];
