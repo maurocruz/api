@@ -22,13 +22,23 @@ class Certification extends Entity implements HttpRequestInterface
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$getData = new GetData('certification');
+		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=certification.creativeWork');
 		$getData->setParams($params);
 		$data = $getData->render();
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $value) {
 				$about = $value['about'];
+				$issuedBy = $value['issuedBy'];
+				// ABOUT
 				if (in_array('about', $properties)) {
-					$data[$key]['about'] = parent::getProperties('thing', ['idthing' => $about, 'properties' => 'image'])[0];
+					$dataAbout = parent::getProperties('thing', ['idthing' => $about]);
+					if (isset($dataAbout[0])) {
+						$data[$key]['about'] = $dataAbout[0];
+					}
+				}
+				// ISSUED BY
+				if (in_array('issuedBy', $properties)) {
+					$data[$key]['issuedBy'] = parent::getProperties('organization', ['idorganization' => $issuedBy])[0];
 				}
 			}
 		}

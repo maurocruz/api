@@ -23,12 +23,15 @@ class Thing extends Entity implements HttpRequestInterface
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$hasPart = array_key_exists('hasPart', $params);
+		if (array_key_exists('where', $params)) {
+			$params['where'] = urldecode($params['where']);
+		}
 		$data = parent::getData($params);
 		if (!empty($data)) {
 			foreach ($data as $key => $value) {
-				$idthing = $value['idthing'];
-				$type = $value['type'];
-				if ($hasPart) {
+				$idthing = $value['idthing'] ?? null;
+				$type = $value['type'] ?? null;
+				if ($hasPart && $idthing && $type) {
 					$dataHasPart = ApiFactory::request()->type(lcfirst($type))->get(['thing' => $idthing] + $params)->ready();
 					if (isset($dataHasPart[0])) {
 						$data[$key] = $dataHasPart[0] + $value;
@@ -36,7 +39,7 @@ class Thing extends Entity implements HttpRequestInterface
 						unset($data[$key]);
 					}
 				}
-				if ($properties) {
+				if ($properties && $idthing) {
 					// IMAGE OBJECT
 					if (in_array('image',$properties)) {
 						$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);

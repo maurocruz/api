@@ -82,11 +82,11 @@ class ImageObject extends ImageObjectAbstract
 					$dataGetHasPart->setParams($params);
 					$dataHasPart = $dataGetHasPart->render();
 					if (isset($dataHasPart[0])) {
-						foreach ($dataHasPart as $keyHasPart => $valueHasPart) {
+						foreach ($dataHasPart as $valueHasPart) {
 							$typeHasPart = lcfirst($valueHasPart['type']);
 							$dataHasPart = ApiFactory::request()->type($typeHasPart)->get(['thing'=>$valueHasPart['idthing']])->ready();
 							if(isset($dataHasPart[0])) {
-								$data[$key]['mentions'][] = ApiFactory::response()->type($typeHasPart)->setData($dataHasPart[0])->ready();;
+								$data[$key]['mentions'][] = ApiFactory::response()->type($typeHasPart)->setData($dataHasPart[0])->ready();
 							}
 						}
 					}
@@ -152,8 +152,7 @@ class ImageObject extends ImageObjectAbstract
   {
 		$idimageObject = $params['idimageObject'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		if($idimageObject && $idHasPart) {
-			// IF RELATIONSHIP
+		if($idimageObject && $idHasPart) { // IF RELATIONSHIP
 			return parent::updateHasTable($params, $idHasPart);
 		} else if ($idimageObject) {
 			$dataImageObject = parent::getData(['idimageObject'=>$idimageObject]);
