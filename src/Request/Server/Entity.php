@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
 
 abstract class Entity implements HttpRequestInterface
@@ -146,8 +147,8 @@ abstract class Entity implements HttpRequestInterface
 	{
 		$params['type'] = $params['type'] ?? ucfirst($this->table);
 		// SAVE PARENT
+		PDOConnect::run("START TRANSACTION");
 		$dataParent = ApiFactory::request()->type($parentName)->httpRequest()->setPermission()->post($params, $uploadedFiles);
-		//var_dump($dataParent);
 		if (isset($dataParent['status']) && $dataParent['status'] === 'success') {
 			$value = $dataParent['data'][0];
 			foreach ($value as $key => $val) {
@@ -156,7 +157,13 @@ abstract class Entity implements HttpRequestInterface
 				}
 			}
 			// SAVE CHILD
-			return self::post($params);
+			$data = self::post($params);
+			if (isset($data['status']) && $data['status'] == 'success') {
+				PDOConnect::run("COMMIT;");
+			} else {
+				PDOConnect::run("ROLLBACK;");
+			}
+			return $data;
 		}
 		return ApiFactory::response()->message()->fail()->generic($dataParent);
 	}

@@ -1,25 +1,30 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Product;
 
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Product extends Entity
 {
+	/**
+	 *
+	 */
   public function __construct()
 	{
 		$this->setTable('product');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
   public function get(array $params = []): array
   {
-	  $orderBy = $params['orderBy'] ?? null;
-	  if ($orderBy == 'dateModified') {
-		  $returns = parent::getThingFirst('product', $params);
-	 } else {
-		  $returns = parent::getData($params);
-	  }
-	 return parent::sortData($returns);
+		$dataGet = new GetData('product');
+		$dataGet->setParams($params);
+		$data = $dataGet->render();
+
+	  return parent::sortData($data);
  }
 
 	/**
@@ -28,7 +33,8 @@ class Product extends Entity
 	 */
 	public function post(?array $params = null): array
 	{
-		$params['type'][] = 'Product';
+		$manufacturer = $params['manufacturer'] ?? null;
+		if ($manufacturer == '') unset($params['manufacturer']);
 		return parent::createWithParent('thing', $params);
 	}
 

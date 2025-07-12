@@ -13,21 +13,22 @@ class Configuration
 	{
 		// MODULES AVAILABLE
 		$modulesAvailable = [
-				'Article',
-				'Book',
-				'Certification',
-				'Event',
-				'ImageObject',
-				'Order',
-				'Organization',
-				'Person',
-				'Place',
-				'Product',
-				'Review',
-				'Service',
-				'Taxon',
-				'VideoObject',
-				'WebSite'
+			'Action',
+			'Article',
+			'Book',
+			'Certification',
+			'Event',
+			'ImageObject',
+			'Order',
+			'Organization',
+			'Person',
+			'Place',
+			'Product',
+			'Review',
+			'Service',
+			'Taxon',
+			'VideoObject',
+			'WebSite'
 		];
 		// MODULES ENABLED
 		$dataModulesEnabled = ApiFactory::request()->server()->connectBd()->showTables();
