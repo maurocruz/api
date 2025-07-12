@@ -6,6 +6,14 @@ class Modules
 	/**
 	 * @return array
 	 */
+	public function action(): array
+	{
+		return ModuleController::installer('Action');
+	}
+
+	/**
+	 * @return array
+	 */
 	public function article(): array
 	{
 		return ModuleController::installer('Article',['Person','Organization']);
