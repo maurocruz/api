@@ -4,6 +4,7 @@ namespace Plinct\Api;
 
 use Plinct\Api\Helper\Helper;
 use Plinct\Api\Request\Request;
+use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\User\User;
 use Plinct\Api\Response\Response;
 use Slim\App;
@@ -51,5 +52,19 @@ class ApiFactory
 	public static function response(): Response
 	{
 		return new Response();
+	}
+
+	/**
+	 * @param string $driver
+	 * @param string $host
+	 * @param string $dbname
+	 * @param string $username
+	 * @param string $password
+	 * @param array $options
+	 * @return void
+	 */
+	public static function connectBd(string $driver, string $host, string $dbname, string $username, string $password, array $options = []): void
+	{
+		PDOConnect::connect($driver, $host, $dbname, $username, $password, $options);
 	}
 }
