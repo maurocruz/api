@@ -2,15 +2,16 @@
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Api\Request\Server\HttpRequestInterface;
 
-class Certification extends Entity implements HttpRequestInterface
+class Certification extends CreativeWork
 {
-
+	/**
+	 *
+	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('certification');
 	}
 
@@ -47,9 +48,10 @@ class Certification extends Entity implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$name = $params['name'] ?? null;
 		$issuedBy = $params['issuedBy'] ?? null;

@@ -2,13 +2,14 @@
 namespace Plinct\Api\Request\Type\Event;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Type\Thing;
 
-class Event extends Entity
+class Event extends Thing
 {
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('event');
 	}
 
@@ -58,9 +59,10 @@ class Event extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-  public function post(array $params = null): array
+  public function post(array $params = null, array $uploadfiles = null): array
   {
 		$name = $params['name'] ?? null;
 		$startDate = $params['startDate'] ?? null;

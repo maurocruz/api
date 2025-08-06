@@ -1,17 +1,16 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 
-class Book extends Entity
+class Book extends CreativeWork
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('book');
 	}
 
@@ -56,9 +55,10 @@ class Book extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		return parent::createWithParent('creativeWork',$params);
 	}
