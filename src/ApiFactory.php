@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Plinct\Api;
 
+use Plinct\Api\Helper\Helper;
 use Plinct\Api\Request\Request;
 use Plinct\Api\Request\User\User;
 use Plinct\Api\Response\Response;
@@ -21,6 +22,14 @@ class ApiFactory
 		$slimApp->addErrorMiddleware(true,true,true);
 
 		return new ApiApp($slimApp);
+	}
+
+	/**
+	 * @return Helper
+	 */
+	public static function helper(): Helper
+	{
+		return new Helper();
 	}
 
 	/**

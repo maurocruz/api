@@ -41,3 +41,15 @@ CREATE TABLE IF NOT EXISTS `propertyValue` (
   PRIMARY KEY (`idpropertyValue`)
 ) ENGINE = InnoDB;
 
+
+--  TRIGGER
+DELIMITER $$
+CREATE TRIGGER `thing_has_thing_BEFORE_INSERT` BEFORE INSERT ON `thing_has_thing` FOR EACH ROW
+BEGIN
+  DECLARE count INT UNSIGNED;
+  SET count = (SELECT COUNT(*) FROM `thing_has_thing` WHERE `idHasPart`=NEW.`idHasPart`);
+  IF NEW.`position`='' OR NEW.`position` IS NULL
+  THEN SET NEW.`position`= count+1;
+  END IF;
+END;
+DELIMITER ;

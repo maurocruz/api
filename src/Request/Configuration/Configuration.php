@@ -13,12 +13,16 @@ class Configuration
 	{
 		// MODULES AVAILABLE
 		$modulesAvailable = [
+			'AudioObject',
 			'Action',
 			'Article',
 			'Book',
 			'Certification',
+			'Collection',
+			'CreativeWork',
 			'Event',
 			'ImageObject',
+			'MediaObject',
 			'Order',
 			'Organization',
 			'Person',

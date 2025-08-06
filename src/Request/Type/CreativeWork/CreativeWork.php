@@ -1,18 +1,20 @@
 <?php
 namespace Plinct\Api\Request\Type\CreativeWork;
 
+use Exception;
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Type\Thing;
 
-class CreativeWork extends Entity implements HttpRequestInterface
+class CreativeWork extends Thing implements HttpRequestInterface
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('creativeWork');
 	}
 
@@ -31,7 +33,7 @@ class CreativeWork extends Entity implements HttpRequestInterface
 			foreach ($data as $key => $value) {
 				$idcreativeWork = $value['idcreativeWork'];
 				$type = $value['type'];
-				if ($type !== 'creativeWork' && $type !== 'thing') {
+				if ($type !== 'CreativeWork' && $type !== 'Thing') {
 					$getDataCreativeWork = new GetData(lcfirst($type));
 					$getDataCreativeWork->setParams(['creativeWork'=>$idcreativeWork]);
 					$dataCreativeWork = $getDataCreativeWork->render();
@@ -56,14 +58,20 @@ class CreativeWork extends Entity implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
+	 * @throws Exception
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		if(isset($params['isPartOf']) && $params['isPartOf'] === '') {
 			unset($params['isPartOf']);
 		}
-		return parent::createWithParent('thing', $params);
+		if ($uploadfiles) {
+			return parent::uploadfiles($params, $uploadfiles);
+		} else {
+			return parent::createWithParent('thing', $params);
+		}
 	}
 
 	/**

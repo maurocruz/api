@@ -14,6 +14,14 @@ class Modules
 	/**
 	 * @return array
 	 */
+	public function audioObject(): array
+	{
+		return ModuleController::installer('AudioObject',['MediaObject']);
+	}
+
+	/**
+	 * @return array
+	 */
 	public function article(): array
 	{
 		return ModuleController::installer('Article',['Person','Organization']);
@@ -33,6 +41,14 @@ class Modules
 	public function certification(): array
 	{
 		return ModuleController::installer('Certification', ['Organization']);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function collection(): array
+	{
+		return ModuleController::installer('Collection',['creativeWork']);
 	}
 
 	/**
@@ -152,7 +168,7 @@ class Modules
 	 */
 	public function videoObject(): array
 	{
-		return ModuleController::installer('VideoObject',['ImageObject']);
+		return ModuleController::installer('VideoObject',['mediaObject']);
 	}
 
 	/**

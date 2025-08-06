@@ -14,7 +14,8 @@
         "slim/psr7": "1.*",
         "tuupola/slim-jwt-auth": "3.*",
         "phpmailer/phpmailer": "^6.0",
-        "ext-intl": "*"
+        "ext-intl": "*",
+        "smalot/pdfparser": "^2.12"
     },
     "autoload": {
         "psr-4": {
