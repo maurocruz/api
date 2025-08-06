@@ -23,9 +23,10 @@ class PrivilegesActions implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$returns = false;
 		// SE FOR SUPER USUARIO
@@ -51,7 +52,6 @@ class PrivilegesActions implements HttpRequestInterface
 				return ApiFactory::response()->message()->success("privileges added");
 			}
 		}
-
 		return ApiFactory::response()->message()->fail()->userNotAuthorizedForThisAction(__FILE__ . ' on ' . __LINE__);
 	}
 
