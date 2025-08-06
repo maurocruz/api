@@ -1,25 +1,26 @@
 {
-    "name": "plinct/api",
-    "description": "API for the Plinct App modeled with the scheme proposed by Schema.org",
-    "license": "proprietary",
-    "authors": [
-        {
-            "name": "Mauro Cruz",
-            "email": "maurocruz@pirenopolis.tur.br"
-        }
-    ],
-    "require": {    
-        "slim/slim": "4.*",
-        "php": "^7.4|^8.0",
-        "slim/psr7": "1.*",
-        "tuupola/slim-jwt-auth": "3.*",
-        "phpmailer/phpmailer": "^6.0",
-        "ext-intl": "*",
-        "smalot/pdfparser": "^2.12"
-    },
-    "autoload": {
-        "psr-4": {
-            "Plinct\\Api\\": "src/"
-        }
+  "name": "plinct/api",
+  "description": "API for the Plinct App modeled with the scheme proposed by Schema.org",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Mauro Cruz",
+      "email": "maurocruz@pirenopolis.tur.br"
     }
+  ],
+  "require": {
+    "slim/slim": "4.*",
+    "php": "^7.4|^8.0",
+    "slim/psr7": "1.*",
+    "tuupola/slim-jwt-auth": "3.*",
+    "phpmailer/phpmailer": "^6.0",
+    "ext-intl": "*",
+    "smalot/pdfparser": "^2.12",
+    "james-heinrich/getid3": "^1.9"
+  },
+  "autoload": {
+    "psr-4": {
+      "Plinct\\Api\\": "src/"
+    }
+  }
 }
