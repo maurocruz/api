@@ -1,10 +1,13 @@
 <?php
 namespace Plinct\Api\Request\Server;
 
+use Exception;
+use Imagick;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Tool\Image\Image;
 
 abstract class Entity implements HttpRequestInterface
 {
@@ -54,14 +57,6 @@ abstract class Entity implements HttpRequestInterface
 	}
 
 	/**
-	 * @param array $params
-	 */
-	public function setParams(array $params): void
-	{
-		$this->params = $params;
-	}
-
-	/**
    * GET
    * @param array $params
    * @return array
@@ -99,31 +94,11 @@ abstract class Entity implements HttpRequestInterface
   }
 
 	/**
-	 * @param string $type
 	 * @param array $params
-	 * @return array|null
-	 */
-	protected function getThingFirst(string $type, array $params): ?array
-	{
-		$returns = [];
-		$dataThing = ApiFactory::request()->type('thing')->get(['type'=>$type] + $params)->ready();
-		if (!empty($dataThing)) {
-			foreach ($dataThing as $key => $valueThing) {
-				$idthing = $valueThing['idthing'];
-				$dataTaxon = $this->getData(['thing' => $idthing] + $params);
-				if (!empty($dataTaxon)) {
-					$returns[$key] = $dataTaxon[0] + $valueThing;
-				}
-			}
-		}
-		return $returns;
-	}
-
-	/**
-	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-  public function post(array $params = null): array
+  public function post(array $params, array $uploadfiles = null): array
   {
 		$connect = new ConnectBd($this->table);
 		$data = $connect->created($params);
@@ -280,11 +255,17 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function createRelationShip(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf): array
 	{
-		$connect = new ConnectBd("thing_has_thing");
-		$returns = $connect->created(['idHasPart'=>$idHasPart, 'typeHasPart'=>$typeHasPart, 'idIsPartOf'=>$idIsPartOf, 'typeIsPartOf'=>$typeIsPartOf]);
-		$sqlQuery = "UPDATE `thing_has_thing` SET position = position+1 WHERE idHasPart = '$idHasPart' AND typeHasPart = '$typeHasPart' AND typeIsPartOf = '$typeIsPartOf';";
-		$connect->run($sqlQuery);
-		return $returns;
+		return (new Relationship())->createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+	}
+
+	/**
+	 * @param string $idHasPart
+	 * @param string $typeHasPart
+	 * @return array
+	 */
+	protected function getHasPart(string $idHasPart, string $typeHasPart): array
+	{
+		return (new Relationship())->getHasPart(['idHasPart'=>$idHasPart, 'typeHasPart'=>$typeHasPart]);
 	}
 
 	/**
@@ -297,5 +278,158 @@ abstract class Entity implements HttpRequestInterface
 		$propertiesArray = explode(',',$properties);
 		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
 		return $propertiesArray;
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	protected function uploadfiles(array $params, array $uploadfiles): array
+	{
+		$filesUpload = $uploadfiles['uploadfile'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$location = $params['location'] ?? $params['destination'] ?? "";
+		if ($filesUpload) {
+			$filesUploadError = $filesUpload['error'] ?? null;
+			$numberOfFiles = count($filesUpload['name']);
+			foreach ($filesUploadError as $key => $error) {
+				if ($error == UPLOAD_ERR_OK) {
+					$name = $filesUpload['name'][$key];
+					$type = $filesUpload['type'][$key];
+					$groupType = strstr($type, '/', true);
+					$tmpName = $filesUpload['tmp_name'][$key];
+					$size = $filesUpload['size'][$key];
+					if (is_uploaded_file($tmpName)) {
+						// SET FOLDER DESTINATION
+						$folder = "/public/uploads/$groupType" . (str_starts_with($location, '/') ? "$location/" : "/$location/") ;
+						$pathfile = $_SERVER['DOCUMENT_ROOT'] . $folder;
+						if (is_dir($pathfile) === false) {
+							mkdir($pathfile, 0777, true);
+						}
+						// NEW NAME
+						$prefix = date("Ymd-His_");
+						$pathinfo = pathinfo($name);
+						$extension = $pathinfo['extension'];
+						$filename = $pathinfo['filename'];
+						$newName = $prefix . md5($filename) . '.' . $extension;
+						$thumbName = $prefix . md5($filename) . '_thumb.jpeg';
+						$host = ApiFactory::request()->configuration()->getHost();
+						// PARSER META DATA
+						$parser = ApiFactory::helper()->ParserMidia($tmpName, $type);
+						$params['author'] = $parser->getAuthor();
+						$params['bitrate'] = $parser->getBitrate();
+						$params['contentSize'] = $size;
+						$params['contentUrl'] = $host . $folder . $newName;
+						$params['dateModified'] = $parser->getDateModified() ?? $params['dateModified'] ?? date('Y-m-d H:i:s');
+						$params['datePublished'] = $parser->getDatePublished();
+						$params['duration'] = $parser->getDuration();
+						$params['encodingFormat'] = $parser->getEncodingFormat();
+						$params['height'] = $parser->getHeight();
+						$params['name'] = isset($params['name']) && $numberOfFiles === 1 ? $params['name'] : $parser->getHeadLine() ?? $newName;
+						$params['headline'] = $params['name'];
+						$params['publisher'] = $parser->getPublisher();
+						$params['uploadDate'] = date('Y-m-d H:i:s');
+						$params['width'] = $parser->getWidth();
+						$params['url'] = $params['url'] ?? $params['contentUrl'];
+						// UPLOAD FILE OR SAVE IMAGE
+						if ($groupType == 'image') {
+							if (str_contains($type,"svg")) {
+								$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName);
+							} else {
+								$uploadedReturn = self::uploadImage($newName, $tmpName, $folder);
+							}
+						} elseif ($groupType == 'application') {
+							$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName);
+						} else {
+							return ApiFactory::response()->message()->fail()->generic(['message'=>'encodingFormat not recognized']);
+						}
+						// CREATE ITEM AND IS PART OF
+						if ($uploadedReturn) {
+							// CREATE THUMBNAIL
+							if (isset($uploadedReturn['status']) && $uploadedReturn['status'] === 'success' && isset($uploadedReturn['data']['thumbnail'])) {
+								$params['thumbnail'] = $uploadedReturn['data']['thumbnail'];
+							} elseif ($params['encodingFormat'] == 'application/pdf') {
+								$imagick = new Imagick();
+								$imagick->readImage($pathfile . $newName.'[0]');
+								$imagick->setImageFormat('jpeg');
+								$imagick->setResolution(300, 300);
+								$imagick->writeImage($pathfile . $thumbName);
+								$params['thumbnail'] = $host . $folder . $thumbName;
+							} else {
+								// TODO fazer thumbnail com FFMpeg no plinct
+								$params['thumbnail'] = "";
+							}
+							$params['type'] = match ($groupType) {
+								"video" => "VideoObject",
+								"audio" => "AudioObject",
+								"image" => "ImageObject",
+								default => "MediaObject",
+							};
+							$parentType = $params['type'] == "MediaObject" ? 'creativeWork' : 'mediaObject';
+							$this->table = lcfirst($params['type']);
+							$dataCreated = self::createWithParent($parentType, $params);
+							if (isset($dataCreated['status']) && $dataCreated['status'] === 'success') {
+								if($typeHasPart && $idHasPart) {
+									$item = $dataCreated['data'][0];
+									$idIsPartOf = $item['idthing'];
+									$typeIsPartOf = $item['type'];
+									$this->table = "thing_has_thing";
+									$dataHasThing = self::createRelationShip($idHasPart, ucfirst($typeHasPart), $idIsPartOf, ucfirst($typeIsPartOf));
+									$dataCreated['data'][] = $dataHasThing;
+								}
+								return $dataCreated;
+							} else {
+								return ApiFactory::response()->message()->fail()->generic(['message'=>'an error has ocurred']);
+							}
+						}
+					}
+				}
+			}
+		}
+		return ApiFactory::response()->message()->fail()->generic(['message'=>'no uploaded files']);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function uploadImage($newName, $tmp_name, $destination, $largeWidth = 1280): array
+	{
+		$newImage = new Image($tmp_name);
+		$width = $newImage->getWidth();
+		$ratio = 1.618; // number gold
+		$meddiumWidth = round($largeWidth / $ratio); // 791
+		$smallWidth = round($meddiumWidth / $ratio); // 489
+		$tinyWidth = round($smallWidth / $ratio); // 302
+		if ($width < $largeWidth) {
+			$largeWidth = $width;
+			$meddiumWidth = null;
+		} else if ($width < $meddiumWidth) {
+			$largeWidth = $width;
+			$meddiumWidth = null;
+			$smallWidth = null;
+		}
+		$pathinfo = pathinfo($destination.$newName);
+		$dirname = $pathinfo['dirname'];
+		$filename = $pathinfo['filename'];
+		$extension = $pathinfo['extension'];
+
+		$largeFileName = $dirname.'/'.$filename.'.'.$extension;
+		$meddiumFileName = $dirname.'/'.$filename.'_m.'.$extension;
+		$smallFileName = $dirname.'/'.$filename.'_s.'.$extension;
+		$tinyFileName = $dirname.'/'.$filename.'_t.'.$extension;
+		// large
+		$contentUrl = $newImage->createNewImage($largeFileName, $largeWidth);
+		// meddium
+		if ($meddiumWidth) $newImage->createNewImage($meddiumFileName, (int) $meddiumWidth);
+		// small
+		$thumbnail = $smallWidth ? $newImage->createNewImage($smallFileName, (int) $smallWidth) : $contentUrl;
+		// tiny
+		$newImage->createNewImage($tinyFileName, (int)$tinyWidth);
+		// RETURN
+		if (empty($newImage->getError())) {
+			return ['status' => 'success', 'data' => ['contentUrl'=>$contentUrl,'thumbnail'=>$thumbnail]];
+		} else {
+			return ['status' => 'error', 'data' => $newImage->getError()];
+		}
 	}
 }

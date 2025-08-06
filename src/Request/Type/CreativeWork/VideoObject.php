@@ -1,16 +1,25 @@
 <?php
 namespace Plinct\Api\Request\Type\CreativeWork;
 
-use Plinct\Api\Request\Server\Entity;
+use Exception;
+use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
 
-class VideoObject extends Entity
+class VideoObject extends MediaObject
 {
+	/**
+	 *
+	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('videoObject');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$getData = new GetData('videoObject');
@@ -19,5 +28,60 @@ class VideoObject extends Entity
 		$getData->setParams($params);
 		$data = $getData->render();
 		return parent::sortData($data);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @param array|null $uploadfiles
+	 * @return array
+	 * @throws Exception
+	 */
+	public function post(array $params = null, ?array $uploadfiles = null): array
+	{
+		$params['type'] = 'videoObject';
+		return parent::post($params, $uploadfiles);
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
+	public function put(array $params = null): array
+	{
+		$idvideoObject = $params['idvideoObject'] ?? $params['videoObject'] ?? null;
+		if ($idvideoObject) {
+			$dataVideoObject = self::get(['idvideoObject'=>$idvideoObject]);
+			if (isset($dataVideoObject[0])) {
+				$idmediaObject = $dataVideoObject[0]['mediaObject'];
+				$params['idmediaObject'] = $idmediaObject;
+				return parent::put($params);
+			} else {
+				return ApiFactory::response()->message()->fail()->generic($params,'VideoObject is not found');
+			}
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idvideoObject or videoObject!"]);
+		}
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function delete(array $params): array
+	{
+		$idvideoObject = $params['idvideoObject'] ?? $params['videoObject'] ?? null;
+		if ($idvideoObject) {
+			$dataVideoObject = self::get(['idvideoObject'=>$idvideoObject]);
+			if (isset($dataVideoObject[0])) {
+				$idmediaObject = $dataVideoObject[0]['mediaObject'];
+				$params['idmediaObject'] = $idmediaObject;
+				return parent::delete($params);
+			} else {
+				return ApiFactory::response()->message()->fail()->generic($params,'VideoObject is not found');
+			}
+
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idvideoObject or videoObject!"]);
+		}
 	}
 }

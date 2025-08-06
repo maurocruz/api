@@ -11,16 +11,17 @@ interface HttpRequestInterface
 	public function get(array $params = []): array;
 
 	/**
-	 * @param array|null $params
+	 * @param array $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array;
+	public function post(array $params, array $uploadfiles = null): array;
 
 	/**
-	 * @param array|null $params
+	 * @param array $params
 	 * @return array
 	 */
-	public function put(array $params = null): array;
+	public function put(array $params): array;
 
 	/**
 	 * @param array $params
