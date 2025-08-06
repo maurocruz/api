@@ -42,9 +42,10 @@ class UserActions implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;
@@ -70,7 +71,7 @@ class UserActions implements HttpRequestInterface
 		$newParams['name'] = $name;
 		$newParams['email'] = $email;
 		$newParams['password'] = password_hash($password, PASSWORD_DEFAULT);
-
+		// get data
 		$data = ApiFactory::request()->server()->connectBd('user')->created($newParams);
 		// error
 		if (isset($data['error']) || (isset($data['status']) && $data['status'] == 'error')) {
