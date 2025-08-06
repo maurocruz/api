@@ -7,6 +7,9 @@ use Plinct\Api\Request\Server\Entity;
 
 class Invoice extends Entity
 {
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->setTable('invoice');
@@ -57,7 +60,12 @@ class Invoice extends Entity
     return parent::sortData(array_values($data));
   }
 
-	public function post(array $params = null): array
+	/**
+	 * @param array|null $params
+	 * @param array|null $uploadfiles
+	 * @return array
+	 */
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$dataPost = parent::post($params);
 		if (isset($dataPost['status']) && $dataPost['status'] == 'success') {
@@ -77,6 +85,10 @@ class Invoice extends Entity
 		return $dataPost;
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function put(array $params = null): array
 	{
 		$dataPut = parent::put($params);
@@ -97,6 +109,10 @@ class Invoice extends Entity
 		return $dataPut;
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function delete(array $params): array
 	{
 		$idinvoice = $params['idinvoice'] ?? null;

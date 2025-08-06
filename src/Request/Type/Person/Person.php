@@ -2,16 +2,17 @@
 namespace Plinct\Api\Request\Type\Person;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Type\Thing;
 
-class Person extends Entity
+class Person extends Thing
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('person');
 	}
 
@@ -82,12 +83,12 @@ class Person extends Entity
 
 	/**
 	 * @param array|null $params
-	 * @param array|null $uploadedFiles
+	 * @param array|null $uploadfiles
 	 * @return string[]
 	 */
-  public function post(array $params = null, array $uploadedFiles = null): array
+  public function post(array $params = null, array $uploadfiles = null): array
   {
-		return parent::createWithParent('thing', $params, $uploadedFiles);
+		return parent::createWithParent('thing', $params, $uploadfiles);
   }
 
 	/**

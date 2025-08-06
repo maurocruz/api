@@ -2,16 +2,16 @@
 namespace Plinct\Api\Request\Type\Action;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Type\Thing;
 
-class Action extends Entity implements HttpRequestInterface
+class Action extends Thing
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('action');
 	}
 
@@ -45,9 +45,10 @@ class Action extends Entity implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$agent = $params['agent'] ?? null;
 		$object = $params['object'] ?? null;

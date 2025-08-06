@@ -162,9 +162,10 @@ class Place extends Entity
 	}
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return string[]
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		return parent::createWithParent('thing', $params);
 	}

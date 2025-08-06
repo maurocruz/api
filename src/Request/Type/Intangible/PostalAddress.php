@@ -6,22 +6,33 @@ use Plinct\Api\Request\Server\Entity;
 
 class PostalAddress extends Entity
 {
-
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->setTable('postalAddress');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$data = parent::get($params);
 		return $this->sortData($data);
 	}
 
-	public function post(array $params = null): array
+	/**
+	 * @param array|null $params
+	 * @param array|null $uploadfiles
+	 * @return array
+	 */
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$typeHasPart = $params['typeHasPart'] ?? null;
-		$idHaspart = $params['idHasPart'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
 		$streetAddress = $params['streetAddress'] ?? null;
 		$addressLocality = $params['addressLocality'] ?? null;
 		$addressRegion = $params['addressRegion'] ?? null;
@@ -30,15 +41,13 @@ class PostalAddress extends Entity
 		// verifica se existe termos obrigatórios
 		if ($streetAddress || $addressLocality || $addressRegion || $addressCountry || $postalCode) {
 			$dataPost = parent::post($params);
-			if (isset($dataPost['status']) && $dataPost['status'] == 'success' && $typeHasPart && $idHaspart) {
+			if (isset($dataPost['status']) && $dataPost['status'] == 'success' && $typeHasPart && $idHasPart) {
 				$idpostalAddress = $dataPost['data'][0]['idpostalAddress'];
-				$dataHasPartPut = ApiFactory::request()->type($typeHasPart)->put(["id$typeHasPart" => $idHaspart, "address"=>$idpostalAddress])->ready();
+				$dataHasPartPut = ApiFactory::request()->type($typeHasPart)->put(["id$typeHasPart"=>$idHasPart,"address"=>$idpostalAddress])->ready();
 				if (isset($dataHasPartPut['status']) && $dataHasPartPut['status'] == 'success') {
-					$dataHasPartPut['data'][] = $dataPost;
-					return $dataHasPartPut;
-				} else {
-					return $dataHasPartPut;
+					$dataHasPartPut['data'][] = $dataPost + $dataHasPartPut;
 				}
+				return $dataHasPartPut;
 			} else {
 				return $dataPost;
 			}
@@ -62,6 +71,10 @@ class PostalAddress extends Entity
 
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function delete(array $params): array
 	{
 		$idpostalAddress = $params['idpostalAddress'] ?? null;

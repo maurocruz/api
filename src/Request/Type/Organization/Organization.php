@@ -2,12 +2,13 @@
 namespace Plinct\Api\Request\Type\Organization;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Type\Thing;
 
-class Organization extends Entity
+class Organization extends Thing
 {
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('organization');
 	}
 
@@ -84,9 +85,10 @@ class Organization extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		return parent::createWithParent('thing',$params);
 	}

@@ -43,9 +43,10 @@ class ContactPoint extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$idHasPart = $params['idHasPart'] ?? null;
 		$typeHasPart = $params['typeHasPart'] ?? null;

@@ -6,13 +6,14 @@ use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 
-class WebPageElement extends Entity
+class WebPageElement extends CreativeWork
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('webPageElement');
 	}
 
@@ -60,9 +61,10 @@ class WebPageElement extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$isPartOf = $params['isPartOf'] ?? null;
 		$name = $params['name'] ?? null;

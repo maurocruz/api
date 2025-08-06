@@ -1,11 +1,11 @@
 <?php
 namespace Plinct\Api\Request\Type;
 
+use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
-use Plinct\Api\Request\Server\HttpRequestInterface;
 
-class Thing extends Entity implements HttpRequestInterface
+class Thing extends Entity
 {
 	/**
 	 *
@@ -51,15 +51,20 @@ class Thing extends Entity implements HttpRequestInterface
 	}
 
 	/**
-	 * @param array|null $params
+	 * @param array $params
+	 * @param array|null $uploadfiles
 	 * @return array
+	 * @throws Exception
 	 */
-	public function post(array $params = null): array
+	public function post(array $params, array $uploadfiles = null): array
 	{
 		$name = $params['name'] ?? null;
-		$type = $params['type'] ?? null;
-		$params['dateCreated'] = date('Y-m-d H:i:s');
-		if ($name && $type) {
+		$type = $params['type'] ?? "Thing";
+		$params['dateCreated'] = $params['dateCreated'] ?? date('Y-m-d H:i:s');
+		$params['dateModified'] = $params['dateModified'] ?? date('Y-m-d H:i:s');
+		if ($uploadfiles) {
+			return parent::uploadfiles($params, $uploadfiles);
+		} elseif ($name && $type) {
 			return parent::post($params);
 		}
 		return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: name and type']);
@@ -87,9 +92,15 @@ class Thing extends Entity implements HttpRequestInterface
 	{
 		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
 		if ($idthing) {
-			return parent::delete(['idthing'=>$idthing]);
+			$dataThing = parent::getData($params);
+			if (isset($dataThing[0])) {
+				$returns = parent::delete(['idthing'=>$idthing]);
+				return ApiFactory::response()->message()->success('Thing was deleted', $returns);
+			} else {
+				return ApiFactory::response()->message()->fail()->generic(['Thing not found: '.$idthing]);
+			}
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idcreativeWork or creativeWork"]);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idthing"]);
 		}
 	}
 }

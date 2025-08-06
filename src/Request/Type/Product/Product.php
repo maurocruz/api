@@ -1,16 +1,17 @@
 <?php
 namespace Plinct\Api\Request\Type\Product;
 
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Type\Thing;
 
-class Product extends Entity
+class Product extends Thing
 {
 	/**
 	 *
 	 */
   public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('product');
 	}
 
@@ -29,9 +30,10 @@ class Product extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return string[]
 	 */
-	public function post(?array $params = null): array
+	public function post(?array $params = null, array $uploadfiles = null): array
 	{
 		$manufacturer = $params['manufacturer'] ?? null;
 		if ($manufacturer == '') unset($params['manufacturer']);

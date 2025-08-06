@@ -7,13 +7,14 @@ use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
-class WebPage extends Entity
+class WebPage extends CreativeWork
 {
 	/**
 	 *
 	 */
 	public function __construct()
 	{
+		parent::__construct();
 		$this->setTable('webPage');
 	}
 
@@ -69,9 +70,10 @@ class WebPage extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$url = $params['url'] ?? null;
 		$alternateName = $params['alternateName'] ?? $params['alternativeHeadline'] ?? null;

@@ -63,9 +63,10 @@ class GeoCoordinates extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$tableHasPart = $params['tableHasPart'] ?? false;
 		$idHasPart = $params['idHasPart'] ?? false;
