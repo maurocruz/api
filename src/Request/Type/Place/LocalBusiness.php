@@ -2,10 +2,10 @@
 namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
-class LocalBusiness extends Entity
+class LocalBusiness extends Place
 {
 	/**
 	 *
@@ -23,13 +23,16 @@ class LocalBusiness extends Entity
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$getData = new GetData('localBusiness');
+		$getData->setLeftJoin('organization', '`organization`.idorganization=`localBusiness`.organization');
 		if ($properties) {
+			if (in_array('address', $properties)) {
+				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `organization`.address');
+			}
 			// LOCATION
 			if (in_array('location', $properties)) {
 				$getData->setLeftJoin('place', '`place`.idplace=`localBusiness`.location');
 				$getData->setLeftJoin('geoCoordinates', '`geoCoordinates`.idgeoCoordinates = `place`.geo');
-				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `geoCoordinates`.address');
-				$getData->setLeftJoin('organization', '`organization`.idorganization=`localBusiness`.organization');
+				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `geoCoordinates`.address', 'pg');
 			}
 			// review
 			if (in_array('review', $properties)) {
@@ -41,6 +44,17 @@ class LocalBusiness extends Entity
 		$data = $getData->render();
 		foreach ($data as $key => $item) {
 			$idthing = $item['idthing'];
+			// ADDRESS
+			$address = isset($item['idpostalAddress']) ? ApiFactory::response()->type('PostalAddress')->setData([[
+				'idpostalAddress' => $item['idpostalAddress'],
+				'addressCountry' => $item['addressCountry'],
+				"addressLocality" => $item['addressLocality'],
+				"addressRegion" => $item['addressRegion'],
+				"streetAddress" => $item['streetAddress'],
+				"postalCode" => $item['postalCode']
+			]])->ready() : null;
+			$data[$key]['address'] = $address[0] ?? $item['address'] ?? null;
+			// PROPERTIES
 			if ($properties) {
 				// CONTACT POINT
 				if (in_array('contactPoint', $properties)) {
@@ -51,14 +65,6 @@ class LocalBusiness extends Entity
 				}
 				// LOCATION
 				if (in_array('location', $properties)) {
-					$address = $item['idpostalAddress'] ? ApiFactory::response()->type('PostalAddress')->setData([[
-						'idpostalAddress' => $item['idpostalAddress'],
-						'addressCountry' => $item['addressCountry'],
-						"addressLocality" => $item['addressLocality'],
-						"addressRegion" => $item['addressRegion'],
-						"streetAddress" => $item['streetAddress'],
-						"postalCode" => $item['postalCode']
-					]])->ready() : null;
 					$geo = $item['idgeoCoordinates'] ? ApiFactory::response()->type('GeoCoordinates')->setData([[
 						'address' => $address[0] ?? null,
 						'elevation' => $item['elevation'],
@@ -67,14 +73,6 @@ class LocalBusiness extends Entity
 						'idgeoCoordinates' => $item['idgeoCoordinates']
 					]])->ready() : null;
 					$data[$key]['geo'] = $geo[0] ?? null;
-					unset($data[$key]['address']);
-					unset($data[$key]['idpostalAddress']);
-					unset($data[$key]['idgeoCoordinates']);
-					unset($data[$key]['addressCountry']);
-					unset($data[$key]['addressLocality']);
-					unset($data[$key]['addressRegion']);
-					unset($data[$key]['streetAddress']);
-					unset($data[$key]['postalCode']);
 					unset($data[$key]['elevation']);
 					unset($data[$key]['latitude']);
 					unset($data[$key]['longitude']);
@@ -90,8 +88,36 @@ class LocalBusiness extends Entity
 					unset($data[$key]['ratingValue']);
 					unset($data[$key]['reviewCount']);
 				}
+				// HAS PART
+				if (in_array('hasPart', $properties)) {
+					$hasPart = new Relationship();
+					$hasPart->setTypeHasPart('LocalBusiness');
+					$hasPart->setIdHasPart($idthing);
+					if (isset($params['typeIsPartOf'])) {
+						$hasPart->setTypeIsPartOf($params['typeIsPartOf']);
+					}
+					$dataHasPart = $hasPart->get();
+					if ($dataHasPart) {
+						foreach ($dataHasPart as $valueHasPart) {
+							$typeHasPart = $valueHasPart['@type'];
+							if (strtolower($typeHasPart) == strtolower('ImageObject')) {
+								$data[$key]['subjectOf'][] = ApiFactory::response()->type('imageObject')->setData($valueHasPart)->ready();
+							}
+							if ($typeHasPart == 'ContactPoint') {
+								$data[$key]['contactPoint'][] = ApiFactory::response()->type('contactPoint')->setData($valueHasPart)->ready();
+							}
+						}
+					}
+				}
 			}
 			unset($data[$key]['organization']);
+			unset($data[$key]['idpostalAddress']);
+			unset($data[$key]['idgeoCoordinates']);
+			unset($data[$key]['addressCountry']);
+			unset($data[$key]['addressLocality']);
+			unset($data[$key]['addressRegion']);
+			unset($data[$key]['streetAddress']);
+			unset($data[$key]['postalCode']);
 		}
 		return parent::sortData($data);
 	}

@@ -60,6 +60,14 @@ class Configuration
 	}
 
 	/**
+	 * @return Home
+	 */
+	public function home(): Home
+	{
+		return new Home();
+	}
+
+	/**
 	 * @return ModuleController
 	 */
 	public function module(): ModuleController

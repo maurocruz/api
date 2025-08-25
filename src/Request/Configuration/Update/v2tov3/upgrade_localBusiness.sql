@@ -1,13 +1,15 @@
 -- LOCAL BUSINESS
 CREATE PROCEDURE upgrade_localBusiness()
   BEGIN
-    -- ALTER TABLE
+    -- alter table LOCAL BUSINESS
     ALTER TABLE `localBusiness`
       CHANGE COLUMN `idlocalBusiness` `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `organization` `organization` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `additionalType` `additionalType` VARCHAR(255) DEFAULT NULL,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idlocalBusiness`,
+      ADD COLUMN`openingHours` VARCHAR(255) DEFAULT NULL,
+      ADD COLUMN `paymentAccepted` VARCHAR(255) DEFAULT NULL,
       DROP PRIMARY KEY ,
       ADD PRIMARY KEY (`idlocalBusiness`);
 
@@ -23,6 +25,7 @@ CREATE PROCEDURE upgrade_localBusiness()
        SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
        `url`,`dateCreated`,`dateModified`,'LocalBusiness'
     FROM `localBusiness`;
+
     -- update this
     UPDATE `localBusiness`
       JOIN `thing` ON thing.idlocalBusiness = localBusiness.idlocalBusiness
@@ -30,9 +33,13 @@ CREATE PROCEDURE upgrade_localBusiness()
     -- drop thing column
     ALTER TABLE `thing` DROP COLUMN `idevent`;
 
-    -- set organization
+    -- insert organization
+    INSERT INTO `organization` (`thing`,`address`,`hasOfferCatalog`,`location`)
+    SELECT `thing`, `address`, `hasOfferCatalog`, `location` FROM `localBusiness`;
+
+    -- update localBusiness
     UPDATE `localBusiness`
-      JOIN `organization` ON `organization`.`name` = `localBusiness`.`name`
+      JOIN `organization` ON `organization`.thing = `localBusiness`.thing
       SET `localBusiness`.organization = `organization`.idorganization;
 
     -- has contact point
@@ -41,10 +48,8 @@ CREATE PROCEDURE upgrade_localBusiness()
       JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_contactPoint`.idlocalBusiness
       JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `localBusiness_has_contactPoint`.idcontactPoint;
 
-    -- has images
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-      SELECT `thing`,`idimageObject`,`localBusiness_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `localBusiness_has_imageObject`
-      JOIN `localBusiness` ON `localBusiness_has_imageObject`.idlocalBusiness = localBusiness.idlocalBusiness;
+    -- insert images
+    CALL insert_thing_has_thing('localBusiness','imageObject');
 
     -- IMAGES
     CALL set_image_in_thing('localBusiness');
@@ -60,6 +65,7 @@ CREATE PROCEDURE upgrade_localBusiness()
 
     ALTER TABLE `localBusiness`
       CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+      CHANGE COLUMN `organization` `organization` INT UNSIGNED NOT NULL,
       DROP COLUMN `name`,
       DROP COLUMN `additionalType`,
       DROP COLUMN `description`,
@@ -70,10 +76,21 @@ CREATE PROCEDURE upgrade_localBusiness()
       DROP COLUMN `rank`,
       DROP COLUMN `dateCreated`,
       DROP COLUMN `dateModified`,
+      DROP COLUMN `location`,
       DROP PRIMARY KEY ,
       ADD PRIMARY KEY (`idlocalBusiness`,`thing`);
 
     DROP TABLE `localBusiness_has_contactPoint`;
     DROP TABLE `localBusiness_has_imageObject`;
     DROP TABLE `localBusiness_has_person`;
+
+    -- add foreign keys
+    ALTER TABLE `localBusiness`
+      ADD KEY `fk_localBusiness_thing_idx` (`thing`),
+      ADD KEY `fk_localBusiness_organization_idx` (`organization`),
+      ADD KEY `fk_localBusiness_place_idx` (`location`),
+      ADD CONSTRAINT `fk_localBusiness_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_localBusiness_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_localBusiness_place` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
   END;

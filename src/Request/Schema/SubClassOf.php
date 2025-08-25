@@ -1,15 +1,25 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Schema;
 
 class SubClassOf
 {
+	/**
+	 * @var string
+	 */
 	private string $subClassOf;
-
+	/**
+	 * @var array
+	 */
 	private array $graph;
-
+	/**
+	 * @var array
+	 */
 	private array $newGraph = [];
 
+	/**
+	 * @param string $subClassOf
+	 * @param array $graph
+	 */
 	public function __construct(string $subClassOf, array $graph)
 	{
 		$this->subClassOf = $subClassOf;
@@ -24,7 +34,10 @@ class SubClassOf
 		return $this->newGraph;
 	}
 
-	public function  isSubClass()
+	/**
+	 * @return void
+	 */
+	public function  isSubClass(): void
 	{
 		foreach ($this->graph as $class) {
 			if (isset($class['rdfs:subClassOf'])) {

@@ -13,7 +13,7 @@ class GetData extends GetDataAbstract
   {
     $this->table = $table;
 	  $this->setProperties($table);
-		if ($withThings) {
+		if ($withThings && isset($this->properties[$table])) {
 			foreach ($this->properties[$table] as $property) {
 				if ($property === 'thing') {
 					$this->setLeftJoin('thing',"`thing`.idthing = `$this->table`.thing");
@@ -33,12 +33,14 @@ class GetData extends GetDataAbstract
 	/**
 	 * @param string $table
 	 * @param string $condition
+	 * @param string|null $alias
 	 * @return GetData
 	 */
 	public function setLeftJoin(string $table, string $condition, string $alias = null): GetData
 	{
 		$this->setProperties($table);
 		if ($alias) {
+			$condition = str_replace("`$table`", $alias, $condition);
 			$this->setJoins("LEFT JOIN `$table` as $alias ON $condition");
 		} else {
 			$this->setJoins("LEFT JOIN `$table` ON $condition");

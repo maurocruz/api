@@ -62,4 +62,11 @@ BEGIN
 
   DROP TABLE `webPage_has_propertyValue`;
 
+  -- add foreign key
+  ALTER TABLE `webPage`
+    ADD KEY `fk_webPage_thing_idx` (`thing`),
+    ADD KEY `fk_webPage_creativeWork_idx` (`creativeWork`),
+    ADD CONSTRAINT `fk_webPage_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_webPage_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

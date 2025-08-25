@@ -46,13 +46,16 @@ BEGIN
    JOIN `webPageElement` ON `webPageElement`.idwebPageElement = `webPageElement_has_propertyValue`.idwebPageElement
    JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPageElement_has_propertyValue`.idpropertyValue;
 
-  -- INSERT IMAGES
-  INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`href`,`position`,`representativeOfPage`,`caption`)
-    SELECT `thing`,`idimageObject`,`href`,`webPageElement_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `webPageElement_has_imageObject`
-    JOIN `webPageElement` ON `webPageElement_has_imageObject`.idwebPageElement=webPageElement.idwebPageElement;
+  UPDATE `thing`
+    JOIN `webPageElement`ON `thing`.idthing = `webPageElement`.thing
+    JOIN `webPageElement_has_imageObject` ON `href` is not null AND `href`<>'' AND `webPageElement_has_imageObject`.idwebPageElement=webPageElement.idwebPageElement
+  SET thing.sameAs = webPageElement_has_imageObject.href;
 
   -- IMAGES
   CALL set_image_in_thing('webPageElement');
+
+  -- insert images
+  CALL insert_thing_has_thing('webPageElement','imageObject');
 
   -- ALTER TABLE
   ALTER TABLE `webPageElement`
@@ -72,4 +75,12 @@ BEGIN
   -- drop old relationship
   DROP TABLE `webPageElement_has_imageObject`;
   DROP TABLE `webPageElement_has_propertyValue`;
+
+  -- add foreign key
+  ALTER TABLE `webPageElement`
+    ADD KEY `fk_webPageElement_thing_idx` (`thing`),
+    ADD KEY `fk_webPageElement_creativeWork_idx` (`creativeWork`),
+    ADD CONSTRAINT `fk_webPageElement_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_webPageElement_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

@@ -57,4 +57,14 @@ BEGIN
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idvideoObject`,`mediaObject`,`thing`);
 
+  -- add foreign key
+  ALTER TABLE `videoObject`
+    ADD KEY `fk_videoObject_thing_idx` (`thing`),
+    ADD KEY `fk_videoObject_creativeWork_idx` (`creativeWork`),
+    ADD KEY `fk_videoObject_mediaObject_idx` (`mediaObject`),
+    ADD CONSTRAINT `fk_videoObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_videoObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_videoObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+
 END;

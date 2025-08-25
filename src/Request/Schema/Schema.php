@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Schema;
 
 class Schema extends SchemaAbstract

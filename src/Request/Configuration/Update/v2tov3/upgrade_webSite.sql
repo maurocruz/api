@@ -59,4 +59,11 @@ BEGIN
   -- drop old relationship
   DROP TABLE `webSite_has_person`;
 
+  -- add foreign key
+  ALTER TABLE `webSite`
+    ADD KEY `fk_webSite_thing_idx` (`thing`),
+    ADD KEY `fk_webSite_creativeWork_idx` (`creativeWork`),
+    ADD CONSTRAINT `fk_webSite_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_webSite_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

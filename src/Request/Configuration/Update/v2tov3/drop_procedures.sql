@@ -26,3 +26,4 @@
   DROP PROCEDURE IF EXISTS upgrade_webSite;
   DROP PROCEDURE IF EXISTS set_image_in_thing;
   DROP PROCEDURE IF EXISTS add_foreign_keys;
+  DROP PROCEDURE IF EXISTS insert_thing_has_thing;

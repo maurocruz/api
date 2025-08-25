@@ -27,10 +27,8 @@ BEGIN
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idtaxon`;
 
-  -- has images
-  INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-  SELECT `thing`,`idimageObject`,`taxon_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `taxon_has_imageObject`
-    JOIN `taxon` ON `taxon_has_imageObject`.idtaxon = taxon.idtaxon;
+  -- insert images
+  CALL insert_thing_has_thing('taxon','imageObject');
 
   -- IMAGES
   CALL set_image_in_thing('taxon');
@@ -49,4 +47,10 @@ BEGIN
   ;
 
   DROP TABLE `taxon_has_imageObject`;
+
+  -- add foreign key
+  ALTER TABLE `taxon`
+    ADD KEY `fk_taxon_thing_idx` (`thing`),
+    ADD CONSTRAINT `fk_taxon_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

@@ -23,5 +23,11 @@ CREATE PROCEDURE upgrade_invoice()
       CHANGE COLUMN `provider` `provider` INT UNSIGNED NOT NULL ,
       DROP COLUMN `customerType`,
       DROP COLUMN `providerType`;
+
+    -- add foreign key
+    ALTER TABLE `invoice`
+      ADD KEY `fk_invoice_order_idx` (`referencesOrder`),
+      ADD CONSTRAINT `fk_invoice_order` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
   END ;
 

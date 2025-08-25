@@ -2,10 +2,10 @@
 namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Type\Thing;
 
-class Place extends Entity
+class Place extends Thing
 {
 	/**
 	 *

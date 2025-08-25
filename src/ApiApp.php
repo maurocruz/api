@@ -31,10 +31,18 @@ class ApiApp
 	 * @var string
 	 */
 	public static string $HOST;
-	/*
-	 *
+	/**
+	 * @var string
 	 */
 	public static string $DB_NAME;
+	/**
+	 * @var string
+	 */
+	public static string $DB_USER;
+	/**
+	 * @var string
+	 */
+	public static string $DB_HOST;
 
 	/**
 	 * @var string|null
@@ -64,6 +72,8 @@ class ApiApp
   public function connect($driver, $host, $dbname, $username, $password, array $options = []): void
   {
 		self::setDBNAME($dbname);
+		self::setDBHOST($host);
+		self::setDBUSER($username);
     PDOConnect::setUsername($username);
     PDOConnect::setPassword($password);
     PDOConnect::connect($driver, $host, $dbname, $username, $password, $options);
@@ -83,6 +93,38 @@ class ApiApp
 	public static function getDBNAME(): string
 	{
 		return self::$DB_NAME;
+	}
+
+	/**
+	 * @param string $DB_HOST
+	 */
+	public static function setDBHOST(string $DB_HOST): void
+	{
+		self::$DB_HOST = $DB_HOST;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getDBHOST(): string
+	{
+		return self::$DB_HOST;
+	}
+
+	/**
+	 * @param string $DB_USER
+	 */
+	public static function setDBUSER(string $DB_USER): void
+	{
+		self::$DB_USER = $DB_USER;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getDBUSER(): string
+	{
+		return self::$DB_USER;
 	}
 
 	/**

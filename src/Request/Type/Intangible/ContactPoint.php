@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class ContactPoint extends Entity
 {
@@ -21,9 +22,8 @@ class ContactPoint extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		if ($typeHasPart !== null && $idHasPart !== null) {
+		if ($idHasPart) {
 			$dataGet = new GetData('thing_has_thing');
 			$dataGet->setLeftJoin('thing','`thing`.idthing=`thing_has_thing`.idIsPartOf');
 			$dataGet->setLeftJoin('contactPoint','`contactPoint`.thing=`thing`.idthing');
@@ -34,6 +34,10 @@ class ContactPoint extends Entity
 		}
 		$data = $dataGet->render();
 		foreach ($data as $key => $value) {
+			$position = $value['position'] ?? null;
+			if ($position) {
+				$data[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'position', 'value' => $position];
+			}
 			unset($data[$key]['position']);
 			unset($data[$key]['typeHasPart']);
 			unset($data[$key]['typeIsPartOf']);
@@ -92,7 +96,24 @@ class ContactPoint extends Entity
 	 */
 	public function put(array $params = null): array
 	{
-		return parent::update('thing', $params);
+		$idcontactPoint = $params['idcontactPoint'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$position = $params['position'] ?? null;
+		if ($idcontactPoint !== null) {
+			if ($position && $typeHasPart && $idHasPart && $idIsPartOf) {
+				$relationship = new Relationship();
+				$relationship->setTypeHasPart($typeHasPart);
+				$relationship->setIdHasPart($idHasPart);
+				$relationship->setTypeIsPartOf('ContactPoint');
+				$relationship->setIdIsPartOf($idIsPartOf);
+				$relationship->put(['position'=>$position]);
+			}
+			return parent::update('thing', $params);
+		} else {
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: idcontactPoint']);
+		}
 	}
 
 	/**

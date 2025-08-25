@@ -28,7 +28,9 @@ class UserLogged extends UserAbstract
 		$idUserLogged = $payload->uid;
 		parent::setIduser($idUserLogged);
 		$userData = (new UserActions())->get(['iduser'=>$idUserLogged]);
-		if (!empty($userData) && (!isset($userData['status']) || $userData['status'] !== 'fail')) {
+		if (isset($userData['error'])) {
+			var_dump($userData['error']);
+		} elseif (!empty($userData) && (!isset($userData['status']) || $userData['status'] !== 'fail')) {
 			$userValues = $userData[0];
 			parent::setName($userValues['name']);
 			parent::setEmail($userValues['email']);

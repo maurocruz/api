@@ -1,5 +1,18 @@
 CREATE PROCEDURE upgrade_action()
 BEGIN
+  -- ACTION
+  CREATE TABLE IF NOT EXISTS `action` (
+    `idaction` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `actionStatus` VARCHAR(255),
+    `agent` INT UNSIGNED NOT NULL,
+    `endTime` DATETIME NOT NULL,
+    `object` INT UNSIGNED NOT NULL,
+    `result` TEXT,
+    `startTime` DATETIME NOT NULL,
+    `targetCollection` INT UNSIGNED NOT NULL,
+    `type` VARCHAR(45) NOT NULL DEFAULT 'Action',
+    PRIMARY KEY (`idaction`,`object`)
+  ) ENGINE = InnoDB;
   -- history to action
   INSERT INTO `action` (`actionStatus`,`agent`,`endTime`,`object`,`result`,`startTime`,`targetCollection`)
   SELECT `action`, `user`, `datetime`, `order_has_history`.idorder, summary, `datetime`, `order_has_history`.idorder FROM `history`

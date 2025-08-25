@@ -35,9 +35,7 @@ BEGIN
   SET `service`.provider = IF(`providerType`='organization', IF(`organization`.thing IS NOT NULL, `organization`.thing, `service`.provider),IF(`person`.thing IS NOT NULL,`person`.thing, `service`.provider));
 
   -- insert images
-  INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-  SELECT `thing`,`idimageObject`,`service_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `service_has_imageObject`
-    JOIN `service` ON `service_has_imageObject`.idservice = service.idservice;
+  CALL insert_thing_has_thing('service','imageObject');
 
   -- IMAGES
   CALL set_image_in_thing('service');
@@ -56,4 +54,12 @@ BEGIN
 
   DROP TABLE `service_has_imageObject`;
   DROP TABLE `service_has_offer`;
+
+  -- add foreign keys
+  ALTER TABLE `service`
+    ADD KEY `fk_service_thing_idx` (`thing`),
+    ADD KEY `fk_service_provider_idx` (`provider`),
+    ADD CONSTRAINT `fk_service_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_service_provider` FOREIGN KEY (`provider`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;
