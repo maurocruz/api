@@ -28,9 +28,7 @@ BEGIN
   ALTER TABLE `thing` DROP COLUMN `idproduct`;
 
   -- insert images
-  INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-  SELECT `thing`,`idimageObject`,`product_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `product_has_imageObject`
-    JOIN `product` ON `product_has_imageObject`.idproduct = product.idproduct;
+  CALL insert_thing_has_thing('product','imageObject');
 
   -- IMAGES
   CALL set_image_in_thing('product');
@@ -48,4 +46,12 @@ BEGIN
 
   DROP TABLE `product_has_imageObject`;
   DROP TABLE `product_has_offer`;
+
+  -- add foreign keys
+  ALTER TABLE `product`
+    ADD KEY `fk_product_thing_idx` (`thing`),
+    ADD KEY `fk_product_manufacturer_idx` (`manufacturer`),
+    ADD CONSTRAINT `fk_product_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_product_manufacturer` FOREIGN KEY (`manufacturer`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

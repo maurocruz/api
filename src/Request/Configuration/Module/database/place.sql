@@ -14,11 +14,11 @@ PRIMARY KEY (`idpostalAddress`)
 CREATE TABLE IF NOT EXISTS `geoCoordinates` (
   `idgeoCoordinates` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `address` INT UNSIGNED NULL DEFAULT NULL,
-  `elevation` INT NULL DEFAULT NULL,
+  `elevation` VARCHAR(125) NULL DEFAULT NULL,
   `latitude` DECIMAL(18,14) NULL DEFAULT NULL,
   `longitude` DECIMAL(18,14) NULL DEFAULT NULL,
   PRIMARY KEY (`idgeoCoordinates`),
-  INDEX `fk_geoCoordinates_postalAddress_idx` (`address` ASC) VISIBLE,
+  INDEX `fk_geoCoordinates_postalAddress_idx` (`address`),
   CONSTRAINT `fk_geoCoordinates_postalAddress` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL
 ) ENGINE = InnoDB;
 

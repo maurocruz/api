@@ -1,6 +1,24 @@
 -- PLACE
 CREATE PROCEDURE upgrade_place()
 BEGIN
+
+  ALTER TABLE `postalAddress`
+    CHANGE COLUMN `idpostalAddress` `idpostalAddress` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    DROP PRIMARY KEY,
+    ADD PRIMARY KEY (`idpostalAddress`);
+
+  -- GEO COORDINATES
+  CREATE TABLE IF NOT EXISTS `geoCoordinates` (
+    `idgeoCoordinates` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `address` INT UNSIGNED NULL DEFAULT NULL,
+    `elevation` VARCHAR(125) NULL DEFAULT NULL,
+    `latitude` DECIMAL(18,14) NULL DEFAULT NULL,
+    `longitude` DECIMAL(18,14) NULL DEFAULT NULL,
+    PRIMARY KEY (`idgeoCoordinates`),
+    INDEX `fk_geoCoordinates_postalAddress_idx` (`address`),
+    CONSTRAINT `fk_geoCoordinates_postalAddress` FOREIGN KEY (`address`) REFERENCES `postalAddress` (`idpostalAddress`) ON DELETE SET NULL
+  ) ENGINE = InnoDB;
+
   -- alter table
   ALTER TABLE `place`
     CHANGE COLUMN `idplace` `idplace` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -39,9 +57,7 @@ BEGIN
   ALTER TABLE `geoCoordinates` DROP COLUMN `idplace`;
 
   -- insert images
-  INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-  SELECT `thing`,`idimageObject`,`place_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `place_has_imageObject`
-    JOIN `place` ON `place_has_imageObject`.idplace = place.idplace;
+  CALL insert_thing_has_thing('place','imageObject');
 
   -- IMAGES
   CALL set_image_in_thing('place');
@@ -65,4 +81,12 @@ BEGIN
     ADD PRIMARY KEY (`idplace`,`thing`);
 
   DROP TABLE `place_has_imageObject`;
+
+  -- PLACE
+  ALTER TABLE `place`
+    ADD KEY `fk_place_thing_idx` (`thing`),
+    ADD KEY `fk_place_geo_idx` (`geo`),
+    ADD CONSTRAINT `fk_place_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_place_geo` FOREIGN KEY (`geo`) REFERENCES `geoCoordinates` (`idgeoCoordinates`) ON DELETE SET NULL ON UPDATE NO ACTION;
+
 END;

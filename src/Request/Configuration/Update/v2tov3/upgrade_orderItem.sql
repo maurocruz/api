@@ -24,4 +24,12 @@ BEGIN
     DROP COLUMN `orderItemStatus`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idorderItem`,`orderItemNumber`);
+
+  -- add foreign keys
+  ALTER TABLE `orderItem`
+    ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
+    ADD KEY `fk_orderItemNumber_thing_idx` (`orderItemNumber`),
+    ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_orderItemNumber_thing` FOREIGN KEY (`orderItemNumber`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

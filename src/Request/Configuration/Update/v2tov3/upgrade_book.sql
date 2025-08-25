@@ -1,6 +1,6 @@
 CREATE PROCEDURE upgrade_book()
   BEGIN
-    -- alter table
+    -- alter table BOOK
     ALTER TABLE `book`
       CHANGE COLUMN `idbook` `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `datePublished` `datePublished` VARCHAR(19) DEFAULT NULL,
@@ -36,9 +36,7 @@ CREATE PROCEDURE upgrade_book()
     CALL set_image_in_thing('book');
 
     -- insert images
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-    SELECT thing, idimageObject, `book_has_imageObject`.position, IF(representativeOfPage is null,0,1), caption FROM `book_has_imageObject`
-      JOIN `book` ON `book_has_imageObject`.idbook=`book`.idbook;
+    CALL insert_thing_has_thing('book','imageObject');
 
     -- alter table
     ALTER TABLE `book`
@@ -60,4 +58,12 @@ CREATE PROCEDURE upgrade_book()
 
     -- drop old relationship
     DROP TABLE `book_has_imageObject`;
+
+    -- add foreign keys
+    ALTER TABLE `book`
+      ADD KEY `fk_book_thing_idx` (`thing`),
+      ADD KEY `fk_book_creativeWork_idx` (`creativeWork`),
+      ADD CONSTRAINT `fk_book_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_book_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END ;

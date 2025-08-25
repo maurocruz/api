@@ -36,11 +36,25 @@ BEGIN
   -- drop column
   ALTER TABLE `thing` DROP COLUMN `idoffer`;
 
-
   ALTER TABLE `offer`
     CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
     DROP COLUMN `itemOfferedType`,
     DROP COLUMN `offeredByType`,
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idoffer`,`itemOffered`,`offeredBy`);
+
+  -- add foreign keys
+  ALTER TABLE `offer`
+    ADD KEY `fk_offer_thing_idx` (`thing`),
+    ADD KEY `fk_offer_itemOffered_thing_idx` (`itemOffered`),
+    ADD KEY `fk_offer_offeredBy_thing_idx` (`offeredBy`),
+    ADD CONSTRAINT `fk_offer_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_offer_itemOffered_thing` FOREIGN KEY (`itemOffered`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_offer_offeredBy_thing` FOREIGN KEY (`offeredBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+  -- add foreign keys orderItem
+  ALTER TABLE `orderItem`
+    ADD KEY `fk_orderItem_offer_idx` (`offer`),
+    ADD CONSTRAINT `fk_orderedItem_offer` FOREIGN KEY (`offer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

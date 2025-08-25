@@ -6,7 +6,9 @@ class SchemaAbstract
 {
 	const SCHEMA_PLINCT = __DIR__.'/schemasJson/plinct.json';
 	const SCHEMA_ORG = __DIR__.'/schemasJson/schemaorg-current-http.jsonld';
-
+	/**
+	 * @var array
+	 */
 	protected array $schema = [
 		"@context" => [
 			"rdf" => "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -15,15 +17,25 @@ class SchemaAbstract
 		],
 		"@graph" => []
 	];
-
+	/**
+	 * @var array
+	 */
 	protected array $graph;
-
+	/**
+	 * @var string|null
+	 */
 	protected ?string $class;
-
+	/**
+	 * @var string|null
+	 */
 	protected ?string $subClass;
-
+	/**
+	 * @var string|null
+	 */
 	protected ?string $subClassOf;
-
+	/**
+	 * @var string|null
+	 */
 	protected ?string $schemas;
 
 	/**
@@ -35,23 +47,30 @@ class SchemaAbstract
 		$this->graph = $graph;
 	}
 
-	protected function appendSchema(string $filename)
+	/**
+	 * @param string $filename
+	 * @return void
+	 */
+	protected function appendSchema(string $filename): void
 	{
 		$schema = json_decode(file_get_contents($filename), true);
 		$this->setGraph($schema['@graph']);
 	}
 
-	protected function mergeSchemas()
+	/**
+	 * @return void
+	 */
+	protected function mergeSchemas(): void
 	{
 		$graph = [];
 
-		if (!$this->schemas || strpos($this->schemas,'plinct') !== false) {
+		if (!$this->schemas || str_contains($this->schemas, 'plinct')) {
 			$soloineSchema =  json_decode(file_get_contents(self::SCHEMA_PLINCT), true);
 			$this->schema['@context']['schema'][] = $soloineSchema['@context']['schema'];
 			$graph = array_merge($graph, $soloineSchema['@graph']);
 		}
 
-		if (!$this->schemas || strpos($this->schemas,'schemaorg') !== false) {
+		if (!$this->schemas || str_contains($this->schemas, 'schemaorg')) {
 			$schemaorgSchema =  json_decode(file_get_contents(self::SCHEMA_ORG), true);
 			$this->schema['@context']['schema'][] = $schemaorgSchema['@context']['schema'];
 			$graph = array_merge($graph, $schemaorgSchema['@graph']);

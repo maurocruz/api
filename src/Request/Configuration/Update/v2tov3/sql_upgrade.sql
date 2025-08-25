@@ -27,10 +27,10 @@ BEGIN
   CALL upgrade_event();
   -- PERSON
   CALL upgrade_person();
-  -- LOCAL BUSINESS
-  CALL upgrade_localBusiness();
   -- ORGANIZATION
   CALL upgrade_organization();
+  -- LOCAL BUSINESS
+  CALL upgrade_localBusiness();
   -- PLACE
   CALL upgrade_place();
   -- POSTAL ADDRESS

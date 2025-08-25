@@ -26,4 +26,11 @@ BEGIN
     DROP PRIMARY KEY,
     ADD PRIMARY KEY (`idorder`,`customer`,`seller`);
 
+  -- add foreign keys
+  ALTER TABLE `order`
+    ADD KEY `fk_order_customer_idx` (`customer`),
+    ADD KEY `fk_order_seller_idx` (`seller`),
+    ADD CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_order_seller` FOREIGN KEY (`seller`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END;

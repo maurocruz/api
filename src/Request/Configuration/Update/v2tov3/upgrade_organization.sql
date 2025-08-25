@@ -58,20 +58,14 @@ CREATE PROCEDURE upgrade_organization()
       SET `organization`.location = NULL
       WHERE `organization`.location NOT IN (SELECT idplace FROM place);
 
-    UPDATE `localBusiness`
-    SET `localBusiness`.organization = NULL
-    WHERE `localBusiness`.organization NOT IN (SELECT idorganization FROM organization);
-
     -- has contact point
     INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
     SELECT `organization`.thing, 'Organization', `contactPoint`.thing, 'ContactPoint' FROM `organization_has_contactPoint`
       JOIN `organization` ON `organization`.idorganization = `organization_has_contactPoint`.idorganization
       JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `organization_has_contactPoint`.idcontactPoint;
 
-    -- has images
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-    SELECT `thing`,`idimageObject`,`organization_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `organization_has_imageObject`
-      JOIN `organization` ON `organization_has_imageObject`.idorganization = organization.idorganization;
+    -- insert images
+    CALL insert_thing_has_thing('organization','imageObject');
 
     -- IMAGES
     CALL set_image_in_thing('organization');
@@ -99,5 +93,11 @@ CREATE PROCEDURE upgrade_organization()
     DROP TABLE `organization_has_imageObject`;
     DROP TABLE `organization_has_person`;
 
+    -- add foreign keys
+    ALTER TABLE `organization`
+      ADD KEY `fk_organization_thing_idx` (`thing`),
+      ADD KEY `fk_organization_location_idx` (`location`),
+      ADD CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
   end ;

@@ -14,7 +14,9 @@ CREATE PROCEDURE upgrade_imageObject()
     ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
     -- insere dados em thing
     INSERT INTO `thing` (`idimageObject`,`name`,`dateCreated`,`type`)
-      SELECT `idimageObject`,IF(`contentUrl` <> '' AND `contentUrl` IS NOT NULL,`contentUrl`,'Undefined name'),`uploadDate`,'imageObject' from `imageObject`;
+      SELECT `idimageObject`,
+             IF(`contentUrl` <> '' AND `contentUrl` IS NOT NULL,`contentUrl`,'Undefined name'),
+             `uploadDate`,'imageObject' from `imageObject`;
     -- update this
     UPDATE `imageObject`
       JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
@@ -57,5 +59,14 @@ CREATE PROCEDURE upgrade_imageObject()
       DROP COLUMN `copyright`,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idimageObject`,`mediaObject`,`thing`);
+
+    -- add forign keys
+    ALTER TABLE `imageObject`
+      ADD KEY `fk_imageObject_thing_idx` (`thing`),
+      ADD KEY `fk_imageObject_creativeWork_idx` (`creativeWork`),
+      ADD KEY `fk_imageObject_mediaObject_idx` (`mediaObject`),
+      ADD CONSTRAINT `fk_imageObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_imageObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_imageObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
   END ;

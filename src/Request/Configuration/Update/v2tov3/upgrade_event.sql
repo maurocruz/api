@@ -2,6 +2,7 @@
 CREATE PROCEDURE upgrade_event()
   BEGIN
 
+    -- alter table EVENT
     UPDATE `event` SET `superEvent`=null WHERE `superEvent`=0;
 
     -- alter table
@@ -10,8 +11,8 @@ CREATE PROCEDURE upgrade_event()
       CHANGE COLUMN `idevent` `idevent` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
       CHANGE COLUMN `superEvent` `superEvent` INT UNSIGNED DEFAULT NULL,
-      CHANGE COLUMN `organizerId` `organizer` INT UNSIGNED DEFAULT NULL,
-      CHANGE COLUMN `directed` `director` INT UNSIGNED DEFAULT NULL,
+      CHANGE COLUMN `organizerId` `organizer` VARCHAR(255) DEFAULT NULL,
+      CHANGE COLUMN `directed` `director` VARCHAR(255) DEFAULT NULL,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
       ADD COLUMN `about` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
       ADD COLUMN `keywords` VARCHAR(255) DEFAULT NULL AFTER `idevent`,
@@ -32,9 +33,7 @@ CREATE PROCEDURE upgrade_event()
     ALTER TABLE `thing` DROP COLUMN `idevent`;
 
     -- insert images
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-    SELECT `thing`,`idimageObject`,`event_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `event_has_imageObject`
-      JOIN `event` ON `event_has_imageObject`.idevent=event.idevent;
+    CALL insert_thing_has_thing('event','imageObject');
 
     -- IMAGES
     CALL set_image_in_thing('event');
@@ -63,5 +62,15 @@ CREATE PROCEDURE upgrade_event()
     -- drop relational tables
     DROP TABLE `event_has_event`;
     DROP TABLE `event_has_imageObject`;
+
+    -- add foreign keys
+    ALTER TABLE `event`
+      ADD KEY `fk_event_location_idx` (`location`),
+      ADD KEY `fk_event_thing_idx` (`thing`),
+      ADD KEY `fk_event_subEvent_idx` (`subEvent`),
+      ADD KEY `fk_event_superEvent_idx` (`superEvent`),
+      ADD CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION;
 
   END ;

@@ -1,7 +1,7 @@
 -- CONTACT POINT
 CREATE PROCEDURE upgrade_contactPoint()
   BEGIN
-    -- alter table
+    -- alter table CONTACT POINT
     ALTER TABLE `contactPoint`
       CHANGE COLUMN `idcontactPoint` `idcontactPoint` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idcontactPoint`,
@@ -36,5 +36,10 @@ CREATE PROCEDURE upgrade_contactPoint()
       DROP COLUMN `position`,
       DROP PRIMARY KEY,
       ADD PRIMARY KEY (`idcontactPoint`,`thing`);
+
+    -- add foreign keys
+    ALTER TABLE `contactPoint`
+      ADD KEY `fk_contactPoint_thing_idx` (`thing`),
+      ADD CONSTRAINT `fk_contactPoint_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 END ;

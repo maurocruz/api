@@ -96,7 +96,10 @@ abstract class GetDataAbstract
   protected function buildFields(): string
   {
 		if (array_key_exists('fields', $this->params)) {
-			$this->fields[] = $this->params['fields'];
+			$tableProperties = array_keys($this->properties);
+			array_walk($tableProperties, function (&$value) { $value = "id$value"; });
+			$idtables = implode(',',$tableProperties);
+			$this->fields[] = $this->params['fields'].",".$idtables;
 		} elseif (!$this->fields) {
 			$this->fields = ['*'];
 		}

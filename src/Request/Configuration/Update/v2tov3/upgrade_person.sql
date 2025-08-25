@@ -1,6 +1,7 @@
 -- PERSON
 CREATE PROCEDURE upgrade_person()
   BEGIN
+    -- alter table PERSON
     ALTER TABLE `person`
       CHANGE COLUMN `idperson` `idperson` INT UNSIGNED NOT NULL AUTO_INCREMENT,
       CHANGE COLUMN `address` `homeLocation` INT UNSIGNED NULL,
@@ -25,13 +26,11 @@ CREATE PROCEDURE upgrade_person()
       JOIN `person` ON `person`.idperson = `person_has_contactPoint`.idperson
       JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `person_has_contactPoint`.idcontactPoint;
 
-    -- insert images
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-    SELECT `thing`,`idimageObject`,`person_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `person_has_imageObject`
-      JOIN `person` ON `person_has_imageObject`.idperson = person.idperson;
-
     -- IMAGES
     CALL set_image_in_thing('person');
+
+    -- insert images
+    CALL insert_thing_has_thing('person','imageObject');
 
     ALTER TABLE `person`
       CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
@@ -44,5 +43,10 @@ CREATE PROCEDURE upgrade_person()
 
     DROP TABLE `person_has_contactPoint`;
     DROP TABLE `person_has_imageObject`;
+
+    -- add foreign key
+    ALTER TABLE `person`
+      ADD KEY `fk_person_thing_idx` (`thing`),
+      ADD CONSTRAINT `fk_person_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
   END ;

@@ -1,7 +1,7 @@
 -- ARTICLE
 CREATE PROCEDURE upgrade_article()
   BEGIN
-    -- alter table
+    -- alter table ARTICLE
     ALTER TABLE `article`
       DROP COLUMN `additionalType`,
       CHANGE COLUMN `idarticle` `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -35,9 +35,8 @@ CREATE PROCEDURE upgrade_article()
     -- IMAGES
     CALL set_image_in_thing('article');
 
-    INSERT INTO `thing_has_imageObject` (`idthing`,`idimageObject`,`position`,`representativeOfPage`,`caption`)
-      SELECT `thing`,`idimageObject`,`article_has_imageObject`.`position`,`representativeOfPage`,`caption` FROM `article_has_imageObject`
-        JOIN `article` ON `article_has_imageObject`.idarticle=article.idarticle;
+    -- insert images
+    CALL insert_thing_has_thing('article','imageObject');
 
     -- alter table
     ALTER TABLE `article`
@@ -57,4 +56,12 @@ CREATE PROCEDURE upgrade_article()
 
     -- drop old relationship
     DROP TABLE `article_has_imageObject`;
+
+    -- add foreign keys
+    ALTER TABLE `article`
+      ADD KEY `fk_article_thing_idx` (`thing`),
+      ADD KEY `fk_article_creativeWork_idx` (`creativeWork`),
+      ADD CONSTRAINT `fk_article_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+      ADD CONSTRAINT `fk_article_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
 END ;
