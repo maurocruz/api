@@ -18,5 +18,6 @@ CREATE TABLE IF NOT EXISTS `taxon` (
   `citations` TEXT NULL DEFAULT NULL,
   PRIMARY KEY (`idtaxon`, `thing`),
   INDEX `fk_taxon_thing_idx` (`thing`),
+  INDEX `id_taxonRank_idx` (`taxonRank` ASC),
   CONSTRAINT `fk_taxon_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;

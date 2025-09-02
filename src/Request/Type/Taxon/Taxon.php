@@ -1,10 +1,10 @@
 <?php
 namespace Plinct\Api\Request\Type\Taxon;
 
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Type\Thing;
 
-class Taxon extends Entity
+class Taxon extends Thing
 {
 	public function __construct()
 	{
@@ -18,6 +18,7 @@ class Taxon extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
 		$getData = new GetData('taxon');
 		$getData->setParams($params);
 		$data = $getData->render();
@@ -29,19 +30,24 @@ class Taxon extends Entity
 				if (in_array('childTaxon', $properties)) {
 					$data[$key]['childTaxon'] = parent::getProperties('taxon',['parentTaxon' => $idtaxon]);
 				}
-				if (in_array('image', $properties)) {
-					$data[$key]['image'] = parent::getProperties('imageObject', ['idHasPart' => $idthing, 'orderBy' => 'position']);
+				// HAS PART
+				if (in_array('hasPart', $properties)) {
+					$dataHasPart = parent::getHasPart($idthing, 'Taxon', $typeIsPartOf);
+					if (isset($dataHasPart[0])) {
+						$data[$key]['subjectOf'] = $dataHasPart;
+					}
 				}
 			}
 		}
-		return $this->sortData($data);
+		return parent::sortData($data);
 	}
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		return parent::createWithParent('thing',$params);
 	}
