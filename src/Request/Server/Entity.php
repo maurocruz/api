@@ -251,21 +251,75 @@ abstract class Entity implements HttpRequestInterface
 	 * @param string $typeHasPart
 	 * @param string $idIsPartOf
 	 * @param string $typeIsPartOf
+	 * @param array|null $params
 	 * @return array
 	 */
-	protected function createRelationShip(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf): array
+	protected function createRelationShip(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf, array $params = null): array
 	{
-		return (new Relationship())->createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+		$relationship = new Relationship();
+		$relationship->setIdHasPart($idHasPart);
+		$relationship->setTypeHasPart(ucfirst($typeHasPart));
+		$relationship->setIdIsPartOf($idIsPartOf);
+		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		return $relationship->post($params);
 	}
 
 	/**
 	 * @param string $idHasPart
 	 * @param string $typeHasPart
+	 * @param string|null $typeIsPartOf
 	 * @return array
 	 */
-	protected function getHasPart(string $idHasPart, string $typeHasPart): array
+	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null): array
 	{
-		return (new Relationship())->getHasPart(['idHasPart'=>$idHasPart, 'typeHasPart'=>$typeHasPart]);
+		$relationship = new Relationship();
+		$relationship->setIdHasPart($idHasPart);
+		$relationship->setTypeHasPart(ucfirst($typeHasPart));
+		if ($typeIsPartOf) {
+			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		}
+		return $relationship->getParts('hasPart');
+	}
+
+	/**
+	 * @param string $idIsPartOf
+	 * @param string $typeIsPartOf
+	 * @return array
+	 */
+	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf): array
+	{
+		$relationship = new Relationship();
+		$relationship->setIdIsPartOf($idIsPartOf);
+		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		return $relationship->getParts();
+	}
+
+	/**
+	 * @param string $idHasPart
+	 * @param string $typeHasPart
+	 * @param string $idIsPartOf
+	 * @param string $typeIsPartOf
+	 * @param array $params
+	 * @return array
+	 */
+	protected function updateRelationship(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf, array $params): array
+	{
+		$relationship = new Relationship();
+		$relationship->setIdHasPart($idHasPart);
+		$relationship->setTypeHasPart(ucfirst($typeHasPart));
+		$relationship->setIdIsPartOf($idIsPartOf);
+		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		return $relationship->put($params);
+	}
+
+	protected function deleteRelationship(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf): array
+	{
+		$relationship = new Relationship();
+		$relationship->setIdHasPart($idHasPart);
+		$relationship->setTypeHasPart(ucfirst($typeHasPart));
+		$relationship->setIdIsPartOf($idIsPartOf);
+		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		return $relationship->delete();
 	}
 
 	/**
@@ -374,8 +428,7 @@ abstract class Entity implements HttpRequestInterface
 									$idIsPartOf = $item['idthing'];
 									$typeIsPartOf = $item['type'];
 									$this->table = "thing_has_thing";
-									$dataHasThing = self::createRelationShip($idHasPart, ucfirst($typeHasPart), $idIsPartOf, ucfirst($typeIsPartOf));
-									$dataCreated['data'][] = $dataHasThing;
+									$dataCreated['data'][] = self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 								}
 								return $dataCreated;
 							} else {

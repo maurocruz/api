@@ -5,7 +5,6 @@ use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
-use Plinct\Api\Request\Server\Relationship;
 
 class MediaObject extends CreativeWork implements HttpRequestInterface
 {
@@ -29,7 +28,7 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=mediaObject.creativeWork');
 		$getData->setParams($params);
 		$data = $getData->render();
-		if (!empty($data)) {
+		if (isset($data[0]['idmediaObject'])) {
 			foreach ($data as $key => $value) {
 				$idmediaObject = $value['idmediaObject'];
 				$idthing = $value['thing'];
@@ -45,14 +44,14 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$dataHasPart = (new Relationship())->getHasPart(['typeHasPart'=>'MediaObject','idHasPart'=>$idthing]);
+					$dataHasPart = parent::getHasPart($idthing,'MediaObject');
 					if (isset($dataHasPart[0])) {
 						$data[$key]['hasPart'] = ApiFactory::response()->type('mediaObject')->setData($dataHasPart)->ready();
 					}
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$dataIsPartOf = (new Relationship())->getIsPartOf(['TypeIsPartOf'=>'MediaObject','idIsPartOf'=>$idthing]);
+					$dataIsPartOf = parent::getIsPartOf($idthing, 'MediaObject');
 					if (isset($dataIsPartOf[0])) {
 						$data[$key]['isPartOf'] = ApiFactory::response()->type('creativeWork')->setData($dataIsPartOf)->ready();
 					}
@@ -70,9 +69,15 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 	 */
 	public function post(array $params = null, ?array $uploadfiles = null): array
 	{
+		$idHasPart = $params['idHasPart'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
 		if (!empty($uploadfiles)) {
-			$params['typeHasPart'] = 'MediaObject';
+			$params['typeHasPart'] = $params['typeHasPart'] ?? 'MediaObject';
 			return parent::uploadfiles($params, $uploadfiles);
+		} elseif ($idHasPart && $typeHasPart && $idIsPartOf && $typeIsPartOf) {
+			return self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf, $params);
 		} else {
 			$contentUrl = $params['contentUrl'] ?? null;
 			$params['uploadDate'] = $params['uploadDate'] ?? date('Y-m-d H:i:s');
@@ -119,6 +124,9 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 	{
 		$idmediaObject = $params['idmediaObject'] ?? $params['mediaObject'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
 		if($idmediaObject && !$idHasPart) {
 			$datamediaObject = self::get(['idmediaObject'=>$idmediaObject]);
 			if (isset($datamediaObject[0])) {
@@ -140,6 +148,8 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 			} else {
 				return ApiFactory::response()->message()->fail()->generic($params,'MediaObject id not found');
 			}
+		} elseif ($idHasPart && $typeHasPart && $idIsPartOf) {
+			return parent::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idmediaObject or mediaObject"]);
 		}

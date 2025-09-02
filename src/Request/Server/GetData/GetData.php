@@ -13,13 +13,7 @@ class GetData extends GetDataAbstract
   {
     $this->table = $table;
 	  $this->setProperties($table);
-		if ($withThings && isset($this->properties[$table])) {
-			foreach ($this->properties[$table] as $property) {
-				if ($property === 'thing') {
-					$this->setLeftJoin('thing',"`thing`.idthing = `$this->table`.thing");
-				}
-			}
-		}
+		$this->withThings = $withThings;
   }
 
 	/**
@@ -82,7 +76,6 @@ class GetData extends GetDataAbstract
 
 	public function getQuery(): string
 	{
-		$this->setQuery();
 		return $this->query;
 	}
 
@@ -91,6 +84,7 @@ class GetData extends GetDataAbstract
    */
   public function render(): array
   {
+	  $this->setQuery();
     return PDOConnect::run($this->getQuery());
   }
 }

@@ -41,6 +41,14 @@ abstract class GetDataAbstract
    * @var ?array
    */
   protected ?array $error = null;
+	/**
+	 * @var bool
+	 */
+	private bool $isCount = false;
+	/**
+	 * @var bool
+	 */
+	protected bool $withThings = true;
 
 	/**
 	 * @return void
@@ -51,6 +59,14 @@ abstract class GetDataAbstract
 	  $fields = $this->buildFields();
 	  // QUERY
 	  $this->query = "SELECT $fields FROM `$this->table`";
+		// LEFT JOIN THING
+	  if ($this->withThings && isset($this->properties[$this->table]) && !$this->isCount) {
+		  foreach ($this->properties[$this->table] as $property) {
+			  if ($property === 'thing') {
+					$this->setLeftJoin('thing',"`thing`.idthing = `$this->table`.thing");
+			  }
+		  }
+	  }
 	  // JOIN
 	  if ($this->joins) {
 		  $this->query .= " " . implode(' ',$this->joins);
@@ -98,8 +114,8 @@ abstract class GetDataAbstract
 		if (array_key_exists('fields', $this->params)) {
 			$tableProperties = array_keys($this->properties);
 			array_walk($tableProperties, function (&$value) { $value = "id$value"; });
-			$idtables = implode(',',$tableProperties);
-			$this->fields[] = $this->params['fields'].",".$idtables;
+			$this->isCount = $this->params['fields'] == 'count(*)' || $this->params['fields'] == 'count(idthing)' || $this->params['fields'] == "count($tableProperties[0])";
+			$this->fields[] = $this->isCount ? $this->params['fields'] : $this->params['fields'] . ',' . implode(',',$tableProperties);
 		} elseif (!$this->fields) {
 			$this->fields = ['*'];
 		}
@@ -197,7 +213,7 @@ abstract class GetDataAbstract
 			}
 		}
 		// LIMIT
-		if ($limit != 'none' && $limit != '' && !in_array('count(*)',$this->fields)) {
+		if ($limit != 'none' && $limit != '' && !$this->isCount) {
 			$this->query .= " LIMIT $limit";
 			// OFFSET
 			if ($offset) {

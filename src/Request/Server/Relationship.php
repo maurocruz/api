@@ -22,6 +22,10 @@ class Relationship
 	 * @var ?string
 	 */
 	private ?string $idIsPartOf = null;
+	/**
+	 * @var array|null
+	 */
+	private ?array $params = null;
 
 	/**
 	 * @param string|null $typeHasPart
@@ -56,9 +60,19 @@ class Relationship
 	}
 
 	/**
+	 * @param array|null $params
+	 */
+	public function setParams(?array $params): void
+	{
+		$this->params = $params;
+	}
+
+	/**
+	 * @param string|null $orderBy
+	 * @param string $ordering
 	 * @return array
 	 */
-	public function get(): array
+	public function get(string $orderBy = null, string $ordering = 'asc'): array
 	{
 		$sql = "SELECT * FROM thing_has_thing";
 		$where = [];
@@ -78,13 +92,34 @@ class Relationship
 			$bindValues[':idIsPartOf'] = $this->idIsPartOf;
 			$where[] = "`idIsPartOf`=:idIsPartOf";
 		}
-		if (!empty($where)) {
-			$sql .= " WHERE ".implode(" AND ", $where);
+		if ($this->params) {
+			foreach ($this->params as $col => $val) {
+				$bindValues[":$col"] = $val;
+				$where[] = "`$col`=:$col";
+			}
 		}
-		$data = PDOConnect::run($sql.";", $bindValues);
+		if (!empty($where)) {
+			$sql .= " WHERE " . implode(" AND ", $where);
+		}
+		if ($orderBy) {
+			$sql .= " ORDER BY $orderBy $ordering";
+		}
+		return PDOConnect::run($sql . ";", $bindValues);
+	}
+
+	public function getParts(string $property = 'isPartOf', string $orderBy = null, string $ordering = 'asc'): array
+	{
+		$data = self::get($orderBy, $ordering);
 		$dataItems = [];
 		foreach ($data as $value) {
-			$dataItem = ApiFactory::request()->type(lcfirst($value['typeIsPartOf']))->get(['thing' => $value['idIsPartOf']])->ready();
+			if ($property == 'hasPart') {
+				$type = lcfirst($value['typeIsPartOf']);
+				$idthing = $value['idIsPartOf'];
+			} elseif ($property == 'isPartOf') {
+				$type = lcfirst($value['typeHasPart']);
+				$idthing = $value['idHasPart'];
+			}
+			$dataItem = ApiFactory::request()->type($type)->get(['thing' => $idthing])->ready();
 			if (isset($dataItem[0])) {
 				$valueItem = $dataItem[0];
 				// properties in identifier
@@ -99,16 +134,15 @@ class Relationship
 	}
 
 	/**
+	 * @param array|null $params
 	 * @return array
 	 */
-	public function post(): array
+	public function post(array $params = null): array
 	{
-		$sql = "INSERT INTO thing_has_thing (`typeHasPart`, `idHasPart`, `typeIsPartOf`, `idIsPartOf`) VALUES (:typeHasPart, :idHasPart, :typeIsPartOf, :idIsPartOf)";
-		$bindValues[':typeHasPart'] = $this->typeHasPart;
-		$bindValues[':idHasPart'] = $this->idHasPart;
-		$bindValues[':typeIsPartOf'] = $this->typeIsPartOf;
-		$bindValues[':idIsPartOf'] = $this->idIsPartOf;
-		$data = PDOConnect::run($sql, $bindValues);
+		$caption = $params['caption'] ?? null;
+		$position = $params['position'] ?? null;
+		$representativeOfPage = $params['representativeOfPage'] ?? null;
+		$data = PDOConnect::run("CALL sp_thing_has_thing_insert($this->idHasPart, '$this->typeHasPart', $this->idIsPartOf, '$this->typeIsPartOf', '$caption', '$position', '$representativeOfPage')");
 		if (empty($data)) {
 			return ApiFactory::response()->message()->success("The relationship of $this->typeHasPart with $this->typeIsPartOf was created");
 		} else {
@@ -122,19 +156,10 @@ class Relationship
 	 */
 	public function put(array $params): array
 	{
-		$setParts = [];
-		$bindValues = [];
-		foreach ($params as $col => $val) {
-			$setParts[] = "`$col`=:$col";
-			$bindValues[":$col"] = $val;
-		}
-		$sqlSet = implode(", ", $setParts);
-		$sql = "UPDATE thing_has_thing SET $sqlSet WHERE `typeHasPart`=:typeHasPart AND `idHasPart`=:idHasPart AND `typeIsPartOf`=:typeIsPartOf AND `idIsPartOf`=:idIsPartOf";
-		$bindValues[':typeHasPart'] = $this->typeHasPart;
-		$bindValues[':idHasPart'] = $this->idHasPart;
-		$bindValues[':typeIsPartOf'] = $this->typeIsPartOf;
-		$bindValues[':idIsPartOf'] = $this->idIsPartOf;
-		$data = PDOConnect::run($sql, $bindValues);
+		$caption = $params['caption'] ?? null;
+		$position = $params['position'] ?? null;
+		$representativeOfPage = $params['representativeOfPage'] ?? null;
+		$data = PDOConnect::run("CALL sp_thing_has_thing_update($this->idHasPart, '$this->typeHasPart', $this->idIsPartOf, '$this->typeIsPartOf', '$caption', '$position', '$representativeOfPage')");
 		if (empty($data)) {
 			return ApiFactory::response()->message()->success("The relationship of $this->typeHasPart with $this->typeIsPartOf was updated");
 		} else {
@@ -147,12 +172,7 @@ class Relationship
 	 */
 	public function delete(): array
 	{
-		$sql = "DELETE FROM thing_has_thing WHERE `typeHasPart`=:typeHasPart AND `idHasPart`=:idHasPart AND `typeIsPartOf`=:typeIsPartOf AND `idIsPartOf`=:idIsPartOf";
-		$bindValues[':typeHasPart'] = $this->typeHasPart;
-		$bindValues[':idHasPart'] = $this->idHasPart;
-		$bindValues[':typeIsPartOf'] = $this->typeIsPartOf;
-		$bindValues[':idIsPartOf'] = $this->idIsPartOf;
-		$data = PDOConnect::run($sql, $bindValues);
+		$data = PDOConnect::run("CALL sp_thing_has_thing_delete($this->idHasPart, '$this->typeHasPart', $this->idIsPartOf, '$this->typeIsPartOf')");
 		if (empty($data)) {
 			return ApiFactory::response()->message()->success("The relationship of $this->typeHasPart with $this->typeIsPartOf was deleted");
 		} else {

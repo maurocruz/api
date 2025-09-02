@@ -96,7 +96,7 @@ class LocalBusiness extends Place
 					if (isset($params['typeIsPartOf'])) {
 						$hasPart->setTypeIsPartOf($params['typeIsPartOf']);
 					}
-					$dataHasPart = $hasPart->get();
+					$dataHasPart = $hasPart->getParts('hasPart','position');
 					if ($dataHasPart) {
 						foreach ($dataHasPart as $valueHasPart) {
 							$typeHasPart = $valueHasPart['@type'];
@@ -123,10 +123,11 @@ class LocalBusiness extends Place
 	}
 
 	/**
-  * @param array|null $params
-  * @return array
+	 * @param array|null $params
+	 * @param array|null $uploadfiles
+	 * @return array
   */
-  public function post(?array $params = null): array
+  public function post(?array $params = null, array $uploadfiles = null): array
   {
     $params['dateCreated'] = date("Y-m-d");
     return parent::post($params);

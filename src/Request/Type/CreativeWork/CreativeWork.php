@@ -25,18 +25,16 @@ class CreativeWork extends Thing implements HttpRequestInterface
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$withSubclass = $params['withSubclass'] ?? null;
 		$getData = new GetData('creativeWork');
 		$getData->setParams($params);
 		$data = $getData->render();
-
-		if (!empty($data)) {
+		if (isset($data[0]['idcreativeWork'])) {
 			foreach ($data as $key => $value) {
 				$idcreativeWork = $value['idcreativeWork'];
 				$type = $value['type'];
-				if ($type !== 'CreativeWork' && $type !== 'Thing') {
-					$getDataCreativeWork = new GetData(lcfirst($type));
-					$getDataCreativeWork->setParams(['creativeWork'=>$idcreativeWork]);
-					$dataCreativeWork = $getDataCreativeWork->render();
+				if ($type !== 'CreativeWork' && $type !== 'Thing' && $withSubclass) {
+					$dataCreativeWork = ApiFactory::request()->type($type)->get(['idcreativeWork'=>$idcreativeWork])->ready();
 					if (isset($dataCreativeWork[0])) {
 						$data[$key] = $dataCreativeWork[0] + $value;
 					}
