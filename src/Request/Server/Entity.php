@@ -381,7 +381,7 @@ abstract class Entity implements HttpRequestInterface
 					$size = $filesUpload['size'][$key];
 					if (is_uploaded_file($tmpName)) {
 						// SET FOLDER DESTINATION
-						$folder = "/public/uploads/$groupType" . (str_starts_with($location, '/') ? "$location/" : "/$location/") ;
+						$folder = "/public/uploads/$groupType" . (str_starts_with($location, '/') ? "$location/" : ($location ? "/$location/" : "/")) ;
 						$pathfile = $_SERVER['DOCUMENT_ROOT'] . $folder;
 						if (is_dir($pathfile) === false) {
 							mkdir($pathfile, 0777, true);
