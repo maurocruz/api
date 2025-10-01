@@ -140,7 +140,7 @@ class Crud
 	  if ((int) $rows > 0) {
       return ['status'=>'success', 'message'=>"Deleted successfully. $rows rows affected."];
     } else {
-		  return ['status'=>'fail', 'message'=>"$rows rows affected."];
+		  return ['status'=>'fail', 'message'=>"$rows rows affected", 'data'=>$query];
     }
   }
 }

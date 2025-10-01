@@ -30,7 +30,7 @@ class TypeSchema extends TypeSchemaAbstract
 				$this->setIdentifier($key, (string) $valueItem);
 				unset($value[$key]);
 			}
-			if ($key === 'dateCreated' || $key === 'dateModified') {
+			if ($key === 'dateRegistered' || $key === 'lastModified') {
 				if ($valueItem) {
 					$this->setIdentifier($key, $valueItem);
 				}
@@ -43,8 +43,8 @@ class TypeSchema extends TypeSchemaAbstract
 		unset($value['thing']);
 		unset($value['mediaObject']);
 		unset($value['creativeWork']);
-		unset($value['dateCreated']);
-		unset($value['dateModified']);
+		unset($value['dateRegistered']);
+		unset($value['lastModified']);
 
 		$this->value = $value;
 		return $this;

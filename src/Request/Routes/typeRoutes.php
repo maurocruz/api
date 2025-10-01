@@ -23,7 +23,7 @@ return function(Route $route)
 	 */
 	$route->get('', function (Request $request, Response $response, $args)
 	{
-		$type = $args['type'] ?? null;
+		$type = isset($args['type']) ? lcfirst($args['type']) : null;
 		$params = $request->getQueryParams() ?? null;
 		if ($type) {
 			$dataRequest = ApiFactory::request()->type($type)->get($params)->ready();
@@ -39,7 +39,7 @@ return function(Route $route)
 	 */
 	$route->post('', function(Request $request, Response $response, $args)
 	{
-		$type = $args['type'] ?? null;
+		$type = isset($args['type']) ? lcfirst($args['type']) : null;
 		$params = $request->getParsedBody();
 		$uploadedFiles = $_FILES;
 		$data = ApiFactory::request()->type($type)->post($params, $uploadedFiles)->ready();
@@ -49,8 +49,9 @@ return function(Route $route)
 	/**
 	 * PUT
 	 */
-	$route->put('', function (Request $request, Response $response, $args) {
-		$type = $args['type'];
+	$route->put('', function (Request $request, Response $response, $args)
+	{
+		$type = isset($args['type']) ? lcfirst($args['type']) : null;
 		$params = $request->getParsedBody() ?? null;
 		$data = ApiFactory::request()->type($type)->put($params)->ready();
 		return ApiFactory::response()->write($response, $data);
@@ -61,7 +62,7 @@ return function(Route $route)
 	 */
 	$route->delete("[/{id}]", function (Request $request, Response $response, $args)
 	{
-		$type = $args['type'];
+		$type = isset($args['type']) ? lcfirst($args['type']) : null;
 		$params = $request->getQueryParams() ?? null;
 		$data = ApiFactory::request()->type($type)->delete($params)->ready();
 		return ApiFactory::response()->write($response, $data);

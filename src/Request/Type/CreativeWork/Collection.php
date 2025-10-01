@@ -23,16 +23,28 @@ class Collection extends CreativeWork implements HttpRequestInterface
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$isPartOf = $params['isPartOf'] ?? null;
+		unset($params['isPartOf']);
 		$getData = new GetData('collection');
 		$getData->setParams($params);
 		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=collection.creativeWork');
+		// if NOT EXISTS IS PART OF
+		if ($isPartOf) {
+			$getData->setLeftJoin('thing_has_thing','t1.idHasPart=collection.thing','t1');
+			$getData->setWhere('not exists (select 1 from thing_has_thing as t2 where t1.idHasPart=t2.idIsPartOf)');
+			$getData->setParams(['groupBy'=>'idcollection', 'limit'=>'none']);
+		}
 		$data = $getData->render();
 		if ($properties) {
 			foreach ($data as $key => $value) {
 				$idthing = $value['thing'];
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing, 'Collection');
+					$data[$key]['hasPart'] = parent::getHasPart($idthing, 'Collection', null, $params);
+				}
+				// IS PART OF
+				if (in_array('isPartOf', $properties)) {
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing,'Collection');
 				}
 			}
 		}
