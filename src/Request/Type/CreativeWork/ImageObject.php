@@ -37,7 +37,7 @@ class ImageObject extends MediaObject
 			$getData->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
 			$getData->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
 			$getData->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
-			$getData->setParams($params + ['where'=>"`thing_has_thing`.idHasPart=$idHasPart"]);
+			$getData->setParams($params + ['where'=>"`thing_has_thing`.idHasPart='$idHasPart' AND thing_has_thing.typeIsPartOf='ImageObject'"]);
 			$data = $getData->render();
 		}
 		// COUNT
