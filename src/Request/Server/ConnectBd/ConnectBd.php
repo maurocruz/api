@@ -46,8 +46,9 @@ class ConnectBd
 	 */
 	public function update(array $params): array
 	{
-		$idname = "id$this->table";
-		$idvalue = $params["id$this->table"] ?? null;
+		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
+		$idname = $idthing && $this->table != 'thing' ? 'thing' : "id$this->table";
+		$idvalue = $idthing ?? $params["id$this->table"] ?? null;
 		if($idvalue) {
 			$data = PDOConnect::crud()->setTable($this->table)->update($params, "`$idname`='$idvalue'");
 			if (empty($data)) {

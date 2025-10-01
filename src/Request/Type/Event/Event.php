@@ -87,6 +87,14 @@ class Event extends Thing
 	 */
   public function put(array $params = null): array
   {
+		$superEvent = $params['superEvent'] ?? null;
+		$organizer = $params['organizer'] ?? null;
+		if (is_string($superEvent)) {
+			unset($params['superEvent']);
+		}
+		if (is_string($organizer)) {
+			unset($params['organizer']);
+		}
     return parent::update('thing', $params);
   }
 

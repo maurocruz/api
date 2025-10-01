@@ -1,53 +1,73 @@
--- THING
-CREATE TABLE IF NOT EXISTS `thing` (
-  `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `additionalType` VARCHAR(255) NULL DEFAULT NULL,
-  `alternateName` VARCHAR(255) NULL DEFAULT NULL,
-  `dateRegistered` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `lastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `description` TEXT NULL DEFAULT NULL,
-  `disambiguatingDescription` VARCHAR(255) NULL DEFAULT NULL,
-  `image` VARCHAR(255) NULL DEFAULT NULL,
-  `mainEntityOfPage` VARCHAR(255) NULL DEFAULT NULL,
-  `name` VARCHAR(255) NOT NULL,
-  `sameAs` VARCHAR(255) NULL DEFAULT NULL,
-  `type` VARCHAR(45) NOT NULL,
-  `url` VARCHAR(255) NULL DEFAULT NULL,
-  PRIMARY KEY (`idthing`),
-  KEY (`name`,`disambiguatingDescription`,`url`),
-  CONSTRAINT `thing_check_name` CHECK (`name` <> '')
-) ENGINE = InnoDB;
-
--- RELATIONAL THING HAS THING
-CREATE TABLE IF NOT EXISTS `thing_has_thing` (
-  `idHasPart` INT UNSIGNED NOT NULL,
-  `typeHasPart` VARCHAR(48) NOT NULL,
-  `idIsPartOf` INT UNSIGNED NOT NULL,
-  `typeIsPartOf` VARCHAR(48) NOT NULL,
-  `caption` VARCHAR(255) NULL DEFAULT NULL,
-  `position` INT UNSIGNED NULL DEFAULT '1',
-  `representativeOfPage` TINYINT(1) NOT NULL DEFAULT 0,
-  `repUniqueFlag` TINYINT(1) GENERATED ALWAYS AS (CASE WHEN `representativeOfPage` = 1 THEN 1 END) VIRTUAL,
-  PRIMARY KEY (`idHasPart`, `idIsPartOf`, `typeHasPart`, `typeIsPartOf`),
-  INDEX `fk_thing_has_thing_idHasPart_idx` (`idHasPart`),
-  INDEX `fk_thing_has_thing_idIsPartOf_idx` (`idIsPartOf`),
-  UNIQUE KEY `uq_group_representative` (`idHasPart`,`typeHasPart`,`typeIsPartOf`,`repUniqueFlag`),
-  CONSTRAINT `fk_thing_has_thing_idHasPart` FOREIGN KEY (`idHasPart`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
-  CONSTRAINT `fk_thing_has_thing_idIsPartOf` FOREIGN KEY (`idIsPartOf`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
-) ENGINE = InnoDB;
-
--- PROPERTY VALUE
-CREATE TABLE IF NOT EXISTS `propertyValue` (
-  `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL,
-  `value` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`idpropertyValue`)
-) ENGINE = InnoDB;
+ALTER TABLE `thing_has_thing`
+  ADD COLUMN `repUniqueFlag` TINYINT(1) GENERATED ALWAYS AS (CASE WHEN `representativeOfPage` = 1 THEN 1 END) VIRTUAL,
+  ADD UNIQUE KEY `uq_group_representative` (`idHasPart`,`typeHasPart`,`typeIsPartOf`,`repUniqueFlag`);
 
 --
--- Insere com reordenação: abre espaço se p_position for informado; se nulo, vai para o final
+-- procedure: sp_thing_has_thing_delete
 --
-CREATE PROCEDURE sp_thing_has_thing_insert (
+DELIMITER $$
+CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_delete`(
+  IN p_idHasPart INT UNSIGNED,
+  IN p_typeHasPart VARCHAR(48),
+  IN p_idIsPartOf INT UNSIGNED,
+  IN p_typeIsPartOf VARCHAR(48)
+)
+BEGIN
+  DECLARE v_old_pos INT UNSIGNED;
+  DECLARE v_sqlstate CHAR(5);
+  DECLARE v_errmsg TEXT;
+  DECLARE v_has_error TINYINT(1) DEFAULT 0;
+
+  -- Handler: captura o erro e faz rollback, mas não dá SELECT aqui
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+      GET DIAGNOSTICS CONDITION 1 v_sqlstate = RETURNED_SQLSTATE, v_errmsg = MESSAGE_TEXT;
+      SET v_has_error = 1;
+      ROLLBACK;
+    END;
+  START TRANSACTION;
+
+  SELECT position INTO v_old_pos
+  FROM thing_has_thing
+  WHERE idHasPart   = p_idHasPart
+    AND typeHasPart = p_typeHasPart
+    AND idIsPartOf  = p_idIsPartOf
+  LIMIT 1;
+
+  IF v_old_pos IS NULL THEN
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Registro não encontrado para exclusão';
+  END IF;
+
+  DELETE FROM thing_has_thing
+  WHERE idHasPart   = p_idHasPart
+    AND typeHasPart = p_typeHasPart
+    AND idIsPartOf  = p_idIsPartOf;
+
+  UPDATE thing_has_thing
+  SET position = position - 1
+  WHERE idHasPart   = p_idHasPart
+    AND typeHasPart = p_typeHasPart
+    AND typeIsPartOf= p_typeIsPartOf
+    AND position > v_old_pos;
+
+  -- Commit apenas se não houve erro
+  IF v_has_error = 0 THEN
+    COMMIT;
+  END IF;
+
+  -- Em caso de erro, retorna uma linha com detalhes (o PHP verá $data não vazio)
+  IF v_has_error = 1 THEN
+    SELECT JSON_OBJECT('status','error','sqlstate',v_sqlstate,'message',v_errmsg) AS error;
+  END IF;
+END$$
+DELIMITER ;
+
+
+--
+-- procedure: sp_thing_has_thing_insert
+--
+DELIMITER $$
+CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_insert`(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
@@ -78,8 +98,7 @@ BEGIN
     INTO v_pos
     FROM thing_has_thing
     WHERE idHasPart = p_idHasPart
-      AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf = p_typeIsPartOf;
+      AND typeHasPart = p_typeHasPart;
   ELSE
     SET v_pos = p_position;
 
@@ -88,7 +107,6 @@ BEGIN
     SET position = position + 1
     WHERE idHasPart = p_idHasPart
       AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf = p_typeIsPartOf
       AND position >= v_pos;
   END IF;
 
@@ -97,8 +115,7 @@ BEGIN
     UPDATE thing_has_thing
     SET representativeOfPage = 0
     WHERE idHasPart   = p_idHasPart
-      AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf= p_typeIsPartOf;
+      AND typeHasPart = p_typeHasPart;
   END IF;
 
   INSERT INTO thing_has_thing (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption, position, representativeOfPage)
@@ -113,13 +130,16 @@ BEGIN
   IF v_has_error = 1 THEN
     SELECT JSON_OBJECT('status','error','sqlstate',v_sqlstate,'message',v_errmsg) AS error;
   END IF;
-END;
+END$$
+DELIMITER ;
+
 
 
 --
--- Atualiza posição e/ou troca de grupo com reordenação nos grupos afetados
+-- procedure: sp_thing_has_thing_update
 --
-CREATE PROCEDURE sp_thing_has_thing_update(
+DELIMITER $$
+CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_update`(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
@@ -154,7 +174,6 @@ BEGIN
   WHERE idHasPart   = p_idHasPart
     AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
   LIMIT 1;
 
   IF v_old_pos IS NULL THEN
@@ -176,7 +195,6 @@ BEGIN
       SET position = position + 1
       WHERE idHasPart   = p_idHasPart
         AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_new_pos AND v_old_pos - 1;
     ELSE
       -- Desloca para baixo: puxa para cima quem está no intervalo [v_old_pos+1, v_new_pos]
@@ -184,7 +202,6 @@ BEGIN
       SET position = position - 1
       WHERE idHasPart   = p_idHasPart
         AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_old_pos + 1 AND v_new_pos;
     END IF;
   END IF;
@@ -208,8 +225,7 @@ BEGIN
       representativeOfPage = IF(p_representativeOfPage = '', representativeOfPage, p_representativeOfPage)
   WHERE idHasPart    = p_idHasPart
     AND typeHasPart  = p_typeHasPart
-    AND idIsPartOf   = p_idIsPartOf
-    AND typeIsPartOf = p_typeIsPartOf;
+    AND idIsPartOf   = p_idIsPartOf;
 
   -- Commit apenas se não houve erro
   IF v_has_error = 0 THEN
@@ -220,64 +236,47 @@ BEGIN
   IF v_has_error = 1 THEN
     SELECT JSON_OBJECT('status','error','sqlstate',v_sqlstate,'message',v_errmsg) AS error;
   END IF;
-END;
+END$$
+DELIMITER ;
 
---
--- Exclui e reordena o grupo
---
-CREATE PROCEDURE sp_thing_has_thing_delete (
-  IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
-  IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48)
-)
+DELIMITER $$
+CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `insert_thing_has_thing`(IN table_has_part VARCHAR(64), IN table_is_part_of VARCHAR(64))
 BEGIN
-  DECLARE v_old_pos INT UNSIGNED;
-  DECLARE v_sqlstate CHAR(5);
-  DECLARE v_errmsg TEXT;
-  DECLARE v_has_error TINYINT(1) DEFAULT 0;
+  DECLARE v_table_has VARCHAR(128);
+  DECLARE v_id_name_has_part VARCHAR(128);
+  DECLARE v_id_name_is_part_of VARCHAR(128);
+  DECLARE v_upper_has_part VARCHAR(128);
+  DECLARE v_upper_is_part_of VARCHAR(128);
 
-  -- Handler: captura o erro e faz rollback, mas não dá SELECT aqui
-  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
-    BEGIN
-      GET DIAGNOSTICS CONDITION 1 v_sqlstate = RETURNED_SQLSTATE, v_errmsg = MESSAGE_TEXT;
-      SET v_has_error = 1;
-      ROLLBACK;
-    END;
-  START TRANSACTION;
+  SET v_table_has = 'thing_has_imageObject';
+  SET v_id_name_has_part = CONCAT('id',table_has_part);
+  SET v_id_name_is_part_of = CONCAT('id',table_is_part_of);
+  SET v_upper_has_part = CONCAT(UPPER(LEFT(table_has_part, 1)),SUBSTRING(table_has_part, 2));
+  SET v_upper_is_part_of = CONCAT(UPPER(LEFT(table_is_part_of, 1)),SUBSTRING(table_is_part_of, 2));
 
-  SELECT position INTO v_old_pos
-  FROM thing_has_thing
-  WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
-  LIMIT 1;
+  SET @v_sql_text = CONCAT(
+          'INSERT INTO `thing_has_thing` (`idHasPart`, `typeHasPart`, `idIsPartOf`, `typeIsPartOf`, `caption`, `position`, `representativeOfPage`)
+            SELECT ', table_has_part, '.`thing`,
+      ''', v_upper_has_part, ''',
+      ', table_is_part_of, '.`thing`,
+      ''', v_upper_is_part_of, ''',
+      ', v_table_has, '.`caption`,
+      ', v_table_has, '.`position`,
+      ', v_table_has, '.`representativeOfPage`
+      FROM ', v_table_has, '
+      JOIN `', table_has_part, '` ON ', v_table_has, '.`idthing` = `', table_has_part, '`.`thing`
+      JOIN `', table_is_part_of, '` ON ', v_table_has, '.`', v_id_name_is_part_of, '` = `', table_is_part_of, '`.`', v_id_name_is_part_of, '`'
+                    );
 
-  IF v_old_pos IS NULL THEN
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Registro não encontrado para exclusão';
-  END IF;
+  PREPARE stmt FROM @v_sql_text;
+  EXECUTE stmt;
+  DEALLOCATE PREPARE stmt;
+END$$
+DELIMITER ;
 
-  DELETE FROM thing_has_thing
-  WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf;
-
-  UPDATE thing_has_thing
-  SET position = position - 1
-  WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND typeIsPartOf= p_typeIsPartOf
-    AND position > v_old_pos;
-
-  -- Commit apenas se não houve erro
-  IF v_has_error = 0 THEN
-    COMMIT;
-  END IF;
-
-  -- Em caso de erro, retorna uma linha com detalhes (o PHP verá $data não vazio)
-  IF v_has_error = 1 THEN
-    SELECT JSON_OBJECT('status','error','sqlstate',v_sqlstate,'message',v_errmsg) AS error;
-  END IF;
-END;
+call insert_thing_has_thing('action','imageObject');
+call insert_thing_has_thing('event','imageObject');
+call insert_thing_has_thing('person','imageObject');
+call insert_thing_has_thing('webPage','imageObject');
+call insert_thing_has_thing('webPageElement','imageObject');
+call insert_thing_has_thing('webSite','imageObject');

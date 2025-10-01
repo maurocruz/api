@@ -76,6 +76,7 @@ class Relationship
 	{
 		$sql = "SELECT * FROM thing_has_thing";
 		$where = [];
+		$bindValues = [];
 		if ($this->typeHasPart) {
 			$bindValues[':typeHasPart'] = $this->typeHasPart;
 			$where[] = "`typeHasPart`=:typeHasPart";
@@ -115,7 +116,7 @@ class Relationship
 			if ($property == 'hasPart') {
 				$type = lcfirst($value['typeIsPartOf']);
 				$idthing = $value['idIsPartOf'];
-			} elseif ($property == 'isPartOf') {
+			} else {
 				$type = lcfirst($value['typeHasPart']);
 				$idthing = $value['idHasPart'];
 			}

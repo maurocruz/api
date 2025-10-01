@@ -2,7 +2,6 @@
 namespace Plinct\Api\Request\Server;
 
 use Exception;
-use Imagick;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
@@ -150,12 +149,13 @@ abstract class Entity implements HttpRequestInterface
 	 */
   public function put(array $params = null): array
   {
+		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
 		// CONNECT
 	  $connect = new ConnectBd($this->table);
 		$data = $connect->update($params);
 		if ($data['status'] === 'success') {
-			$idname = "id$this->table";
-			$idvalue = $params[$idname] ?? null;
+			$idname = $idthing && $this->table != 'thing' ? 'thing' : "id$this->table";
+			$idvalue = $idthing ?? $params[$idname] ?? null;
 			if ($idvalue) {
 				$getData = new GetData($this->table, false);
 				$rowUpdated = $getData->setParams([$idname => $idvalue])->render();
@@ -172,12 +172,25 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function update(string $parentName, array $params = null): array
 	{
-		$idchildName = 'id'.$this->table;
-		$idchildValue = $params[$idchildName] ?? null;
-		if ($idchildValue) {
+		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
+		$idchildName = $idthing ? 'thing' : 'id'.$this->table;
+		$idchildValue = $idthing ?? $params[$idchildName] ?? null;
+		// if relationship
+		$idHasPart = $params['idHasPart'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$representativeOfPage = $params['representativeOfPage'] ?? null;
+		$position = $params['position'] ?? null;
+		$caption = $params['caption'] ?? null;
+		if ($idHasPart && $typeHasPart && $idIsPartOf) {
+			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
+			if ($position !== null) $paramsu['position'] = $position;
+			if ($caption !== null) $paramsu['caption'] = $caption;
+			return self::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'AudioObject',$paramsu ?? []);
+		} elseif ($idchildValue) {
 			$getData = new GetData($this->table, false);
 			$dataChild = $getData->setParams([$idchildName=>$idchildValue])->render();
-			if (!empty($dataChild)) {
+			if (isset($dataChild[0])) {
 				$putChild = self::put($params);
 				if ($putChild['status'] === 'success') {
 					$idparent = $putChild['data'][0][$parentName];
@@ -217,16 +230,23 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function erase(string $parentName, array $params = null): array
 	{
-		$idchildName = 'id'.$this->table;
-		$idchildValue = $params[$idchildName] ?? $params[$this->table] ?? null;
+		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$typeIsPartOf = $params['typeIsPartOf'] ?? 'CreativeWork';
+		$idchildName = $idthing ? 'thing' : 'id'.$this->table;
+		$idchildValue = $idthing ?? $params[$idchildName] ?? $params[$this->table] ?? null;
 		if ($idchildValue) {
 			$dataChild = self::getData([$idchildName=>$idchildValue]);
 			if (!empty($dataChild)) {
 				$idparent = $dataChild[0][$parentName];
 				return ApiFactory::request()->type($parentName)->delete(['id'.$parentName=>$idparent])->ready();
-			}else {
+			} else {
 				return ApiFactory::response()->message()->fail()->generic($params, ucfirst($this->table).' id not found');
 			}
+		} elseif ($idHasPart && $typeHasPart && $idIsPartOf) {
+			return self::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: $idchildName or $this->table"]);
 		}
@@ -268,29 +288,34 @@ abstract class Entity implements HttpRequestInterface
 	 * @param string $idHasPart
 	 * @param string $typeHasPart
 	 * @param string|null $typeIsPartOf
+	 * @param array|null $params
 	 * @return array
 	 */
-	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null): array
+	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null, array $params = null): array
 	{
+		$orderBy = $params['orderBy'] ?? null;
+		$ordering = $params['ordering'] ?? null;
 		$relationship = new Relationship();
 		$relationship->setIdHasPart($idHasPart);
 		$relationship->setTypeHasPart(ucfirst($typeHasPart));
 		if ($typeIsPartOf) {
 			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
 		}
-		return $relationship->getParts('hasPart');
+		return $relationship->getParts('hasPart', $orderBy, $ordering ?? 'asc');
 	}
 
 	/**
 	 * @param string $idIsPartOf
-	 * @param string $typeIsPartOf
+	 * @param ?string $typeIsPartOf
 	 * @return array
 	 */
-	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf): array
+	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null): array
 	{
 		$relationship = new Relationship();
 		$relationship->setIdIsPartOf($idIsPartOf);
-		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		if ($typeIsPartOf) {
+			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		}
 		return $relationship->getParts();
 	}
 
@@ -340,6 +365,7 @@ abstract class Entity implements HttpRequestInterface
 	protected function uploadfiles(array $params, array $uploadfiles): array
 	{
 		$filesUpload = $uploadfiles['uploadfile'] ?? null;
+		$thumbnail = $uploadfiles['thumbnail'] ?? null;
 		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
 		$location = $params['location'] ?? $params['destination'] ?? "";
@@ -374,7 +400,7 @@ abstract class Entity implements HttpRequestInterface
 						$params['bitrate'] = $parser->getBitrate();
 						$params['contentSize'] = $size;
 						$params['contentUrl'] = $host . $folder . $newName;
-						$params['dateModified'] = $parser->getDateModified() ?? $params['dateModified'] ?? date('Y-m-d H:i:s');
+						$params['dateModified'] = $parser->getDateModified();
 						$params['datePublished'] = $parser->getDatePublished();
 						$params['duration'] = $parser->getDuration();
 						$params['encodingFormat'] = $parser->getEncodingFormat();
@@ -392,7 +418,7 @@ abstract class Entity implements HttpRequestInterface
 							} else {
 								$uploadedReturn = self::uploadImage($newName, $tmpName, $folder);
 							}
-						} elseif ($groupType == 'application') {
+						} elseif ($groupType == 'application' || $groupType == 'audio' || $groupType == 'video') {
 							$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName);
 						} else {
 							return ApiFactory::response()->message()->fail()->generic(['message'=>'encodingFormat not recognized']);
@@ -400,19 +426,18 @@ abstract class Entity implements HttpRequestInterface
 						// CREATE ITEM AND IS PART OF
 						if ($uploadedReturn) {
 							// CREATE THUMBNAIL
-							if (isset($uploadedReturn['status']) && $uploadedReturn['status'] === 'success' && isset($uploadedReturn['data']['thumbnail'])) {
+							if (isset($uploadedReturn['data']['thumbnail'])) {
+								$params['image'] = $uploadedReturn['data']['contentUrl'];
 								$params['thumbnail'] = $uploadedReturn['data']['thumbnail'];
-							} elseif ($params['encodingFormat'] == 'application/pdf') {
-								$imagick = new Imagick();
-								$imagick->readImage($pathfile . $newName.'[0]');
-								$imagick->setImageFormat('jpeg');
-								$imagick->setResolution(300, 300);
-								$imagick->writeImage($pathfile . $thumbName);
-								$params['thumbnail'] = $host . $folder . $thumbName;
 							} else {
-								// TODO fazer thumbnail com FFMpeg no plinct
-								$params['thumbnail'] = "";
+								if ($thumbnail) {
+									$tmp_name = $thumbnail['tmp_name'][$key];
+									move_uploaded_file($tmp_name, $pathfile.$thumbName);
+								}
+								$params['image'] = $host . $folder . $thumbName;
+								$params['thumbnail'] = $host . $folder . $thumbName;
 							}
+							//
 							$params['type'] = match ($groupType) {
 								"video" => "VideoObject",
 								"audio" => "AudioObject",
@@ -422,12 +447,12 @@ abstract class Entity implements HttpRequestInterface
 							$parentType = $params['type'] == "MediaObject" ? 'creativeWork' : 'mediaObject';
 							$this->table = lcfirst($params['type']);
 							$dataCreated = self::createWithParent($parentType, $params);
+							// CREATE RELATIONSHIP
 							if (isset($dataCreated['status']) && $dataCreated['status'] === 'success') {
 								if($typeHasPart && $idHasPart) {
 									$item = $dataCreated['data'][0];
 									$idIsPartOf = $item['idthing'];
 									$typeIsPartOf = $item['type'];
-									$this->table = "thing_has_thing";
 									$dataCreated['data'][] = self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 								}
 								return $dataCreated;
@@ -445,21 +470,21 @@ abstract class Entity implements HttpRequestInterface
 	/**
 	 * @throws Exception
 	 */
-	public function uploadImage($newName, $tmp_name, $destination, $largeWidth = 1280): array
+	public function uploadImage($newName, $tmp_name, $destination, int $largeWidth = 1280): array
 	{
 		$newImage = new Image($tmp_name);
 		$width = $newImage->getWidth();
 		$ratio = 1.618; // number gold
-		$meddiumWidth = round($largeWidth / $ratio); // 791
-		$smallWidth = round($meddiumWidth / $ratio); // 489
-		$tinyWidth = round($smallWidth / $ratio); // 302
+		$meddiumWidth = floor($largeWidth / $ratio); // 791
+		$smallWidth = floor($meddiumWidth / $ratio); // 489
+		$tinyWidth = floor($smallWidth / $ratio); // 302
 		if ($width < $largeWidth) {
 			$largeWidth = $width;
-			$meddiumWidth = null;
+			$meddiumWidth = 0;
 		} else if ($width < $meddiumWidth) {
 			$largeWidth = $width;
-			$meddiumWidth = null;
-			$smallWidth = null;
+			$meddiumWidth = 0;
+			$smallWidth = 0;
 		}
 		$pathinfo = pathinfo($destination.$newName);
 		$dirname = $pathinfo['dirname'];
@@ -473,9 +498,9 @@ abstract class Entity implements HttpRequestInterface
 		// large
 		$contentUrl = $newImage->createNewImage($largeFileName, $largeWidth);
 		// meddium
-		if ($meddiumWidth) $newImage->createNewImage($meddiumFileName, (int) $meddiumWidth);
+		if ($meddiumWidth !== 0) $newImage->createNewImage($meddiumFileName, (int) $meddiumWidth);
 		// small
-		$thumbnail = $smallWidth ? $newImage->createNewImage($smallFileName, (int) $smallWidth) : $contentUrl;
+		$thumbnail = $smallWidth !== 0 ? $newImage->createNewImage($smallFileName, (int) $smallWidth) : $contentUrl;
 		// tiny
 		$newImage->createNewImage($tinyFileName, (int)$tinyWidth);
 		// RETURN

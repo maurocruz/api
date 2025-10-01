@@ -88,6 +88,7 @@ class ImageObject extends MediaObject
   public function put(array $params = null): array
   {
 		$idimageObject = $params['idimageObject'] ?? null;
+		$idthing = $params['thing'] ?? $params['idthing'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
 		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
@@ -98,16 +99,9 @@ class ImageObject extends MediaObject
 			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
 			if ($position !== null) $paramsu['position'] = $position;
 			if ($caption !== null) $paramsu['caption'] = $caption;
-			return parent::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'ImageObject',$paramsu);
-		} elseif ($idimageObject) {
-			$dataImageObject = self::get(['idimageObject'=>$idimageObject]);
-			if (isset($dataImageObject[0])) {
-				$idmediaObject = $dataImageObject[0]['mediaObject'];
-				$params['idmediaObject'] = $idmediaObject;
-				return parent::put($params);
-			} else {
-				return ApiFactory::response()->message()->fail()->generic(["ImageObject is not found"]);
-			}
+			return parent::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'ImageObject',$paramsu ?? []);
+		} elseif ($idimageObject || $idthing) {
+			return parent::update('mediaObject',$params);
 		} else {
 			return ApiFactory::response()->message()->fail()->generic(["Mandatory not found: idimageObject"]);
 		}
@@ -120,23 +114,6 @@ class ImageObject extends MediaObject
 	 */
 	public function delete(array $params): array
 	{
-		$idimageObject = $params['idimageObject'] ?? $params['imageObject'] ?? null;
-		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
-		$idIsPartOf = $params['idIsPartOf'] ?? null;
-		if ($idimageObject) {
-			$dataImageObject = self::get(['idimageObject'=>$idimageObject]);
-			if (isset($dataImageObject[0])) {
-				$idmediaObject = $dataImageObject[0]['mediaObject'];
-				$params['idmediaObject'] = $idmediaObject;
-				return parent::delete($params);
-			} else {
-				return ApiFactory::response()->message()->fail()->generic($params,'ImageObject is not found');
-			}
-		} elseif ($idHasPart && $typeHasPart && $idIsPartOf) {
-			return parent::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'imageObject');
-		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idimageObject or imageObject!"]);
-		}
+		return parent::erase('mediaObject', $params);
 	}
 }
