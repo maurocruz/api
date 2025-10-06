@@ -100,7 +100,7 @@ class Thing extends Entity
 				return ApiFactory::response()->message()->fail()->generic(['Thing not found: '.$idthing]);
 			}
 		} else {
-			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idthing"]);
+			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idthing or thing"]);
 		}
 	}
 }

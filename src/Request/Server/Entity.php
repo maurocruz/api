@@ -41,6 +41,14 @@ abstract class Entity implements HttpRequestInterface
 	}
 
 	/**
+	 * @param string $type
+	 */
+	public function setType(string $type): void
+	{
+		$this->type = $type;
+	}
+
+	/**
 	 * @param array $properties
 	 */
 	protected function setProperties(array $properties): void

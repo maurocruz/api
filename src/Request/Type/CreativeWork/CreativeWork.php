@@ -81,12 +81,16 @@ class CreativeWork extends Thing implements HttpRequestInterface
 		return parent::update('thing', $params);
 	}
 
-	/**
-	 * @param array $params
-	 * @return array
-	 */
 	public function delete(array $params): array
 	{
-		return parent::erase('thing',$params);
+		$idHasPart = $params['idHasPart'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
+		$typeIsPartOf = $this->type;
+		if ($idHasPart && $typeHasPart && $idIsPartOf && $typeIsPartOf) {
+			return parent::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+		} else {
+			return parent::delete($params);
+		}
 	}
 }
