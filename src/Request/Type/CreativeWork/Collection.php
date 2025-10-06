@@ -67,8 +67,7 @@ class Collection extends CreativeWork implements HttpRequestInterface
 			if(!empty($uploadfiles)) {
 				$params['typeHasPart'] = 'Collection';
 				$returns[] = parent::uploadfiles($params, $uploadfiles);
-			}
-			if ($idIsPartOf && $typeIsPartOf) {
+			} elseif ($idIsPartOf && $typeIsPartOf) {
 				$returns[] = self::createRelationShip($idHasPart, "Collection", $idIsPartOf, ucfirst($typeIsPartOf));
 			}
 			return $returns;
@@ -84,14 +83,5 @@ class Collection extends CreativeWork implements HttpRequestInterface
 	public function put(array $params = null): array
 	{
 		return parent::update('creativeWork', $params);
-	}
-
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-	public function delete(array $params): array
-	{
-		return parent::erase('creativeWork', $params);
 	}
 }

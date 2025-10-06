@@ -32,6 +32,7 @@ BEGIN
   WHERE idHasPart   = p_idHasPart
     AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
+    AND typeIsPartOf = p_typeIsPartOf
   LIMIT 1;
 
   IF v_old_pos IS NULL THEN
@@ -41,7 +42,8 @@ BEGIN
   DELETE FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
     AND typeHasPart = p_typeHasPart
-    AND idIsPartOf  = p_idIsPartOf;
+    AND idIsPartOf  = p_idIsPartOf
+    AND typeIsPartOf = p_typeIsPartOf;
 
   UPDATE thing_has_thing
   SET position = position - 1
@@ -108,6 +110,11 @@ BEGIN
     WHERE idHasPart = p_idHasPart
       AND typeHasPart = p_typeHasPart
       AND position >= v_pos;
+  END IF;
+
+  -- marca como 0 se representativeOfPage for null
+  IF p_representativeOfPage is null THEN
+    SET p_representativeOfPage = 0;
   END IF;
 
   -- Zera todos representativoOfPage do grupo se for = 1

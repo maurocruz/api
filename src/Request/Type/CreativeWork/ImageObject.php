@@ -14,6 +14,7 @@ class ImageObject extends MediaObject
 	{
 		parent::__construct();
 		$this->setTable('imageObject');
+		$this->setType('ImageObject');
 	}
 
 	/**
@@ -106,14 +107,4 @@ class ImageObject extends MediaObject
 			return ApiFactory::response()->message()->fail()->generic(["Mandatory not found: idimageObject"]);
 		}
   }
-
-	/**
-	 * @param array $params
-	 * @return array
-	 * @throws Exception
-	 */
-	public function delete(array $params): array
-	{
-		return parent::erase('mediaObject', $params);
-	}
 }

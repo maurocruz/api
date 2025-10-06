@@ -15,6 +15,7 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 	{
 		parent::__construct();
 		$this->setTable('mediaObject');
+		$this->setType('MediaObject');
 	}
 
 	/**
@@ -134,6 +135,6 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 				unlink(str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl));
 			}
 		}
-		return parent::erase('creativeWork', $params);
+		return parent::delete($params);
 	}
 }
