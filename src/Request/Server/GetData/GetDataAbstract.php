@@ -111,12 +111,7 @@ abstract class GetDataAbstract
    */
   protected function buildFields(): string
   {
-		if (array_key_exists('fields', $this->params)) {
-			$tableProperties = array_keys($this->properties);
-			array_walk($tableProperties, function (&$value) { $value = "id$value"; });
-			$this->isCount = $this->params['fields'] == 'count(*)' || $this->params['fields'] == 'count(idthing)' || $this->params['fields'] == "count($tableProperties[0])";
-			$this->fields[] = $this->isCount ? $this->params['fields'] : $this->params['fields'] . ',' . implode(',',$tableProperties);
-		} elseif (!$this->fields) {
+		if (!$this->fields) {
 			$this->fields = ['*'];
 		}
 		return implode(',', $this->fields);

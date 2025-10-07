@@ -24,15 +24,23 @@ class Collection extends CreativeWork implements HttpRequestInterface
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$isPartOf = $params['isPartOf'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$fields = $params['fields'] ?? null;
 		unset($params['isPartOf']);
-		$getData = new GetData('collection');
-		$getData->setParams($params);
-		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=collection.creativeWork');
-		// if NOT EXISTS IS PART OF
-		if ($isPartOf) {
-			$getData->setLeftJoin('thing_has_thing','t1.idHasPart=collection.thing','t1');
-			$getData->setWhere('not exists (select 1 from thing_has_thing as t2 where t1.idHasPart=t2.idIsPartOf)');
-			$getData->setParams(['groupBy'=>'idcollection', 'limit'=>'none']);
+		if ($idHasPart && $fields === 'count(idHasPart)') {
+			$getData = new GetData('thing_has_thing', false);
+			$getData->setFields($fields);
+			$getData->setParams($params);
+		} else {
+			$getData = new GetData('collection');
+			$getData->setParams($params);
+			$getData->setLeftJoin('creativeWork', 'creativeWork.idcreativeWork=collection.creativeWork');
+			// if NOT EXISTS IS PART OF
+			if ($isPartOf) {
+				$getData->setLeftJoin('thing_has_thing', 't1.idHasPart=collection.thing', 't1');
+				$getData->setWhere('not exists (select 1 from thing_has_thing as t2 where t1.idHasPart=t2.idIsPartOf)');
+				$getData->setParams(['groupBy' => 'idcollection', 'limit' => 'none']);
+			}
 		}
 		$data = $getData->render();
 		if ($properties) {
