@@ -56,6 +56,10 @@ class Person extends Thing
 				if (in_array('hasCertification', $properties)) {
 					$data[$key]['hasCertification'] = parent::getProperties('certification', ['about' => $idthing]);
 				}
+				// HAS PART
+				if (in_array('hasPart', $properties)) {
+					$data[$key]['hasPart'] = parent::getHasPart($idthing, 'Person', null, $params);
+				}
 				// HOME LOCATION
 				if (in_array('homeLocation', $properties)) {
 					$data[$key]['homeLocation'] = parent::getProperties('place', ['idplace' => $item['homeLocation'], 'properties' => 'address']);
