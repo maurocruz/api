@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\User;
 
 use Plinct\Api\ApiFactory;
@@ -10,8 +7,15 @@ use Plinct\Api\User\Privileges\PrivilegesActions;
 
 class UserActions implements HttpRequestInterface
 {
+	/**
+	 * @var string
+	 */
 	const tableName = "user";
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$dataUser = ApiFactory::server()->getDataInBd(self::tableName);
@@ -19,7 +23,7 @@ class UserActions implements HttpRequestInterface
 		$data = $dataUser->render();
 
 		// GET PERMISSIONS
-		if (isset($params['properties']) && strpos($params['properties'], 'privileges') !== false) {
+		if (isset($params['properties']) && str_contains($params['properties'], 'privileges')) {
 			foreach ($data as $key => $valueData) {
 				$iduser = $valueData['iduser'];
 				$dataPrivileges = (new PrivilegesActions())->get(['iduser' => $iduser]);
@@ -29,13 +33,16 @@ class UserActions implements HttpRequestInterface
 						$valueData['privileges'][] = $value;
 					}
 				}
-
 				$data[$key] = $valueData;
 			}
 		}
 		return $data;
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function post(array $params): array
 	{
 		$name = $params['name'] ?? null;
@@ -69,16 +76,27 @@ class UserActions implements HttpRequestInterface
 		}
 	}
 
+	/**
+	 * @param array|null $params
+	 * @return array
+	 */
 	public function put(array $params = null): array
 	{
 		return ApiFactory::server()->connectBd('user')->update($params);
 	}
 
+	/**
+	 * @param $params
+	 * @return array
+	 */
 	public function delete($params): array
 	{
 		return ApiFactory::server()->connectBd('user')->delete($params);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getTable(): string
 	{
 		return self::tableName;

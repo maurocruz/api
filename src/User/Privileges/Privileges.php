@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\User\Privileges;
 
 use Plinct\Api\ApiFactory;
@@ -25,7 +22,7 @@ class Privileges extends PrivilegesAbstract
 	 * @param int|null $function
 	 * @return void
 	 */
-	public function withPrivileges(string $action, string $namespace, int $function = null)
+	public function withPrivileges(string $action, string $namespace, int $function = null): void
 	{
 		// IF SUPERUSER
 		if (UserLogged::isSuperUser()) Permissions::setRequiresSubscription(true);
@@ -35,7 +32,7 @@ class Privileges extends PrivilegesAbstract
 			foreach ($permissions as $value) {
 				if (
 					$value['function'] >= $function
-					&& strpos($value['actions'], $action) !== false
+					&& str_contains($value['actions'], $action)
 					&& ($value['namespace'] === 'all' || $value['namespace'] == $namespace)
 				)
 					Permissions::setRequiresSubscription(true);
@@ -117,9 +114,16 @@ class Privileges extends PrivilegesAbstract
 					? $userLoggedPrivileges['function'] >= $valuePrivileges['function']
 					: $userLoggedPrivileges['function'] > $valuePrivileges['function']
 			);
+			$validadeActions = match ($method) {
+				'get' => str_contains($userLoggedPrivileges['actions'], 'r'),
+				'post' => str_contains($userLoggedPrivileges['actions'], 'c'),
+				'put' => str_contains($userLoggedPrivileges['actions'], 'u'),
+				'delete' => str_contains($userLoggedPrivileges['actions'], 'd'),
+			};
 			return (
 				$compareFunction
-				&& ($valuePrivileges['namespace'] === '' || $userLoggedPrivileges['namespace'] == $valuePrivileges['namespace'])
+				&& $validadeActions
+				&& ( $userLoggedPrivileges['namespace'] === 'all' || $valuePrivileges['namespace'] === '' || str_contains($userLoggedPrivileges['namespace'], $valuePrivileges['namespace']))
 			);
 		}
 		return false;
@@ -133,10 +137,10 @@ class Privileges extends PrivilegesAbstract
 	public function permittedActions(string $needled, string $haystacked): bool
 	{
 		$returns = false;
-		if (strpos($needled,'c') !== false) $returns = strpos($haystacked,'c') !== false;
-		if (strpos($needled,'r') !== false) $returns = strpos($haystacked,'r') !== false;
-		if (strpos($needled,'u') !== false) $returns = strpos($haystacked,'u') !== false;
-		if (strpos($needled,'d') !== false) $returns = strpos($haystacked,'d') !== false;
+		if (str_contains($needled, 'c')) $returns = str_contains($haystacked, 'c');
+		if (str_contains($needled, 'r')) $returns = str_contains($haystacked, 'r');
+		if (str_contains($needled, 'u')) $returns = str_contains($haystacked, 'u');
+		if (str_contains($needled, 'd')) $returns = str_contains($haystacked, 'd');
 		return $returns;
 	}
 }

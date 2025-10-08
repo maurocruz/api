@@ -1,14 +1,10 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\User\Privileges;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Interfaces\HttpRequestInterface;
 use Plinct\Api\Server\GetData\GetData;
 use Plinct\Api\User\UserLogged;
-use Plinct\Web\Debug\Debug;
 
 class PrivilegesActions implements HttpRequestInterface
 {
