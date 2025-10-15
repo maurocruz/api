@@ -3,7 +3,6 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
@@ -25,9 +24,19 @@ class WebPage extends CreativeWork
 	public function get(array $params = []): array
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
-		$getData = new GetData('webPage');
-		$getData->setParams($params);
-		$getData->setLeftJoin('creativeWork',"`webPage`.creativeWork = `creativeWork`.idcreativeWork");
+		$isPartOf = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+		if ($isPartOf) {
+			unset($params['isPartOf']);
+			$getData = new GetData('thing_has_thing');
+			$getData->setLeftJoin('thing', "`thing`.idthing=`thing_has_thing`.idIsPartOf");
+			$getData->setLeftJoin('webPage', "`webPage`.thing = `thing_has_thing`.idIsPartOf");
+			$getData->setLeftJoin('creativeWork', "`webPage`.creativeWork = `creativeWork`.idcreativeWork");
+			$getData->setParams($params);
+		} else {
+			$getData = new GetData('webPage');
+			$getData->setParams($params);
+			$getData->setLeftJoin('creativeWork', "`webPage`.creativeWork = `creativeWork`.idcreativeWork");
+		}
 		$data = $getData->render();
 		if (isset($data['error'])) {
 			return $data;
@@ -35,25 +44,17 @@ class WebPage extends CreativeWork
 		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['idthing'];
-				$idcreativeWork = $item['idcreativeWork'];
-				$isPartOf = $item['isPartOf'];
 				// IMAGE
 				if(in_array('image',$properties)) {
 					$data[$key]['image'] =  parent::getProperties('imageObject', ['idHasPart' => $idthing]);
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$dataWebPageElement = ApiFactory::request()->type('webPageElement')->get(['isPartOf'=>$idcreativeWork,'properties'=>'propertyValue','orderBy'=>'position'])->ready();
-					if (isset($dataWebPageElement[0])) {
-						$data[$key]['hasPart'] = ApiFactory::response()->type('webPageElement')->setData($dataWebPageElement)->ready();
-					}
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage', null, $params);
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$dataWebSite = ApiFactory::request()->type('webSite')->get(['idcreativeWork'=>$isPartOf])->ready();
-					if (isset($dataWebSite[0])) {
-						$data[$key]['isPartOf'] = ApiFactory::response()->type('webSite')->setData($dataWebSite[0])->ready();
-					}
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing);
 				}
 				// PROPERTY
 				if (in_array('propertyValue', $properties)) {

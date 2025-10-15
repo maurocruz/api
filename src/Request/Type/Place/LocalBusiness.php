@@ -12,6 +12,7 @@ class LocalBusiness extends Place
 	 */
   public function __construct()
   {
+		parent::__construct();
 		$this->setTable("localBusiness");
   }
 
@@ -96,7 +97,7 @@ class LocalBusiness extends Place
 					if (isset($params['typeIsPartOf'])) {
 						$hasPart->setTypeIsPartOf($params['typeIsPartOf']);
 					}
-					$dataHasPart = $hasPart->getParts('hasPart','position');
+					$dataHasPart = $hasPart->getParts('hasPart');
 					if ($dataHasPart) {
 						foreach ($dataHasPart as $valueHasPart) {
 							$typeHasPart = $valueHasPart['@type'];

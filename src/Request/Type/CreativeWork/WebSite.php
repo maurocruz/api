@@ -2,6 +2,7 @@
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class WebSite extends CreativeWork
 {
@@ -20,32 +21,23 @@ class WebSite extends CreativeWork
 	 */
 	public function get(array $params = []): array
 	{
-		$returns = [];
-		$properties = $params['properties'] ?? null;
-		$data = parent::getData($params);
+		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$getData = new GetData('webSite');
+		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=webSite.creativeWork');
+		$getData->setParams($params);
+		$data = $getData->render();
 		if (!empty($data)) {
-			foreach ($data as $item) {
-				// CREATIVE WORK
-				$idcreativeWork = $item['creativeWork'];
-				$dataCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$idcreativeWork])->ready();
+			foreach ($data as $key => $item) {
+				$idthing = $item['thing'] ?? null;
 				// PROPERTIES
 				if ($properties) {
-					if (stripos($properties, 'hasPart') !== false) {
-						$dataWebPage = ApiFactory::request()->type('webPage')->get(['isPartOf' => $idcreativeWork])->ready();
-						$item['hasPart'] = ApiFactory::response()->type('webPage')->setData($dataWebPage)->ready();
+					if (in_array('hasPart', $properties)) {
+						$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebSite');
 					}
 				}
-				// RESPONSE
-				if (isset($dataCreativeWork[0])) {
-					$returns[] = $item + $dataCreativeWork[0];
-				} else {
-					$returns[] = $item;
-				}
 			}
-			return parent::sortData($returns);
-		} else {
-			return $data;
 		}
+		return parent::sortData($data);
 	}
 
 	/**

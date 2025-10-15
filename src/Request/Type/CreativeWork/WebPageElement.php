@@ -3,7 +3,6 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 
 class WebPageElement extends CreativeWork
@@ -24,7 +23,6 @@ class WebPageElement extends CreativeWork
   public function get(array $params = []): array
   {
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		$isPartOf = $params['isPartOf'] ?? null;
 		$getData = new GetData('webPageElement');
 		$getData->setParams($params);
 		$getData->setLeftJoin("creativeWork","`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
@@ -32,7 +30,6 @@ class WebPageElement extends CreativeWork
 		if ($properties) {
 			foreach ($data as $key => $item) {
 				$idthing = $item['thing'];
-				$isPartOf = $item['isPartOf'];
 				// IMAGE
 				if (in_array('image',$properties)) {
 					$dataImageObject = parent::getProperties('imageObject', ['idHasPart' => $idthing]);
@@ -40,9 +37,13 @@ class WebPageElement extends CreativeWork
 						$data[$key]['image'] = $dataImageObject;
 					}
 				}
+				// HAS PART
+				if (in_array('hasPart', $properties)) {
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPageElement');
+				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$data[$key]['isPartOf'] = parent::getProperties('creativeWork', ['idcreativeWork' => $isPartOf])[0];
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing, 'WebPageElement',['properties'=>'isPartOf']);
 				}
 				// PROPERTY VALUE
 				if (in_array('propertyValue', $properties)) {

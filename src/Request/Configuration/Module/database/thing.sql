@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS `thing_has_thing` (
   `typeIsPartOf` VARCHAR(48) NOT NULL,
   `caption` VARCHAR(255) NULL DEFAULT NULL,
   `position` INT UNSIGNED NULL DEFAULT '1',
-  `representativeOfPage` TINYINT(1) NOT NULL DEFAULT 0,
-  `repUniqueFlag` TINYINT(1) GENERATED ALWAYS AS (CASE WHEN `representativeOfPage` = 1 THEN 1 END) VIRTUAL,
+  `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
+  `repUniqueFlag` TINYINT GENERATED ALWAYS AS (CASE WHEN `representativeOfPage` = 1 THEN 1 END) VIRTUAL,
   PRIMARY KEY (`idHasPart`, `idIsPartOf`, `typeHasPart`, `typeIsPartOf`),
   INDEX `fk_thing_has_thing_idHasPart_idx` (`idHasPart`),
   INDEX `fk_thing_has_thing_idIsPartOf_idx` (`idIsPartOf`),
@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS `propertyValue` (
 --
 -- Insere com reordenação: abre espaço se p_position for informado; se nulo, vai para o final
 --
+DROP procedure IF EXISTS `sp_thing_has_thing_insert`;
+
 CREATE PROCEDURE sp_thing_has_thing_insert (
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
@@ -115,10 +117,11 @@ BEGIN
   END IF;
 END;
 
-
 --
 -- Atualiza posição e/ou troca de grupo com reordenação nos grupos afetados
 --
+DROP procedure IF EXISTS `sp_thing_has_thing_update`;
+
 CREATE PROCEDURE sp_thing_has_thing_update(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
@@ -225,6 +228,8 @@ END;
 --
 -- Exclui e reordena o grupo
 --
+DROP procedure IF EXISTS `sp_thing_has_thing_delete`;
+
 CREATE PROCEDURE sp_thing_has_thing_delete (
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),

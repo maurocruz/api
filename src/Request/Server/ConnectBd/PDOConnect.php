@@ -54,6 +54,7 @@ class PDOConnect
     self::$PASSWORD = $password;
     $default_options = [
       PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
+	    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
       PDO::ATTR_EMULATE_PREPARES => true
     ];
@@ -155,7 +156,7 @@ class PDOConnect
   /**
    * @param $username
    */
-  public static function setUsername($username)
+  public static function setUsername($username): void
   {
     self::$USERNAME = $username;
   }
@@ -163,7 +164,7 @@ class PDOConnect
   /**
    * @param $password
    */
-  public static function setPassword($password)
+  public static function setPassword($password): void
   {
     self::$PASSWORD = $password;
   }
@@ -182,24 +183,16 @@ class PDOConnect
           $q = $connect->prepare($query);
           $q->setFetchMode(PDO::FETCH_ASSOC);
           $q->execute($args);
-          $errorInfo = $q->errorInfo();
-          if ($errorInfo[0] == "0000") {
-						if (substr($q->queryString,0,6) === "DELETE") {
-							return ['rows'=>$q->rowCount()];
-						} else {
-							return $q->fetchAll();
-						}
-          } else {
-            return ["error" => [
-	            "message" => $errorInfo[2],
-	            "code" => $errorInfo[0],
-	            "query" => $query
-            ]];
-          }
+					if (str_starts_with($q->queryString, "DELETE")) {
+						return ['rows'=>$q->rowCount()];
+					} else {
+						return $q->fetchAll();
+					}
         } else {
           throw new PDOException();
         }
       } catch (PDOException $e) {
+	      error_log("[" . date('c') . "] Error: " . $e->getMessage());
         return ["error" => [
           "message" => $e->getMessage(),
           "code" => $e->getCode(),
