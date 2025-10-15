@@ -1,103 +1,135 @@
 -- ORGANIZATION
-CREATE PROCEDURE upgrade_organization()
-  BEGIN
-    -- mesclar dados duplicados
-    DROP TABLE IF EXISTS `organization_tmp`;
-    CREATE TABLE `organization_tmp` AS
-      SELECT
-        max(idorganization) as idorganization,
-        max(additionalType) as additionalType,
-        name,
-        max(description) as description,
-        max(disambiguatingDescription) as disambiguatingDescription,
-        max(legalName) as legalName,
-        max(taxId) as taxId,
-        max(url) as url,
-        max(hasOfferCatalog) as hasOfferCatalog,
-        max(location) as location,
-        max(address) as address,
-        max(areaServed) as areaServed,
-        max(dateCreated) as dateCreated,
-        max(dateModified) as dateModified
-      FROM organization GROUP BY name HAVING count(name) > 1;
-    INSERT INTO `organization_tmp` SELECT * FROM `organization` GROUP BY name HAVING count(name) = 1;
-    RENAME TABLE `organization` TO `organization_old`, `organization_tmp` TO `organization`;
-    DROP TABLE `organization_old`;
+-- mesclar dados duplicados
+DROP TABLE IF EXISTS `organization_tmp`;
+CREATE TABLE `organization_tmp` AS
+SELECT
+  idorganization,
+  additionalType,
+  name,
+  description,
+  disambiguatingDescription,
+  legalName,
+  taxId,
+  url,
+  hasOfferCatalog,
+  location,
+  address,
+  areaServed,
+  dateCreated,
+  dateModified
+FROM (
+  SELECT
+    max(idorganization) as idorganization,
+    max(additionalType) as additionalType,
+    name,
+    max(description) as description,
+    max(disambiguatingDescription) as disambiguatingDescription,
+    max(legalName) as legalName,
+    max(taxId) as taxId,
+    url,
+    max(hasOfferCatalog) as hasOfferCatalog,
+    max(location) as location,
+    max(address) as address,
+    max(areaServed) as areaServed,
+    max(dateCreated) as dateCreated,
+    max(dateModified) as dateModified,
+    count(name) as name_count
+  FROM organization
+  GROUP BY name
+) AS subquery
+WHERE name_count > 1;
+INSERT INTO `organization_tmp`
+  SELECT
+     idorganization,
+     additionalType,
+     name,
+     description,
+     disambiguatingDescription,
+     legalName,
+     taxId,
+     url,
+     hasOfferCatalog,
+     location,
+     address,
+     areaServed,
+     dateCreated,
+     dateModified
+    FROM `organization` GROUP BY name HAVING count(name) = 1;
+RENAME TABLE `organization` TO `organization_old`, `organization_tmp` TO `organization`;
+DROP TABLE `organization_old`;
 
-    -- alter table
-    ALTER TABLE `organization`
-      CHANGE COLUMN `idorganization` `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-      CHANGE COLUMN `areaServed` `areaServed` INT UNSIGNED DEFAULT NULL,
-      CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
-      ADD COLUMN `thing` INT UNSIGNED NOT NULL AFTER `idorganization`,
-      ADD COLUMN `logo` INT UNSIGNED DEFAULT NULL AFTER `idorganization`,
-      ADD PRIMARY KEY (`idorganization`);
+-- alter table
+ALTER TABLE `organization`
+  CHANGE COLUMN `idorganization` `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `areaServed` `areaServed` INT UNSIGNED DEFAULT NULL,
+  CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
+  ADD COLUMN `thing` INT UNSIGNED NOT NULL AFTER `idorganization`,
+  ADD COLUMN `logo` INT UNSIGNED DEFAULT NULL AFTER `idorganization`,
+  ADD PRIMARY KEY (`idorganization`);
 
-    -- INSERT THING
-    ALTER TABLE `thing` ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
-    -- insert thing
-    INSERT INTO `thing` (`idorganization`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateCreated`,`dateModified`,`type`)
-    SELECT `idorganization`,
-       IF (`name` <> '', `name`, 'Undefined name'),
-       `additionalType`,
-       description,
-       SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
-       `url`,
-       if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
-       `dateModified`,
-       'Organization'
-    FROM `organization`;
-    -- set thing
-    UPDATE `organization`
-      JOIN `thing` ON thing.idorganization = organization.idorganization
-      SET organization.thing = thing.idthing;
-    -- drop column
-    ALTER TABLE `thing` DROP COLUMN `idorganization`;
+-- INSERT THING
+ALTER TABLE `thing` ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
+-- insert thing
+INSERT INTO `thing` (`idorganization`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateRegistered`,`lastModified`,`type`)
+SELECT `idorganization`,
+   IF (`name` <> '', `name`, 'Undefined name'),
+   `additionalType`,
+   description,
+   SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
+   `url`,
+   if(`dateCreated` IS NULL, CURDATE(), `dateCreated`),
+   `dateModified`,
+   'Organization'
+FROM `organization`;
+-- set thing
+UPDATE `organization`
+  JOIN `thing` ON thing.idorganization = organization.idorganization
+  SET organization.thing = thing.idthing;
+-- drop column
+ALTER TABLE `thing` DROP COLUMN `idorganization`;
 
-    UPDATE `organization`
-      SET `organization`.location = NULL
-      WHERE `organization`.location NOT IN (SELECT idplace FROM place);
+UPDATE `organization`
+  SET `organization`.location = NULL
+  WHERE `organization`.location NOT IN (SELECT idplace FROM place);
 
-    -- has contact point
-    INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-    SELECT `organization`.thing, 'Organization', `contactPoint`.thing, 'ContactPoint' FROM `organization_has_contactPoint`
-      JOIN `organization` ON `organization`.idorganization = `organization_has_contactPoint`.idorganization
-      JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `organization_has_contactPoint`.idcontactPoint;
+-- has contact point
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
+SELECT `organization`.thing, 'Organization', `contactPoint`.thing, 'ContactPoint' FROM `organization_has_contactPoint`
+  JOIN `organization` ON `organization`.idorganization = `organization_has_contactPoint`.idorganization
+  JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `organization_has_contactPoint`.idcontactPoint;
 
-    -- insert images
-    CALL insert_thing_has_thing('organization','imageObject');
+-- insert images
+CALL insert_thing_has_thing('organization','imageObject');
 
-    -- IMAGES
-    CALL set_image_in_thing('organization');
+-- IMAGES
+CALL set_image_in_thing('organization');
 
-    -- has person
-    INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption)
-    SELECT `organization`.thing,'organization',`person`.thing,'Person',jobTitle FROM `organization_has_person`
-      JOIN `organization` ON `organization`.idorganization = `organization_has_person`.idorganization
-      JOIN `person` ON `person`.idperson = `organization_has_person`.idperson;
+-- has person
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption)
+SELECT `organization`.thing,'organization',`person`.thing,'Person',jobTitle FROM `organization_has_person`
+  JOIN `organization` ON `organization`.idorganization = `organization_has_person`.idorganization
+  JOIN `person` ON `person`.idperson = `organization_has_person`.idperson;
 
 
-    ALTER TABLE `organization`
-      CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
-      DROP COLUMN `name`,
-      DROP COLUMN `additionalType`,
-      DROP COLUMN `description`,
-      DROP COLUMN `disambiguatingDescription`,
-      DROP COLUMN `url`,
-      DROP COLUMN `dateCreated`,
-      DROP COLUMN `dateModified`,
-      DROP PRIMARY KEY ,
-      ADD PRIMARY KEY (`idorganization`,`thing`);
+ALTER TABLE `organization`
+  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `name`,
+  DROP COLUMN `additionalType`,
+  DROP COLUMN `description`,
+  DROP COLUMN `disambiguatingDescription`,
+  DROP COLUMN `url`,
+  DROP COLUMN `dateCreated`,
+  DROP COLUMN `dateModified`,
+  DROP PRIMARY KEY ,
+  ADD PRIMARY KEY (`idorganization`,`thing`);
 
-    DROP TABLE `organization_has_contactPoint`;
-    DROP TABLE `organization_has_imageObject`;
-    DROP TABLE `organization_has_person`;
+DROP TABLE `organization_has_contactPoint`;
+DROP TABLE `organization_has_imageObject`;
+DROP TABLE `organization_has_person`;
 
-    -- add foreign keys
-    ALTER TABLE `organization`
-      ADD KEY `fk_organization_thing_idx` (`thing`),
-      ADD KEY `fk_organization_location_idx` (`location`),
-      ADD CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-      ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
-
-  end ;
+-- add foreign keys
+ALTER TABLE `organization`
+  ADD KEY `fk_organization_thing_idx` (`thing`),
+  ADD KEY `fk_organization_location_idx` (`location`),
+  ADD CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;

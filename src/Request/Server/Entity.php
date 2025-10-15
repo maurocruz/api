@@ -301,28 +301,33 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null, array $params = null): array
 	{
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = $params['ordering'] ?? null;
 		$relationship = new Relationship();
 		$relationship->setIdHasPart($idHasPart);
 		$relationship->setTypeHasPart(ucfirst($typeHasPart));
 		if ($typeIsPartOf) {
 			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
 		}
-		return $relationship->getParts('hasPart', $orderBy, $ordering ?? 'asc');
+		if ($params) {
+			$relationship->setParams($params);
+		}
+		return $relationship->getParts('hasPart');
 	}
 
 	/**
 	 * @param string $idIsPartOf
 	 * @param ?string $typeIsPartOf
+	 * @param array|null $params
 	 * @return array
 	 */
-	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null): array
+	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null, array $params = null): array
 	{
 		$relationship = new Relationship();
 		$relationship->setIdIsPartOf($idIsPartOf);
 		if ($typeIsPartOf) {
 			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		}
+		if ($params) {
+			$relationship->setParams($params);
 		}
 		return $relationship->getParts();
 	}

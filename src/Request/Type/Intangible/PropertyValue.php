@@ -17,7 +17,13 @@ class PropertyValue extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$data = parent::getData($params);
+		$params['idpropertyValue'] = $params['idpropertyValue'] ?? $params['thing'] ?? null;
+		$data = $params['idpropertyValue'] ? parent::getData($params) : [] ;
+		if (isset($data[0])) {
+			foreach ($data as $key => $value) {
+				$data[$key]['type'] = 'PropertyValue';
+			}
+		}
 		return parent::sortData($data);
 	}
 
@@ -37,9 +43,10 @@ class PropertyValue extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;

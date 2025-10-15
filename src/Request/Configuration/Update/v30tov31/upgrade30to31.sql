@@ -6,7 +6,7 @@ ALTER TABLE `thing_has_thing`
 -- procedure: sp_thing_has_thing_delete
 --
 DELIMITER $$
-CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_delete`(
+CREATE PROCEDURE `sp_thing_has_thing_delete`(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
@@ -69,7 +69,7 @@ DELIMITER ;
 -- procedure: sp_thing_has_thing_insert
 --
 DELIMITER $$
-CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_insert`(
+CREATE PROCEDURE `sp_thing_has_thing_insert`(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
@@ -146,7 +146,7 @@ DELIMITER ;
 -- procedure: sp_thing_has_thing_update
 --
 DELIMITER $$
-CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `sp_thing_has_thing_update`(
+CREATE PROCEDURE `sp_thing_has_thing_update`(
   IN p_idHasPart INT UNSIGNED,
   IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
@@ -246,8 +246,11 @@ BEGIN
 END$$
 DELIMITER ;
 
+--
+-- procedure: insert_thing_has_thing
+--
 DELIMITER $$
-CREATE DEFINER=`bandaphoenix`@`%` PROCEDURE `insert_thing_has_thing`(IN table_has_part VARCHAR(64), IN table_is_part_of VARCHAR(64))
+CREATE PROCEDURE `insert_thing_has_thing`(IN table_has_part VARCHAR(64), IN table_is_part_of VARCHAR(64))
 BEGIN
   DECLARE v_table_has VARCHAR(128);
   DECLARE v_id_name_has_part VARCHAR(128);

@@ -25,7 +25,11 @@ class Relationship
 	/**
 	 * @var array|null
 	 */
-	private ?array $params = null;
+	private ?array $params = [];
+	/**
+	 * @var array|null
+	 */
+	private ?array $whereConditions = null;
 
 	/**
 	 * @param string|null $typeHasPart
@@ -68,12 +72,21 @@ class Relationship
 	}
 
 	/**
-	 * @param string|null $orderBy
-	 * @param string $ordering
+	 * @param array|null $whereConditions
+	 * @return void
+	 */
+	public function setWhereConditions(?array $whereConditions): void
+	{
+		$this->whereConditions = $whereConditions;
+	}
+
+	/**
 	 * @return array
 	 */
-	public function get(string $orderBy = null, string $ordering = 'asc'): array
+	public function get(): array
 	{
+		$orderBy = $this->params['orderBy'] ?? null;
+		$ordering = $this->params['ordering'] ?? 'asc';
 		$sql = "SELECT * FROM thing_has_thing";
 		$where = [];
 		$bindValues = [];
@@ -93,8 +106,8 @@ class Relationship
 			$bindValues[':idIsPartOf'] = $this->idIsPartOf;
 			$where[] = "`idIsPartOf`=:idIsPartOf";
 		}
-		if ($this->params) {
-			foreach ($this->params as $col => $val) {
+		if ($this->whereConditions) {
+			foreach ($this->whereConditions as $col => $val) {
 				$bindValues[":$col"] = $val;
 				$where[] = "`$col`=:$col";
 			}
@@ -108,9 +121,13 @@ class Relationship
 		return PDOConnect::run($sql . ";", $bindValues);
 	}
 
-	public function getParts(string $property = 'isPartOf', string $orderBy = null, string $ordering = 'asc'): array
+	/**
+	 * @param string $property
+	 * @return array
+	 */
+	public function getParts(string $property = 'isPartOf'): array
 	{
-		$data = self::get($orderBy, $ordering);
+		$data = self::get();
 		$dataItems = [];
 		foreach ($data as $value) {
 			if ($property == 'hasPart') {
@@ -120,15 +137,18 @@ class Relationship
 				$type = lcfirst($value['typeHasPart']);
 				$idthing = $value['idHasPart'];
 			}
-			$dataItem = ApiFactory::request()->type($type)->get(['thing' => $idthing])->ready();
+			$dataItem = ApiFactory::request()->type($type)->get(['thing' => $idthing] + $this->params)->ready();
 			if (isset($dataItem[0])) {
 				$valueItem = $dataItem[0];
-				// properties in identifier
-				$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'caption', 'value' => $value['caption']];
-				$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'position', 'value' => $value['position']];
-				$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'representativeOfPage', 'value' => $value['representativeOfPage']];
-
-				$dataItems[] = ApiFactory::response()->type(lcfirst($valueItem['type']))->setData($valueItem)->ready();
+				$type = lcfirst($valueItem['type']);
+				if ($type == 'propertyValue') {
+					$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => $valueItem['name'], 'value' => $valueItem['value']];
+				} else {
+					if (isset($value['caption']))	$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'caption', 'value' => $value['caption']];
+					if (isset($value['position'])) $valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'position', 'value' => $value['position']];
+					if (isset($value['representativeOfPage']))	$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'representativeOfPage', 'value' => $value['representativeOfPage']];
+				}
+				$dataItems[] = ApiFactory::response()->type($type)->setData($valueItem)->ready();
 			}
 		}
 		return $dataItems;
