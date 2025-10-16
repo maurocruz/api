@@ -50,7 +50,7 @@ class WebPage extends CreativeWork
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage', null, $params);
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage');
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {

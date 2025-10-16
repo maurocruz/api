@@ -21,7 +21,7 @@ return function(Route $route)
 	/**
 	 * Generic GET
 	 */
-	$route->get('', function (Request $request, Response $response, $args)
+	$route->get('[/]', function (Request $request, Response $response, $args)
 	{
 		$type = isset($args['type']) ? lcfirst($args['type']) : null;
 		$params = $request->getQueryParams() ?? null;
