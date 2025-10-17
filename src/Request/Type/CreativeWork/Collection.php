@@ -48,7 +48,7 @@ class Collection extends CreativeWork implements HttpRequestInterface
 				$idthing = $value['thing'];
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing, 'Collection', null, $params);
+					$data[$key]['hasPart'] = parent::getHasPart($idthing, 'Collection');
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
