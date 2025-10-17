@@ -117,12 +117,20 @@ BEGIN
     SET p_representativeOfPage = 0;
   END IF;
 
+  --
+  -- VERIFICA REPRESENTATIVO
+  --
   -- Zera todos representativoOfPage do grupo se for = 1
   IF p_representativeOfPage = 1 THEN
+    -- Zera todos representativeOfPage do grupo se for = 1
     UPDATE thing_has_thing
     SET representativeOfPage = 0
     WHERE idHasPart   = p_idHasPart
       AND typeHasPart = p_typeHasPart;
+    -- salva nova imagem
+    UPDATE thing as t1
+    SET image = (SELECT image FROM thing WHERE idthing = p_idIsPartOf)
+    WHERE t1.idthing = p_idHasPart;
   END IF;
 
   INSERT INTO thing_has_thing (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption, position, representativeOfPage)
@@ -223,6 +231,10 @@ BEGIN
     WHERE idHasPart   = p_idHasPart
       AND typeHasPart = p_typeHasPart
       AND typeIsPartOf= p_typeIsPartOf;
+    -- salva nova imagem
+    UPDATE thing as t1
+    SET image = (SELECT image FROM thing WHERE idthing = p_idIsPartOf)
+    WHERE t1.idthing = p_idHasPart;
   END IF;
 
   -- atualiza o item
