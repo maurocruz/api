@@ -24,6 +24,18 @@ class GetData extends GetDataAbstract
 		$this->fields[] = $fields;
 	}
 
+	public function setJoin(string $table, string $condition, string $alias = null): GetData
+	{
+		$this->setProperties($table);
+		if ($alias) {
+			$condition = str_replace("`$table`", $alias, $condition);
+			$this->setJoins("JOIN `$table` as $alias ON $condition");
+		} else {
+			$this->setJoins("JOIN `$table` ON $condition");
+		}
+		return $this;
+	}
+
 	/**
 	 * @param string $table
 	 * @param string $condition

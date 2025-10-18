@@ -37,7 +37,7 @@ class Collection extends CreativeWork implements HttpRequestInterface
 			$getData->setLeftJoin('creativeWork', 'creativeWork.idcreativeWork=collection.creativeWork');
 			// if NOT EXISTS IS PART OF
 			if ($isPartOf) {
-				$getData->setLeftJoin('thing_has_thing', 't1.idHasPart=collection.thing', 't1');
+				$getData->setJoin('thing_has_thing', 't1.idHasPart=collection.thing', 't1');
 				$getData->setWhere('not exists (select 1 from thing_has_thing as t2 where t1.idHasPart=t2.idIsPartOf)');
 				$getData->setParams(['groupBy' => 'idcollection', 'limit' => 'none']);
 			}
@@ -91,5 +91,14 @@ class Collection extends CreativeWork implements HttpRequestInterface
 	public function put(array $params = null): array
 	{
 		return parent::update('creativeWork', $params);
+	}
+
+	/**
+	 * @param array $params
+	 * @return array
+	 */
+	public function delete(array $params): array
+	{
+		return parent::erase('creativeWork', $params);
 	}
 }

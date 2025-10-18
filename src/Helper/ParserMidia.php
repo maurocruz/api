@@ -3,147 +3,149 @@ namespace Plinct\Api\Helper;
 
 use Exception;
 use getID3;
-use Smalot\PdfParser\Document;
-use Smalot\PdfParser\Parser;
 
 class ParserMidia
 {
+	private ?string $author = null;
+	private ?string $bitrate = null;
+	private ?int $contentSize;
+	private ?string $dateModified = null;
+	private ?string $datePublished = null;
+	private ?string $duration = null;
+	private ?string $headLine = null;
+	private ?string $height = null;
+	private ?string $size = null;
+	private ?string $width = null;
+	private ?string $publisher = null;
+
 	/**
 	 * @var string
 	 */
 	private string $encodingFormat;
-	/**
-	 * @var array|Document|null
-	 */
-	private array|null|Document $parser;
+
+	private array $parser;
 
 	/**
 	 * @throws Exception
 	 */
-	public function __construct(string $filename, string $type)
+	public function __construct(string $filename, string $type, int $size)
 	{
+		$this->contentSize = $size;
 		$this->encodingFormat = $type;
-		if ($type === 'application/pdf') {
-			$parser = new Parser();
-			$this->parser = $parser->parseFile($filename);
-		} else {
-			$getID3 = new getID3();
-			$this->parser = $getID3->analyze($filename);
+		$getID3 = new getID3();
+		$this->parser = $getID3->analyze($filename);
+		$this->contentSize = $this->parser['filesize'] ?? $size;
+		$this->encodingFormat = $this->parser['mime_type'] ?? $type;
+		if (!$this->parser) {
+			throw new Exception('File not found');
 		}
-	}
-
-	/**
-	 * @return mixed|null
-	 */
-	public function getAuthor(): mixed
-	{
 		if ($this->encodingFormat === 'application/pdf') {
-			return $this->parser->getDetails()['Creator'] ?? $this->parser->getDetails()['dc:creator'] ?? null;
+			$pdf = $this->parser['pdf'];
+			$this->size = isset($pdf['pages']) ? $pdf['pages'].'p' : null;
 		}
-		return null;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getBitrate(): mixed
+	public function getAuthor(): ?string
 	{
-		if ($this->encodingFormat !== 'application/pdf') {
-			return $this->parser['bitrate'] ?? $this->parser['video']['bitrate'] ?? null;
-		}
-		return null;
+		return $this->author;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getDatePublished(): mixed
+	public function getBitrate(): ?string
 	{
-		if ($this->encodingFormat === 'application/pdf') {
-			return $this->parser->getDetails()['CreationDate'] ?? $this->parser->getDetails()['xmp:createdate'] ?? null;
-		}
-		return null;
+		return $this->bitrate;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return int|null
 	 */
-	public function getDateModified(): mixed
+	public function getContentSize(): ?int
 	{
-		if ($this->encodingFormat === 'application/pdf') {
-			return $this->parser->getDetails()['ModDate'] ?? $this->parser->getDetails()['xmp:modifydate'] ?? null;
-		}
-		return null;
+		return $this->contentSize;
 	}
 
 	/**
-	 * @throws Exception
+	 * @return ?string
 	 */
-	public function getDetails(): array
+	public function getDateModified(): ?string
 	{
-		return $this->parser ?? [];
+		return $this->dateModified;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getDuration(): mixed
+	public function getDatePublished(): ?string
 	{
-		if ($this->encodingFormat !== 'application/pdf') {
-			return $this->parser['playtime_string'] ?? $this->parser['video']['duration'] ?? null;
-		}
-		return null;
+		return $this->datePublished;
 	}
 
 	/**
-	 * @return string
+	 * @return ?string
 	 */
-	public function getEncodingFormat(): string
+	public function getDuration(): ?string
+	{
+		return $this->duration;
+	}
+
+	/**
+	 * @return ?string
+	 */
+	public function getEncodingFormat(): ?string
 	{
 		return $this->encodingFormat;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getHeadLine(): mixed
+	public function getHeadLine(): ?string
 	{
-		if ($this->encodingFormat === 'application/pdf') {
-			return $this->parser->getDetails()['Title'] ?? $this->parser->getDetails()['dc:title'] ?? null;
-		}
-		return null;
+		return $this->headLine;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getHeight(): mixed
+	public function getHeight(): ?string
 	{
-		if ($this->encodingFormat !== 'application/pdf') {
-			return $this->parser['video']['resolution_y'] ?? null;
-		}
-		return null;
+		return $this->height;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return ?string
 	 */
-	public function getPublisher(): mixed
+	public function getSize(): ?string
 	{
-		if ($this->encodingFormat === 'application/pdf') {
-			return $this->parser->getDetails()['Producer'] ?? $this->parser->getDetails()['pdf:producer'] ?? null;
-		}
-		return null;
+		return $this->size;
 	}
 
 	/**
-	 * @return mixed|null
+	 * @return array
 	 */
-	public function getWidth(): mixed
+	public function getParser(): array
 	{
-		if ($this->encodingFormat !== 'application/pdf') {
-			return $this->parser['video']['resolution_x'] ?? null;
-		}
-		return null;
+		return $this->parser;
+	}
+
+	/**
+	 * @return ?string
+	 */
+	public function getPublisher(): ?string
+	{
+		return $this->publisher;
+	}
+
+	/**
+	 * @return ?string
+	 */
+	public function getWidth(): ?string
+	{
+		return $this->width;
 	}
 }

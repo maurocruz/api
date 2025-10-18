@@ -8,11 +8,12 @@ class Helper
 	/**
 	 * @param string $filename
 	 * @param string $type
+	 * @param int $size
 	 * @return ParserMidia
 	 * @throws Exception
 	 */
-	public function ParserMidia(string $filename, string $type): ParserMidia
+	public function ParserMidia(string $filename, string $type, int $size): ParserMidia
 	{
-		return new ParserMidia($filename, $type);
+		return new ParserMidia($filename, $type, $size);
 	}
 }

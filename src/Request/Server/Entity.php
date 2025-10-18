@@ -408,7 +408,7 @@ abstract class Entity implements HttpRequestInterface
 						$thumbName = $prefix . md5($filename) . '_thumb.jpeg';
 						$host = ApiFactory::request()->configuration()->getHost();
 						// PARSER META DATA
-						$parser = ApiFactory::helper()->ParserMidia($tmpName, $type);
+						$parser = ApiFactory::helper()->ParserMidia($tmpName, $type, $size);
 						$params['author'] = $parser->getAuthor();
 						$params['bitrate'] = $parser->getBitrate();
 						$params['contentSize'] = $size;
@@ -421,6 +421,7 @@ abstract class Entity implements HttpRequestInterface
 						$params['name'] = isset($params['name']) && $numberOfFiles === 1 ? $params['name'] : $parser->getHeadLine() ?? $newName;
 						$params['headline'] = $params['name'];
 						$params['publisher'] = $parser->getPublisher();
+						$params['size'] = $parser->getSize();
 						$params['uploadDate'] = date('Y-m-d H:i:s');
 						$params['width'] = $parser->getWidth();
 						$params['url'] = $params['url'] ?? $params['contentUrl'];
