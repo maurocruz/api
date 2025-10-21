@@ -118,6 +118,7 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 			$datamediaObject = self::get($idthing ? ['thing'=>$idthing] : ['idmediaObject'=>$idmediaObject]);
 			if (isset($datamediaObject[0])) {
 				$value = $datamediaObject[0];
+				$params['thing'] = $value['thing'] ?? $value['idthing'] ?? null;
 				$contentUrl = $value['contentUrl'];
 				$localPahth = str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl);
 				$pathinfo = pathinfo($localPahth);
@@ -132,7 +133,8 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 					$thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_thumb.jpeg';
 					if(file_exists($thumbnail)) unlink($thumbnail);
 				}
-				unlink(str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl));
+				$contentUrlLocalPath = str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl);
+				if(file_exists($contentUrlLocalPath)) unlink($contentUrlLocalPath);
 			}
 		}
 		return parent::delete($params);

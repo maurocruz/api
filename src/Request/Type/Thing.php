@@ -94,7 +94,8 @@ class Thing extends Entity
 		if ($idthing) {
 			$dataThing = parent::getData($params);
 			if (isset($dataThing[0])) {
-				$returns = parent::delete(['idthing'=>$idthing]);
+				$this->setTable('thing');
+				$returns = parent::delete(['thing' =>$idthing]);
 				return ApiFactory::response()->message()->success('Thing was deleted', $returns);
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Thing not found: '.$idthing]);
