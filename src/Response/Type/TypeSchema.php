@@ -1,6 +1,8 @@
 <?php
 namespace Plinct\Api\Response\Type;
 
+use Plinct\Api\ApiFactory;
+
 class TypeSchema extends TypeSchemaAbstract
 {
 	/**
@@ -22,21 +24,27 @@ class TypeSchema extends TypeSchemaAbstract
 	 */
 	public function setValue(?array $value): TypeSchema
 	{
-		if (isset($value['type'])) {
-			$value['@type'] = $value['type'];
+		$host = ApiFactory::request()->configuration()->getHost();
+		// SET @TYPE AND @ID
+		if ($value['type'] ?? $this->type) {
+			$value['@type'] = $value['type'] ?? $this->type;
+			$idname = 'id'.lcfirst($value['type'] ?? $this->type);
+			$idnumber = $value['idthing'] ?? $value['thing'] ?? $value[$idname] ?? null;
+			if ($idnumber) {
+				$value = ['@id'=>$host.'/schema/'.lcfirst($value['@type']).'/'.$idnumber] + $value;
+			}
 		}
 		foreach ($value as $key => $valueItem) {
-			if(is_string($key) && str_starts_with($key, 'id') && !is_array($valueItem) && !is_null($valueItem)) {
-				$this->setIdentifier($key, (string) $valueItem);
-				unset($value[$key]);
-			}
-			if ($key === 'dateRegistered' || $key === 'lastModified') {
-				if ($valueItem) {
-					$this->setIdentifier($key, $valueItem);
-				}
-			}
 			if ($valueItem === null) {
 				unset($value[$key]);
+			} else {
+				if(is_string($key) && str_starts_with($key, 'id') && !is_array($valueItem)) {
+					$this->setIdentifier($key, (string) $valueItem);
+					unset($value[$key]);
+				}
+				if ($key === 'dateRegistered' || $key === 'lastModified') {
+					$this->setIdentifier($key, $valueItem);
+				}
 			}
 		}
 		unset($value['type']);
@@ -45,7 +53,6 @@ class TypeSchema extends TypeSchemaAbstract
 		unset($value['creativeWork']);
 		unset($value['dateRegistered']);
 		unset($value['lastModified']);
-
 		$this->value = $value;
 		return $this;
 	}

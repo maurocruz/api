@@ -4,15 +4,16 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class ImageObject extends MediaObject
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('imageObject');
 		$this->setType('ImageObject');
 	}
@@ -32,12 +33,12 @@ class ImageObject extends MediaObject
 	  unset($params['idHasPart']);
 		// IF IMAGE OBJECT IS PART OF
 		if ($idHasPart) {
-			$getData = new GetData('thing_has_thing');
+			$getData = new GetData('thing_has_thing', false);
 			$getData->setFields('*,thing_has_thing.caption,thing_has_thing.representativeOfPage,thing_has_thing.position');
+			$getData->setLeftJoin('thing','`thing_has_thing`.idIsPartOf=`thing`.idthing');
 			$getData->setLeftJoin('imageObject','`thing_has_thing`.idIsPartOf=`imageObject`.thing');
 			$getData->setLeftJoin('mediaObject','`mediaObject`.idmediaObject=`imageObject`.mediaObject');
 			$getData->setLeftJoin('creativeWork','`creativeWork`.idcreativeWork=`mediaObject`.creativeWork');
-			$getData->setLeftJoin('thing','`thing`.idthing=`imageObject`.thing');
 			$getData->setParams($params + ['where'=>"`thing_has_thing`.idHasPart='$idHasPart' AND thing_has_thing.typeIsPartOf='ImageObject'"]);
 			$data = $getData->render();
 		}
@@ -91,16 +92,15 @@ class ImageObject extends MediaObject
 		$idimageObject = $params['idimageObject'] ?? null;
 		$idthing = $params['thing'] ?? $params['idthing'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
 	  $representativeOfPage = $params['representativeOfPage'] ?? null;
 		$position = $params['position'] ?? null;
 		$caption = $params['caption'] ?? null;
-		if ($idHasPart && $typeHasPart && $idIsPartOf) {
+		if ($idHasPart && $idIsPartOf) {
 			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
 			if ($position !== null) $paramsu['position'] = $position;
 			if ($caption !== null) $paramsu['caption'] = $caption;
-			return parent::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'ImageObject',$paramsu ?? []);
+			return parent::updateRelationship($idHasPart, $idIsPartOf, $paramsu ?? []);
 		} elseif ($idimageObject || $idthing) {
 			return parent::update('mediaObject',$params);
 		} else {

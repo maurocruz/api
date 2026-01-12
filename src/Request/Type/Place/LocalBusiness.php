@@ -23,15 +23,17 @@ class LocalBusiness extends Place
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$fields = $params['fields'] ?? null;
 		$getData = new GetData('localBusiness');
-		$getData->setLeftJoin('organization', '`organization`.idorganization=`localBusiness`.organization');
+		$getData->setLeftJoin('organization', '`organization`.thing=`localBusiness`.thing');
+		$getData->setLeftJoin('place', '`place`.thing=`organization`.location');
+		// PROPERTIES
 		if ($properties) {
 			if (in_array('address', $properties)) {
 				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `organization`.address');
 			}
 			// LOCATION
-			if (in_array('location', $properties)) {
-				$getData->setLeftJoin('place', '`place`.idplace=`localBusiness`.location');
+			if (in_array('location', $properties) || in_array('place', $properties)) {
 				$getData->setLeftJoin('geoCoordinates', '`geoCoordinates`.idgeoCoordinates = `place`.geo');
 				$getData->setLeftJoin('postalAddress', '`postalAddress`.idpostalAddress = `geoCoordinates`.address', 'pg');
 			}
@@ -43,8 +45,18 @@ class LocalBusiness extends Place
 		}
 		$getData->setParams($params);
 		$data = $getData->render();
+
+		if (!$data) return [];
+		if (isset($data['error'])) return $data;
+
+		if ($fields && str_contains($fields,'count') && isset($data[0])) {
+			return $data[0];
+		}
+
 		foreach ($data as $key => $item) {
 			$idthing = $item['idthing'];
+			$data[$key]['publicAccess'] = (bool) $item['publicAccess'];
+			$data[$key]['type'] = 'LocalBusiness';
 			// ADDRESS
 			$address = isset($item['idpostalAddress']) ? ApiFactory::response()->type('PostalAddress')->setData([[
 				'idpostalAddress' => $item['idpostalAddress'],
@@ -112,6 +124,8 @@ class LocalBusiness extends Place
 				}
 			}
 			unset($data[$key]['organization']);
+			unset($data[$key]['place']);
+			unset($data[$key]['address']);
 			unset($data[$key]['idpostalAddress']);
 			unset($data[$key]['idgeoCoordinates']);
 			unset($data[$key]['addressCountry']);

@@ -1,4 +1,8 @@
+
+--
 -- ARTICLE
+--
+
 ALTER TABLE `article`
   CHANGE COLUMN `idarticle` `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `headline` `headline` VARCHAR(255) DEFAULT NULL,
@@ -11,22 +15,46 @@ ALTER TABLE `article`
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idarticle` INT UNSIGNED DEFAULT NULL;
 -- insert thing
-INSERT INTO `thing` (`idarticle`,`name`,`dateRegistered`, `lastModified`, `type`)
-  SELECT `idarticle`,`headline`,`dateCreated`, `dateModified`, 'Article' FROM `article`;
+INSERT INTO `thing` (`idarticle`,`name`,`additionalType`,`dateRegistered`, `lastModified`, `type`)
+  SELECT
+    `idarticle`,
+    `headline`,
+    `additionalType`,
+    `dateCreated`,
+    `datePublished`,
+    'Article'
+  FROM `article`;
+
 -- update this
 UPDATE `article`
   JOIN `thing` ON thing.idarticle = article.idarticle
-  SET article.thing = thing.idthing;
+  SET article.thing = thing.idthing
+WHERE article.headline <> '';
+
 -- drop thing column
 ALTER TABLE `thing` DROP COLUMN `idarticle`;
 
 -- insert creative work
-INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`,`position`)
-  SELECT `thing`,`headline`,`datePublished`,`author`,`publisher`,`position` FROM `article`;
+INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`, `creativeWorkStatus`)
+  SELECT
+    `thing`,
+    `headline`,
+    `datePublished`,
+    `author`,
+    `publisher`,
+    IF(`publishied`=1,'published','')
+  FROM `article`;
+
 -- update child
 UPDATE `article`
   JOIN `creativeWork` ON creativeWork.thing=article.thing
-  SET article.creativeWork=creativeWork.idcreativeWork;
+  SET article.creativeWork=creativeWork.idcreativeWork
+WHERE article.headline <> '';
+
+UPDATE `creativeWork`
+  JOIN `person` ON `person`.idperson=`creativeWork`.author
+SET `creativeWork`.author=`person`.thing
+WHERE `creativeWork`.author IS NOT NULL;
 
 -- IMAGES
 CALL set_image_in_thing('article');
@@ -38,6 +66,7 @@ CALL insert_thing_has_thing('article','imageObject');
 ALTER TABLE `article`
   CHANGE COLUMN `creativeWork` `creativeWork` INT UNSIGNED NOT NULL,
   CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `additionalType`,
   DROP COLUMN `headline`,
   DROP COLUMN `dateCreated`,
   DROP COLUMN `dateModified`,

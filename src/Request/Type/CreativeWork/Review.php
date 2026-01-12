@@ -19,9 +19,24 @@ class Review extends CreativeWork
 	 */
 	public function get(array $params = []): array
 	{
+		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$getData = new GetData('review');
 		$getData->setParams($params);
 		$data = $getData->render();
+
+		if (isset($data['error'])) {
+			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
+		}
+
+		if ($properties) {
+			foreach ($data as $key => $value) {
+				$itemReviewed = $value['itemReviewed'];
+				if (in_array('itemReviewed', $properties)) {
+					$dataItemReviewed = ApiFactory::request()->type('thing')->get(['idthing' => $itemReviewed, 'hasPart'=>true])->ready();
+					$data[$key]['itemReviewed'] = isset($dataItemReviewed[0]) ? ApiFactory::response()->type($dataItemReviewed[0]['type'])->setData($dataItemReviewed[0])->ready() : null;
+				}
+			}
+		}
 		return $this->sortData($data);
 	}
 

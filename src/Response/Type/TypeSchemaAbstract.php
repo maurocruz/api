@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Response\Type;
 
 abstract class TypeSchemaAbstract
@@ -16,7 +15,10 @@ abstract class TypeSchemaAbstract
 	 * @var array
 	 */
 	protected array $identifier = [];
-
+	/**
+	 * @var string
+	 */
+	protected string $type;
 
 	/**
 	 * @param string $type
@@ -24,6 +26,7 @@ abstract class TypeSchemaAbstract
 	 */
 	public function setContextSchema(string $type): void
 	{
+		$this->type = $type;
 		$this->contextSchema = ['@context'=>'https://schema.org','@type'=>ucfirst($type)];
 	}
 

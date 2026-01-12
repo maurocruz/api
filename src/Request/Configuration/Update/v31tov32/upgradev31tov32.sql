@@ -14,3 +14,6 @@ ALTER TABLE `creativeWork`
   DROP INDEX `fk_creativeWork_isPartOf_idx` ;
 
 DROP TABLE `thing_has_imageObject`;
+
+alter table creativeWork
+  drop column position;

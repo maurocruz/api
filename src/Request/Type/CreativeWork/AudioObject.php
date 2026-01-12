@@ -52,16 +52,15 @@ class AudioObject extends MediaObject implements HttpRequestInterface
 		$idaudioObject = $params['idaudioObject'] ?? $params['audioObject'] ?? null;
 		$idthing = $params['thing'] ?? $params['idthing'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$position = $params['position'] ?? null;
 		$caption = $params['caption'] ?? null;
-		if ($idHasPart && $typeHasPart && $idIsPartOf) {
+		if ($idHasPart && $idIsPartOf) {
 			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
 			if ($position !== null) $paramsu['position'] = $position;
 			if ($caption !== null) $paramsu['caption'] = $caption;
-			return parent::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'AudioObject',$paramsu ?? []);
+			return parent::updateRelationship($idHasPart, $idIsPartOf, $paramsu ?? []);
 		} elseif ($idaudioObject || $idthing) {
 			return parent::update('mediaObject', $params);
 		} else {

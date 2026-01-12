@@ -27,8 +27,8 @@ ALTER TABLE `thing` DROP COLUMN `idwebPageElement`;
 
 
 -- INSERT IN CREATIVEWORK
-INSERT INTO `creativeWork` (`thing`,`text`,`position`,`author`)
-  SELECT `thing`,`text`,`position`,`author` FROM `webPageElement`;
+INSERT INTO `creativeWork` (`thing`,`text`,`author`)
+  SELECT `thing`,`text`,`author` FROM `webPageElement`;
 -- update child
 UPDATE `webPageElement`
   JOIN `creativeWork` ON creativeWork.thing = webPageElement.thing
@@ -36,7 +36,7 @@ UPDATE `webPageElement`
 
 -- has propertyValue
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-SELECT `webPageElement`.thing, 'WebPageElement', `propertyValue`.idpropertyValue, 'PropertyValue' FROM `webPageElement_has_propertyValue`
+SELECT `webPageElement`.thing, 'WebPageElement', `propertyValue`.thing, 'PropertyValue' FROM `webPageElement_has_propertyValue`
  JOIN `webPageElement` ON `webPageElement`.idwebPageElement = `webPageElement_has_propertyValue`.idwebPageElement
  JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPageElement_has_propertyValue`.idpropertyValue;
 

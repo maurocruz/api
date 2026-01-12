@@ -7,12 +7,19 @@ use Plinct\Api\Request\Type\Thing;
 
 class Event extends Thing
 {
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		parent::__construct();
 		$this->setTable('event');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
@@ -22,7 +29,6 @@ class Event extends Thing
 		// PROPERTIES
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $value) {
-				$idevent = $value['idevent'];
 				$idthing = $value['thing'];
 				$location = $value['location'];
 				// image object
@@ -39,10 +45,7 @@ class Event extends Thing
 				}
 				// subEvent
 				if (in_array('subEvent', $properties)) {
-					$dataSubEvent = ApiFactory::request()->type('event')->get(['superEvent'=>$idevent])->ready();
-					if (isset($dataSubEvent[0])) {
-						$data[$key]['subEvent'] = ApiFactory::response()->type('event')->setData($dataSubEvent)->ready();
-					}
+					$data[$key]['subEvent'] = parent::getHasPart($idthing,'Event','Event');
 				}
 				// super event
 				if (in_array('superEvent', $properties)) {

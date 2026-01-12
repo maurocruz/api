@@ -1,74 +1,20 @@
--- ORGANIZATION
--- mesclar dados duplicados
-DROP TABLE IF EXISTS `organization_tmp`;
-CREATE TABLE `organization_tmp` AS
-SELECT
-  idorganization,
-  additionalType,
-  name,
-  description,
-  disambiguatingDescription,
-  legalName,
-  taxId,
-  url,
-  hasOfferCatalog,
-  location,
-  address,
-  areaServed,
-  dateCreated,
-  dateModified
-FROM (
-  SELECT
-    max(idorganization) as idorganization,
-    max(additionalType) as additionalType,
-    name,
-    max(description) as description,
-    max(disambiguatingDescription) as disambiguatingDescription,
-    max(legalName) as legalName,
-    max(taxId) as taxId,
-    url,
-    max(hasOfferCatalog) as hasOfferCatalog,
-    max(location) as location,
-    max(address) as address,
-    max(areaServed) as areaServed,
-    max(dateCreated) as dateCreated,
-    max(dateModified) as dateModified,
-    count(name) as name_count
-  FROM organization
-  GROUP BY name
-) AS subquery
-WHERE name_count > 1;
-INSERT INTO `organization_tmp`
-  SELECT
-     idorganization,
-     additionalType,
-     name,
-     description,
-     disambiguatingDescription,
-     legalName,
-     taxId,
-     url,
-     hasOfferCatalog,
-     location,
-     address,
-     areaServed,
-     dateCreated,
-     dateModified
-    FROM `organization` GROUP BY name HAVING count(name) = 1;
-RENAME TABLE `organization` TO `organization_old`, `organization_tmp` TO `organization`;
-DROP TABLE `organization_old`;
 
--- alter table
+--
+-- ORGANIZATION
+--
+
 ALTER TABLE `organization`
   CHANGE COLUMN `idorganization` `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `areaServed` `areaServed` INT UNSIGNED DEFAULT NULL,
   CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
   ADD COLUMN `thing` INT UNSIGNED NOT NULL AFTER `idorganization`,
   ADD COLUMN `logo` INT UNSIGNED DEFAULT NULL AFTER `idorganization`,
+  DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idorganization`);
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
+
 -- insert thing
 INSERT INTO `thing` (`idorganization`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateRegistered`,`lastModified`,`type`)
 SELECT `idorganization`,
@@ -81,16 +27,26 @@ SELECT `idorganization`,
    `dateModified`,
    'Organization'
 FROM `organization`;
+
 -- set thing
 UPDATE `organization`
   JOIN `thing` ON thing.idorganization = organization.idorganization
-  SET organization.thing = thing.idthing;
+  SET organization.thing = thing.idthing
+WHERE thing.name <> '';
+
 -- drop column
 ALTER TABLE `thing` DROP COLUMN `idorganization`;
 
+-- set location null if idplace not exists
 UPDATE `organization`
   SET `organization`.location = NULL
   WHERE `organization`.location NOT IN (SELECT idplace FROM place);
+
+-- muda o location de idplace para idthing de place
+UPDATE `organization`
+  JOIN `place` ON place.idplace=organization.location
+SET organization.location=place.thing
+WHERE organization.location IS NOT NULL ;
 
 -- has contact point
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
@@ -132,4 +88,4 @@ ALTER TABLE `organization`
   ADD KEY `fk_organization_thing_idx` (`thing`),
   ADD KEY `fk_organization_location_idx` (`location`),
   ADD CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`) ON DELETE CASCADE ON UPDATE NO ACTION;

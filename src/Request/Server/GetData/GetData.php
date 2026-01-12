@@ -24,14 +24,14 @@ class GetData extends GetDataAbstract
 		$this->fields[] = $fields;
 	}
 
-	public function setJoin(string $table, string $condition, string $alias = null): GetData
+	public function setJoin(string $table, string $condition, string $alias = null, string $tableFactor = null): GetData
 	{
 		$this->setProperties($table);
 		if ($alias) {
 			$condition = str_replace("`$table`", $alias, $condition);
-			$this->setJoins("JOIN `$table` as $alias ON $condition");
+			$this->setJoins("$tableFactor JOIN `$table` as $alias ON $condition", $table);
 		} else {
-			$this->setJoins("JOIN `$table` ON $condition");
+			$this->setJoins("$tableFactor JOIN `$table` ON $condition", $table);
 		}
 		return $this;
 	}
@@ -44,23 +44,22 @@ class GetData extends GetDataAbstract
 	 */
 	public function setLeftJoin(string $table, string $condition, string $alias = null): GetData
 	{
-		$this->setProperties($table);
-		if ($alias) {
-			$condition = str_replace("`$table`", $alias, $condition);
-			$this->setJoins("LEFT JOIN `$table` as $alias ON $condition");
-		} else {
-			$this->setJoins("LEFT JOIN `$table` ON $condition");
-		}
+		$this->setJoin($table, $condition, $alias, 'LEFT');
 		return $this;
 	}
 
 	/**
-	 * @param ?string $joins
+	 * @param string $joins
+	 * @param string $table
 	 * @return GetData
 	 */
-	public function setJoins(?string $joins): GetData
+	public function setJoins(string $joins, string $table): GetData
 	{
-		$this->joins[] = $joins;
+		if ($table === 'thing') {
+			array_unshift($this->joins, $joins);
+		} else {
+			$this->joins[] = $joins;
+		}
 		return $this;
 	}
 

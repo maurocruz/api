@@ -81,10 +81,11 @@ class OrderItem extends Entity
 	}
 
 	/**
-   * @param ?array $params
-   * @return array
+	 * @param null $params
+	 * @param array|null $uploadfiles
+	 * @return array
    */
-  public function post($params = null): array
+  public function post($params = null, array $uploadfiles = null): array
   {
 		$multiDimensional = $params['multidimensional'] ?? false;
 		if ($multiDimensional) {

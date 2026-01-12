@@ -1,5 +1,8 @@
+
+--
 -- VIDEO OBJECT
--- ALTER TABLE
+--
+
 ALTER TABLE `videoObject`
   CHANGE COLUMN `idvideoObject` `idvideoObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idvideoObject`,
@@ -11,20 +14,27 @@ ALTER TABLE `videoObject`
 
 -- insert thing
 ALTER TABLE `thing` ADD COLUMN `idvideoObject` INT UNSIGNED DEFAULT NULL;
-INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`image`,`description`,`dateRegistered`,`type`)
+
+INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`image`,`description`,`dateRegistered`,`lastModified`,`type`)
   SELECT `idvideoObject`,`name`,`url`,
     thumbnailUrl,
           description,
 IF(`uploadDate`, `uploadDate`, CURDATE()),
+IF(`uploadDate`, `uploadDate`, CURDATE()),
     'videoObject'
   FROM `videoObject` WHERE `name` <> '';
+
 -- update this
-UPDATE `videoObject` JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject SET `videoObject`.thing = `thing`.idthing;
+UPDATE `videoObject`
+  JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject
+SET `videoObject`.thing = `thing`.idthing
+WHERE `thing`.name <> '';
+
 ALTER TABLE `thing` DROP COLUMN `idvideoObject`;
 
 -- insert parent
-INSERT INTO `creativeWork` (`thing`,`thumbnail`,`keywords`,`position`)
-  SELECT `thing`,`thumbnailUrl`,`tag`,`position` from `videoObject`;
+INSERT INTO `creativeWork` (`thing`,`thumbnail`,`keywords`)
+  SELECT `thing`,`thumbnailUrl`,`tag` from `videoObject`;
 
 -- insere parent
 INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentUrl`,`bitrate`,`duration`,`uploadDate`)
@@ -36,7 +46,8 @@ INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentUrl`,`bitrate`,`durati
 UPDATE `videoObject`
   JOIN `mediaObject` ON `videoObject`.thing = `mediaObject`.thing
   JOIN `creativeWork` ON `videoObject`.thing = `creativeWork`.thing
-  SET `videoObject`.mediaObject = `mediaObject`.idmediaObject, `videoObject`.creativeWork = `creativeWork`.idcreativeWork;
+  SET `videoObject`.mediaObject = `mediaObject`.idmediaObject, `videoObject`.creativeWork = `creativeWork`.idcreativeWork
+WHERE 1;
 
 -- alter table
 ALTER TABLE `videoObject`
@@ -64,3 +75,7 @@ ALTER TABLE `videoObject`
   ADD CONSTRAINT `fk_videoObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_videoObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_videoObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- END VIDEO OBJECT
+--

@@ -20,14 +20,12 @@ DELETE FROM `offer` WHERE `itemOffered`='0' || `offeredBy`='0';
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idoffer` INT UNSIGNED DEFAULT NULL;
 -- insert thing
-INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`dateRegistered`,`lastModified`,`type`)
+INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`type`)
 SELECT `offer`.idoffer,
        IF (`name` <> '', `name`, 'Undefined name'),
        `additionalType`,
        description,
        SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
-       if(`dateCreated`, `dateCreated`, CURDATE()),
-       `dateModified`,
        'Offer'
 FROM `offer` LEFT JOIN `thing` ON `thing`.idthing=`offer`.itemOffered;
 -- set thing

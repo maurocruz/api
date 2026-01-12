@@ -2,7 +2,6 @@
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Type\Intangible\Breadcrumb;
 
@@ -25,12 +24,14 @@ class WebPage extends CreativeWork
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
 		$isPartOf = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
 		if ($isPartOf) {
 			unset($params['isPartOf']);
 			$getData = new GetData('thing_has_thing');
 			$getData->setLeftJoin('thing', "`thing`.idthing=`thing_has_thing`.idIsPartOf");
 			$getData->setLeftJoin('webPage', "`webPage`.thing = `thing_has_thing`.idIsPartOf");
 			$getData->setLeftJoin('creativeWork', "`webPage`.creativeWork = `creativeWork`.idcreativeWork");
+			$getData->setWhere("`thing_has_thing`.idHasPart='$isPartOf'");
 			$getData->setParams($params);
 		} else {
 			$getData = new GetData('webPage');
@@ -50,7 +51,7 @@ class WebPage extends CreativeWork
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage');
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage',$typeIsPartOf,['properties'=>'propertyValue','orderBy'=>'position']);
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
@@ -58,11 +59,7 @@ class WebPage extends CreativeWork
 				}
 				// PROPERTY
 				if (in_array('propertyValue', $properties)) {
-					$sql = "SELECT name, value, idpropertyValue FROM thing_has_thing JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue WHERE typeHasPart='WebPage' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
-					$dataPropertyValue = PDOConnect::run($sql);
-					if (isset($dataPropertyValue[0])) {
-						$data[$key]['identifier'] = ApiFactory::response()->type('propertyValue')->setData($dataPropertyValue)->ready();
-					}
+					$data[$key]['identifier'] = parent::getHasPart($idthing,'WebPage','propertyValue');
 				}
 			}
 		}

@@ -2,6 +2,7 @@
 namespace Plinct\Api\Request\Type\Organization;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Type\Thing;
 
 class Organization extends Thing
@@ -20,7 +21,10 @@ class Organization extends Thing
   {
 	  $properties = self::propertiesToArray($params['properties'] ?? null);
 		$makesOffer = $params['makesOffer'] ?? null;
-	  $data = parent::getData($params);
+		$getData = new GetData('organization');
+		$getData->setParams($params);
+	  $data = $getData->render();
+		//
 		if (isset($data['error'])) {
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} elseif (!empty($data)) {
@@ -32,7 +36,7 @@ class Organization extends Thing
 			  if ($properties || $makesOffer) {
 					// CONTACT POINT
 				  if (in_array('contactPoint', $properties)) {
-						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['typeHasPart'=>'organization','idHasPart'=>$idthing])->ready();
+						$dataContactPoint = ApiFactory::request()->type('contactPoint')->get(['typeIsHasPart'=>'ContactPoint','idHasPart'=>$idthing])->ready();
 						$data[$key]['contactPoint'] = isset($dataContactPoint[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataContactPoint)->ready() : null;
 				  }
 					// IMAGE OBJECT

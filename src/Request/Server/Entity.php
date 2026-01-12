@@ -6,7 +6,7 @@ use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\ConnectBd;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
-use Plinct\Tool\Image\Image;
+use Plinct\Tool\Image\ImageProcessor;
 
 abstract class Entity implements HttpRequestInterface
 {
@@ -94,7 +94,9 @@ abstract class Entity implements HttpRequestInterface
   protected function getData(array $params, ?string $joins = null, ?string $where = null): array
   {
     $data = new GetData($this->table);
-		$data->setJoins($joins);
+		if ($joins) {
+			$data->setJoins($joins);
+		}
     $data->setParams($params);
 		$data->setWhere($where);
 	  return $data->render();
@@ -185,16 +187,15 @@ abstract class Entity implements HttpRequestInterface
 		$idchildValue = $idthing ?? $params[$idchildName] ?? null;
 		// if relationship
 		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$position = $params['position'] ?? null;
 		$caption = $params['caption'] ?? null;
-		if ($idHasPart && $typeHasPart && $idIsPartOf) {
+		if ($idHasPart && $idIsPartOf) {
 			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
 			if ($position !== null) $paramsu['position'] = $position;
 			if ($caption !== null) $paramsu['caption'] = $caption;
-			return self::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'AudioObject',$paramsu ?? []);
+			return self::updateRelationship($idHasPart, $idIsPartOf, $paramsu ?? []);
 		} elseif ($idchildValue) {
 			$getData = new GetData($this->table, false);
 			$dataChild = $getData->setParams([$idchildName=>$idchildValue])->render();
@@ -240,9 +241,7 @@ abstract class Entity implements HttpRequestInterface
 	{
 		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
-		$typeIsPartOf = $params['typeIsPartOf'] ?? 'CreativeWork';
 		$idchildName = $idthing ? 'thing' : 'id'.$this->table;
 		$idchildValue = $idthing ?? $params[$idchildName] ?? $params[$this->table] ?? null;
 		if ($idchildValue) {
@@ -253,8 +252,8 @@ abstract class Entity implements HttpRequestInterface
 			} else {
 				return ApiFactory::response()->message()->fail()->generic($params, ucfirst($this->table).' id not found');
 			}
-		} elseif ($idHasPart && $typeHasPart && $idIsPartOf) {
-			return self::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+		} elseif ($idHasPart && $idIsPartOf) {
+			return self::deleteRelationship($idHasPart, $idIsPartOf);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: $idchildName or $this->table"]);
 		}
@@ -334,30 +333,22 @@ abstract class Entity implements HttpRequestInterface
 
 	/**
 	 * @param string $idHasPart
-	 * @param string $typeHasPart
 	 * @param string $idIsPartOf
-	 * @param string $typeIsPartOf
 	 * @param array $params
 	 * @return array
 	 */
-	protected function updateRelationship(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf, array $params): array
+	protected function updateRelationship(string $idHasPart, string $idIsPartOf, array $params): array
 	{
 		$relationship = new Relationship();
 		$relationship->setIdHasPart($idHasPart);
-		$relationship->setTypeHasPart(ucfirst($typeHasPart));
 		$relationship->setIdIsPartOf($idIsPartOf);
-		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
 		return $relationship->put($params);
 	}
 
-	protected function deleteRelationship(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf): array
+	protected function deleteRelationship(string $idHasPart, string $idIsPartOf): array
 	{
 		$relationship = new Relationship();
-		$relationship->setIdHasPart($idHasPart);
-		$relationship->setTypeHasPart(ucfirst($typeHasPart));
-		$relationship->setIdIsPartOf($idIsPartOf);
-		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
-		return $relationship->delete();
+		return $relationship->delete($idHasPart, $idIsPartOf);
 	}
 
 	/**
@@ -385,6 +376,7 @@ abstract class Entity implements HttpRequestInterface
 		if ($filesUpload) {
 			$filesUploadError = $filesUpload['error'] ?? null;
 			$numberOfFiles = count($filesUpload['name']);
+			$createdFiles = [];
 			foreach ($filesUploadError as $key => $error) {
 				if ($error == UPLOAD_ERR_OK) {
 					$name = $filesUpload['name'][$key];
@@ -404,7 +396,7 @@ abstract class Entity implements HttpRequestInterface
 						$pathinfo = pathinfo($name);
 						$extension = $pathinfo['extension'];
 						$filename = $pathinfo['filename'];
-						$newName = $prefix . md5($filename) . '.' . $extension;
+						$newName = $prefix . md5($filename);
 						$thumbName = $prefix . md5($filename) . '_thumb.jpeg';
 						$host = ApiFactory::request()->configuration()->getHost();
 						// PARSER META DATA
@@ -412,7 +404,6 @@ abstract class Entity implements HttpRequestInterface
 						$params['author'] = $parser->getAuthor();
 						$params['bitrate'] = $parser->getBitrate();
 						$params['contentSize'] = $size;
-						$params['contentUrl'] = $host . $folder . $newName;
 						$params['dateModified'] = $parser->getDateModified();
 						$params['datePublished'] = $parser->getDatePublished();
 						$params['duration'] = $parser->getDuration();
@@ -424,33 +415,35 @@ abstract class Entity implements HttpRequestInterface
 						$params['size'] = $parser->getSize();
 						$params['uploadDate'] = date('Y-m-d H:i:s');
 						$params['width'] = $parser->getWidth();
-						$params['url'] = $params['url'] ?? $params['contentUrl'];
+
 						// UPLOAD FILE OR SAVE IMAGE
 						if ($groupType == 'image') {
 							if (str_contains($type,"svg")) {
-								$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName);
+								$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName.'.svg');
+								$params['name'] = isset($params['name']) ? $params['name']."($key)" : $newName.'.svg';
+								$params['image'] = $host . $folder . $newName.'.svg';
+								$params['thumbnail'] = $host . $folder . $newName.'.svg';
+								$params['contentUrl'] = $host . $folder . $newName.'.svg';
 							} else {
-								$uploadedReturn = self::uploadImage($newName, $tmpName, $folder);
+								$uploadedReturn = self::uploadImage($newName, $tmpName, $pathfile);
+								$params['image'] = $uploadedReturn['data']['contentUrl'];
+								$params['thumbnail'] = $uploadedReturn['data']['thumbnail'];
+								$params['contentUrl'] = $uploadedReturn['data']['contentUrl'];
+								$params['url'] = $uploadedReturn['data']['contentUrl'];
 							}
 						} elseif ($groupType == 'application' || $groupType == 'audio' || $groupType == 'video') {
-							$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName);
+							$uploadedReturn = move_uploaded_file($tmpName, $pathfile.$newName.'.'.$extension);
+							if ($thumbnail) {
+								$tmp_name = $thumbnail['tmp_name'][$key];
+								move_uploaded_file($tmp_name, $pathfile.$thumbName);
+								$params['image'] = $host . $folder . $thumbName;
+								$params['thumbnail'] = $host . $folder . $thumbName;
+							}
 						} else {
 							return ApiFactory::response()->message()->fail()->generic(['message'=>'encodingFormat not recognized']);
 						}
 						// CREATE ITEM AND IS PART OF
 						if ($uploadedReturn) {
-							// CREATE THUMBNAIL
-							if (isset($uploadedReturn['data']['thumbnail'])) {
-								$params['image'] = $uploadedReturn['data']['contentUrl'];
-								$params['thumbnail'] = $uploadedReturn['data']['thumbnail'];
-							} else {
-								if ($thumbnail) {
-									$tmp_name = $thumbnail['tmp_name'][$key];
-									move_uploaded_file($tmp_name, $pathfile.$thumbName);
-								}
-								$params['image'] = $host . $folder . $thumbName;
-								$params['thumbnail'] = $host . $folder . $thumbName;
-							}
 							//
 							$params['type'] = match ($groupType) {
 								"video" => "VideoObject",
@@ -469,7 +462,7 @@ abstract class Entity implements HttpRequestInterface
 									$typeIsPartOf = $item['type'];
 									$dataCreated['data'][] = self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 								}
-								return $dataCreated;
+								$createdFiles[] = $dataCreated['data'][0];
 							} else {
 								return ApiFactory::response()->message()->fail()->generic(['message'=>'an error has ocurred']);
 							}
@@ -477,6 +470,13 @@ abstract class Entity implements HttpRequestInterface
 					}
 				}
 			}
+			$dataCreated = [];
+			foreach ($createdFiles as $item) {
+					$type = $item['type'];
+					$responseElement = ApiFactory::response()->type($type)->setData($item)->ready();
+					$dataCreated[] = $responseElement;
+			}
+			return ApiFactory::response()->message()->success('files uploaded', $dataCreated);
 		}
 		return ApiFactory::response()->message()->fail()->generic(['message'=>'no uploaded files']);
 	}
@@ -486,7 +486,8 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	public function uploadImage($newName, $tmp_name, $destination, int $largeWidth = 1280): array
 	{
-		$newImage = new Image($tmp_name);
+		//$newImage = new Image($tmp_name);
+		$newImage = new ImageProcessor($tmp_name, $destination);
 		$width = $newImage->getWidth();
 		$ratio = 1.618; // number gold
 		$meddiumWidth = floor($largeWidth / $ratio); // 791
@@ -500,15 +501,10 @@ abstract class Entity implements HttpRequestInterface
 			$meddiumWidth = 0;
 			$smallWidth = 0;
 		}
-		$pathinfo = pathinfo($destination.$newName);
-		$dirname = $pathinfo['dirname'];
-		$filename = $pathinfo['filename'];
-		$extension = $pathinfo['extension'];
-
-		$largeFileName = $dirname.'/'.$filename.'.'.$extension;
-		$meddiumFileName = $dirname.'/'.$filename.'_m.'.$extension;
-		$smallFileName = $dirname.'/'.$filename.'_s.'.$extension;
-		$tinyFileName = $dirname.'/'.$filename.'_t.'.$extension;
+		$largeFileName = $newName;
+		$meddiumFileName = $newName.'_m';
+		$smallFileName = $newName.'_s';
+		$tinyFileName = $newName.'_t';
 		// large
 		$contentUrl = $newImage->createNewImage($largeFileName, $largeWidth);
 		// meddium
@@ -518,10 +514,10 @@ abstract class Entity implements HttpRequestInterface
 		// tiny
 		$newImage->createNewImage($tinyFileName, (int)$tinyWidth);
 		// RETURN
-		if (empty($newImage->getError())) {
-			return ['status' => 'success', 'data' => ['contentUrl'=>$contentUrl,'thumbnail'=>$thumbnail]];
+		if (empty($newImage->getErrors())) {
+			return ['status' => 'success', 'data' => ['contentUrl'=>str_replace($_SERVER['DOCUMENT_ROOT'],'https://'.$_SERVER['HTTP_HOST'],$contentUrl),'thumbnail'=>str_replace($_SERVER['DOCUMENT_ROOT'],'https://'.$_SERVER['HTTP_HOST'],$thumbnail)]];
 		} else {
-			return ['status' => 'error', 'data' => $newImage->getError()];
+			return ['status' => 'error', 'data' => $newImage->getErrors()];
 		}
 	}
 }

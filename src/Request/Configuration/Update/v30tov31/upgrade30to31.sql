@@ -156,9 +156,7 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `sp_thing_has_thing_update`(
   IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48),
   IN p_caption VARCHAR(255),
   IN p_position INT UNSIGNED,
   IN p_representativeOfPage VARCHAR(1)
@@ -187,7 +185,6 @@ BEGIN
   SELECT position INTO v_old_pos
   FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
   LIMIT 1;
 
@@ -209,14 +206,12 @@ BEGIN
       UPDATE thing_has_thing
       SET position = position + 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
         AND position BETWEEN v_new_pos AND v_old_pos - 1;
     ELSE
       -- Desloca para baixo: puxa para cima quem está no intervalo [v_old_pos+1, v_new_pos]
       UPDATE thing_has_thing
       SET position = position - 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
         AND position BETWEEN v_old_pos + 1 AND v_new_pos;
     END IF;
   END IF;
@@ -228,9 +223,7 @@ BEGIN
     -- Zera todos representativeOfPage do grupo se for = 1
     UPDATE thing_has_thing
     SET representativeOfPage = 0
-    WHERE idHasPart   = p_idHasPart
-      AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf= p_typeIsPartOf;
+    WHERE idHasPart   = p_idHasPart;
     -- salva nova imagem
     UPDATE thing as t1
     SET image = (SELECT image FROM thing WHERE idthing = p_idIsPartOf)
@@ -243,7 +236,6 @@ BEGIN
       position = v_new_pos,
       representativeOfPage = IF(p_representativeOfPage = '', representativeOfPage, p_representativeOfPage)
   WHERE idHasPart    = p_idHasPart
-    AND typeHasPart  = p_typeHasPart
     AND idIsPartOf   = p_idIsPartOf;
 
   -- Commit apenas se não houve erro
@@ -302,3 +294,6 @@ call insert_thing_has_thing('person','imageObject');
 call insert_thing_has_thing('webPage','imageObject');
 call insert_thing_has_thing('webPageElement','imageObject');
 call insert_thing_has_thing('webSite','imageObject');
+
+alter table creativeWork
+  drop column position;

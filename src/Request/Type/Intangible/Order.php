@@ -164,9 +164,10 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(?array $params = null): array
+	public function post(?array $params = null, array $uploadfiles = null): array
 	{
 		$params['dateCreated'] = date("Y-m-d H:i:s");
 		return parent::post($params);

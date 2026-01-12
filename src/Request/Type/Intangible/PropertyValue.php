@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class PropertyValue extends Entity
 {
@@ -17,13 +18,9 @@ class PropertyValue extends Entity
 	 */
 	public function get(array $params = []): array
 	{
-		$params['idpropertyValue'] = $params['idpropertyValue'] ?? $params['thing'] ?? null;
-		$data = $params['idpropertyValue'] ? parent::getData($params) : [] ;
-		if (isset($data[0])) {
-			foreach ($data as $key => $value) {
-				$data[$key]['type'] = 'PropertyValue';
-			}
-		}
+		$getData = new GetData('propertyValue');
+		$getData->setParams($params);
+		$data = $getData->render();
 		return parent::sortData($data);
 	}
 

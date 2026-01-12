@@ -63,7 +63,7 @@ abstract class GetDataAbstract
 	  if ($this->withThings && isset($this->properties[$this->table]) && !$this->isCount) {
 		  foreach ($this->properties[$this->table] as $property) {
 			  if ($property === 'thing') {
-					$this->setLeftJoin('thing',"`thing`.idthing = `$this->table`.thing");
+					$this->setJoin('thing',"`thing`.idthing = `$this->table`.thing");
 			  }
 		  }
 	  }
@@ -111,7 +111,9 @@ abstract class GetDataAbstract
    */
   protected function buildFields(): string
   {
-		if (!$this->fields) {
+		if (array_key_exists('fields', $this->params)) {
+			$this->fields = explode(',', $this->params['fields']);
+		} elseif (!$this->fields) {
 			$this->fields = ['*'];
 		}
 		return implode(',', $this->fields);
@@ -156,7 +158,7 @@ abstract class GetDataAbstract
 		// PROPERTIES WITH PARAMS
 	  foreach ($this->params as $propertyNeedle => $propertyValue) {
 		  foreach ($this->properties as $table => $value) {
-				if($value && in_array($propertyNeedle, $value)) {
+				if($value && in_array($propertyNeedle, $value) && (!($propertyNeedle === 'thing') || $table === $this->table)) {
 					$propertyValue = is_string($propertyValue) ? addslashes($propertyValue) : $propertyValue;
 					if ($propertyValue && str_contains($propertyValue,'|')) {
 						$orArray = [];
