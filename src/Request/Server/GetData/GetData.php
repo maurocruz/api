@@ -69,7 +69,7 @@ class GetData extends GetDataAbstract
 	 */
 	public function setParams($params): GetData
 	{
-		$this->params = $params;
+		$this->params = $this->params + $params;
 		return $this;
 	}
 

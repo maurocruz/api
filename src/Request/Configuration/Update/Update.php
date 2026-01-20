@@ -51,8 +51,8 @@ class Update
 			__DIR__ . '/v2tov3/upgrade_localBusiness.sql',
 			__DIR__ . '/v2tov3/upgrade_service.sql',
 			__DIR__ . '/v2tov3/upgrade_order.sql',
-			__DIR__ . '/v2tov3/upgrade_orderItem.sql',
 			__DIR__ . '/v2tov3/upgrade_offer.sql',
+			__DIR__ . '/v2tov3/upgrade_orderItem.sql',
 			__DIR__ . '/v2tov3/upgrade_invoice.sql'
 		];
 		foreach ($filesArray as $file) {

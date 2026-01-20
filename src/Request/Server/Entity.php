@@ -486,7 +486,6 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	public function uploadImage($newName, $tmp_name, $destination, int $largeWidth = 1280): array
 	{
-		//$newImage = new Image($tmp_name);
 		$newImage = new ImageProcessor($tmp_name, $destination);
 		$width = $newImage->getWidth();
 		$ratio = 1.618; // number gold

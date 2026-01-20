@@ -2,7 +2,6 @@
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 
@@ -24,37 +23,18 @@ class Order extends Entity
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
 		$customerNameLike = $params['customerNameLike'] ?? $params['nameLike'] ?? null;
-		$seller = $params['seller'] ?? null;
-		$orderStatus = $params['orderStatus'] ?? null;
-		$orderBy = $params['orderBy'] ?? null;
-		$ordering = $params['ordering'] ?? null;
-		$limit = $params['limit'] ?? null;
-		if ($customerNameLike !== null && $seller !== null) {
-			$sqlQuery = "SELECT idorder, seller, customer, orderStatus, orderDate FROM `order` 
-left join `localBusiness` on `localBusiness`.thing=`order`.customer
-left join `thing` as locThing on locThing.idthing=`localBusiness`.thing
-left join `organization` on `organization`.thing=`order`.customer
-left join `thing` as orgThing on orgThing.idthing=`organization`.thing
-left join `person` on person.thing = `order`.customer 
-left join `thing` as prsThing on prsThing.idthing=`person`.thing
-WHERE `order`.`seller`='$seller' 
-AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$customerNameLike%' OR `locThing`.`name` LIKE '%$customerNameLike%')";
-			if ($orderStatus !== null) {
-				$sqlQuery .= " AND `order`.orderStatus='$orderStatus'";
-			}
-			if ($orderBy !== null) {
-				$sqlQuery .= " ORDER BY $orderBy $ordering";
-			}
-			if ($limit !== null) {
-				$sqlQuery .= " LIMIT $limit";
-			}
-			$sqlQuery .= ";";
-			$data = PDOConnect::run($sqlQuery);
-		} else {
-			$getData = new GetData('order');
-			$getData->setParams($params);
-			$data = $getData->render();
+		$getData = new GetData('order');
+		$getData->setParams($params);
+		if ($customerNameLike !== null) {
+			$getData->setParams(['nameLike'=>$customerNameLike]);
+			$getData->setLeftJoin('thing','`thing`.idthing=order.customer');
+			$getData->setWhere("`thing`.`name` LIKE '%$customerNameLike%'");
+			$properties[] = 'customer';
+		} elseif(in_array('customer', $properties)) {
+			$getData->setLeftJoin('thing','`thing`.idthing=order.customer', 'ct');
 		}
+		$data = $getData->render();
+		// ORDER STATUS
 		if (isset($data['error'])) { // ERROR
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
 		} elseif (!empty($data)) {
@@ -96,30 +76,15 @@ AND (`orgThing`.`name` LIKE '%$customerNameLike%' OR `prsThing`.`name` LIKE '%$c
 					}
 					// CUSTOMER
 					if (in_array('customer',$properties)) {
-						$customer = $value['customer'];
-						// THING
-						$thingGetData = new GetData('thing');
-						$thingGetData->setParams(['idthing'=>$customer] + (array_key_exists('additionalTypeLike', $params) ? ['additionalTypeLike'=>$params['additionalTypeLike']] : []));
-						$customerTypeData = $thingGetData->render();
-						if (isset($customerTypeData[0])) {
-							$customerType = lcfirst($customerTypeData[0]['type']);
-							$customerParams = ['idthing'=>$customer, 'properties'=>''];
-							if (in_array('location',$properties)) {
-								$customerParams['properties'] .= ',location';
-							}
-							if (in_array('review',$properties)) {
-								$customerParams['properties'] .= ',review';
-							}
-							if (in_array('contactPoint',$properties)) {
-								$customerParams['properties'] .= ',contactPoint';
-							}
-							$dataCustomer = ApiFactory::request()->type($customerType)->get($customerParams)->ready();
-							if(isset($dataCustomer[0])) {
-								$data[$key]['customer'] = ApiFactory::response()->type($customerType)->setData($dataCustomer[0])->ready();
-							}
-						} else {
-							unset($data[$key]);
-						}
+						$customerType = $value['type'];
+						$customerData = $value;
+						unset($customerData['customer']);
+						unset($customerData['seller']);
+						unset($customerData['orderDate']);
+						unset($customerData['paymentDueDate']);
+						unset($customerData['orderStatus']);
+						$data[$key]['customer'] = ApiFactory::response()->type($customerType)->setData($customerData)->ready();
+						$data[$key]['type'] = "Order";
 					}
 					// INVOICE
 					if (in_array('invoice',$properties )) {

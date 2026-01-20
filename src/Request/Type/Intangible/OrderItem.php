@@ -22,8 +22,6 @@ class OrderItem extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		//$offer = stripos($properties, 'offer') !== false;
-		//$join = $offer !== false ? "LEFT JOIN `offer` ON `offer`.idoffer=`orderItem`.offer" : null;
 		$getData = new GetData('orderItem');
 		if (in_array('offer', $properties)) {
 			$getData->setLeftJoin('offer', '`offer`.idoffer=`orderItem`.offer');
@@ -87,30 +85,11 @@ class OrderItem extends Entity
    */
   public function post($params = null, array $uploadfiles = null): array
   {
-		$multiDimensional = $params['multidimensional'] ?? false;
-		if ($multiDimensional) {
-			$params = json_decode($params['multidimensional'], true);
+		$orderedItem = $params['orderedItem'] ?? null;
+		$orderItemNumber  = $params['orderItemNumber'] ?? null;
+		if ($orderedItem && $orderItemNumber) {
+			return parent::post($params);
 		}
-		$items = $params['items'] ?? null;
-		if ($items) {
-			$returns = [];
-			foreach ($items as $item) {
-				$orderItemNumber = $item['orderItemNumber'] ?? null;
-				$orderedItem = $item['orderedItem'] ?? null;
-				$offer = $item['offer'] ?? null;
-				$orderQuantity = $item['orderQuantity'] ?? null;
-				if ($orderItemNumber && $orderedItem && $offer && $orderQuantity) {
-					$dataPost = parent::post($item);
-					if (array_key_exists('status',$dataPost) && $dataPost['status'] == 'success') {
-						$returns['status'] = "success";
-						$returns['code'] = '0000';
-						$returns['message'] = 'Successfully created';
-						$returns['data'][] = $dataPost['data'][0];
-					}
-				}
-			}
-			return $returns;
-		}
-		return ApiFactory::response()->message()->fail()->inputDataIsMissing();
+	  return ApiFactory::response()->message()->fail()->inputDataIsMissing();
   }
 }

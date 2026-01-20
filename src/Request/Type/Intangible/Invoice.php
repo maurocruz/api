@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 use DateTime;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Invoice extends Entity
 {
@@ -22,38 +23,104 @@ class Invoice extends Entity
   public function get(array $params = []): array
   {
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		$data = parent::getData($params);
+		$getData = new GetData('invoice');
+		$getData->setParams($params);
+		// REFERENCES ORDER
+		if (in_array('referencesOrder', $properties)) {
+			$getData->setLeftJoin('order','`order`.idorder=`invoice`.referencesOrder');
+		}
+		// CUSTOMER
+		if (in_array('customer', $properties) && !in_array('provider', $properties)) {
+			$getData->setLeftJoin('thing','`thing`.idthing=`invoice`.customer', 'cs');
+		}
+		// PROVIDER
+		if (in_array('provider', $properties) && !in_array('customer', $properties)) {
+			$getData->setLeftJoin('thing','`thing`.idthing=`invoice`.provider', 'pr');
+		}
+		$data = $getData->render();
+
 		if ($properties) {
 			foreach ($data as $key => $value) {
-				$referencesOrder = $value['referencesOrder'];
-				$customer = $value['customer'];
-				$providerData = $value['provider'];
-				// CUSTOMER
-				if (in_array('customer', $properties)) {
-					$dataCustomer = ApiFactory::request()->type('thing')->get(['idthing'=>$customer,'hasPart'=>true])->ready();
-					if (isset($dataCustomer[0])) {
-						$customerType = $dataCustomer[0]['type'];
-						$data[$key]['customer'] = ApiFactory::response()->type($customerType)->setData($dataCustomer[0])->ready();
-					}
-				}
-				// PROVIDER
-				if (in_array('provider', $properties)) {
-					$dataProvider = ApiFactory::request()->type('thing')->get(['idthing'=>$providerData,'hasPart'=>true])->ready();
-					if (isset($dataProvider[0])) {
-						$providerType = $dataProvider[0]['type'];
-						$data[$key]['provider'] = ApiFactory::response()->type($providerType)->setData($dataProvider[0])->ready();
-					}
-				}
 				// REFERENCES ORDER
 				if (in_array('referencesOrder', $properties)) {
-					$paramsOrder = array_key_exists('orderStatus', $params) ? ['orderStatus' => $params['orderStatus']] : [];
-					$paramsOrder = in_array('orderedItem',$properties) ? $paramsOrder + ['properties'=>'orderedItem'] : $paramsOrder;
-					$dataOrder = ApiFactory::request()->type('order')->get(['idorder' => $referencesOrder] + $paramsOrder)->ready();
-					if (isset($dataOrder[0])) {
-						$data[$key]['referencesOrder'] = ApiFactory::response()->type('order')->setData($dataOrder[0])->ready();
-					} else {
-						unset($data[$key]);
-					}
+					$referencesOrderData = [
+						"idorder" => $value['referencesOrder'],
+						"orderDate" => $value['orderDate'],
+						"paymentDueDate" => $value['paymentDueDate'],
+						"tags" => $value['tags'],
+						"orderStatus" => $value['orderStatus'],
+						"discount" => $value['discount'],
+						"seller" => $value['seller'],
+					];
+					$data[$key]['referencesOrder'] = ApiFactory::response()->type('order')->setData($referencesOrderData)->ready();
+					unset($data[$key]['tags']);
+					unset($data[$key]['orderDate']);
+					unset($data[$key]['paymentDueDate']);
+					unset($data[$key]['orderStatus']);
+					unset($data[$key]['discount']);
+					unset($data[$key]['seller']);
+				}
+				// CUSTOMER
+				if (in_array('customer', $properties) && !in_array('provider', $properties)) {
+					$customerData = [
+						"idthing" => $value['customer'] ?? null,
+						"additionalType" => $value['addtionalType'] ?? null,
+						"alternateName" => $value['alternateName'] ?? null,
+						"dateRegistered" => $value['dateRegistered'] ?? null,
+						"lastModified" => $value['lastModified'] ?? null,
+						"description" => $value['description'] ?? null,
+						"disambiguatingDescription" => $value['disambiguatingDescription'] ?? null,
+						"image" => $value['image'] ?? null,
+						"mainEntityOfPage" => $value['mainEntityOfPage'] ?? null,
+						"name" => $value['name'] ?? null,
+						"sameAs" => $value['sameAs'] ?? null,
+						"type" => $value['type'] ?? null,
+						"url" => $value['url'] ?? null
+					];
+					$data[$key]['customer'] = ApiFactory::response()->type('thing')->setData($customerData)->ready();
+					unset($data[$key]['addtionalType']);
+					unset($data[$key]['alternateName']);
+					unset($data[$key]['dateRegistered']);
+					unset($data[$key]['lastModified']);
+					unset($data[$key]['description']);
+					unset($data[$key]['disambiguatingDescription']);
+					unset($data[$key]['image']);
+					unset($data[$key]['mainEntityOfPage']);
+					unset($data[$key]['name']);
+					unset($data[$key]['sameAs']);
+					unset($data[$key]['type']);
+					unset($data[$key]['url']);
+				}
+				// PROVIDER
+				if (in_array('provider', $properties) && !in_array('customer', $properties)) {
+					$providerData = [
+						"idthing" => $value['provider'] ?? null,
+						"additionalType" => $value['addtionalType'] ?? null,
+						"alternateName" => $value['alternateName'] ?? null,
+						"dateRegistered" => $value['dateRegistered'] ?? null,
+						"lastModified" => $value['lastModified'] ?? null,
+						"description" => $value['description'] ?? null,
+						"disambiguatingDescription" => $value['disambiguatingDescription'] ?? null,
+						"image" => $value['image'] ?? null,
+						"mainEntityOfPage" => $value['mainEntityOfPage'] ?? null,
+						"name" => $value['name'] ?? null,
+						"sameAs" => $value['sameAs'] ?? null,
+						"type" => $value['type'] ?? null,
+						"url" => $value['url'] ?? null
+					];
+					$data[$key]['provider'] = ApiFactory::response()->type('thing')->setData($providerData)->ready();
+					unset($data[$key]['addtionalType']);
+					unset($data[$key]['alternateName']);
+					unset($data[$key]['dateRegistered']);
+					unset($data[$key]['lastModified']);
+					unset($data[$key]['description']);
+					unset($data[$key]['disambiguatingDescription']);
+					unset($data[$key]['image']);
+					unset($data[$key]['mainEntityOfPage']);
+					unset($data[$key]['name']);
+					unset($data[$key]['sameAs']);
+					unset($data[$key]['type']);
+					unset($data[$key]['url']);
 				}
 			}
 		}
@@ -91,6 +158,10 @@ class Invoice extends Entity
 	 */
 	public function put(array $params = null): array
 	{
+		$paymentDue = $params['paymentDueDate'] ?? null;
+		if ($paymentDue == '') {
+			unset($params['paymentDueDate']);
+		}
 		$dataPut = parent::put($params);
 		if (isset($dataPut['status']) && $dataPut['status'] == 'success') {
 			$dataReturn = $dataPut['data'][0];
@@ -116,23 +187,24 @@ class Invoice extends Entity
 	public function delete(array $params): array
 	{
 		$idinvoice = $params['idinvoice'] ?? null;
-		if ($idinvoice) {
+		$referencesOrder = $params['referencesOrder'] ?? null;
+		if ($idinvoice && $referencesOrder) {
 			$dataDelete = parent::delete(['idinvoice'=>$idinvoice]);
 			if (isset($dataDelete['status']) && $dataDelete['status'] == 'success') {
 				$time = (new DateTime())->format('Y-m-d H:i:s');
 				ApiFactory::request()->type('action')->post([
 					'actionStatus'=>'CompletedActionStatus',
 					'agent' => ApiFactory::user()->userLogged()->getIduser(),
-					'object' => $params['idinvoice'],
+					'object' => $idinvoice,
 					'result' => str_replace("&","; ",http_build_query($params)),
 					'startTime' => $time,
 					'endTime' => $time,
-					'targetCollection' => $params['referencesOrder'],
+					'targetCollection' => $referencesOrder,
 					'type' => 'DeleteAction'
 				])->ready();
 			}
 			return $dataDelete;
 		}
-		return false;
+		return ApiFactory::response()->message()->fail()->inputDataIsMissing(['Mandatory fields: idinvoice and referencesOrder']);
 	}
 }
