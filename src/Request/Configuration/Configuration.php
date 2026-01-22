@@ -29,6 +29,7 @@ class Configuration
 			'Place',
 			'Product',
 			'Review',
+			'Role',
 			'Service',
 			'Taxon',
 			'VideoObject',
