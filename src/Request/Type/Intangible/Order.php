@@ -4,14 +4,16 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class Order extends Entity
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('order');
 	}
 
@@ -23,6 +25,7 @@ class Order extends Entity
 	{
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
 		$customerNameLike = $params['customerNameLike'] ?? $params['nameLike'] ?? null;
+		$fields = $params['fields'] ?? null;
 		$getData = new GetData('order');
 		$getData->setParams($params);
 		if ($customerNameLike !== null) {
@@ -37,7 +40,7 @@ class Order extends Entity
 		// ORDER STATUS
 		if (isset($data['error'])) { // ERROR
 			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
-		} elseif (!empty($data)) {
+		} elseif (!empty($data) && $fields !== 'count(idorder)') {
 			foreach ($data as $key => $value) {
 				$tags = $value['tags'] ?? null;
 				if ($tags !== null) {

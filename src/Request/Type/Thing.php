@@ -9,13 +9,12 @@ use Plinct\Api\Request\Server\Relationship;
 
 class Thing extends Entity
 {
-	protected ?Relationship $relationship = null;
 	/**
 	 *
 	 */
 	public function __construct(Relationship $relationship = null)
 	{
-		$this->relationship = $relationship;
+		parent::__construct($relationship);
 		$this->setTable('thing');
 	}
 

@@ -31,7 +31,18 @@ abstract class Entity implements HttpRequestInterface
    * @var array
    */
   protected array $hasTypes = [];
+	/**
+	 * @var Relationship|null
+	 */
+	protected ?Relationship $relationship = null;
 
+	/**
+	 * @param Relationship|null $relationship
+	 */
+	public function __construct(Relationship $relationship = null)
+	{
+		$this->relationship = $relationship;
+	}
 	/**
 	 * @param string $table
 	 */
@@ -283,12 +294,11 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function createRelationShip(string $idHasPart, string $typeHasPart, string $idIsPartOf, string $typeIsPartOf, array $params = null): array
 	{
-		$relationship = new Relationship();
-		$relationship->setIdHasPart($idHasPart);
-		$relationship->setTypeHasPart(ucfirst($typeHasPart));
-		$relationship->setIdIsPartOf($idIsPartOf);
-		$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
-		return $relationship->post($params);
+		$this->relationship->setIdHasPart($idHasPart);
+		$this->relationship->setTypeHasPart(ucfirst($typeHasPart));
+		$this->relationship->setIdIsPartOf($idIsPartOf);
+		$this->relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		return $this->relationship->post($params);
 	}
 
 	/**
@@ -300,16 +310,15 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null, array $params = null): array
 	{
-		$relationship = new Relationship();
-		$relationship->setIdHasPart($idHasPart);
-		$relationship->setTypeHasPart(ucfirst($typeHasPart));
+		$this->relationship->setIdHasPart($idHasPart);
+		$this->relationship->setTypeHasPart(ucfirst($typeHasPart));
 		if ($typeIsPartOf) {
-			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+			$this->relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
 		}
 		if ($params) {
-			$relationship->setParams($params);
+			$this->relationship->setParams($params);
 		}
-		return $relationship->getParts('hasPart');
+		return $this->relationship->getParts('hasPart');
 	}
 
 	/**
@@ -320,15 +329,14 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null, array $params = null): array
 	{
-		$relationship = new Relationship();
-		$relationship->setIdIsPartOf($idIsPartOf);
+		$this->relationship->setIdIsPartOf($idIsPartOf);
 		if ($typeIsPartOf) {
-			$relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+			$this->relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
 		}
 		if ($params) {
-			$relationship->setParams($params);
+			$this->relationship->setParams($params);
 		}
-		return $relationship->getParts();
+		return $this->relationship->getParts();
 	}
 
 	/**
@@ -339,16 +347,14 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function updateRelationship(string $idHasPart, string $idIsPartOf, array $params): array
 	{
-		$relationship = new Relationship();
-		$relationship->setIdHasPart($idHasPart);
-		$relationship->setIdIsPartOf($idIsPartOf);
-		return $relationship->put($params);
+		$this->relationship->setIdHasPart($idHasPart);
+		$this->relationship->setIdIsPartOf($idIsPartOf);
+		return $this->relationship->put($params);
 	}
 
 	protected function deleteRelationship(string $idHasPart, string $idIsPartOf): array
 	{
-		$relationship = new Relationship();
-		return $relationship->delete($idHasPart, $idIsPartOf);
+		return $this->relationship->delete($idHasPart, $idIsPartOf);
 	}
 
 	/**

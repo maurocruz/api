@@ -3,13 +3,14 @@ namespace Plinct\Api\Request\Type\Organization;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Organization extends Thing
 {
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('organization');
 	}
 
@@ -23,6 +24,12 @@ class Organization extends Thing
 		$makesOffer = $params['makesOffer'] ?? null;
 		$getData = new GetData('organization');
 		$getData->setParams($params);
+		// LOCATION
+	  if (in_array('location', $properties)) {
+			$getData->setJoin('place','`place`.thing=`organization`.location');
+			$getData->setJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates=`place`.geo');
+			$getData->setJoin('postalAddress','`postalAddress`.idpostalAddress=`geoCoordinates`.address');
+	  }
 	  $data = $getData->render();
 		//
 		if (isset($data['error'])) {
@@ -31,7 +38,6 @@ class Organization extends Thing
 		  foreach ($data as $key => $value) {
 			  $idthing = $value['thing'];
 				$idorganization = $value['idorganization'];
-			  $location = $value['location'] ?? null;
 			  // PROPERTIES
 			  if ($properties || $makesOffer) {
 					// CONTACT POINT
@@ -45,9 +51,39 @@ class Organization extends Thing
 					  $data[$key]['image'] = isset($dataImageObject[0]) ? ApiFactory::response()->type('imageObject')->setData($dataImageObject)->ready() : null;
 				  }
 				  // LOCATION
-				  if ($location && in_array('location', $properties)) {
-					  $dataLocation = ApiFactory::request()->type('place')->get(['idplace' => $location])->ready();
-					  $data[$key]['location'] = isset($dataLocation[0]) ? ApiFactory::response()->type('contactPoint')->setData($dataLocation[0])->ready() : null;
+				  if (in_array('location', $properties)) {
+						$address = [
+							'streetAddress' => $value['streetAddress'] ?? null,
+							'addressLocality' => $value['addressLocality'] ?? null,
+							'addressRegion' => $value['addressRegion'] ?? null,
+							'addressCountry' => $value['addressCountry'] ?? null,
+							'postalCode' => $value['postalCode'] ?? null
+						];
+						$geoCoordinates = [
+							'address' => ApiFactory::response()->type('PostalAddress')->setData($address)->ready(),
+							'elevation' => $value['elevation'] ?? null,
+							'latitude' => $value['latitude'] ?? null,
+							'longitude' => $value['longitude'] ?? null
+						];
+					  $dataLocation = [
+							'name' => $value['name'] ?? null,
+							'geo' => ApiFactory::response()->type('GeoCoordinates')->setData($geoCoordinates)->ready(),
+							'keywords' => $value['keywords'] ?? null,
+						  'publicAccess' => (bool)$value['publicAccess'],
+					  ];
+					  $data[$key]['location'] = ApiFactory::response()->type('place')->setData($dataLocation)->ready();
+						unset($data[$key]['address']);
+						unset($data[$key]['streetAddress']);
+						unset($data[$key]['addressLocality']);
+						unset($data[$key]['addressRegion']);
+						unset($data[$key]['addressCountry']);
+						unset($data[$key]['postalCode']);
+						unset($data[$key]['geo']);
+						unset($data[$key]['elevation']);
+						unset($data[$key]['latitude']);
+						unset($data[$key]['longitude']);
+						unset($data[$key]['keywords']);
+						unset($data[$key]['publicAccess']);
 				  }
 					// MEMBER
 				  if (in_array('member', $properties)) {

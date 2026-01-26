@@ -4,15 +4,16 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Exception;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Server\Relationship;
 
 class Collection extends CreativeWork implements HttpRequestInterface
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('collection');
 	}
 

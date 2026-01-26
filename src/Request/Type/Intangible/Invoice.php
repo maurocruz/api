@@ -5,14 +5,16 @@ use DateTime;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class Invoice extends Entity
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('invoice');
 	}
 

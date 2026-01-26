@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Place extends Thing
@@ -10,8 +11,9 @@ class Place extends Thing
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('place');
 	}
 

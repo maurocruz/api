@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Person;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Person extends Thing
@@ -10,9 +11,9 @@ class Person extends Thing
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('person');
 	}
 

@@ -10,9 +10,9 @@ class LocalBusiness extends Place
 	/**
 	 *
 	 */
-  public function __construct()
+  public function __construct(Relationship $relationship = null)
   {
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable("localBusiness");
   }
 

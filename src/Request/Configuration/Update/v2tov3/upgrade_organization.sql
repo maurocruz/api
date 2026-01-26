@@ -69,6 +69,7 @@ SELECT `organization`.thing,'organization',`person`.thing,'Person',jobTitle FROM
 
 ALTER TABLE `organization`
   CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `address`,
   DROP COLUMN `name`,
   DROP COLUMN `additionalType`,
   DROP COLUMN `description`,

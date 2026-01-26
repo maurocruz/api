@@ -67,6 +67,9 @@ INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
 -- insert images
 CALL insert_thing_has_thing('localBusiness','imageObject');
 
+-- update thing_has_thing
+UPDATE `thing_has_thing` SET `typeHasPart`='Organization' WHERE `typeHasPart`='LocalBusiness';
+
 -- IMAGES
 CALL set_image_in_thing('localBusiness');
 

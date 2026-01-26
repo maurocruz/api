@@ -5,15 +5,16 @@ use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Server\Relationship;
 
 class AudioObject extends MediaObject implements HttpRequestInterface
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('audioObject');
 	}
 

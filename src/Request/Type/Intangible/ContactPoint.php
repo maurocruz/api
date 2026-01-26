@@ -2,18 +2,20 @@
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\Relationship;
+use Plinct\Api\Request\Type\Thing;
 
-class ContactPoint extends Entity
+class ContactPoint extends Thing
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('contactPoint');
+		$this->setType("ContactPoint");
 	}
 
 	/**
@@ -72,17 +74,25 @@ class ContactPoint extends Entity
 			// insert data in contatc point and return new idthing
 			$params['name'] = $name;
 			$dataNewContactPoint = $this->createWithParent('thing', $params);
+
+			// IF IS RELATIONSHIP
 			if (isset($dataNewContactPoint['status']) && $dataNewContactPoint['status'] === "success") {
+				$message = $dataNewContactPoint['message'] ?? null;
 				$value = $dataNewContactPoint['data'][0];
 				$idthing = $value['idthing'];
 				// insert row in relationship thing_has_thing
 				$returns = parent::createRelationShip($idHasPart, $typeHasPart, $idthing, "ContactPoint");
-				if (empty($returns)) {
-					return $dataNewContactPoint;
+				if (isset($returns['status']) && $returns['status'] == "success") {
+					//return $dataNewContactPoint;
+					$returns['message'] = $message." and ".$returns['message'];
+					$returns['data'][] = ApiFactory::response()->type('ContactPoint')->setData($value)->ready();
+					return $returns;
 				} else {
 					return ApiFactory::response()->message()->fail()->generic($returns);
 				}
-			} else {
+			}
+
+			else {
 				return ApiFactory::response()->message()->fail()->generic($dataNewContactPoint);
 			}
 		} else {

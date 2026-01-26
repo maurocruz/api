@@ -2,12 +2,14 @@
 namespace Plinct\Api\Request\Type\Taxon;
 
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Taxon extends Thing
 {
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		parent::setTable('taxon');
 	}
 
@@ -18,10 +20,19 @@ class Taxon extends Thing
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
+		$idHasPart = $params['idHasPart'] ?? null;
 		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
 		$getData = new GetData('taxon');
 		$getData->setParams($params);
+		if ($idHasPart) {
+			$getData->setParams(['thing' => $idHasPart]);
+		}
 		$data = $getData->render();
+		// ID HAS PART
+		if ($idHasPart) {
+			$data[0]['subjectOf'] = parent::getHasPart($idHasPart, 'Taxon');
+		}
+		// PROPERTIES
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $value) {
 				$idtaxon = $value['idtaxon'];

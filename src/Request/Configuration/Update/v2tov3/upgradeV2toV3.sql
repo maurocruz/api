@@ -1,4 +1,4 @@
--- Update em 2026-01-09 15:56:56 ---
+-- Update em 2026-01-22 13:32:09 ---
 
 --
 -- THING
@@ -1691,12 +1691,14 @@ ALTER TABLE `order`
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idorder`);
 
+-- SET CUSTOMER
 UPDATE `order`
   LEFT JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `order`.customer AND `order`.customerType = 'localBusiness'
   LEFT JOIN organization as org1 ON org1.idorganization = `order`.customer AND `order`.customerType = 'organization'
   LEFT JOIN person ON person.idperson = `order`.customer AND `order`.customerType = 'person'
   LEFT JOIN `organization` ON `organization`.idorganization = `order`.seller
-SET customer= IF(customerType='localbusiness', `localBusiness`.thing, IF(customerType = 'organization', org1.thing, `person`.thing)), seller = `organization`.thing;
+SET customer= IF(customerType='localbusiness', `localBusiness`.thing, IF(customerType = 'organization', org1.thing, `person`.thing)), seller = `organization`.thing
+WHERE `order`.customerType IS NOT NULL;
 
 DELETE FROM `order` WHERE `customer`='0' || `seller`='0';
 
@@ -1718,41 +1720,9 @@ ALTER TABLE `order`
   ADD CONSTRAINT `fk_order_seller` FOREIGN KEY (`seller`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
--- ORDER ITEM
+-- offer
 --
 
-ALTER TABLE `orderItem`
-  CHANGE COLUMN `idorderItem` `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  CHANGE COLUMN `offer` `offer` INT UNSIGNED NOT NULL,
-  CHANGE COLUMN `referencesOrder` `orderItemNumber` INT UNSIGNED NOT NULL,
-  CHANGE COLUMN `orderedItem` `orderedItem` INT UNSIGNED NOT NULL,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idorderItem`);
-
-UPDATE `orderItem`
-  LEFT JOIN `service` ON `orderItem`.orderedItem = `service`.idservice AND `orderItem`.orderedItemType='service'
-  LEFT JOIN `product` ON `product`.idproduct = `orderItem`.orderedItem AND `orderItem`.orderedItemType='product'
-SET `orderItem`.orderedItem= IF(orderedItemType='service',service.thing,product.thing);
-
-DELETE `orderItem` FROM `orderItem`
-  LEFT JOIN `order` ON `orderItem`.orderItemNumber = `order`.idorder
-WHERE `order`.idorder IS NULL;
-
-DELETE FROM `orderItem` WHERE `offer` is null OR `offer`=0;
-
-ALTER TABLE `orderItem`
-  DROP COLUMN `orderedItemType`,
-  DROP COLUMN `orderItemStatus`,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idorderItem`,`orderItemNumber`);
-
--- add foreign keys
-ALTER TABLE `orderItem`
-  ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
-  ADD KEY `fk_orderItemNumber_thing_idx` (`orderItemNumber`),
-  ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_orderItemNumber_thing` FOREIGN KEY (`orderItemNumber`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
--- offer
 ALTER TABLE `offer`
   CHANGE COLUMN `idoffer` `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `itemOffered` `itemOffered` INT UNSIGNED NOT NULL,
@@ -1763,16 +1733,19 @@ ALTER TABLE `offer`
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idoffer`);
 
+--
 UPDATE `offer`
   left join `service` on service.idservice=offer.itemOffered and `offer`.itemOfferedType='service'
   left join `product` on product.idproduct=offer.itemOffered and `offer`.itemOfferedType='product'
   left join `organization`ON `organization`.idorganization=`offer`.offeredBy AND `offer`.offeredByType='organization'
-SET `offer`.itemOffered = IF(`offer`.itemOfferedType='service', service.thing, product.thing), `offer`.offeredBy = `organization`.thing;
+SET `offer`.itemOffered = IF(`offer`.itemOfferedType='service', service.thing, product.thing), `offer`.offeredBy = `organization`.thing
+WHERE `offer`.itemOfferedType IS NOT NULL;
 
 DELETE FROM `offer` WHERE `itemOffered`='0' || `offeredBy`='0';
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idoffer` INT UNSIGNED DEFAULT NULL;
+
 -- insert thing
 INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`type`)
 SELECT `offer`.idoffer,
@@ -1782,11 +1755,17 @@ SELECT `offer`.idoffer,
        SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
        'Offer'
 FROM `offer` LEFT JOIN `thing` ON `thing`.idthing=`offer`.itemOffered;
+
 -- set thing
-UPDATE `offer` JOIN `thing` ON thing.idoffer = `offer`.idoffer SET `offer`.thing = `thing`.idthing;
+UPDATE `offer`
+  JOIN `thing` ON thing.idoffer = `offer`.idoffer
+SET `offer`.thing = `thing`.idthing
+WHERE `thing`.name <> '';
+
 -- drop column
 ALTER TABLE `thing` DROP COLUMN `idoffer`;
 
+--
 ALTER TABLE `offer`
   CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
   DROP COLUMN `itemOfferedType`,
@@ -1803,27 +1782,74 @@ ALTER TABLE `offer`
   ADD CONSTRAINT `fk_offer_itemOffered_thing` FOREIGN KEY (`itemOffered`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_offer_offeredBy_thing` FOREIGN KEY (`offeredBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
--- add foreign keys orderItem
+
+--
+-- ORDER ITEM
+--
+
 ALTER TABLE `orderItem`
-  ADD KEY `fk_orderItem_offer_idx` (`offer`),
-  ADD CONSTRAINT `fk_orderedItem_offer` FOREIGN KEY (`offer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  CHANGE COLUMN `idorderItem` `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `offer` `offer` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `referencesOrder` `orderItemNumber` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `orderedItem` `orderedItem` INT UNSIGNED NOT NULL,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorderItem`);
+
+UPDATE `orderItem`
+  LEFT JOIN `service` ON `orderItem`.orderedItem = `service`.idservice AND `orderItem`.orderedItemType='service'
+  LEFT JOIN `product` ON `product`.idproduct = `orderItem`.orderedItem AND `orderItem`.orderedItemType='product'
+SET `orderItem`.orderedItem= IF(orderedItemType='service',service.thing,product.thing)
+WHERE `orderItem`.orderedItemType IS NOT NULL;
+
+DELETE `orderItem` FROM `orderItem`
+  LEFT JOIN `order` ON `orderItem`.orderItemNumber = `order`.idorder
+WHERE `order`.idorder IS NULL;
+
+DELETE FROM `orderItem` WHERE `offer`=0;
+
+UPDATE `orderItem`
+ LEFT JOIN `offer` ON orderItem.offer = offer.idoffer
+SET `orderItem`.orderedItem = `offer`.thing
+WHERE `orderItem`.offer <> 0;
+
+ALTER TABLE `orderItem`
+  DROP COLUMN `orderedItemType`,
+  DROP COLUMN `orderItemStatus`,
+  DROP COLUMN `offer`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorderItem`,`orderItemNumber`);
+
+-- add foreign keys
+ALTER TABLE `orderItem`
+  ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
+  ADD KEY `fk_orderItemNumber_thing_idx` (`orderItemNumber`),
+  ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_orderItemNumber_thing` FOREIGN KEY (`orderItemNumber`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
 -- ALTER TABLE
+--
+
 ALTER TABLE `invoice`
   CHANGE COLUMN `idinvoice` `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  CHANGE COLUMN `paymentDueDate` `scheduledPaymentDate` DATE NOT NULL,
-  CHANGE COLUMN `paymentDate` `paymentDueDate` DATE DEFAULT NULL,
+  CHANGE COLUMN `paymentDueDate` `scheduledPaymentDate` DATETIME NOT NULL,
+  CHANGE COLUMN `paymentDate` `paymentDueDate` DATETIME DEFAULT NULL,
   CHANGE COLUMN `referencesOrder` `referencesOrder` INT UNSIGNED NOT NULL ,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idinvoice`,`referencesOrder`);
 
+--
 DELETE `invoice` FROM invoice
   LEFT JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
 WHERE `order`.idorder IS NULL ;
 
+--
 UPDATE `invoice`
   JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
-SET `invoice`.customer=`order`.customer, `invoice`.provider = `order`.seller;
+SET `invoice`.customer=`order`.customer, `invoice`.provider = `order`.seller
+WHERE `order`.seller <> 0;
 
+--
 ALTER TABLE `invoice`
   CHANGE COLUMN `customer` `customer` INT UNSIGNED NOT NULL ,
   CHANGE COLUMN `provider` `provider` INT UNSIGNED NOT NULL ,
@@ -1833,5 +1859,9 @@ ALTER TABLE `invoice`
 -- add foreign key
 ALTER TABLE `invoice`
   ADD KEY `fk_invoice_order_idx` (`referencesOrder`),
-  ADD CONSTRAINT `fk_invoice_order` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  ADD INDEX `fk_invoice_customer_idx` (`customer`),
+  ADD INDEX `fk_invoice_provider_idx` (`provider`),
+  ADD CONSTRAINT `fk_invoice_order` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_invoice_customer` FOREIGN KEY (`customer`) REFERENCES `order` (`customer`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_invoice_provider` FOREIGN KEY (`provider`) REFERENCES `order` (`seller`) ON DELETE CASCADE ON UPDATE NO ACTION;
 

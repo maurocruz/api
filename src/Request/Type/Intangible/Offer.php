@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Offer extends Thing
@@ -10,9 +11,9 @@ class Offer extends Thing
 	/**
 	 *
 	 */
-  public function __construct()
+  public function __construct(Relationship $relationship = null)
   {
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('offer');
   }
 

@@ -4,14 +4,16 @@ namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\Relationship;
 
 class ProgramMembership extends Entity
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('programMembership');
 	}
 
@@ -38,9 +40,10 @@ class ProgramMembership extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		$name = $params['programName'] ?? $params['name'] ?? null;
 		$hostingOrganization = $params['hostingOrganization'] ?? null;
