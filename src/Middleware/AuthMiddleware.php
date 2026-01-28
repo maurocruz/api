@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Middleware;
 
 use Plinct\Api\ApiApp;
@@ -17,7 +14,7 @@ class AuthMiddleware implements MiddlewareInterface
   {
 		return (new JwtAuthentication([
 			'secure'=>true,
-			'relaxed'=>['localhost','192.168.1.14'],
+			'relaxed'=>['localhost'],
 			'secret'=>ApiApp::$JWT_SECRET_API_KEY]
 		))->process($request, $handler);
   }
