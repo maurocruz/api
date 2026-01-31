@@ -39,8 +39,8 @@ class Event extends Thing
 				}
 				// location
 				if (in_array('location',$properties)) {
-					$dataLocation = ApiFactory::request()->type('place')->get(['idplace'=>$location, 'properties'=>'geo'])->ready();
-					if(isset($dataLocation[0])){
+					$dataLocation = ApiFactory::request()->type('place')->get(['thing'=>$location, 'properties'=>'geo'])->ready();
+					if(isset($dataLocation[0])) {
 						$data[$key]['location'] = ApiFactory::response()->type('place')->setData($dataLocation[0])->ready();
 					}
 				}
