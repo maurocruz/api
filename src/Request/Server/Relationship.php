@@ -269,7 +269,7 @@ class Relationship
 	{
 		if (empty($data)) return $data;
 
-		$propertiesValueData = null;
+		$propertiesValueData = [];
 		if (isset($this->params['properties']) && str_contains($this->params['properties'], 'propertyValue')) {
 			$idIsPartOfArray = array_column($data, 'idIsPartOf');
 			$inTerm = implode(',', $idIsPartOfArray);
