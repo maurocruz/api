@@ -318,7 +318,7 @@ abstract class Entity implements HttpRequestInterface
 		if ($params) {
 			$this->relationship->setParams($params);
 		}
-		return $this->relationship->getParts('hasPart');
+		return $this->relationship->getHasParts();
 	}
 
 	/**
@@ -336,7 +336,7 @@ abstract class Entity implements HttpRequestInterface
 		if ($params) {
 			$this->relationship->setParams($params);
 		}
-		return $this->relationship->getParts();
+		return $this->relationship->getIsPartOf();
 	}
 
 	/**
@@ -490,14 +490,14 @@ abstract class Entity implements HttpRequestInterface
 	/**
 	 * @throws Exception
 	 */
-	public function uploadImage($newName, $tmp_name, $destination, int $largeWidth = 1280): array
+	public function uploadImage($newName, $tmp_name, $destination, int $largeWidth = 1360): array
 	{
 		$newImage = new ImageProcessor($tmp_name, $destination);
 		$width = $newImage->getWidth();
 		$ratio = 1.618; // number gold
-		$meddiumWidth = floor($largeWidth / $ratio); // 791
-		$smallWidth = floor($meddiumWidth / $ratio); // 489
-		$tinyWidth = floor($smallWidth / $ratio); // 302
+		$meddiumWidth = floor($largeWidth / $ratio); // 840
+		$smallWidth = floor($meddiumWidth / $ratio); // 520
+		$tinyWidth = floor($smallWidth / $ratio); // 320
 		if ($width < $largeWidth) {
 			$largeWidth = $width;
 			$meddiumWidth = 0;

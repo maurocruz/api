@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Server;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
+use Plinct\Api\Request\Server\GetData\GetData;
 
 class Relationship
 {
@@ -188,7 +189,6 @@ class Relationship
 				$dataItems[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'representativeOfPage', 'value' => $item['representativeOfPage']];
 				unset($dataItems[$key]['representativeOfPage']);
 			}
-
 			// Limpeza de chaves internas
 			unset(
 				$dataItems[$key]['idIsPartOf'],
@@ -206,29 +206,115 @@ class Relationship
 	 * @param string $property
 	 * @return array
 	 */
-	public function getParts(string $property = 'isPartOf'): array
+	public function getHasParts(string $property = 'isPartOf'): array
 	{
-		$data = self::get();
-		$dataItems = [];
-		foreach ($data as $value) {
-			if ($property == 'hasPart') {
-				$type = lcfirst($value['typeIsPartOf']);
-				$idthing = $value['idIsPartOf'];
-			} else {
-				$type = lcfirst($value['typeHasPart']);
-				$idthing = $value['idHasPart'];
-			}
-			$dataItem = ApiFactory::request()->type($type)->get(['thing' => $idthing] + $this->params)->ready();
-			if (isset($dataItem[0])) {
-				$valueItem = $dataItem[0];
-				$type = lcfirst($valueItem['type']);
-				if (isset($value['caption']))	$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'caption', 'value' => $value['caption']];
-				if (isset($value['position'])) $valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'position', 'value' => $value['position']];
-				if (isset($value['representativeOfPage']))	$valueItem['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'representativeOfPage', 'value' => $value['representativeOfPage']];
-				$dataItems[] = ApiFactory::response()->type($type)->setData($valueItem)->ready();
-			}
+		$getData = new GetData('thing_has_thing');
+		$getData->setParams($this->params + ['limit'=>'none']);
+		$getData->setJoin('thing', '`thing`.idthing = `thing_has_thing`.idIsPartOf');
+		$getData->setJoin(lcfirst($this->typeIsPartOf), "`". lcfirst($this->typeIsPartOf)."`.thing = `thing_has_thing`.idIsPartOf");
+		if ($this->idHasPart) {
+			$getData->setParams(['idHasPart' => $this->idHasPart]);
 		}
-		return $dataItems;
+		if ($this->typeHasPart) {
+			$getData->setParams(['typeHasPart' => $this->typeHasPart]);
+		}
+		if ($this->idIsPartOf) {
+			$getData->setParams(['idIsPartOf' => $this->idIsPartOf]);
+		}
+		if ($this->typeIsPartOf) {
+			$getData->setParams(['typeIsPartOf' => $this->typeIsPartOf]);
+		}
+		if (in_array($this->typeIsPartOf,['Article','WebPageElement','WebPage'])) {
+			$getData->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
+		}
+		$data = $this->propertiesValuesAndIdentifiers($getData->render());
+
+		return ApiFactory::response()->type($this->typeIsPartOf)->setData($data)->ready();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getIsPartOf(): array
+	{
+		$getData = new GetData('thing_has_thing');
+		$getData->setParams($this->params + ['limit'=>'none']);
+		$getData->setJoin('thing', '`thing`.idthing = `thing_has_thing`.idHasPart');
+		$getData->setJoin(lcfirst($this->typeHasPart), "`". lcfirst($this->typeHasPart)."`.thing = `thing_has_thing`.idHasPart");
+		if ($this->idHasPart) {
+			$getData->setParams(['idHasPart' => $this->idHasPart]);
+		}
+		if ($this->typeHasPart) {
+			$getData->setParams(['typeHasPart' => $this->typeHasPart]);
+		}
+		if ($this->idIsPartOf) {
+			$getData->setParams(['idIsPartOf' => $this->idIsPartOf]);
+		}
+		if ($this->typeIsPartOf) {
+			$getData->setParams(['typeIsPartOf' => $this->typeIsPartOf]);
+		}
+		if (in_array($this->typeIsPartOf,['Article','WebPageElement','WebPage'])) {
+			$getData->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
+		}
+		$data = $this->propertiesValuesAndIdentifiers($getData->render());
+
+		return ApiFactory::response()->type($this->typeHasPart)->setData($data)->ready();
+	}
+
+	/**
+	 * @param array $data
+	 * @return array
+	 */
+	private function propertiesValuesAndIdentifiers(array $data): array
+	{
+		if (empty($data)) return $data;
+
+		$propertiesValueData = null;
+		if (isset($this->params['properties']) && str_contains($this->params['properties'], 'propertyValue')) {
+			$idIsPartOfArray = array_column($data, 'idIsPartOf');
+			$inTerm = implode(',', $idIsPartOfArray);
+			$sql = "SELECT idHasPart, type, name, value FROM thing_has_thing tht
+JOIN thing t  ON t.idthing = tht.idIsPartOf
+JOIN propertyValue pv ON pv.thing = t.idthing
+WHERE tht.idHasPart IN (" . $inTerm . ")
+AND tht.typeIsPartOf = 'PropertyValue';
+";
+			$propertiesValueData = PDOConnect::run($sql);
+		}
+		$indexado = [];
+		foreach ($propertiesValueData as $item) {
+			$indexado[$item['idHasPart']] = $item;
+		}
+		//
+		foreach ($data as $key => $item) {
+			$idIsPartOf = $item['idIsPartOf'];
+			if (isset($indexado[$idIsPartOf])) {
+				$item['identifier'][] = $indexado[$idIsPartOf];
+			}
+			$data[$key] = $this->buildIdentifiers($item);
+		}
+		return $data;
+	}
+
+	/**
+	 * @param array $item
+	 * @return array
+	 */
+	private function buildIdentifiers(array $item): array
+	{
+		if (isset($item['caption']))	$item['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'caption', 'value' => $item['caption']];
+		if (isset($item['position'])) $item['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'position', 'value' => $item['position']];
+		if (isset($item['representativeOfPage']))	$item['identifier'][] = ['@type' => 'PropertyValue', 'name' => 'representativeOfPage', 'value' => (bool)$item['representativeOfPage']];
+		unset($item['idHasPart']);
+		unset($item['typeHasPart']);
+		unset($item['idIsPartOf']);
+		unset($item['typeIsPartOf']);
+		unset($item['repUniqueFlag']);
+		unset($item['thing']);
+		unset($item['caption']);
+		unset($item['position']);
+		unset($item['representativeOfPage']);
+		return $item;
 	}
 
 	/**

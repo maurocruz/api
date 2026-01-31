@@ -109,7 +109,7 @@ class LocalBusiness extends Place
 					if (isset($params['typeIsPartOf'])) {
 						$hasPart->setTypeIsPartOf($params['typeIsPartOf']);
 					}
-					$dataHasPart = $hasPart->getParts('hasPart');
+					$dataHasPart = $hasPart->getHasParts('hasPart');
 					if ($dataHasPart) {
 						foreach ($dataHasPart as $valueHasPart) {
 							$typeHasPart = $valueHasPart['@type'];

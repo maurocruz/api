@@ -50,6 +50,8 @@ abstract class GetDataAbstract
 	 */
 	protected bool $withThings = true;
 
+	private static array $__tables = [];
+
 	/**
 	 * @return void
 	 */
@@ -85,7 +87,13 @@ abstract class GetDataAbstract
 	 */
 	protected function setProperties(string $table): void
 	{
-		$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
+		if (isset(self::$__tables[$table])) {
+			$columnsTable = self::$__tables[$table];
+		} else {
+			$columnsTable = ApiFactory::request()->server()->connectBd($table)->showColumnsName();
+			self::$__tables[$table] = $columnsTable;
+		}
+
 		foreach ($columnsTable as $value) {
 			$this->properties[$table][] = $value['column_name'] ?? $value['COLUMN_NAME'] ?? null;
 		}
