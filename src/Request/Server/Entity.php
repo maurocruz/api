@@ -466,7 +466,15 @@ abstract class Entity implements HttpRequestInterface
 									$item = $dataCreated['data'][0];
 									$idIsPartOf = $item['idthing'];
 									$typeIsPartOf = $item['type'];
-									$dataCreated['data'][] = self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+									$relationshipData = self::createRelationShip($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
+									// SALVA IMAGEM EM THING DO HASPART, SE NÃO HOUVER
+									if (isset($relationshipData['status']) && $relationshipData['status'] === 'success') {
+										$itemThingData = ApiFactory::request()->type('thing')->get(['idthing'=>$idHasPart,'fields'=>'image'])->ready();
+										if (!isset($itemThingData['data'][0]['image'])) {
+											ApiFactory::request()->type('thing')->put(['idthing'=>$idHasPart,'image'=>$params['image']])->ready();
+										}
+									}
+									$dataCreated['data'][] = $relationshipData;
 								}
 								$createdFiles[] = $dataCreated['data'][0];
 							} else {
