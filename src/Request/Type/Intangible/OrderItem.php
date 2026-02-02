@@ -90,7 +90,13 @@ class OrderItem extends Entity
 		$orderedItem = $params['orderedItem'] ?? null;
 		$orderItemNumber  = $params['orderItemNumber'] ?? null;
 		if ($orderedItem && $orderItemNumber) {
-			return parent::post($params);
+			$dataReturn = parent::post($params);
+			// retornar como item em schema json
+			if (isset($dataReturn['status']) && $dataReturn['status'] == 'success') {
+				$idorderItem = $dataReturn['data'][0]['idorderItem'];
+				$dataReturn['data'] = ApiFactory::response()->type('OrderItem')->setData($this->get(['idorderItem'=>$idorderItem]))->ready();
+			}
+			return $dataReturn;
 		}
 	  return ApiFactory::response()->message()->fail()->inputDataIsMissing();
   }
