@@ -86,7 +86,8 @@ return function(Route $route)
 
 		// HOME
 		$route->get('', function(Request $request, Response $response) {
-			ApiFactory::response()->write($response, ['status'=>'success', 'message'=>'Welcome to Plinct API']);
+			$configuration = ApiFactory::request()->configuration()->home()->ready();
+			ApiFactory::response()->write($response, $configuration);
 			return $response;
 		});
   });
