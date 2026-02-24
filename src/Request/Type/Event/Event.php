@@ -30,6 +30,7 @@ class Event extends Thing
 		// PROPERTIES
 		if (!empty($data) && $properties) {
 			foreach ($data as $key => $value) {
+				$idevent = $value['idevent'];
 				$idthing = $value['thing'];
 				$location = $value['location'];
 				// image object
@@ -46,7 +47,8 @@ class Event extends Thing
 				}
 				// subEvent
 				if (in_array('subEvent', $properties)) {
-					$data[$key]['subEvent'] = parent::getHasPart($idthing,'Event','Event');
+					$subEventData = $this->get(['superEvent' => $idevent, 'fields' => 'idevent,thing,name,startDate,endDate,location', 'properties' => 'location']);
+					$data[$key]['subEvent'] = ApiFactory::response()->type('event')->setData($subEventData)->ready();
 				}
 				// super event
 				if (in_array('superEvent', $properties)) {
