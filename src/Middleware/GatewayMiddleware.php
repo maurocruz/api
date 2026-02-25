@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Middleware;
 
 use Plinct\Api\ApiFactory;
@@ -16,11 +15,12 @@ class GatewayMiddleware implements MiddlewareInterface {
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-			$response = $handler->handle($request);
 			if (PDOConnect::testConnection() === false) {
 				$response = new Response();
 				ApiFactory::response()->write($response, PDOConnect::getError());
+				return $response;
+			} else {
+				return $handler->handle($request);
 			}
-      return $response;
     }
 }

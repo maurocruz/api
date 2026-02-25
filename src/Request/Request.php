@@ -1,7 +1,7 @@
 <?php
 namespace Plinct\Api\Request;
 
-use Plinct\Api\Request\Configuration\Configuration;
+use Plinct\Api\Request\Configuration\ConfigurationRequest;
 use Plinct\Api\Request\Routes\Routes;
 use Plinct\Api\Request\Server\Server;
 use Plinct\Api\Request\Type\Type;
@@ -10,11 +10,11 @@ use Plinct\Api\Request\User\User;
 class Request
 {
 	/**
-	 * @return Configuration
+	 * @return ConfigurationRequest
 	 */
-	public function configuration(): Configuration
+	public function configuration(): ConfigurationRequest
 	{
-		return new Configuration();
+		return new ConfigurationRequest();
 	}
 	/**
 	 * @return Routes

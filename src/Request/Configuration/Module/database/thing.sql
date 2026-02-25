@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `thing_has_thing` (
 -- PROPERTY VALUE
 CREATE TABLE IF NOT EXISTS `propertyValue` (
   `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL,
+  `thing` INT UNSIGNED NOT NULL ,
   `value` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`idpropertyValue`)
 ) ENGINE = InnoDB;

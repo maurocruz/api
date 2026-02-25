@@ -1,10 +1,8 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Response;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Response\Configuration\ConfigurationResponse;
 use Plinct\Api\Response\Message\Message;
 use Plinct\Api\Response\Format\Format;
 use Plinct\Api\Response\Type\Type;
@@ -12,6 +10,14 @@ use Psr\Http\Message\ResponseInterface;
 
 class Response
 {
+	/**
+	 * @param array $data
+	 * @return ConfigurationResponse
+	 */
+	public function configuration(array $data = []): ConfigurationResponse
+	{
+		return new ConfigurationResponse($data);
+	}
 	/**
 	 * @return Format
 	 */

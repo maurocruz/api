@@ -26,6 +26,7 @@ class WebPage extends CreativeWork
 		$properties = parent::propertiesToArray($params['properties'] ?? null);
 		$isPartOf = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
 		$typeIsPartOf = $params['typeIsPartOf'] ?? null;
+		$typeHasPart = $params['typeHasPart'] ?? null;
 		if ($isPartOf) {
 			unset($params['isPartOf']);
 			$getData = new GetData('thing_has_thing');
@@ -52,11 +53,11 @@ class WebPage extends CreativeWork
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage',$typeIsPartOf,['properties'=>'propertyValue','orderBy'=>'position']);
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPage', $typeIsPartOf,['properties'=>'propertyValue','orderBy'=>'position']);
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing);
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing,'WebPage',$typeHasPart);
 				}
 				// PROPERTY
 				if (in_array('propertyValue', $properties)) {
@@ -84,7 +85,19 @@ class WebPage extends CreativeWork
 			$getCreativeWork = ApiFactory::request()->type('creativeWork')->get(['idcreativeWork'=>$isPartOf])->ready();
 			if (!empty($getCreativeWork)) {
 				// SAVE CREATIVEWORK
-				return parent::createWithParent('creativeWork', $params);
+				$creativeWorkDataResponse = parent::createWithParent('creativeWork', $params);
+				// CREATE RELATIONSHIP
+				if (isset($creativeWorkDataResponse['status']) && $creativeWorkDataResponse['status'] === 'success') {
+					$creativeWorkData = $creativeWorkDataResponse['data'];
+					$creativeWorkDataResponse['data'] = ApiFactory::response()->type('webPage')->setData($creativeWorkData)->ready();
+					$relationshipCreate = parent::createRelationShip($isPartOf,'WebSite',$creativeWorkData[0]['idthing'],'WebPage');
+					if (isset($relationshipCreate['status']) && $relationshipCreate['status'] === 'success') {
+						$creativeWorkDataResponse['message'] = 'WebPage was created and relationship was created';
+					} else {
+						$creativeWorkDataResponse['message'] = 'WebPage was created but relationship was not created';
+					}
+				}
+				return $creativeWorkDataResponse;
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
 			}
@@ -101,15 +114,6 @@ class WebPage extends CreativeWork
 	{
 		$params = $this->addBreadcrumb($params);
 		return parent::update('creativeWork',$params);
-	}
-
-	/**
-	 * @param array $params
-	 * @return array
-	 */
-	public function delete(array $params): array
-	{
-		return parent::erase('creativeWork',$params);
 	}
 
 	/**

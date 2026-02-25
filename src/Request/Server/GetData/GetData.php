@@ -50,10 +50,10 @@ class GetData extends GetDataAbstract
 
 	/**
 	 * @param string $joins
-	 * @param string $table
+	 * @param string|null $table
 	 * @return GetData
 	 */
-	public function setJoins(string $joins, string $table): GetData
+	public function setJoins(string $joins, string $table = null): GetData
 	{
 		if ($table === 'thing') {
 			array_unshift($this->joins, $joins);

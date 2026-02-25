@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api;
 
+use Dotenv\Dotenv;
 use Plinct\Api\Middleware\CorsMiddleware;
 use Plinct\Api\Middleware\GatewayMiddleware;
 use Plinct\Api\Middleware\LoggedUserMiddleware;
@@ -19,14 +20,6 @@ class ApiApp
    * @var string
    */
   public static string $ISSUER = "https://plinct.com.br";
-  /**
-   * @var string
-   */
-  public static string $JWT_SECRET_API_KEY = "202103emplenapandemia";
-  /**
-   * @var float|int
-   */
-  public static int|float $JWT_EXPIRE = 60*60*24*7;
 	/**
 	 * @var string
 	 */
@@ -49,9 +42,9 @@ class ApiApp
 	 */
 	private static ?string $logdir = null;
 
-  /**
-   * @param App $slimApp
-   */
+	/**
+	 * @param App $slimApp
+	 */
   public function __construct(App $slimApp)
   {
     $this->slimApp = $slimApp;
@@ -59,6 +52,9 @@ class ApiApp
 			self::$HOST = $request->getUri()->getScheme().'://'.$request->getUri()->getHost();
 			return $handler->handle($request);
 		});
+	  // Carrega as variáveis do arquivo .env
+	  $dotenv = Dotenv::createImmutable(__DIR__.'/../');
+	  $dotenv->load();
   }
 
   /**
@@ -149,9 +145,10 @@ class ApiApp
   public function run(): mixed
   {
 		$this->slimApp->addBodyParsingMiddleware();
-		$this->slimApp->addMiddleware(new GatewayMiddleware())
+		$this->slimApp
+			->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]))
 			->addMiddleware(new LoggedUserMiddleware())
-			->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]));
+			->addMiddleware(new GatewayMiddleware());
 		return ApiFactory::request()->routes()->home($this->slimApp);
   }
 }

@@ -3,7 +3,6 @@ namespace Plinct\Api\Middleware;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Plinct\Api\ApiApp;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,7 +22,7 @@ class AuthMiddleware implements MiddlewareInterface
 	  try {
 		  $decoded = JWT::decode(
 			  $matches[1],
-			  new Key(ApiApp::$JWT_SECRET_API_KEY, 'HS256')
+			  new Key($_ENV['JWT_SECRET'], 'HS256')
 		  );
 	  } catch (Throwable) {
 		  return $this->unauthorized('Token inválido');

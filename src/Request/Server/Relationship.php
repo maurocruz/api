@@ -211,7 +211,9 @@ class Relationship
 		$getData = new GetData('thing_has_thing');
 		$getData->setParams($this->params + ['limit'=>'none']);
 		$getData->setJoin('thing', '`thing`.idthing = `thing_has_thing`.idIsPartOf');
-		$getData->setJoin(lcfirst($this->typeIsPartOf), "`". lcfirst($this->typeIsPartOf)."`.thing = `thing_has_thing`.idIsPartOf");
+		if ($this->typeIsPartOf) {
+			$getData->setJoin(lcfirst($this->typeIsPartOf), "`" . lcfirst($this->typeIsPartOf) . "`.thing = `thing_has_thing`.idIsPartOf");
+		}
 		if ($this->idHasPart) {
 			$getData->setParams(['idHasPart' => $this->idHasPart]);
 		}
@@ -228,8 +230,7 @@ class Relationship
 			$getData->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
 		}
 		$data = $this->propertiesValuesAndIdentifiers($getData->render());
-
-		return ApiFactory::response()->type($this->typeIsPartOf)->setData($data)->ready();
+		return ApiFactory::response()->type($this->typeIsPartOf ?? 'Thing')->setData($data)->ready();
 	}
 
 	/**
@@ -240,7 +241,9 @@ class Relationship
 		$getData = new GetData('thing_has_thing');
 		$getData->setParams($this->params + ['limit'=>'none']);
 		$getData->setJoin('thing', '`thing`.idthing = `thing_has_thing`.idHasPart');
-		$getData->setJoin(lcfirst($this->typeHasPart), "`". lcfirst($this->typeHasPart)."`.thing = `thing_has_thing`.idHasPart");
+		if ($this->typeHasPart) {
+			$getData->setJoin(lcfirst($this->typeHasPart), "`". lcfirst($this->typeHasPart)."`.thing = `thing_has_thing`.idHasPart");
+		}
 		if ($this->idHasPart) {
 			$getData->setParams(['idHasPart' => $this->idHasPart]);
 		}
@@ -257,8 +260,15 @@ class Relationship
 			$getData->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
 		}
 		$data = $this->propertiesValuesAndIdentifiers($getData->render());
-
-		return ApiFactory::response()->type($this->typeHasPart)->setData($data)->ready();
+		if (isset($this->params['properties']) && str_contains($this->params['properties'], 'isPartOf')) {
+			foreach ($data as $key => $item) {
+				$this->setIdIsPartOf($item['idthing']);
+				$this->setTypeHasPart(null);
+				$this->setTypeIsPartOf($item['type']);
+				$data[$key]['isPartOf'] = self::getIsPartOf();
+			}
+		}
+		return ApiFactory::response()->type($this->typeHasPart ?? 'Thing')->setData($data)->ready();
 	}
 
 	/**
@@ -267,7 +277,7 @@ class Relationship
 	 */
 	private function propertiesValuesAndIdentifiers(array $data): array
 	{
-		if (empty($data)) return $data;
+		if (empty($data) || isset($data['error'])) return $data;
 
 		$propertiesValueData = [];
 		if (isset($this->params['properties']) && str_contains($this->params['properties'], 'propertyValue')) {

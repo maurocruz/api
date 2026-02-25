@@ -112,7 +112,9 @@ class Modules
 	 */
 	public function person(): array
 	{
-		return ModuleController::installer('Person', ['Thing','ImageObject','ContactPoint','Place','Organization','Role']);
+		$moduleInstall = ModuleController::installer('Person', ['Thing','ImageObject','ContactPoint','Place','Organization']);
+		ModuleController::installer('Role');
+		return $moduleInstall;
 	}
 
 	/**

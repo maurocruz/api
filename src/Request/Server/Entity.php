@@ -310,6 +310,7 @@ abstract class Entity implements HttpRequestInterface
 	 */
 	protected function getHasPart(string $idHasPart, string $typeHasPart, string $typeIsPartOf = null, array $params = null): array
 	{
+		$this->relationship->setIdIsPartOf(null);
 		$this->relationship->setIdHasPart($idHasPart);
 		$this->relationship->setTypeHasPart(ucfirst($typeHasPart));
 		if ($typeIsPartOf) {
@@ -324,14 +325,19 @@ abstract class Entity implements HttpRequestInterface
 	/**
 	 * @param string $idIsPartOf
 	 * @param ?string $typeIsPartOf
+	 * @param string|null $typeHasPart
 	 * @param array|null $params
 	 * @return array
 	 */
-	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null, array $params = null): array
+	protected function getIsPartOf(string $idIsPartOf, string $typeIsPartOf = null, string $typeHasPart = null, array $params = null): array
 	{
+		$this->relationship->setIdHasPart(null);
 		$this->relationship->setIdIsPartOf($idIsPartOf);
 		if ($typeIsPartOf) {
 			$this->relationship->setTypeIsPartOf(ucfirst($typeIsPartOf));
+		}
+		if ($typeHasPart) {
+			$this->relationship->setTypeHasPart(ucfirst($typeHasPart));
 		}
 		if ($params) {
 			$this->relationship->setParams($params);

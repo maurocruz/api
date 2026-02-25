@@ -15,7 +15,8 @@
     "firebase/php-jwt": "*",
     "phpmailer/phpmailer": "^6.0",
     "smalot/pdfparser": "^2.12",
-    "james-heinrich/getid3": "^1.9"
+    "james-heinrich/getid3": "^1.9",
+    "vlucas/phpdotenv": "^5.6"
   },
   "autoload": {
     "psr-4": {

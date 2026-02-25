@@ -1,5 +1,6 @@
 <?php
 
+use Plinct\Api\Http\Controller\HomeController;
 use Plinct\Api\Middleware\CorsMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -58,4 +59,6 @@ return function (Route $route)
 		$data = ApiFactory::request()->user()->authentication()->changePassword($request->getParsedBody());
 		return ApiFactory::response()->write($response, $data);
   });
+
+	$route->get('/tokenValidator', [HomeController::Auth(), 'isValidToken']);
 };

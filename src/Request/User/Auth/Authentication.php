@@ -28,7 +28,7 @@ class Authentication
 		}
 		$email = filter_var($params['email'], FILTER_VALIDATE_EMAIL);
 		$iss = $params['iss'] ?? ApiApp::$ISSUER;
-		$exp = $params['exp'] ?? ApiApp::$JWT_EXPIRE;
+		$exp = $params['exp'] ?? $_ENV['JWT_EXPIRATION'];
 		// GET DATA
 		$data = (new UserActions())->get(["email" => $email ]);
 		// ERROR
@@ -37,7 +37,11 @@ class Authentication
 		}
 		// USER NOT EXISTS
 		if (empty($data)) {
+			try {
 			$logger->info('ACCESS LOGIN: User does not exists!', ['email'=>$email]);
+			} catch (Exception $e) {
+				error_log($e->getMessage());
+			}
 			return ApiFactory::response()->message()->fail()->userDoesNotExist();
 		}
 		// USER EXISTS
@@ -49,7 +53,7 @@ class Authentication
 				"name" => $value['name'],
 				"uid" => $value['iduser']
 			];
-			return ApiFactory::response()->message()->success("Access authorized",['token'=>JWT::encode($payload, ApiApp::$JWT_SECRET_API_KEY)]);
+			return ApiFactory::response()->message()->success("Access authorized",['token'=>JWT::encode($payload, $_ENV['JWT_SECRET'],'HS256')]);
 		}
 		// USER NOT AUTHORIZED
 		return ApiFactory::response()->message()->fail()->userExistsButNotLogged();

@@ -71,6 +71,11 @@ class UserActions implements HttpRequestInterface
 		$newParams['name'] = $name;
 		$newParams['email'] = $email;
 		$newParams['password'] = password_hash($password, PASSWORD_DEFAULT);
+		// VERIFICA SE JÁ EXISTE ESTE EMAIL CADASTRADO
+		$verificationData = ApiFactory::request()->server()->connectBd('user')->run("SELECT email FROM `user` WHERE email = :email",["email" => $email]);
+		if (isset($verificationData[0])) {
+			return ['status'=>'fail','message'=>'Email already exists'];
+		}
 		// get data
 		$data = ApiFactory::request()->server()->connectBd('user')->created($newParams);
 		// error

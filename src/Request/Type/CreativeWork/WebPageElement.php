@@ -24,7 +24,8 @@ class WebPageElement extends CreativeWork
   {
 		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$idHasPart = $params['idHasPart'] ?? null;
-	  $typeIsPartOf = $params['typeIsPartOf'] ?? null;
+	  $typeIsPartOf = $params['typeIsPartOf'] ?? 'WebPage';
+		$typeHasPart = $params['typeHasPart'] ?? 'WebPage';
 		// ID HAS PART
 		if ($idHasPart) {
 			$getData = new GetData('thing_has_thing',false);
@@ -54,7 +55,7 @@ class WebPageElement extends CreativeWork
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing, 'WebPageElement',['properties'=>'isPartOf']);
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing, 'WebPageElement', $typeHasPart, ['properties'=>'isPartOf']);
 				}
 				// PROPERTY VALUE
 				if (in_array('propertyValue', $properties)) {
@@ -81,7 +82,20 @@ class WebPageElement extends CreativeWork
 				$valueCreativeWork = $getCreativeWork[0];
 				$params['url'] = $valueCreativeWork['url'].'#'.$name;
 				// SAVE CREATIVEWORK
-				return parent::createWithParent('creativeWork', $params);
+				$creativeWorkDataResponse = parent::createWithParent('creativeWork', $params);
+				// CREATE RELATIONSHIP
+				if (isset($creativeWorkDataResponse['status']) && $creativeWorkDataResponse['status'] === 'success') {
+					$creativeWorkData = $creativeWorkDataResponse['data'];
+					$creativeWorkDataResponse['data'] = ApiFactory::response()->type('webPageElement')->setData($creativeWorkData)->ready();
+					$idHasPart = $creativeWorkData[0]['idthing'];
+					$relationshipCreate =	parent::createRelationShip($isPartOf, 'WebPage', $idHasPart, 'WebPageElement');
+					if (isset($relationshipCreate['status']) && $relationshipCreate['status'] === 'success') {
+						$creativeWorkDataResponse['message'] = 'WebPageElement was created and relationship was created';
+					} else {
+						$creativeWorkDataResponse['message'] = 'WebPageElement was created but relationship was not created';
+					}
+				}
+				return $creativeWorkDataResponse;
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
 			}

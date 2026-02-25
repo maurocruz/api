@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Middleware;
 
 use Psr\Http\Message\ResponseInterface;

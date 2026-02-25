@@ -24,9 +24,9 @@ class PDOConnect
    */
   private static string $HOST;
   /**
-   * @var string
+   * @var ?string
    */
-  private static string $DBNAME;
+  private static ?string $DBNAME = null;
   /**
    * @var string
    */
@@ -96,13 +96,15 @@ class PDOConnect
    */
   public static function getError(): ?array
   {
-    if (self::$ERROR) {
+		if (!self::testConnection()) {
+			return ["error" => "Não foi possível conectar ao banco de dados ['".self::$DBNAME."']. Verifique os dados de admissão!"];
+		} elseif (self::$ERROR) {
       return [ "error" => [
         "message" => self::$ERROR->getMessage(),
         "code" => self::$ERROR->getCode()
       ]];
     }
-    return null;
+    return ["error" => "Um erro ocorreu!"];
   }
 
   /**
