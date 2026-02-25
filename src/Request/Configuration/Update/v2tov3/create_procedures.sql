@@ -18,13 +18,13 @@ BEGIN
 
   SET @v_sql_text = CONCAT(
           'INSERT INTO `thing_has_thing` (`idHasPart`, `typeHasPart`, `idIsPartOf`, `typeIsPartOf`, `caption`, `position`, `representativeOfPage`)
-            SELECT ', table_has_part, '.`thing`,
+            SELECT ', table_has_part, '.thing,
       ''', v_upper_has_part, ''',
-      ', table_is_part_of, '.`thing`,
+      ', table_is_part_of, '.thing,
       ''', v_upper_is_part_of, ''',
-      ', v_table_has, '.`caption`,
-      ', v_table_has, '.`position`,
-      ', v_table_has, '.`representativeOfPage`
+      ', v_table_has, '.caption,
+      ', v_table_has, '.position,
+      ', v_table_has, '.representativeOfPage
       FROM ', v_table_has, '
       JOIN `', table_has_part, '` ON ', v_table_has, '.`', v_id_name_has_part, '` = `', table_has_part, '`.`', v_id_name_has_part, '`
       JOIN `', table_is_part_of, '` ON ', v_table_has, '.`', v_id_name_is_part_of, '` = `', table_is_part_of, '`.`', v_id_name_is_part_of, '`'

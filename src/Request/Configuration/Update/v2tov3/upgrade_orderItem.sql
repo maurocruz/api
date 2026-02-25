@@ -14,17 +14,24 @@ ALTER TABLE `orderItem`
 UPDATE `orderItem`
   LEFT JOIN `service` ON `orderItem`.orderedItem = `service`.idservice AND `orderItem`.orderedItemType='service'
   LEFT JOIN `product` ON `product`.idproduct = `orderItem`.orderedItem AND `orderItem`.orderedItemType='product'
-SET `orderItem`.orderedItem= IF(orderedItemType='service',service.thing,product.thing);
+SET `orderItem`.orderedItem= IF(orderedItemType='service',service.thing,product.thing)
+WHERE `orderItem`.orderedItemType IS NOT NULL;
 
 DELETE `orderItem` FROM `orderItem`
   LEFT JOIN `order` ON `orderItem`.orderItemNumber = `order`.idorder
 WHERE `order`.idorder IS NULL;
 
-DELETE FROM `orderItem` WHERE `offer` is null OR `offer`=0;
+DELETE FROM `orderItem` WHERE `offer`=0;
+
+UPDATE `orderItem`
+ LEFT JOIN `offer` ON orderItem.offer = offer.idoffer
+SET `orderItem`.orderedItem = `offer`.thing
+WHERE `orderItem`.offer <> 0;
 
 ALTER TABLE `orderItem`
   DROP COLUMN `orderedItemType`,
   DROP COLUMN `orderItemStatus`,
+  DROP COLUMN `offer`,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idorderItem`,`orderItemNumber`);
 

@@ -47,7 +47,7 @@ where `webPage`.isPartOf is not null;
 
 -- has propertyValue
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-SELECT `webPage`.thing, 'WebPage', `propertyValue`.idpropertyValue, 'PropertyValue' FROM `webPage_has_propertyValue`
+SELECT `webPage`.thing, 'WebPage', `propertyValue`.thing, 'PropertyValue' FROM `webPage_has_propertyValue`
  JOIN `webPage` ON `webPage`.idwebPage = `webPage_has_propertyValue`.idwebPage
  JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPage_has_propertyValue`.idpropertyValue;
 

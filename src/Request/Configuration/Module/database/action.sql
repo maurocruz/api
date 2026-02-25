@@ -19,7 +19,7 @@ INDEX `fk_action_agent_idx` (`agent`),
 INDEX `fk_action_object_idx` (`object`),
 INDEX `fk_action_provider_idx` (`provider`),
 CONSTRAINT `fk_action_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-CONSTRAINT `fk_action_agent` FOREIGN KEY (`agent`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ON UPDATE NO ACTION,
+CONSTRAINT `fk_action_agent` FOREIGN KEY (`agent`) REFERENCES `user` (`iduser`) ON DELETE SET NULL ON UPDATE NO ACTION,
 CONSTRAINT `fk_action_object` FOREIGN KEY (`object`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ON UPDATE NO ACTION,
 CONSTRAINT `fk_action_provider` FOREIGN KEY (`provider`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE = InnoDB;

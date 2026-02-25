@@ -3,14 +3,17 @@ namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
+use Plinct\Api\Request\Server\Relationship;
+use Plinct\Api\Request\Type\Thing;
 
-class Offer extends Entity
+class Offer extends Thing
 {
 	/**
 	 *
 	 */
-  public function __construct()
+  public function __construct(Relationship $relationship = null)
   {
+		parent::__construct($relationship);
 		$this->setTable('offer');
   }
 
@@ -57,9 +60,10 @@ class Offer extends Entity
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(?array $params = null): array
+	public function post(?array $params = null, array $uploadfiles = null): array
 	{
 		$params['dateCreated'] = date("Y-m-d H:i:s");
 		return parent::createWithParent('thing',$params);

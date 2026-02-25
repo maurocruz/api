@@ -1,4 +1,8 @@
+
+--
 -- offer
+--
+
 ALTER TABLE `offer`
   CHANGE COLUMN `idoffer` `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `itemOffered` `itemOffered` INT UNSIGNED NOT NULL,
@@ -9,32 +13,39 @@ ALTER TABLE `offer`
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idoffer`);
 
+--
 UPDATE `offer`
   left join `service` on service.idservice=offer.itemOffered and `offer`.itemOfferedType='service'
   left join `product` on product.idproduct=offer.itemOffered and `offer`.itemOfferedType='product'
   left join `organization`ON `organization`.idorganization=`offer`.offeredBy AND `offer`.offeredByType='organization'
-SET `offer`.itemOffered = IF(`offer`.itemOfferedType='service', service.thing, product.thing), `offer`.offeredBy = `organization`.thing;
+SET `offer`.itemOffered = IF(`offer`.itemOfferedType='service', service.thing, product.thing), `offer`.offeredBy = `organization`.thing
+WHERE `offer`.itemOfferedType IS NOT NULL;
 
 DELETE FROM `offer` WHERE `itemOffered`='0' || `offeredBy`='0';
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idoffer` INT UNSIGNED DEFAULT NULL;
+
 -- insert thing
-INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`dateRegistered`,`lastModified`,`type`)
+INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`type`)
 SELECT `offer`.idoffer,
        IF (`name` <> '', `name`, 'Undefined name'),
        `additionalType`,
        description,
        SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
-       if(`dateCreated`, `dateCreated`, CURDATE()),
-       `dateModified`,
        'Offer'
 FROM `offer` LEFT JOIN `thing` ON `thing`.idthing=`offer`.itemOffered;
+
 -- set thing
-UPDATE `offer` JOIN `thing` ON thing.idoffer = `offer`.idoffer SET `offer`.thing = `thing`.idthing;
+UPDATE `offer`
+  JOIN `thing` ON thing.idoffer = `offer`.idoffer
+SET `offer`.thing = `thing`.idthing
+WHERE `thing`.name <> '';
+
 -- drop column
 ALTER TABLE `thing` DROP COLUMN `idoffer`;
 
+--
 ALTER TABLE `offer`
   CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
   DROP COLUMN `itemOfferedType`,
@@ -51,7 +62,3 @@ ALTER TABLE `offer`
   ADD CONSTRAINT `fk_offer_itemOffered_thing` FOREIGN KEY (`itemOffered`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_offer_offeredBy_thing` FOREIGN KEY (`offeredBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
--- add foreign keys orderItem
-ALTER TABLE `orderItem`
-  ADD KEY `fk_orderItem_offer_idx` (`offer`),
-  ADD CONSTRAINT `fk_orderedItem_offer` FOREIGN KEY (`offer`) REFERENCES `offer` (`idoffer`) ON DELETE CASCADE ON UPDATE NO ACTION;

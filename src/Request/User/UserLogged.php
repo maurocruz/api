@@ -1,11 +1,10 @@
 <?php
 namespace Plinct\Api\Request\User;
 
-use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Plinct\Api\ApiApp;
 use Plinct\Api\Request\User\Privileges\PrivilegesActions;
+use Throwable;
 
 class UserLogged extends UserAbstract
 {
@@ -17,8 +16,8 @@ class UserLogged extends UserAbstract
 	{
 		if (is_string($token)) {
 			try {
-				$payload = JWT::decode($token, new Key(ApiApp::$JWT_SECRET_API_KEY,'HS256'));
-			} catch (ExpiredException) {
+				$payload = JWT::decode($token, new Key($_ENV['JWT_SECRET'],'HS256'));
+			} catch (Throwable) {
 				$explodeToken = explode(".", $token);
 				$payload = json_decode(base64_decode($explodeToken[1]));
 			}

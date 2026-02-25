@@ -4,11 +4,13 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class Role extends Entity
 {
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('role');
 	}
 

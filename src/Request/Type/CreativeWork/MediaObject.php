@@ -5,15 +5,16 @@ use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Server\Relationship;
 
 class MediaObject extends CreativeWork implements HttpRequestInterface
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('mediaObject');
 		$this->setType('MediaObject');
 	}
@@ -25,26 +26,32 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		$getData = new GetData('mediaObject');
-		$getData->setLeftJoin('creativeWork','creativeWork.idcreativeWork=mediaObject.creativeWork');
-		$getData->setParams($params);
-		$data = $getData->render();
+		$idHasPart = $params['idHasPart'] ?? $params['isPartOf'] ?? null;
+
+		if ($idHasPart) {
+			$data = $this->relationship->getAboutData(['MediaObject','ImageObject','VideoObject','AudioObject'], $idHasPart, $params);
+		} else {
+			$getData = new GetData('mediaObject');
+			$getData->setLeftJoin('creativeWork', 'creativeWork.idcreativeWork=mediaObject.creativeWork');
+			$getData->setParams($params);
+			$data = $getData->render();
+
+			if (in_array('subjectOf', $properties)) {
+				// armazena idthing em array
+				$thingIds = [];
+				foreach ($data as $value) {
+					$thingIds[] = $value['thing'] ?? $value['idthing'] ?? null;
+				}
+				// SUBJECT
+				$subjectData = $this->relationship->getSubjectOf($thingIds);
+			}
+		}
+		// PROPERTIES
 		if (isset($data[0]['idmediaObject'])) {
 			foreach ($data as $key => $value) {
-				$idthing = $value['thing'] ?? $value['idthing'] ?? null;
-				// HAS PART
-				if (in_array('hasPart', $properties)) {
-					$dataHasPart = parent::getHasPart($idthing,'MediaObject', null, $params);
-					if (isset($dataHasPart[0])) {
-						$data[$key]['hasPart'] = ApiFactory::response()->type('mediaObject')->setData($dataHasPart)->ready();
-					}
-				}
-				// IS PART OF
-				if (in_array('isPartOf', $properties)) {
-					$dataIsPartOf = parent::getIsPartOf($idthing);
-					if (isset($dataIsPartOf[0])) {
-						$data[$key]['isPartOf'] = ApiFactory::response()->type('creativeWork')->setData($dataIsPartOf)->ready();
-					}
+				// SUBJECT OF
+				if ($properties && in_array('subjectOf', $properties) && !empty($subjectData)) {
+						$data[$key]['subjectOf'] = ApiFactory::response()->type('CreativeWork')->setData($subjectData)->ready();
 				}
 			}
 		}
@@ -88,16 +95,15 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 		$idmediaObject = $params['idmediaObject'] ?? null;
 		$idthing = $params['idthing'] ?? $params['thing'] ?? null;
 		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
 		$idIsPartOf = $params['idIsPartOf'] ?? null;
 		$representativeOfPage = $params['representativeOfPage'] ?? null;
 		$position = $params['position'] ?? null;
 		$caption = $params['caption'] ?? null;
-		if ($idHasPart && $typeHasPart && $idIsPartOf) {
+		if ($idHasPart && $idIsPartOf) {
 			if ($representativeOfPage !== null) $paramsu['representativeOfPage'] = $representativeOfPage;
 			if ($position !== null) $paramsu['position'] = $position;
 			if ($caption !== null) $paramsu['caption'] = $caption;
-			return parent::updateRelationship($idHasPart, $typeHasPart, $idIsPartOf, 'ImageObject',$paramsu ?? []);
+			return parent::updateRelationship($idHasPart, $idIsPartOf, $paramsu ?? []);
 		} elseif ($idmediaObject || $idthing) {
 			return parent::update('creativeWork', $params);
 		} else {
@@ -118,23 +124,23 @@ class MediaObject extends CreativeWork implements HttpRequestInterface
 			$datamediaObject = self::get($idthing ? ['thing'=>$idthing] : ['idmediaObject'=>$idmediaObject]);
 			if (isset($datamediaObject[0])) {
 				$value = $datamediaObject[0];
-				$params['thing'] = $value['thing'] ?? $value['idthing'] ?? null;
 				$contentUrl = $value['contentUrl'];
 				$localPahth = str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl);
-				$pathinfo = pathinfo($localPahth);
-				if ($value['type'] === 'ImageObject') {
-					$imageMedium = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_m.'.$pathinfo['extension'];
-					$imageSmall = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_s.'.$pathinfo['extension'];
-					$imageThumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_t.'.$pathinfo['extension'];
-					if(file_exists($imageMedium)) unlink($imageMedium);
-					if(file_exists($imageSmall)) unlink($imageSmall);
-					if(file_exists($imageThumbnail)) unlink($imageThumbnail);
-				} else {
-					$thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_thumb.jpeg';
-					if(file_exists($thumbnail)) unlink($thumbnail);
+				if (file_exists($localPahth)) {
+					$pathinfo = pathinfo($localPahth);
+					if ($value['type'] === 'ImageObject') {
+						$imageMedium = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_m.'.$pathinfo['extension'];
+						$imageSmall = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_s.'.$pathinfo['extension'];
+						$imageThumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_t.'.$pathinfo['extension'];
+						if(file_exists($imageMedium)) unlink($imageMedium);
+						if(file_exists($imageSmall)) unlink($imageSmall);
+						if(file_exists($imageThumbnail)) unlink($imageThumbnail);
+					} else {
+						$thumbnail = $pathinfo['dirname'].'/'.$pathinfo['filename'].'_thumb.jpeg';
+						if(file_exists($thumbnail)) unlink($thumbnail);
+					}
+					unlink($localPahth);
 				}
-				$contentUrlLocalPath = str_replace(ApiFactory::request()->configuration()->getHost(), $_SERVER['DOCUMENT_ROOT'], $contentUrl);
-				if(file_exists($contentUrlLocalPath)) unlink($contentUrlLocalPath);
 			}
 		}
 		return parent::delete($params);

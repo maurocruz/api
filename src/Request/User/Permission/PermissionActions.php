@@ -22,9 +22,10 @@ class PermissionActions implements HttpRequestInterface
 
 	/**
 	 * @param array|null $params
+	 * @param array|null $uploadfiles
 	 * @return array
 	 */
-	public function post(array $params = null): array
+	public function post(array $params = null, array $uploadfiles = null): array
 	{
 		if (isset($params['iduser'])) {
 			// seta o criador da permissão

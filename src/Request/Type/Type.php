@@ -4,6 +4,7 @@ namespace Plinct\Api\Request\Type;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GenericType;
 use Plinct\Api\Request\Server\HttpRequest;
+use Plinct\Api\Request\Server\Relationship;
 
 class Type
 {
@@ -54,7 +55,7 @@ class Type
 			$this->tableExists = true;
 			foreach ($namesClasses as $classname) {
 				if (class_exists($classname)) {
-					$this->classActions = new $classname();
+					$this->classActions = new $classname(new Relationship());
 				}
 			}
 			if(!$this->classActions) {

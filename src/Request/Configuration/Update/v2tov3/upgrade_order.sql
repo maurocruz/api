@@ -10,12 +10,14 @@ ALTER TABLE `order`
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idorder`);
 
+-- SET CUSTOMER
 UPDATE `order`
   LEFT JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `order`.customer AND `order`.customerType = 'localBusiness'
   LEFT JOIN organization as org1 ON org1.idorganization = `order`.customer AND `order`.customerType = 'organization'
   LEFT JOIN person ON person.idperson = `order`.customer AND `order`.customerType = 'person'
   LEFT JOIN `organization` ON `organization`.idorganization = `order`.seller
-SET customer= IF(customerType='localbusiness', `localBusiness`.thing, IF(customerType = 'organization', org1.thing, `person`.thing)), seller = `organization`.thing;
+SET customer= IF(customerType='localbusiness', `localBusiness`.thing, IF(customerType = 'organization', org1.thing, `person`.thing)), seller = `organization`.thing
+WHERE `order`.customerType IS NOT NULL;
 
 DELETE FROM `order` WHERE `customer`='0' || `seller`='0';
 

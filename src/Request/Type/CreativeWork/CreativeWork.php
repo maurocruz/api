@@ -5,6 +5,7 @@ use Exception;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
 use Plinct\Api\Request\Server\HttpRequestInterface;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class CreativeWork extends Thing implements HttpRequestInterface
@@ -12,9 +13,9 @@ class CreativeWork extends Thing implements HttpRequestInterface
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('creativeWork');
 	}
 
@@ -78,19 +79,10 @@ class CreativeWork extends Thing implements HttpRequestInterface
 	 */
 	public function put(array $params = null): array
 	{
-		return parent::update('thing', $params);
-	}
-
-	public function delete(array $params): array
-	{
-		$idHasPart = $params['idHasPart'] ?? null;
-		$typeHasPart = $params['typeHasPart'] ?? null;
-		$idIsPartOf = $params['idIsPartOf'] ?? null;
-		$typeIsPartOf = $this->type;
-		if ($idHasPart && $typeHasPart && $idIsPartOf && $typeIsPartOf) {
-			return parent::deleteRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
-		} else {
-			return parent::delete($params);
+		$about = $params['about'] ?? null;
+		if (!is_numeric($about)) {
+			unset($params['about']);
 		}
+		return parent::update('thing', $params);
 	}
 }

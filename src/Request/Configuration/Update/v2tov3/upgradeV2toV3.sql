@@ -1,10 +1,15 @@
+-- Update em 2026-01-22 13:32:09 ---
+
+--
 -- THING
+--
+
 CREATE TABLE IF NOT EXISTS `thing` (
   `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `additionalType` VARCHAR(255) NULL DEFAULT NULL,
   `alternateName` VARCHAR(255) NULL DEFAULT NULL,
   `dateRegistered` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `lastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` TEXT NULL DEFAULT NULL,
   `disambiguatingDescription` VARCHAR(255) NULL DEFAULT NULL,
   `image` VARCHAR(255) NULL DEFAULT NULL,
@@ -76,6 +81,15 @@ BEGIN
 
   -- Se posição não for informada ou inválida, vai para o final
   IF p_position IS NULL OR p_position = 0 THEN
+
+    -- ordena os itens existentes
+    SET @pos := 0;
+    UPDATE thing_has_thing
+    SET position = (@pos := @pos + 1)
+    WHERE idHasPart = p_idHasPart AND typeIsPartOf = p_typeIsPartOf
+    ORDER BY (position IS NULL),    -- faz os NULLs irem para o final; opcional
+             position;
+
     SELECT COALESCE(MAX(position), 0) + 1
     INTO v_pos
     FROM thing_has_thing
@@ -124,9 +138,7 @@ DROP procedure IF EXISTS `sp_thing_has_thing_update`;
 
 CREATE PROCEDURE sp_thing_has_thing_update(
   IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48),
   IN p_caption VARCHAR(255),
   IN p_position INT UNSIGNED,
   IN p_representativeOfPage VARCHAR(1)
@@ -155,9 +167,7 @@ BEGIN
   SELECT position INTO v_old_pos
   FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
   LIMIT 1;
 
   IF v_old_pos IS NULL THEN
@@ -178,16 +188,12 @@ BEGIN
       UPDATE thing_has_thing
       SET position = position + 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_new_pos AND v_old_pos - 1;
     ELSE
       -- Desloca para baixo: puxa para cima quem está no intervalo [v_old_pos+1, v_new_pos]
       UPDATE thing_has_thing
       SET position = position - 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_old_pos + 1 AND v_new_pos;
     END IF;
   END IF;
@@ -199,9 +205,7 @@ BEGIN
     -- Zera todos representativeOfPage do grupo se for = 1
     UPDATE thing_has_thing
     SET representativeOfPage = 0
-    WHERE idHasPart   = p_idHasPart
-      AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf= p_typeIsPartOf;
+    WHERE idHasPart   = p_idHasPart;
   END IF;
 
   -- atualiza o item
@@ -210,9 +214,7 @@ BEGIN
       position = v_new_pos,
       representativeOfPage = IF(p_representativeOfPage = '', representativeOfPage, p_representativeOfPage)
   WHERE idHasPart    = p_idHasPart
-    AND typeHasPart  = p_typeHasPart
-    AND idIsPartOf   = p_idIsPartOf
-    AND typeIsPartOf = p_typeIsPartOf;
+    AND idIsPartOf   = p_idIsPartOf;
 
   -- Commit apenas se não houve erro
   IF v_has_error = 0 THEN
@@ -230,14 +232,9 @@ END;
 --
 DROP procedure IF EXISTS `sp_thing_has_thing_delete`;
 
-CREATE PROCEDURE sp_thing_has_thing_delete (
-  IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
-  IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48)
-)
+CREATE PROCEDURE `sp_thing_has_thing_delete`(IN p_idHasPart int unsigned, IN p_idIsPartOf int unsigned)
 BEGIN
-  DECLARE v_old_pos INT UNSIGNED;
+  DECLARE v_typeIsPartOf INT UNSIGNED;
   DECLARE v_sqlstate CHAR(5);
   DECLARE v_errmsg TEXT;
   DECLARE v_has_error TINYINT(1) DEFAULT 0;
@@ -251,30 +248,29 @@ BEGIN
     END;
   START TRANSACTION;
 
-  SELECT position INTO v_old_pos
+  SELECT typeIsPartOf INTO v_typeIsPartOf
   FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
   LIMIT 1;
 
-  IF v_old_pos IS NULL THEN
+  IF v_typeIsPartOf IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Registro não encontrado para exclusão';
   END IF;
 
   DELETE FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf;
+    AND idIsPartOf  = p_idIsPartOf;
+
+  SET @pos := 0;
 
   UPDATE thing_has_thing
-  SET position = position - 1
-  WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND typeIsPartOf= p_typeIsPartOf
-    AND position > v_old_pos;
+  SET position = (@pos := @pos + 1)
+  WHERE idHasPart = p_idHasPart
+    AND typeIsPartOf = v_typeIsPartOf
+  ORDER BY
+    (position IS NULL),    -- faz os NULLs irem para o final; opcional
+    position;
 
   -- Commit apenas se não houve erro
   IF v_has_error = 0 THEN
@@ -306,7 +302,6 @@ CREATE TABLE IF NOT EXISTS `creativeWork` (
   `license` VARCHAR(100) NULL DEFAULT NULL,
   `locationCreated` VARCHAR(100) NULL DEFAULT NULL,
   `maintainer` VARCHAR(100) NULL DEFAULT NULL,
-  `position` VARCHAR(100) NULL DEFAULT NULL,
   `publisher` VARCHAR(100) NULL DEFAULT NULL,
   `size` VARCHAR(45) NULL DEFAULT NULL,
   `text` TEXT NULL DEFAULT NULL,
@@ -341,6 +336,31 @@ CREATE TABLE IF NOT EXISTS `mediaObject` (
   CONSTRAINT `fk_mediaObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE,
   CONSTRAINT `fk_mediaObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+--
+-- ACTION
+--
+CREATE TABLE IF NOT EXISTS `action` (
+`idaction` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+`thing` INT UNSIGNED NOT NULL,
+`actionProcess` VARCHAR(255) DEFAULT NULL,
+`actionStatus` VARCHAR(45) NOT NULL,
+`agent` INT UNSIGNED DEFAULT NULL,
+`endTime` DATETIME NULL DEFAULT NULL,
+`object` INT UNSIGNED DEFAULT NULL,
+`provider` INT UNSIGNED DEFAULT NULL,
+`result` TEXT DEFAULT NULL,
+`startTime` DATETIME NOT NULL,
+`targetCollection` VARCHAR(45) NULL DEFAULT NULL,
+PRIMARY KEY (`idaction`, `thing`),
+INDEX `fk_action_thing_idx` (`thing`),
+INDEX `fk_action_agent_idx` (`agent`),
+INDEX `fk_action_object_idx` (`object`),
+INDEX `fk_action_provider_idx` (`provider`),
+CONSTRAINT `fk_action_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+CONSTRAINT `fk_action_agent` FOREIGN KEY (`agent`) REFERENCES `user` (`iduser`) ON DELETE SET NULL ON UPDATE NO ACTION,
+CONSTRAINT `fk_action_object` FOREIGN KEY (`object`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ON UPDATE NO ACTION,
+CONSTRAINT `fk_action_provider` FOREIGN KEY (`provider`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ON UPDATE NO ACTION
+) ENGINE = InnoDB;
 -- history
 ALTER TABLE `history`
   CHANGE COLUMN `user` `user` INT UNSIGNED NOT NULL ;
@@ -364,9 +384,6 @@ ALTER TABLE `user`
   CHANGE COLUMN `iduser` `iduser` INT UNSIGNED NOT NULL AUTO_INCREMENT ;
 
 -- foreign keys
-ALTER TABLE `history`
-  ADD CONSTRAINT `fk_history_user`
-    FOREIGN KEY (`user`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `map_viewport`
   ADD CONSTRAINT `fk_map_viewport_user`
   FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE;
@@ -389,7 +406,8 @@ CREATE TABLE IF NOT EXISTS `user_passwordReset` (
   PRIMARY KEY (`iduser`),
   INDEX `fk_user_passwordReset_user_idx` (`iduser`),
   CONSTRAINT `fk_user_passwordReset_user` FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE = InnoDB;--
+) ENGINE = InnoDB;
+--
 -- CONTACT POINT
 --
 ALTER TABLE `contactPoint`
@@ -441,9 +459,47 @@ ALTER TABLE `contactPoint`
 ALTER TABLE `postalAddress`
   CHANGE COLUMN `idpostalAddress` `idpostalAddress` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idpostalAddress`);--
+  ADD PRIMARY KEY (`idpostalAddress`);
+--
+-- Property Value
+--
+
+ALTER TABLE `propertyValue`
+  CHANGE COLUMN `idpropertyValue` `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ADD COLUMN `thing` INT UNSIGNED NOT NULL AFTER `idpropertyValue`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idpropertyValue`);
+
+-- INSERT THINGS
+ALTER TABLE `thing` ADD COLUMN `idpropertyValue` INT UNSIGNED DEFAULT NULL;
+
+-- insert thing
+INSERT INTO `thing` (`idpropertyValue`,`name`,`description`,`type`)
+SELECT
+  pv.`idpropertyValue`,
+  pv.`name`,
+  CONCAT('name=', pv.`name`,'; value=', pv.`value`) AS `description`,
+  'PropertyValue' AS `type`
+FROM `propertyValue` AS pv;
+
+-- update this
+UPDATE `propertyValue`
+  JOIN `thing` ON thing.idpropertyValue = propertyValue.idpropertyValue
+SET propertyValue.thing = thing.idthing
+WHERE 1;
+
+-- drop thing column
+ALTER TABLE `thing` DROP COLUMN `idpropertyValue`;
+
+-- alter table
+ALTER TABLE `propertyValue`
+  DROP COLUMN `name`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idpropertyValue`,`thing`);
+--
 -- IMAGEOBJECT
 --
+
 ALTER TABLE `imageObject`
   CHANGE COLUMN `idimageObject` `idimageObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idimageObject`,
@@ -454,33 +510,41 @@ ALTER TABLE `imageObject`
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
+
 -- insere dados em thing
-INSERT INTO `thing` (`idimageObject`,`name`,`dateRegistered`,`type`)
+INSERT INTO `thing` (`idimageObject`,`name`,`lastModified`,`dateRegistered`,`type`)
   SELECT `idimageObject`,
-         IF(`contentUrl` <> '',`contentUrl`,'Undefined name'),
-         `uploadDate`,'imageObject' from `imageObject`;
+   IF(`contentUrl` <> '',`contentUrl`,'Undefined name'),
+   `uploadDate`,
+   `uploadDate`,
+   'ImageObject'
+  FROM `imageObject`;
+
 -- update this
 UPDATE `imageObject`
   JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
-  SET `imageObject`.thing=`thing`.idthing;
+SET `imageObject`.thing=`thing`.idthing
+WHERE `thing`.idimageObject IS NOT NULL;
+
 -- drop thing column
 ALTER TABLE `thing` DROP COLUMN `idimageObject`;
 
 -- insert parent
 INSERT INTO `creativeWork` (`thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyrightHolder`)
-SELECT `thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyright` from `imageObject`;
+  SELECT `thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyright` from `imageObject`;
 
 -- insere parent
 INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentSize`,`contentUrl`,`encodingFormat`,`height`,`width`,`uploadDate`)
-SELECT `imageObject`.`thing`,`idcreativeWork`,`contentSize`,`contentUrl`,`imageObject`.`encodingFormat`,`height`,`width`,`uploadDate` FROM `imageObject`
- JOIN `creativeWork` ON `creativeWork`.thing=`imageObject`.thing
- WHERE `contentUrl` <> '';
+  SELECT `imageObject`.`thing`,`idcreativeWork`,`contentSize`,`contentUrl`,`imageObject`.`encodingFormat`,`height`,`width`,`uploadDate` FROM `imageObject`
+  JOIN `creativeWork` ON `creativeWork`.thing=`imageObject`.thing
+WHERE `contentUrl` <> '';
 
 -- update this
 UPDATE `imageObject`
- JOIN `mediaObject` ON `imageObject`.thing = `mediaObject`.thing
- JOIN `creativeWork` ON `imageObject`.thing = `creativeWork`.thing
- SET `imageObject`.mediaObject = `mediaObject`.idmediaObject, `imageObject`.creativeWork = `creativeWork`.idcreativeWork;
+  JOIN `mediaObject` ON `imageObject`.thing = `mediaObject`.thing
+  JOIN `creativeWork` ON `imageObject`.thing = `creativeWork`.thing
+SET `imageObject`.mediaObject = `mediaObject`.idmediaObject, `imageObject`.creativeWork = `creativeWork`.idcreativeWork
+WHERE `imageObject`.thing = `mediaObject`.thing;
 
 -- alter table
 ALTER TABLE `imageObject`
@@ -510,7 +574,80 @@ ALTER TABLE `imageObject`
   ADD CONSTRAINT `fk_imageObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_imageObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_imageObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- PERSON
+--
+
+ALTER TABLE `person`
+  CHANGE COLUMN `idperson` `idperson` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `address` `homeLocation` INT UNSIGNED NULL,
+  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idperson`,
+  ADD COLUMN `deathDate` DATE DEFAULT NULL,
+  ADD COLUMN `deathPlace` VARCHAR(45) DEFAULT NULL,
+  DROP PRIMARY KEY ,
+  ADD PRIMARY KEY (`idperson`);
+
+-- CREATE THING
+ALTER TABLE `thing` ADD COLUMN `idperson` INT UNSIGNED DEFAULT NULL;
+
+-- insert thing
+INSERT INTO `thing` (`idperson`,`name`,`url`,`lastModified`,`dateRegistered`,`type`)
+  SELECT
+    idperson,
+    CONCAT(`givenName`,IF(familyName is NOT NULL,CONCAT(' ',familyName),'')) as name,
+    `url`,
+    `dateModified`,
+    `dateRegistration`,
+    'Person'
+  FROM `person`;
+
+-- atualiza tabela
+UPDATE `person`
+  JOIN `thing` ON thing.idperson=person.idperson SET person.thing = thing.idthing
+WHERE 1;
+
+ALTER TABLE `thing` DROP COLUMN `idperson`;
+
+-- has contact point
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
+  SELECT
+    `person`.thing,
+    'Person',
+    `contactPoint`.thing,
+    'ContactPoint'
+  FROM `person_has_contactPoint`
+  JOIN `person` ON `person`.idperson = `person_has_contactPoint`.idperson
+  JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `person_has_contactPoint`.idcontactPoint;
+
+-- IMAGES
+CALL set_image_in_thing('person');
+
+-- insert images
+CALL insert_thing_has_thing('person','imageObject');
+
+ALTER TABLE `person`
+  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `name`,
+  DROP COLUMN `url`,
+  DROP COLUMN `dateRegistration`,
+  DROP COLUMN `dateModified`,
+  DROP PRIMARY KEY ,
+  ADD PRIMARY KEY (`idperson`,`thing`);
+
+DROP TABLE `person_has_contactPoint`;
+DROP TABLE `person_has_imageObject`;
+
+-- add foreign key
+ALTER TABLE `person`
+  ADD KEY `fk_person_thing_idx` (`thing`),
+  ADD CONSTRAINT `fk_person_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+
+--
 -- ARTICLE
+--
+
 ALTER TABLE `article`
   CHANGE COLUMN `idarticle` `idarticle` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `headline` `headline` VARCHAR(255) DEFAULT NULL,
@@ -523,22 +660,46 @@ ALTER TABLE `article`
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idarticle` INT UNSIGNED DEFAULT NULL;
 -- insert thing
-INSERT INTO `thing` (`idarticle`,`name`,`dateRegistered`, `lastModified`, `type`)
-  SELECT `idarticle`,`headline`,`dateCreated`, `dateModified`, 'Article' FROM `article`;
+INSERT INTO `thing` (`idarticle`,`name`,`additionalType`,`dateRegistered`, `lastModified`, `type`)
+  SELECT
+    `idarticle`,
+    `headline`,
+    `additionalType`,
+    `dateCreated`,
+    `datePublished`,
+    'Article'
+  FROM `article`;
+
 -- update this
 UPDATE `article`
   JOIN `thing` ON thing.idarticle = article.idarticle
-  SET article.thing = thing.idthing;
+  SET article.thing = thing.idthing
+WHERE article.headline <> '';
+
 -- drop thing column
 ALTER TABLE `thing` DROP COLUMN `idarticle`;
 
 -- insert creative work
-INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`,`position`)
-  SELECT `thing`,`headline`,`datePublished`,`author`,`publisher`,`position` FROM `article`;
+INSERT INTO `creativeWork` (`thing`,`headline`,`datePublished`,`author`,`publisher`, `creativeWorkStatus`)
+  SELECT
+    `thing`,
+    `headline`,
+    `datePublished`,
+    `author`,
+    `publisher`,
+    IF(`publishied`=1,'published','')
+  FROM `article`;
+
 -- update child
 UPDATE `article`
   JOIN `creativeWork` ON creativeWork.thing=article.thing
-  SET article.creativeWork=creativeWork.idcreativeWork;
+  SET article.creativeWork=creativeWork.idcreativeWork
+WHERE article.headline <> '';
+
+UPDATE `creativeWork`
+  JOIN `person` ON `person`.idperson=`creativeWork`.author
+SET `creativeWork`.author=`person`.thing
+WHERE `creativeWork`.author IS NOT NULL;
 
 -- IMAGES
 CALL set_image_in_thing('article');
@@ -550,6 +711,7 @@ CALL insert_thing_has_thing('article','imageObject');
 ALTER TABLE `article`
   CHANGE COLUMN `creativeWork` `creativeWork` INT UNSIGNED NOT NULL,
   CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `additionalType`,
   DROP COLUMN `headline`,
   DROP COLUMN `dateCreated`,
   DROP COLUMN `dateModified`,
@@ -571,7 +733,11 @@ ALTER TABLE `article`
   ADD KEY `fk_article_creativeWork_idx` (`creativeWork`),
   ADD CONSTRAINT `fk_article_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_article_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
--- alter table BOOK
+
+--
+-- BOOK
+--
+
 ALTER TABLE `book`
   CHANGE COLUMN `idbook` `idbook` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `datePublished` `datePublished` VARCHAR(19) DEFAULT NULL,
@@ -585,29 +751,49 @@ ALTER TABLE `book`
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idbook` INT UNSIGNED DEFAULT NULL;
+
 -- insert thing
-INSERT INTO `thing` (`idbook`,`name`, `type`)
-SELECT `idbook`,`name`,'Book' FROM `book`;
+INSERT INTO `thing` (`idbook`,`name`, `lastModified`, `dateRegistered`, `type`)
+  SELECT
+    `idbook`,
+    `name`,
+    `dateModified`,
+    `dateCreated`,
+    'Book'
+  FROM `book`;
+
 -- update this
 UPDATE `book`
   JOIN `thing` ON thing.idbook = book.idbook
-  SET book.thing=thing.idthing;
+  SET book.thing=thing.idthing
+WHERE thing.name <> '';
+
 -- drop thing column
 ALTER TABLE `thing` DROP COLUMN `idbook`;
 
 -- insert creativework
 INSERT INTO `creativeWork` (`thing`,`author`,`datePublished`,`keywords`,`locationCreated`,`publisher`,`version`)
-SELECT `thing`,`author`,CONCAT(`datePublished`,'-01-01 00:00:00') as datetime,`keywords`,`locationCreated`,`publisher`,`version` FROM `book`;
+  SELECT
+    `thing`,
+    `author`,
+    CONCAT(`datePublished`,'-01-01 00:00:00') as datetime,
+    `keywords`,
+    `locationCreated`,
+    `publisher`,
+    `version`
+  FROM `book`;
+
 -- update child
 UPDATE `book`
   JOIN `creativeWork` ON creativeWork.thing=book.thing
-SET book.creativeWork=creativeWork.idcreativeWork;
+  SET book.creativeWork=creativeWork.idcreativeWork
+WHERE book.name <> '';
 
 -- IMAGES
--- CALL set_image_in_thing('book');
+CALL set_image_in_thing('book');
 
 -- insert images
--- CALL insert_thing_has_thing('book','imageObject');
+CALL insert_thing_has_thing('book','imageObject');
 
 -- alter table
 ALTER TABLE `book`
@@ -622,11 +808,13 @@ ALTER TABLE `book`
   DROP COLUMN `name`,
   DROP COLUMN `publisher`,
   DROP COLUMN `version`,
+  DROP COLUMN `dateCreated`,
+  DROP COLUMN `dateModified`,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idbook`,`creativeWork`,`thing`);
 
 -- drop old relationship
--- DROP TABLE `book_has_imageObject`;
+DROP TABLE `book_has_imageObject`;
 
 -- add foreign keys
 ALTER TABLE `book`
@@ -634,8 +822,11 @@ ALTER TABLE `book`
   ADD KEY `fk_book_creativeWork_idx` (`creativeWork`),
   ADD CONSTRAINT `fk_book_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_book_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
 -- VIDEO OBJECT
--- ALTER TABLE
+--
+
 ALTER TABLE `videoObject`
   CHANGE COLUMN `idvideoObject` `idvideoObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idvideoObject`,
@@ -647,20 +838,27 @@ ALTER TABLE `videoObject`
 
 -- insert thing
 ALTER TABLE `thing` ADD COLUMN `idvideoObject` INT UNSIGNED DEFAULT NULL;
-INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`image`,`description`,`dateRegistered`,`type`)
+
+INSERT INTO `thing` (`idvideoObject`,`name`,`url`,`image`,`description`,`dateRegistered`,`lastModified`,`type`)
   SELECT `idvideoObject`,`name`,`url`,
     thumbnailUrl,
           description,
 IF(`uploadDate`, `uploadDate`, CURDATE()),
+IF(`uploadDate`, `uploadDate`, CURDATE()),
     'videoObject'
   FROM `videoObject` WHERE `name` <> '';
+
 -- update this
-UPDATE `videoObject` JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject SET `videoObject`.thing = `thing`.idthing;
+UPDATE `videoObject`
+  JOIN `thing` ON `videoObject`.idvideoObject = thing.idvideoObject
+SET `videoObject`.thing = `thing`.idthing
+WHERE `thing`.name <> '';
+
 ALTER TABLE `thing` DROP COLUMN `idvideoObject`;
 
 -- insert parent
-INSERT INTO `creativeWork` (`thing`,`thumbnail`,`keywords`,`position`)
-  SELECT `thing`,`thumbnailUrl`,`tag`,`position` from `videoObject`;
+INSERT INTO `creativeWork` (`thing`,`thumbnail`,`keywords`)
+  SELECT `thing`,`thumbnailUrl`,`tag` from `videoObject`;
 
 -- insere parent
 INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentUrl`,`bitrate`,`duration`,`uploadDate`)
@@ -672,7 +870,8 @@ INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentUrl`,`bitrate`,`durati
 UPDATE `videoObject`
   JOIN `mediaObject` ON `videoObject`.thing = `mediaObject`.thing
   JOIN `creativeWork` ON `videoObject`.thing = `creativeWork`.thing
-  SET `videoObject`.mediaObject = `mediaObject`.idmediaObject, `videoObject`.creativeWork = `creativeWork`.idcreativeWork;
+  SET `videoObject`.mediaObject = `mediaObject`.idmediaObject, `videoObject`.creativeWork = `creativeWork`.idcreativeWork
+WHERE 1;
 
 -- alter table
 ALTER TABLE `videoObject`
@@ -700,55 +899,10 @@ ALTER TABLE `videoObject`
   ADD CONSTRAINT `fk_videoObject_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_videoObject_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_videoObject_mediaObject` FOREIGN KEY (`mediaObject`) REFERENCES `mediaObject` (`idmediaObject`) ON DELETE CASCADE ON UPDATE NO ACTION;
--- PERSON
--- alter table PERSON
-ALTER TABLE `person`
-  CHANGE COLUMN `idperson` `idperson` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  CHANGE COLUMN `address` `homeLocation` INT UNSIGNED NULL,
-  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idperson`,
-  ADD COLUMN `deathDate` DATE DEFAULT NULL,
-  ADD COLUMN `deathPlace` VARCHAR(45) DEFAULT NULL,
-  DROP PRIMARY KEY ,
-  ADD PRIMARY KEY (`idperson`);
 
--- CREATE THING
-ALTER TABLE `thing` ADD COLUMN `idperson` INT UNSIGNED DEFAULT NULL;
--- insert thing
-INSERT INTO `thing` (`idperson`,`name`,`url`,`lastModified`,`dateRegistered`,`type`)
-  SELECT idperson,CONCAT(`givenName`,IF(familyName is NOT NULL,CONCAT(' ',familyName),'')) as name,`url`,`dateModified`,`dateRegistration`, 'Person' FROM `person`;
--- atualiza tabela
-UPDATE `person` JOIN `thing` ON thing.idperson=person.idperson SET person.thing = thing.idthing;
-ALTER TABLE `thing` DROP COLUMN `idperson`;
-
--- has contact point
-INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-SELECT `person`.thing, 'Person', `contactPoint`.thing, 'ContactPoint' FROM `person_has_contactPoint`
-  JOIN `person` ON `person`.idperson = `person_has_contactPoint`.idperson
-  JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `person_has_contactPoint`.idcontactPoint;
-
--- IMAGES
-CALL set_image_in_thing('person');
-
--- insert images
-CALL insert_thing_has_thing('person','imageObject');
-
-ALTER TABLE `person`
-  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
-  DROP COLUMN `name`,
-  DROP COLUMN `url`,
-  DROP COLUMN `dateRegistration`,
-  DROP COLUMN `dateModified`,
-  DROP PRIMARY KEY ,
-  ADD PRIMARY KEY (`idperson`,`thing`);
-
-DROP TABLE `person_has_contactPoint`;
-DROP TABLE `person_has_imageObject`;
-
--- add foreign key
-ALTER TABLE `person`
-  ADD KEY `fk_person_thing_idx` (`thing`),
-  ADD CONSTRAINT `fk_person_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
-
+--
+-- END VIDEO OBJECT
+--
 -- WEBSITE
 -- ALTER TABLE
 ALTER TABLE `webSite`
@@ -863,7 +1017,7 @@ where `webPage`.isPartOf is not null;
 
 -- has propertyValue
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-SELECT `webPage`.thing, 'WebPage', `propertyValue`.idpropertyValue, 'PropertyValue' FROM `webPage_has_propertyValue`
+SELECT `webPage`.thing, 'WebPage', `propertyValue`.thing, 'PropertyValue' FROM `webPage_has_propertyValue`
  JOIN `webPage` ON `webPage`.idwebPage = `webPage_has_propertyValue`.idwebPage
  JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPage_has_propertyValue`.idpropertyValue;
 
@@ -919,8 +1073,8 @@ ALTER TABLE `thing` DROP COLUMN `idwebPageElement`;
 
 
 -- INSERT IN CREATIVEWORK
-INSERT INTO `creativeWork` (`thing`,`text`,`position`,`author`)
-  SELECT `thing`,`text`,`position`,`author` FROM `webPageElement`;
+INSERT INTO `creativeWork` (`thing`,`text`,`author`)
+  SELECT `thing`,`text`,`author` FROM `webPageElement`;
 -- update child
 UPDATE `webPageElement`
   JOIN `creativeWork` ON creativeWork.thing = webPageElement.thing
@@ -928,7 +1082,7 @@ UPDATE `webPageElement`
 
 -- has propertyValue
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-SELECT `webPageElement`.thing, 'WebPageElement', `propertyValue`.idpropertyValue, 'PropertyValue' FROM `webPageElement_has_propertyValue`
+SELECT `webPageElement`.thing, 'WebPageElement', `propertyValue`.thing, 'PropertyValue' FROM `webPageElement_has_propertyValue`
  JOIN `webPageElement` ON `webPageElement`.idwebPageElement = `webPageElement_has_propertyValue`.idwebPageElement
  JOIN `propertyValue` ON `propertyValue`.idpropertyValue = `webPageElement_has_propertyValue`.idpropertyValue;
 
@@ -978,78 +1132,11 @@ ALTER TABLE `webPageElement`
   ADD KEY `fk_webPageElement_creativeWork_idx` (`creativeWork`),
   ADD CONSTRAINT `fk_webPageElement_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_webPageElement_creativeWork` FOREIGN KEY (`creativeWork`) REFERENCES `creativeWork` (`idcreativeWork`) ON DELETE CASCADE ON UPDATE NO ACTION;
--- EVENT
--- alter table EVENT
-UPDATE `event` SET `superEvent`=null WHERE `superEvent`=0;
 
--- alter table
-ALTER TABLE `event`
-  DROP COLUMN `additionalType`,
-  CHANGE COLUMN `idevent` `idevent` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
-  CHANGE COLUMN `superEvent` `superEvent` INT UNSIGNED DEFAULT NULL,
-  CHANGE COLUMN `organizerId` `organizer` VARCHAR(255) DEFAULT NULL,
-  CHANGE COLUMN `directed` `director` VARCHAR(255) DEFAULT NULL,
-  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
-  ADD COLUMN `about` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
-  ADD COLUMN `keywords` VARCHAR(255) DEFAULT NULL AFTER `idevent`,
-  ADD COLUMN `subEvent` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idevent`);
-
--- INSERT THING
-ALTER TABLE `thing` ADD COLUMN `idevent` INT UNSIGNED DEFAULT NULL;
--- insere dados em thing
-INSERT INTO `thing` (`idevent`,`name`,`description`,`lastModified`,`dateRegistered`,`type`)
-  SELECT `idevent`,`name`,`description`,`dateModified`,`dateCreated`, 'Event' FROM `event` WHERE `name` <> '';
--- atualiza tabela
-UPDATE `event`
-  JOIN `thing` ON `event`.idevent = thing.idevent
-  SET event.thing = thing.idthing;
--- drop thing column
-ALTER TABLE `thing` DROP COLUMN `idevent`;
-
--- insert images
-CALL insert_thing_has_thing('event','imageObject');
-
--- IMAGES
-CALL set_image_in_thing('event');
-
--- insert thing_has_thing event_has_event
-/*INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-  SELECT t1.thing, 'Event', t2.thing, 'Event' FROM `event_has_event`
-    JOIN `event` AS t1 ON t1.idevent=idHasPart
-    JOIN `event` AS t2 ON t2.idevent=idIsPartOf;*/
-
--- alter table
-ALTER TABLE `event`
-  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
-  DROP COLUMN `name`,
-  DROP COLUMN `description`,
-  DROP COLUMN `src`,
-  DROP COLUMN `organizerType`,
-  DROP COLUMN `place`,
-  DROP COLUMN `schedule`,
-  DROP COLUMN `link_directed`,
-  DROP COLUMN `dateCreated`,
-  DROP COLUMN `dateModified`,
-  DROP PRIMARY KEY,
-  ADD PRIMARY KEY (`idevent`,`thing`);
-
--- drop relational tables
--- DROP TABLE `event_has_event`;
-DROP TABLE `event_has_imageObject`;
-
--- add foreign keys
-ALTER TABLE `event`
-  ADD KEY `fk_event_location_idx` (`location`),
-  ADD KEY `fk_event_thing_idx` (`thing`),
-  ADD KEY `fk_event_subEvent_idx` (`subEvent`),
-  ADD KEY `fk_event_superEvent_idx` (`superEvent`),
-  ADD CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION;
+--
 -- PLACE
+--
+
 ALTER TABLE `postalAddress`
   CHANGE COLUMN `idpostalAddress` `idpostalAddress` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   DROP PRIMARY KEY,
@@ -1099,9 +1186,11 @@ ALTER TABLE `thing` DROP COLUMN `idplace`;
 ALTER TABLE `geoCoordinates` ADD COLUMN `idplace` INT UNSIGNED DEFAULT NULL;
 INSERT INTO `geoCoordinates` (`idplace`,`address`,`elevation`,`latitude`,`longitude`)
   SELECT `idplace`,`address`,`elevation`,`latitude`,`longitude` FROM `place`;
+
 UPDATE `place`
   JOIN `geoCoordinates` ON geoCoordinates.idplace = place.idplace
   SET place.geo = geoCoordinates.idgeoCoordinates;
+
 ALTER TABLE `geoCoordinates` DROP COLUMN `idplace`;
 
 -- insert images
@@ -1136,57 +1225,120 @@ ALTER TABLE `place`
   ADD KEY `fk_place_geo_idx` (`geo`),
   ADD CONSTRAINT `fk_place_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_place_geo` FOREIGN KEY (`geo`) REFERENCES `geoCoordinates` (`idgeoCoordinates`) ON DELETE SET NULL ON UPDATE NO ACTION;
--- ORGANIZATION
--- mesclar dados duplicados
-DROP TABLE IF EXISTS `organization_tmp`;
-CREATE TABLE `organization_tmp` AS
-  SELECT
-    max(idorganization) as idorganization,
-    max(additionalType) as additionalType,
-    name,
-    max(description) as description,
-    max(disambiguatingDescription) as disambiguatingDescription,
-    max(legalName) as legalName,
-    max(taxId) as taxId,
-    url,
-    max(hasOfferCatalog) as hasOfferCatalog,
-    max(location) as location,
-    max(address) as address,
-    max(areaServed) as areaServed,
-    max(dateCreated) as dateCreated,
-    max(dateModified) as dateModified
-  FROM organization GROUP BY name HAVING count(name) > 1;
-INSERT INTO `organization_tmp`
-  SELECT
-     idorganization,
-     additionalType,
-     name,
-     description,
-     disambiguatingDescription,
-     legalName,
-     taxId,
-     url,
-     hasOfferCatalog,
-     location,
-     address,
-     areaServed,
-     dateCreated,
-     dateModified
-    FROM `organization` GROUP BY name HAVING count(name) = 1;
-RENAME TABLE `organization` TO `organization_old`, `organization_tmp` TO `organization`;
-DROP TABLE `organization_old`;
+
+--
+-- EVENT
+--
+
+UPDATE `event` SET `superEvent`=null WHERE `superEvent`=0;
 
 -- alter table
+ALTER TABLE `event`
+  DROP COLUMN `additionalType`,
+  CHANGE COLUMN `idevent` `idevent` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
+  CHANGE COLUMN `superEvent` `superEvent` INT UNSIGNED DEFAULT NULL,
+  CHANGE COLUMN `organizerId` `organizer` VARCHAR(255) DEFAULT NULL,
+  CHANGE COLUMN `directed` `director` VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
+  ADD COLUMN `about` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
+  ADD COLUMN `keywords` VARCHAR(255) DEFAULT NULL AFTER `idevent`,
+  ADD COLUMN `subEvent` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idevent`);
+
+-- INSERT THING
+ALTER TABLE `thing` ADD COLUMN `idevent` INT UNSIGNED DEFAULT NULL;
+
+-- insere dados em thing
+INSERT INTO `thing` (`idevent`,`name`,`description`,`lastModified`,`dateRegistered`,`type`)
+  SELECT
+    `idevent`,
+    `name`,
+    `description`,
+    `dateModified`,
+    `dateCreated`,
+    'Event'
+  FROM `event` WHERE `name` <> '';
+
+-- atualiza tabela
+UPDATE `event`
+  JOIN `thing` ON `event`.idevent = thing.idevent
+  SET event.thing = thing.idthing
+  WHERE event.`name` <> '';
+
+-- drop thing column
+ALTER TABLE `thing` DROP COLUMN `idevent`;
+
+-- set location null if idplace not exists
+UPDATE `event`
+SET `event`.location = NULL
+WHERE `event`.location NOT IN (SELECT idplace FROM place);
+
+-- muda o location de idplace para idthing de place
+UPDATE `event`
+  JOIN `place` ON place.idplace=event.location
+  SET event.location=place.thing
+  WHERE event.location IS NOT NULL;
+
+-- insert images
+CALL insert_thing_has_thing('event','imageObject');
+
+-- IMAGES
+CALL set_image_in_thing('event');
+
+-- insert thing_has_thing event_has_event
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
+  SELECT t1.thing, 'Event', t2.thing, 'Event' FROM `event_has_event`
+    JOIN `event` AS t1 ON t1.idevent=idHasPart
+    JOIN `event` AS t2 ON t2.idevent=idIsPartOf;
+
+-- alter table
+ALTER TABLE `event`
+  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `name`,
+  DROP COLUMN `description`,
+  DROP COLUMN `src`,
+  DROP COLUMN `organizerType`,
+  DROP COLUMN `place`,
+  DROP COLUMN `schedule`,
+  DROP COLUMN `link_directed`,
+  DROP COLUMN `dateCreated`,
+  DROP COLUMN `dateModified`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idevent`,`thing`);
+
+-- drop relational tables
+DROP TABLE `event_has_event`;
+DROP TABLE `event_has_imageObject`;
+
+-- add foreign keys
+ALTER TABLE `event`
+  ADD KEY `fk_event_thing_idx` (`thing`),
+  ADD KEY `fk_event_location_idx` (`location`),
+  ADD KEY `fk_event_subEvent_idx` (`subEvent`),
+  ADD KEY `fk_event_superEvent_idx` (`superEvent`),
+  ADD CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_event_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`) ON DELETE SET NULL ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+--
+-- ORGANIZATION
+--
+
 ALTER TABLE `organization`
   CHANGE COLUMN `idorganization` `idorganization` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   CHANGE COLUMN `areaServed` `areaServed` INT UNSIGNED DEFAULT NULL,
   CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
   ADD COLUMN `thing` INT UNSIGNED NOT NULL AFTER `idorganization`,
   ADD COLUMN `logo` INT UNSIGNED DEFAULT NULL AFTER `idorganization`,
+  DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idorganization`);
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idorganization` INT UNSIGNED DEFAULT NULL;
+
 -- insert thing
 INSERT INTO `thing` (`idorganization`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateRegistered`,`lastModified`,`type`)
 SELECT `idorganization`,
@@ -1199,16 +1351,26 @@ SELECT `idorganization`,
    `dateModified`,
    'Organization'
 FROM `organization`;
+
 -- set thing
 UPDATE `organization`
   JOIN `thing` ON thing.idorganization = organization.idorganization
-  SET organization.thing = thing.idthing;
+  SET organization.thing = thing.idthing
+WHERE thing.name <> '';
+
 -- drop column
 ALTER TABLE `thing` DROP COLUMN `idorganization`;
 
+-- set location null if idplace not exists
 UPDATE `organization`
   SET `organization`.location = NULL
   WHERE `organization`.location NOT IN (SELECT idplace FROM place);
+
+-- muda o location de idplace para idthing de place
+UPDATE `organization`
+  JOIN `place` ON place.idplace=organization.location
+SET organization.location=place.thing
+WHERE organization.location IS NOT NULL ;
 
 -- has contact point
 INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
@@ -1250,7 +1412,7 @@ ALTER TABLE `organization`
   ADD KEY `fk_organization_thing_idx` (`thing`),
   ADD KEY `fk_organization_location_idx` (`location`),
   ADD CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE CASCADE ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 -- PRODUCT
 -- ALTER TABLE
 ALTER TABLE `product`
@@ -1353,95 +1515,110 @@ DROP TABLE `taxon_has_imageObject`;
 ALTER TABLE `taxon`
   ADD KEY `fk_taxon_thing_idx` (`thing`),
   ADD CONSTRAINT `fk_taxon_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
 -- LOCAL BUSINESS
-  -- alter table LOCAL BUSINESS
-  ALTER TABLE `localBusiness`
-    CHANGE COLUMN `idlocalBusiness` `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    CHANGE COLUMN `organization` `organization` INT UNSIGNED DEFAULT NULL,
-    CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
-    CHANGE COLUMN `additionalType` `additionalType` VARCHAR(255) DEFAULT NULL,
-    ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idlocalBusiness`,
-    ADD COLUMN`openingHours` VARCHAR(255) DEFAULT NULL,
-    ADD COLUMN `paymentAccepted` VARCHAR(255) DEFAULT NULL,
-    DROP PRIMARY KEY ,
-    ADD PRIMARY KEY (`idlocalBusiness`);
+--
 
-  ALTER TABLE `thing`
-    ADD COLUMN `idlocalBusiness` INT UNSIGNED DEFAULT NULL;
+ALTER TABLE `localBusiness`
+  CHANGE COLUMN `idlocalBusiness` `idlocalBusiness` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `organization` `organization` INT UNSIGNED DEFAULT NULL,
+  CHANGE COLUMN `location` `location` INT UNSIGNED DEFAULT NULL,
+  CHANGE COLUMN `additionalType` `additionalType` VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idlocalBusiness`,
+  ADD COLUMN`openingHours` VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN `paymentAccepted` VARCHAR(255) DEFAULT NULL,
+  DROP PRIMARY KEY ,
+  ADD PRIMARY KEY (`idlocalBusiness`);
 
-  -- INSERT THING
-  ALTER TABLE `thing` ADD COLUMN `idevent` INT UNSIGNED DEFAULT NULL;
-  -- insert thing
-  INSERT INTO `thing` (`idlocalBusiness`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateRegistered`,`lastModified`,`type`)
-  SELECT `idlocalBusiness`,`name`,`additionalType`,
-     description,
-     SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
-     `url`,`dateCreated`,`dateModified`,'LocalBusiness'
-  FROM `localBusiness`;
+-- CREATE THING
 
-  -- update this
-  UPDATE `localBusiness`
-    JOIN `thing` ON thing.idlocalBusiness = localBusiness.idlocalBusiness
-    SET localBusiness.thing = thing.idthing;
-  -- drop thing column
-  ALTER TABLE `thing` DROP COLUMN `idevent`;
+ALTER TABLE `thing` ADD COLUMN `idlocalBusiness` INT UNSIGNED DEFAULT NULL;
 
-  -- insert organization
-  INSERT INTO `organization` (`thing`,`address`,`hasOfferCatalog`,`location`)
-  SELECT `thing`, `address`, `hasOfferCatalog`, `location` FROM `localBusiness`;
+-- insert thing
+INSERT INTO `thing` (`idlocalBusiness`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`url`,`dateRegistered`,`lastModified`,`type`)
+SELECT
+  `idlocalBusiness`,
+  `name`,
+  CONCAT('schema:LocalBusiness,',`additionalType`),
+   description,
+   SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
+   `url`,
+   `dateCreated`,
+   `dateModified`,
+   'Organization'
+FROM `localBusiness`;
 
-  -- update localBusiness
-  UPDATE `localBusiness`
-    JOIN `organization` ON `organization`.thing = `localBusiness`.thing
-    SET `localBusiness`.organization = `organization`.idorganization;
+-- update this
+UPDATE `localBusiness`
+  JOIN `thing` ON thing.idlocalBusiness = localBusiness.idlocalBusiness
+  SET localBusiness.thing = thing.idthing
+WHERE thing.name <> '';
 
-  -- has contact point
-  INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
-    SELECT `localBusiness`.thing, 'LocalBusiness', `contactPoint`.thing, 'ContactPoint' FROM `localBusiness_has_contactPoint`
-    JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_contactPoint`.idlocalBusiness
-    JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `localBusiness_has_contactPoint`.idcontactPoint;
+-- drop thing column
+ALTER TABLE `thing` DROP COLUMN `idlocalBusiness`;
 
-  -- insert images
-  CALL insert_thing_has_thing('localBusiness','imageObject');
+-- END CREATE THING
 
-  -- IMAGES
-  CALL set_image_in_thing('localBusiness');
+-- set location null if idplace not exists
+UPDATE `localBusiness`
+SET `localBusiness`.location = NULL
+WHERE `localBusiness`.location NOT IN (SELECT idplace FROM place);
 
-  -- has person
-  INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption, position)
-  SELECT `localBusiness`.thing,'LocalBusiness',`person`.thing,'Person',jobTitle,position FROM `localBusiness_has_person`
-    JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_person`.idlocalBusiness
-    JOIN `person` ON `person`.idperson = `localBusiness_has_person`.idperson;
+-- muda o location de idplace para idthing de place
+UPDATE `localBusiness`
+  JOIN `place` ON place.idplace=localBusiness.location
+  SET localBusiness.location=place.thing
+WHERE localBusiness.location IS NOT NULL;
 
-  ALTER TABLE `thing`
-    DROP COLUMN `idlocalBusiness`;
+-- insert organization
+INSERT INTO `organization` (`thing`,`address`,`hasOfferCatalog`,`location`)
+SELECT `thing`, `address`, `hasOfferCatalog`, `location` FROM `localBusiness`;
 
-  ALTER TABLE `localBusiness`
-    CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
-    CHANGE COLUMN `organization` `organization` INT UNSIGNED NOT NULL,
-    DROP COLUMN `name`,
-    DROP COLUMN `additionalType`,
-    DROP COLUMN `description`,
-    DROP COLUMN `disambiguatingDescription`,
-    DROP COLUMN `url`,
-    DROP COLUMN `hasOfferCatalog`,
-    DROP COLUMN `address`,
-    DROP COLUMN `dateCreated`,
-    DROP COLUMN `dateModified`,
-    DROP COLUMN `location`,
-    DROP PRIMARY KEY ,
-    ADD PRIMARY KEY (`idlocalBusiness`,`thing`);
+-- has contact point
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf)
+  SELECT `localBusiness`.thing, 'LocalBusiness', `contactPoint`.thing, 'ContactPoint' FROM `localBusiness_has_contactPoint`
+  JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_contactPoint`.idlocalBusiness
+  JOIN `contactPoint` ON `contactPoint`.idcontactPoint = `localBusiness_has_contactPoint`.idcontactPoint;
 
-  DROP TABLE `localBusiness_has_contactPoint`;
-  DROP TABLE `localBusiness_has_imageObject`;
-  DROP TABLE `localBusiness_has_person`;
+-- insert images
+CALL insert_thing_has_thing('localBusiness','imageObject');
 
-  -- add foreign keys
-  ALTER TABLE `localBusiness`
-    ADD KEY `fk_localBusiness_thing_idx` (`thing`),
-    ADD KEY `fk_localBusiness_organization_idx` (`organization`),
-    ADD CONSTRAINT `fk_localBusiness_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    ADD CONSTRAINT `fk_localBusiness_organization` FOREIGN KEY (`organization`) REFERENCES `organization` (`idorganization`) ON DELETE CASCADE ON UPDATE NO ACTION;
+-- IMAGES
+CALL set_image_in_thing('localBusiness');
+
+-- has person
+INSERT INTO `thing_has_thing` (idHasPart, typeHasPart, idIsPartOf, typeIsPartOf, caption, position)
+SELECT `localBusiness`.thing,'LocalBusiness',`person`.thing,'Person',jobTitle,position FROM `localBusiness_has_person`
+  JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `localBusiness_has_person`.idlocalBusiness
+  JOIN `person` ON `person`.idperson = `localBusiness_has_person`.idperson;
+
+
+ALTER TABLE `localBusiness`
+  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `name`,
+  DROP COLUMN `additionalType`,
+  DROP COLUMN `description`,
+  DROP COLUMN `disambiguatingDescription`,
+  DROP COLUMN `url`,
+  DROP COLUMN `hasOfferCatalog`,
+  DROP COLUMN `address`,
+  DROP COLUMN `dateCreated`,
+  DROP COLUMN `dateModified`,
+  DROP COLUMN `location`,
+  DROP COLUMN `organization`,
+  DROP COLUMN `rank`,
+  DROP PRIMARY KEY ,
+  ADD PRIMARY KEY (`idlocalBusiness`,`thing`);
+
+DROP TABLE `localBusiness_has_contactPoint`;
+DROP TABLE `localBusiness_has_imageObject`;
+DROP TABLE `localBusiness_has_person`;
+
+-- add foreign keys
+ALTER TABLE `localBusiness`
+  ADD KEY `fk_localBusiness_thing_idx` (`thing`),
+  ADD CONSTRAINT `fk_localBusiness_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
 -- SERVICE
 -- alter table
 ALTER TABLE `service`
@@ -1502,3 +1679,189 @@ ALTER TABLE `service`
   ADD KEY `fk_service_provider_idx` (`provider`),
   ADD CONSTRAINT `fk_service_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_service_provider` FOREIGN KEY (`provider`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- ORDER
+--
+
+ALTER TABLE `order`
+  CHANGE COLUMN `idorder` `idorder` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `customer` `customer` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `seller` `seller` INT UNSIGNED NOT NULL,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorder`);
+
+-- SET CUSTOMER
+UPDATE `order`
+  LEFT JOIN `localBusiness` ON `localBusiness`.idlocalBusiness = `order`.customer AND `order`.customerType = 'localBusiness'
+  LEFT JOIN organization as org1 ON org1.idorganization = `order`.customer AND `order`.customerType = 'organization'
+  LEFT JOIN person ON person.idperson = `order`.customer AND `order`.customerType = 'person'
+  LEFT JOIN `organization` ON `organization`.idorganization = `order`.seller
+SET customer= IF(customerType='localbusiness', `localBusiness`.thing, IF(customerType = 'organization', org1.thing, `person`.thing)), seller = `organization`.thing
+WHERE `order`.customerType IS NOT NULL;
+
+DELETE FROM `order` WHERE `customer`='0' || `seller`='0';
+
+ALTER TABLE `order`
+  DROP COLUMN `customerType`,
+  DROP COLUMN `sellerType`,
+  DROP COLUMN `tipo`,
+  DROP COLUMN `valor`,
+  DROP COLUMN `dateCreated`,
+  DROP COLUMN `dateModified`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorder`,`customer`,`seller`);
+
+-- add foreign keys
+ALTER TABLE `order`
+  ADD KEY `fk_order_customer_idx` (`customer`),
+  ADD KEY `fk_order_seller_idx` (`seller`),
+  ADD CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_order_seller` FOREIGN KEY (`seller`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- offer
+--
+
+ALTER TABLE `offer`
+  CHANGE COLUMN `idoffer` `idoffer` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `itemOffered` `itemOffered` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `offeredBy` `offeredBy` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `elegibleQuantity` `eligibleQuantity` VARCHAR(45) NULL DEFAULT NULL,
+  CHANGE COLUMN `elegibleDuration` `eligibleDuration` VARCHAR(45) NULL DEFAULT NULL,
+  ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idoffer`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idoffer`);
+
+--
+UPDATE `offer`
+  left join `service` on service.idservice=offer.itemOffered and `offer`.itemOfferedType='service'
+  left join `product` on product.idproduct=offer.itemOffered and `offer`.itemOfferedType='product'
+  left join `organization`ON `organization`.idorganization=`offer`.offeredBy AND `offer`.offeredByType='organization'
+SET `offer`.itemOffered = IF(`offer`.itemOfferedType='service', service.thing, product.thing), `offer`.offeredBy = `organization`.thing
+WHERE `offer`.itemOfferedType IS NOT NULL;
+
+DELETE FROM `offer` WHERE `itemOffered`='0' || `offeredBy`='0';
+
+-- INSERT THING
+ALTER TABLE `thing` ADD COLUMN `idoffer` INT UNSIGNED DEFAULT NULL;
+
+-- insert thing
+INSERT INTO `thing` (`idoffer`,`name`,`additionalType`,`description`,`disambiguatingDescription`,`type`)
+SELECT `offer`.idoffer,
+       IF (`name` <> '', `name`, 'Undefined name'),
+       `additionalType`,
+       description,
+       SUBSTRING(REGEXP_REPLACE(disambiguatingDescription, '<[^>]*>+', ''),1,255) as disambiguatingDescription,
+       'Offer'
+FROM `offer` LEFT JOIN `thing` ON `thing`.idthing=`offer`.itemOffered;
+
+-- set thing
+UPDATE `offer`
+  JOIN `thing` ON thing.idoffer = `offer`.idoffer
+SET `offer`.thing = `thing`.idthing
+WHERE `thing`.name <> '';
+
+-- drop column
+ALTER TABLE `thing` DROP COLUMN `idoffer`;
+
+--
+ALTER TABLE `offer`
+  CHANGE COLUMN `thing` `thing` INT UNSIGNED NOT NULL,
+  DROP COLUMN `itemOfferedType`,
+  DROP COLUMN `offeredByType`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idoffer`,`itemOffered`,`offeredBy`);
+
+-- add foreign keys
+ALTER TABLE `offer`
+  ADD KEY `fk_offer_thing_idx` (`thing`),
+  ADD KEY `fk_offer_itemOffered_thing_idx` (`itemOffered`),
+  ADD KEY `fk_offer_offeredBy_thing_idx` (`offeredBy`),
+  ADD CONSTRAINT `fk_offer_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_offer_itemOffered_thing` FOREIGN KEY (`itemOffered`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_offer_offeredBy_thing` FOREIGN KEY (`offeredBy`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+
+--
+-- ORDER ITEM
+--
+
+ALTER TABLE `orderItem`
+  CHANGE COLUMN `idorderItem` `idorderItem` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `offer` `offer` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `referencesOrder` `orderItemNumber` INT UNSIGNED NOT NULL,
+  CHANGE COLUMN `orderedItem` `orderedItem` INT UNSIGNED NOT NULL,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorderItem`);
+
+UPDATE `orderItem`
+  LEFT JOIN `service` ON `orderItem`.orderedItem = `service`.idservice AND `orderItem`.orderedItemType='service'
+  LEFT JOIN `product` ON `product`.idproduct = `orderItem`.orderedItem AND `orderItem`.orderedItemType='product'
+SET `orderItem`.orderedItem= IF(orderedItemType='service',service.thing,product.thing)
+WHERE `orderItem`.orderedItemType IS NOT NULL;
+
+DELETE `orderItem` FROM `orderItem`
+  LEFT JOIN `order` ON `orderItem`.orderItemNumber = `order`.idorder
+WHERE `order`.idorder IS NULL;
+
+DELETE FROM `orderItem` WHERE `offer`=0;
+
+UPDATE `orderItem`
+ LEFT JOIN `offer` ON orderItem.offer = offer.idoffer
+SET `orderItem`.orderedItem = `offer`.thing
+WHERE `orderItem`.offer <> 0;
+
+ALTER TABLE `orderItem`
+  DROP COLUMN `orderedItemType`,
+  DROP COLUMN `orderItemStatus`,
+  DROP COLUMN `offer`,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idorderItem`,`orderItemNumber`);
+
+-- add foreign keys
+ALTER TABLE `orderItem`
+  ADD KEY `fk_orderedItem_thing_idx` (`orderedItem`),
+  ADD KEY `fk_orderItemNumber_thing_idx` (`orderItemNumber`),
+  ADD CONSTRAINT `fk_orderedItem_thing` FOREIGN KEY (`orderedItem`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_orderItemNumber_thing` FOREIGN KEY (`orderItemNumber`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- ALTER TABLE
+--
+
+ALTER TABLE `invoice`
+  CHANGE COLUMN `idinvoice` `idinvoice` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  CHANGE COLUMN `paymentDueDate` `scheduledPaymentDate` DATETIME NOT NULL,
+  CHANGE COLUMN `paymentDate` `paymentDueDate` DATETIME DEFAULT NULL,
+  CHANGE COLUMN `referencesOrder` `referencesOrder` INT UNSIGNED NOT NULL ,
+  DROP PRIMARY KEY,
+  ADD PRIMARY KEY (`idinvoice`,`referencesOrder`);
+
+--
+DELETE `invoice` FROM invoice
+  LEFT JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
+WHERE `order`.idorder IS NULL ;
+
+--
+UPDATE `invoice`
+  JOIN `order` ON `order`.idorder = `invoice`.referencesOrder
+SET `invoice`.customer=`order`.customer, `invoice`.provider = `order`.seller
+WHERE `order`.seller <> 0;
+
+--
+ALTER TABLE `invoice`
+  CHANGE COLUMN `customer` `customer` INT UNSIGNED NOT NULL ,
+  CHANGE COLUMN `provider` `provider` INT UNSIGNED NOT NULL ,
+  DROP COLUMN `customerType`,
+  DROP COLUMN `providerType`;
+
+-- add foreign key
+ALTER TABLE `invoice`
+  ADD KEY `fk_invoice_order_idx` (`referencesOrder`),
+  ADD INDEX `fk_invoice_customer_idx` (`customer`),
+  ADD INDEX `fk_invoice_provider_idx` (`provider`),
+  ADD CONSTRAINT `fk_invoice_order` FOREIGN KEY (`referencesOrder`) REFERENCES `order` (`idorder`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_invoice_customer` FOREIGN KEY (`customer`) REFERENCES `order` (`customer`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_invoice_provider` FOREIGN KEY (`provider`) REFERENCES `order` (`seller`) ON DELETE CASCADE ON UPDATE NO ACTION;
+

@@ -1,6 +1,8 @@
+
 --
 -- IMAGEOBJECT
 --
+
 ALTER TABLE `imageObject`
   CHANGE COLUMN `idimageObject` `idimageObject` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idimageObject`,
@@ -11,33 +13,39 @@ ALTER TABLE `imageObject`
 
 -- INSERT THING
 ALTER TABLE `thing` ADD COLUMN `idimageObject` INT UNSIGNED DEFAULT NULL;
+
 -- insere dados em thing
-INSERT INTO `thing` (`idimageObject`,`name`,`dateRegistered`,`type`)
+INSERT INTO `thing` (`idimageObject`,`name`,`lastModified`,`dateRegistered`,`type`)
   SELECT `idimageObject`,
-         IF(`contentUrl` <> '',`contentUrl`,'Undefined name'),
-         `uploadDate`,'ImageObject' from `imageObject`;
+   IF(`contentUrl` <> '',`contentUrl`,'Undefined name'),
+   `uploadDate`,
+   `uploadDate`,
+   'ImageObject'
+  FROM `imageObject`;
+
 -- update this
 UPDATE `imageObject`
-JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
+  JOIN `thing` ON `imageObject`.idimageObject = `thing`.idimageObject
 SET `imageObject`.thing=`thing`.idthing
 WHERE `thing`.idimageObject IS NOT NULL;
+
 -- drop thing column
 ALTER TABLE `thing` DROP COLUMN `idimageObject`;
 
 -- insert parent
 INSERT INTO `creativeWork` (`thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyrightHolder`)
-SELECT `thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyright` from `imageObject`;
+  SELECT `thing`,`author`,`license`,`acquireLicensePage`,`thumbnail`,`keywords`,`copyright` from `imageObject`;
 
 -- insere parent
 INSERT INTO `mediaObject` (`thing`,`creativeWork`,`contentSize`,`contentUrl`,`encodingFormat`,`height`,`width`,`uploadDate`)
-SELECT `imageObject`.`thing`,`idcreativeWork`,`contentSize`,`contentUrl`,`imageObject`.`encodingFormat`,`height`,`width`,`uploadDate` FROM `imageObject`
- JOIN `creativeWork` ON `creativeWork`.thing=`imageObject`.thing
- WHERE `contentUrl` <> '';
+  SELECT `imageObject`.`thing`,`idcreativeWork`,`contentSize`,`contentUrl`,`imageObject`.`encodingFormat`,`height`,`width`,`uploadDate` FROM `imageObject`
+  JOIN `creativeWork` ON `creativeWork`.thing=`imageObject`.thing
+WHERE `contentUrl` <> '';
 
 -- update this
 UPDATE `imageObject`
-JOIN `mediaObject` ON `imageObject`.thing = `mediaObject`.thing
-JOIN `creativeWork` ON `imageObject`.thing = `creativeWork`.thing
+  JOIN `mediaObject` ON `imageObject`.thing = `mediaObject`.thing
+  JOIN `creativeWork` ON `imageObject`.thing = `creativeWork`.thing
 SET `imageObject`.mediaObject = `mediaObject`.idmediaObject, `imageObject`.creativeWork = `creativeWork`.idcreativeWork
 WHERE `imageObject`.thing = `mediaObject`.thing;
 

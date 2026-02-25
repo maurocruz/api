@@ -1,66 +1,74 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Response\Format\Geojson;
 
 class Geojson
 {
-    private array $data;
+	/**
+	 * @var array
+	 */
+  private array $data;
+	/**
+	 * @var array
+	 */
+  private array $response = [];
 
-    private array $response = [];
+	/**
+	 * @param $data
+	 */
+  public function __construct($data) {
+    if (isset($data['error']) || (isset($data['status']) && ($data['status'] == 'error' || $data['status'] == 'fail'))) {
+      $this->response['status'] = $data['status'] ?? 'error';
+      $this->response['data'] = $data;
+    } else {
+      $this->response['status'] = "success";
+    }
+    $this->data = $data;
+  }
 
-    public function __construct($data) {
-
-        if (isset($data['error']) || (isset($data['status']) && ($data['status'] == 'error' || $data['status'] == 'fail'))) {
-            $this->response['status'] = $data['status'] ?? 'error';
-            $this->response['data'] = $data;
-        } else {
-            $this->response['status'] = "success";
-        }
-
-        $this->data = $data;
+	/**
+	 * @return void
+	 */
+  private function buildResponse(): void
+  {
+    $features = [];
+    $longitudeData = null;
+    $latitudeData = null;
+    foreach ($this->data as $item) {
+			$longitude = isset($item['longitude']) ? (float) $item['longitude'] : null;
+			$latitude = isset($item['latitude']) ? (float) $item['latitude'] : null;
+      $longitudeData[] = $longitude;
+      $latitudeData[] = $latitude;
+      $features[] = [
+        'type'=>'Feature',
+        'geometry' => [
+          'type' => 'Point',
+          'coordinates' => [ $longitude, $latitude]
+        ],
+        'properties'=>[
+          'idplace'=> $item['idplace'],
+          'name'=> $item['name'],
+          'description' => $item['description'],
+          'additionalType' => $item['additionalType'],
+          'icon-image' => MapboxLayout::getIconImage($item['additionalType'])
+        ]
+      ];
     }
 
-    private function buildResponse()
-    {
-        $features = [];
-        $longitude = null;
-        $latitude = null;
+    $bbox = [min($longitudeData),min($latitudeData), min($longitudeData),max($latitudeData), max($longitudeData),max($latitudeData), max($longitudeData), min($latitudeData)];
 
-        foreach ($this->data as $item) {
-            $longitude[] = (float) $item['longitude'];
-            $latitude[] = (float) $item['latitude'];
-            $features[] = [
-                'type'=>'Feature',
-                'geometry' => [
-                    'type' => 'Point',
-                    'coordinates' => [(float) $item['longitude'], (float) $item['latitude']]
-                ],
-                'properties'=>[
-                    'idplace'=> $item['idplace'],
-                    'name'=> $item['name'],
-                    'description' => $item['description'],
-                    'additionalType' => $item['additionalType'],
-                    'icon-image' => MapboxLayout::getIconImage($item['additionalType'])
-                ]
-            ];
-        }
+    $this->response = [
+        "type"=>'FeatureCollection',
+        'bbox'=> $bbox,
+        'features'=> $features
+    ];
+  }
 
-        $bbox = [min($longitude),min($latitude), min($longitude),max($latitude), max($longitude),max($latitude), max($longitude), min($latitude)];
-
-        $this->response = [
-            "type"=>'FeatureCollection',
-            'bbox'=> $bbox,
-            'features'=> $features
-        ];
-    }
-
-
-    public function ready(): array
-    {
-        $this->buildResponse();
-
-        return $this->response;
-    }
+	/**
+	 * @return array
+	 */
+  public function ready(): array
+  {
+    $this->buildResponse();
+    return $this->response;
+  }
 }

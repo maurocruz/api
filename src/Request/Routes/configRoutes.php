@@ -9,13 +9,14 @@ use Plinct\Api\ApiFactory;
 return function(Route $route) {
 
 	$route->get('', function (Request $request, Response $response) {
-		return ApiFactory::response()->write($response, ApiFactory::request()->configuration()->index());
+		$data =  ApiFactory::request()->configuration()->index();
+		return ApiFactory::response()->write($response, ApiFactory::response()->configuration($data)->index());
 	});
 
 	// INIT
-	$route->get('/init', function (Request $request, Response $response) {
-		$params = $request->getQueryParams();
-		$data = ApiFactory::request()->configuration()->module()->init($params);
+	$route->post('/installDatabase', function (Request $request, Response $response) {
+		$params = $request->getParsedBody();
+		$data = ApiFactory::request()->configuration()->module()->installDatabase($params);
 		return ApiFactory::response()->write($response, $data);
 	});
 

@@ -1,19 +1,20 @@
 <?php
-declare(strict_types=1);
 namespace Plinct\Api\Request\Type\Intangible;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class GeoCoordinates extends Entity
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('geoCoordinates');
 	}
 
@@ -37,6 +38,7 @@ class GeoCoordinates extends Entity
 		$data = $getData->render();
 
 		foreach ($data as $key => $item) {
+			$item['type'] = "GeoCoordinates";
 			$item['address'] = isset($item['idpostalAddress'])
 				? ApiFactory::response()->type('postalAddress')->setData([
 					"idpostalAddress" => $item['idpostalAddress'],
@@ -46,8 +48,6 @@ class GeoCoordinates extends Entity
 					"postalCode" => $item['postalCode'],
 					"streetAddress" => $item['streetAddress'],
 				])->ready() : null;
-
-			unset($item['idpostalAddress']);
 			unset($item['geo']);
 			unset($item['keywords']);
 			unset($item['publicAccess']);
@@ -77,7 +77,7 @@ class GeoCoordinates extends Entity
 		$addressRegion = $params['addressRegion'] ?? null;
 		$addressCountry = $params['addressCountry'] ?? null;
 		$postalCode = $params['postalCode'] ?? null;
-		// verifica se existe termos obrigatórios
+		// verifica se existem termos obrigatórios
 		if ($tableHasPart !== null && $idHasPart !== null && $latitude !== null && $longitude !== null) {
 			// verifica se existe item has part
 			$dataTableHasPart = ApiFactory::request()->type($tableHasPart)->get(["id$tableHasPart"=>$idHasPart])->ready();
@@ -98,7 +98,7 @@ class GeoCoordinates extends Entity
 						// verifica se foi adicionado idgeoCoordinates na tabela has part
 						if (isset($putTableHasPart['status']) && $putTableHasPart['status'] == 'success') {
 							PDOConnect::run("COMMIT; SET autocommit = 1;");
-							// verifica se existe dados de PostalAddress
+							// verifica se existem dados de PostalAddress
 							if ($streetAddress && $addressCountry && $addressLocality && $addressRegion && $postalCode) {
 								// salva postalAddress
 								$postPostalAddress = ApiFactory::request()->type('postalAddress')->post([

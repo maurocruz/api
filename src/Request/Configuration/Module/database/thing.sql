@@ -1,10 +1,14 @@
+
+--
 -- THING
+--
+
 CREATE TABLE IF NOT EXISTS `thing` (
   `idthing` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `additionalType` VARCHAR(255) NULL DEFAULT NULL,
   `alternateName` VARCHAR(255) NULL DEFAULT NULL,
   `dateRegistered` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `lastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `description` TEXT NULL DEFAULT NULL,
   `disambiguatingDescription` VARCHAR(255) NULL DEFAULT NULL,
   `image` VARCHAR(255) NULL DEFAULT NULL,
@@ -39,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `thing_has_thing` (
 -- PROPERTY VALUE
 CREATE TABLE IF NOT EXISTS `propertyValue` (
   `idpropertyValue` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL,
+  `thing` INT UNSIGNED NOT NULL ,
   `value` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`idpropertyValue`)
 ) ENGINE = InnoDB;
@@ -76,6 +80,15 @@ BEGIN
 
   -- Se posição não for informada ou inválida, vai para o final
   IF p_position IS NULL OR p_position = 0 THEN
+
+    -- ordena os itens existentes
+    SET @pos := 0;
+    UPDATE thing_has_thing
+    SET position = (@pos := @pos + 1)
+    WHERE idHasPart = p_idHasPart AND typeIsPartOf = p_typeIsPartOf
+    ORDER BY (position IS NULL),    -- faz os NULLs irem para o final; opcional
+             position;
+
     SELECT COALESCE(MAX(position), 0) + 1
     INTO v_pos
     FROM thing_has_thing
@@ -124,9 +137,7 @@ DROP procedure IF EXISTS `sp_thing_has_thing_update`;
 
 CREATE PROCEDURE sp_thing_has_thing_update(
   IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
   IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48),
   IN p_caption VARCHAR(255),
   IN p_position INT UNSIGNED,
   IN p_representativeOfPage VARCHAR(1)
@@ -155,9 +166,7 @@ BEGIN
   SELECT position INTO v_old_pos
   FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
   LIMIT 1;
 
   IF v_old_pos IS NULL THEN
@@ -178,16 +187,12 @@ BEGIN
       UPDATE thing_has_thing
       SET position = position + 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_new_pos AND v_old_pos - 1;
     ELSE
       -- Desloca para baixo: puxa para cima quem está no intervalo [v_old_pos+1, v_new_pos]
       UPDATE thing_has_thing
       SET position = position - 1
       WHERE idHasPart   = p_idHasPart
-        AND typeHasPart = p_typeHasPart
-        AND typeIsPartOf= p_typeIsPartOf
         AND position BETWEEN v_old_pos + 1 AND v_new_pos;
     END IF;
   END IF;
@@ -199,9 +204,7 @@ BEGIN
     -- Zera todos representativeOfPage do grupo se for = 1
     UPDATE thing_has_thing
     SET representativeOfPage = 0
-    WHERE idHasPart   = p_idHasPart
-      AND typeHasPart = p_typeHasPart
-      AND typeIsPartOf= p_typeIsPartOf;
+    WHERE idHasPart   = p_idHasPart;
   END IF;
 
   -- atualiza o item
@@ -210,9 +213,7 @@ BEGIN
       position = v_new_pos,
       representativeOfPage = IF(p_representativeOfPage = '', representativeOfPage, p_representativeOfPage)
   WHERE idHasPart    = p_idHasPart
-    AND typeHasPart  = p_typeHasPart
-    AND idIsPartOf   = p_idIsPartOf
-    AND typeIsPartOf = p_typeIsPartOf;
+    AND idIsPartOf   = p_idIsPartOf;
 
   -- Commit apenas se não houve erro
   IF v_has_error = 0 THEN
@@ -230,14 +231,9 @@ END;
 --
 DROP procedure IF EXISTS `sp_thing_has_thing_delete`;
 
-CREATE PROCEDURE sp_thing_has_thing_delete (
-  IN p_idHasPart INT UNSIGNED,
-  IN p_typeHasPart VARCHAR(48),
-  IN p_idIsPartOf INT UNSIGNED,
-  IN p_typeIsPartOf VARCHAR(48)
-)
+CREATE PROCEDURE `sp_thing_has_thing_delete`(IN p_idHasPart int unsigned, IN p_idIsPartOf int unsigned)
 BEGIN
-  DECLARE v_old_pos INT UNSIGNED;
+  DECLARE v_typeIsPartOf INT UNSIGNED;
   DECLARE v_sqlstate CHAR(5);
   DECLARE v_errmsg TEXT;
   DECLARE v_has_error TINYINT(1) DEFAULT 0;
@@ -251,30 +247,29 @@ BEGIN
     END;
   START TRANSACTION;
 
-  SELECT position INTO v_old_pos
+  SELECT typeIsPartOf INTO v_typeIsPartOf
   FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
     AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf
   LIMIT 1;
 
-  IF v_old_pos IS NULL THEN
+  IF v_typeIsPartOf IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Registro não encontrado para exclusão';
   END IF;
 
   DELETE FROM thing_has_thing
   WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND idIsPartOf  = p_idIsPartOf
-    AND typeIsPartOf= p_typeIsPartOf;
+    AND idIsPartOf  = p_idIsPartOf;
+
+  SET @pos := 0;
 
   UPDATE thing_has_thing
-  SET position = position - 1
-  WHERE idHasPart   = p_idHasPart
-    AND typeHasPart = p_typeHasPart
-    AND typeIsPartOf= p_typeIsPartOf
-    AND position > v_old_pos;
+  SET position = (@pos := @pos + 1)
+  WHERE idHasPart = p_idHasPart
+    AND typeIsPartOf = v_typeIsPartOf
+  ORDER BY
+    (position IS NULL),    -- faz os NULLs irem para o final; opcional
+    position;
 
   -- Commit apenas se não houve erro
   IF v_has_error = 0 THEN

@@ -1,7 +1,4 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Middleware;
 
 use Plinct\Api\Request\User\UserLogged;

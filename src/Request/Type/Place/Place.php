@@ -3,6 +3,7 @@ namespace Plinct\Api\Request\Type\Place;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Place extends Thing
@@ -10,8 +11,9 @@ class Place extends Thing
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
+		parent::__construct($relationship);
 		$this->setTable('place');
 	}
 
@@ -26,16 +28,20 @@ class Place extends Thing
 		$fields = $params['fields'] ?? null;
 		$getData = new GetData('place');
 		if (in_array('geo',$properties)) {
-			$getData->setLeftJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates = `place`.geo');
-			$getData->setLeftJoin('postalAddress','`postalAddress`.idpostalAddress = `geoCoordinates`.address');
+			$getData->setJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates = `place`.geo', null, 'LEFT');
+			$getData->setJoin('postalAddress','`postalAddress`.idpostalAddress = `geoCoordinates`.address', null, 'LEFT');
 		}
 		if ($orderBy=='reviewRating' || in_array('aggregateRating',$properties)) {
 			$params['groupBy'] = 'idplace';
 			$getData->setFields('*,AVG(reviewRating) as ratingValue, COUNT(reviewRating) as reviewCount');
-			$getData->setLeftJoin('review','`review`.itemReviewed = `thing`.idthing');
+			$getData->setJoin('review','`review`.itemReviewed = `thing`.idthing', null, 'LEFT');
 		}
 		$getData->setParams($params);
 		$data = $getData->render();
+
+		if (isset($data['error'])) {
+			return $data;
+		}
 
 		if ($fields && str_contains($fields,'count') && isset($data[0])) {
 			return $data[0];

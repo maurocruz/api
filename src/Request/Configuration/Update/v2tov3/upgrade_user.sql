@@ -21,9 +21,6 @@ ALTER TABLE `user`
   CHANGE COLUMN `iduser` `iduser` INT UNSIGNED NOT NULL AUTO_INCREMENT ;
 
 -- foreign keys
-ALTER TABLE `history`
-  ADD CONSTRAINT `fk_history_user`
-    FOREIGN KEY (`user`) REFERENCES `user` (`iduser`) ON DELETE CASCADE ON UPDATE RESTRICT;
 ALTER TABLE `map_viewport`
   ADD CONSTRAINT `fk_map_viewport_user`
   FOREIGN KEY (`iduser`) REFERENCES `user` (`iduser`) ON DELETE CASCADE;

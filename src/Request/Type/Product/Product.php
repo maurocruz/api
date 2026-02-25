@@ -2,6 +2,7 @@
 namespace Plinct\Api\Request\Type\Product;
 
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Product extends Thing
@@ -9,9 +10,9 @@ class Product extends Thing
 	/**
 	 *
 	 */
-  public function __construct()
+  public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('product');
 	}
 

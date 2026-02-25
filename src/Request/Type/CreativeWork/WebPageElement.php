@@ -2,17 +2,17 @@
 namespace Plinct\Api\Request\Type\CreativeWork;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class WebPageElement extends CreativeWork
 {
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('webPageElement');
 	}
 
@@ -23,9 +23,21 @@ class WebPageElement extends CreativeWork
   public function get(array $params = []): array
   {
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		$getData = new GetData('webPageElement');
-		$getData->setParams($params);
-		$getData->setLeftJoin("creativeWork","`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
+		$idHasPart = $params['idHasPart'] ?? null;
+	  $typeIsPartOf = $params['typeIsPartOf'] ?? 'WebPage';
+		$typeHasPart = $params['typeHasPart'] ?? 'WebPage';
+		// ID HAS PART
+		if ($idHasPart) {
+			$getData = new GetData('thing_has_thing',false);
+			$getData->setLeftJoin('thing','`thing`.idthing=`thing_has_thing`.idIsPartOf');
+			$getData->setLeftJoin('webPageElement','`webPageElement`.thing=`thing`.idthing');
+			$getData->setLeftJoin("creativeWork", "`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
+			$getData->setParams($params + ['typeIsPartOf'=>'WebPageElement']);
+		} else {
+			$getData = new GetData('webPageElement');
+			$getData->setParams($params);
+			$getData->setLeftJoin("creativeWork", "`creativeWork`.idcreativeWork=`webPageElement`.creativeWork");
+		}
 		$data = $getData->render();
 		if ($properties) {
 			foreach ($data as $key => $item) {
@@ -39,22 +51,16 @@ class WebPageElement extends CreativeWork
 				}
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
-					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPageElement');
+					$data[$key]['hasPart'] = parent::getHasPart($idthing,'WebPageElement', $typeIsPartOf, ['properties'=>'propertyValue']);
 				}
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
-					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing, 'WebPageElement',['properties'=>'isPartOf']);
+					$data[$key]['isPartOf'] = parent::getIsPartOf($idthing, 'WebPageElement', $typeHasPart, ['properties'=>'isPartOf']);
 				}
 				// PROPERTY VALUE
 				if (in_array('propertyValue', $properties)) {
-						$query = "SELECT name, value, idpropertyValue FROM thing_has_thing
-                  JOIN propertyValue ON idIsPartOf=propertyValue.idpropertyValue
-                  WHERE typeHasPart='WebPageElement' AND typeIsPartOf='propertyValue' AND idHasPart='$idthing';";
-						$dataPropertyValue = PDOConnect::run($query);
-						if (isset($dataPropertyValue[0])) {
-							$data[$key]['identifier'] = ApiFactory::response()->type('propertyValue')->setData($dataPropertyValue)->ready();
-						}
-					}
+					$data[$key]['identifier'] = parent::getHasPart($idthing,'WebPageElement','propertyValue');
+				}
 			}
 		}
 	  return parent::sortData($data);
@@ -76,7 +82,20 @@ class WebPageElement extends CreativeWork
 				$valueCreativeWork = $getCreativeWork[0];
 				$params['url'] = $valueCreativeWork['url'].'#'.$name;
 				// SAVE CREATIVEWORK
-				return parent::createWithParent('creativeWork', $params);
+				$creativeWorkDataResponse = parent::createWithParent('creativeWork', $params);
+				// CREATE RELATIONSHIP
+				if (isset($creativeWorkDataResponse['status']) && $creativeWorkDataResponse['status'] === 'success') {
+					$creativeWorkData = $creativeWorkDataResponse['data'];
+					$creativeWorkDataResponse['data'] = ApiFactory::response()->type('webPageElement')->setData($creativeWorkData)->ready();
+					$idHasPart = $creativeWorkData[0]['idthing'];
+					$relationshipCreate =	parent::createRelationShip($isPartOf, 'WebPage', $idHasPart, 'WebPageElement');
+					if (isset($relationshipCreate['status']) && $relationshipCreate['status'] === 'success') {
+						$creativeWorkDataResponse['message'] = 'WebPageElement was created and relationship was created';
+					} else {
+						$creativeWorkDataResponse['message'] = 'WebPageElement was created but relationship was not created';
+					}
+				}
+				return $creativeWorkDataResponse;
 			} else {
 				return ApiFactory::response()->message()->fail()->generic(['Has part not found!']);
 			}
@@ -92,6 +111,8 @@ class WebPageElement extends CreativeWork
 	public function put(array $params = null): array
 	{
 		$idwebPageElement = $params['idwebPageElement'] ?? $params['webPageElement'] ?? null;
+		$idHasPart = $params['idHasPart'] ?? null;
+		$idIsPartOf = $params['idIsPartOf'] ?? null;
 		if ($idwebPageElement) {
 			$datawebPageElement = parent::getData(['idwebPageElement'=>$idwebPageElement]);
 			if (!empty($datawebPageElement)) {
@@ -106,6 +127,8 @@ class WebPageElement extends CreativeWork
 			} else {
 				return ApiFactory::response()->message()->fail()->returnIsEmpty();
 			}
+		} elseif($idHasPart && $idIsPartOf) {
+			return self::updateRelationship( $idHasPart, $idIsPartOf, $params);
 		} else {
 			return ApiFactory::response()->message()->fail()->inputDataIsMissing(["Mandatory fields: idwebPageElement or webPageElement"]);
 		}

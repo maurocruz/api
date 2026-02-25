@@ -17,13 +17,11 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `fk_event_thing_idx1` (`thing`),
   KEY `fk_event_about_idx1` (`about`),
   KEY `fk_event_location_idx1` (`location`),
-  KEY `fk_event_organizer_idx1` (`organizer`),
   KEY `fk_event_subEvent_idx1` (`subEvent`),
   KEY `fk_event_superEvent_idx1` (`superEvent`),
   CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
   CONSTRAINT `fk_event_about` FOREIGN KEY (`about`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
   CONSTRAINT `fk_event_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE SET NULL,
-  CONSTRAINT `fk_event_organizer` FOREIGN KEY (`organizer`) REFERENCES `thing` (`idthing`) ON DELETE SET NULL ,
   CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ,
   CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL
 ) ENGINE = InnoDB;

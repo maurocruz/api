@@ -1,4 +1,8 @@
+
+--
 -- PLACE
+--
+
 ALTER TABLE `postalAddress`
   CHANGE COLUMN `idpostalAddress` `idpostalAddress` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   DROP PRIMARY KEY,
@@ -48,9 +52,11 @@ ALTER TABLE `thing` DROP COLUMN `idplace`;
 ALTER TABLE `geoCoordinates` ADD COLUMN `idplace` INT UNSIGNED DEFAULT NULL;
 INSERT INTO `geoCoordinates` (`idplace`,`address`,`elevation`,`latitude`,`longitude`)
   SELECT `idplace`,`address`,`elevation`,`latitude`,`longitude` FROM `place`;
+
 UPDATE `place`
   JOIN `geoCoordinates` ON geoCoordinates.idplace = place.idplace
   SET place.geo = geoCoordinates.idgeoCoordinates;
+
 ALTER TABLE `geoCoordinates` DROP COLUMN `idplace`;
 
 -- insert images

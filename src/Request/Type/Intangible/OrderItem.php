@@ -4,14 +4,16 @@ namespace Plinct\Api\Request\Type\Intangible;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\Entity;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class OrderItem extends Entity
 {
 	/**
 	 *
 	 */
-  public function __construct()
+  public function __construct(Relationship $relationship = null)
   {
+		parent::__construct($relationship);
 		$this->setTable('orderItem');
   }
 
@@ -22,8 +24,6 @@ class OrderItem extends Entity
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
-		//$offer = stripos($properties, 'offer') !== false;
-		//$join = $offer !== false ? "LEFT JOIN `offer` ON `offer`.idoffer=`orderItem`.offer" : null;
 		$getData = new GetData('orderItem');
 		if (in_array('offer', $properties)) {
 			$getData->setLeftJoin('offer', '`offer`.idoffer=`orderItem`.offer');
@@ -81,35 +81,23 @@ class OrderItem extends Entity
 	}
 
 	/**
-   * @param ?array $params
-   * @return array
+	 * @param null $params
+	 * @param array|null $uploadfiles
+	 * @return array
    */
-  public function post($params = null): array
+  public function post($params = null, array $uploadfiles = null): array
   {
-		$multiDimensional = $params['multidimensional'] ?? false;
-		if ($multiDimensional) {
-			$params = json_decode($params['multidimensional'], true);
-		}
-		$items = $params['items'] ?? null;
-		if ($items) {
-			$returns = [];
-			foreach ($items as $item) {
-				$orderItemNumber = $item['orderItemNumber'] ?? null;
-				$orderedItem = $item['orderedItem'] ?? null;
-				$offer = $item['offer'] ?? null;
-				$orderQuantity = $item['orderQuantity'] ?? null;
-				if ($orderItemNumber && $orderedItem && $offer && $orderQuantity) {
-					$dataPost = parent::post($item);
-					if (array_key_exists('status',$dataPost) && $dataPost['status'] == 'success') {
-						$returns['status'] = "success";
-						$returns['code'] = '0000';
-						$returns['message'] = 'Successfully created';
-						$returns['data'][] = $dataPost['data'][0];
-					}
-				}
+		$orderedItem = $params['orderedItem'] ?? null;
+		$orderItemNumber  = $params['orderItemNumber'] ?? null;
+		if ($orderedItem && $orderItemNumber) {
+			$dataReturn = parent::post($params);
+			// retornar como item em schema json
+			if (isset($dataReturn['status']) && $dataReturn['status'] == 'success') {
+				$idorderItem = $dataReturn['data'][0]['idorderItem'];
+				$dataReturn['data'] = ApiFactory::response()->type('OrderItem')->setData($this->get(['idorderItem'=>$idorderItem]))->ready();
 			}
-			return $returns;
+			return $dataReturn;
 		}
-		return ApiFactory::response()->message()->fail()->inputDataIsMissing();
+	  return ApiFactory::response()->message()->fail()->inputDataIsMissing();
   }
 }

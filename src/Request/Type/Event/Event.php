@@ -3,16 +3,24 @@ namespace Plinct\Api\Request\Type\Event;
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Event extends Thing
 {
-	public function __construct()
+	/**
+	 *
+	 */
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('event');
 	}
 
+	/**
+	 * @param array $params
+	 * @return array
+	 */
 	public function get(array $params = []): array
 	{
 		$properties = self::propertiesToArray($params['properties'] ?? null);
@@ -32,17 +40,15 @@ class Event extends Thing
 				}
 				// location
 				if (in_array('location',$properties)) {
-					$dataLocation = ApiFactory::request()->type('place')->get(['idplace'=>$location, 'properties'=>'geo'])->ready();
-					if(isset($dataLocation[0])){
+					$dataLocation = ApiFactory::request()->type('place')->get(['thing'=>$location, 'properties'=>'geo'])->ready();
+					if(isset($dataLocation[0])) {
 						$data[$key]['location'] = ApiFactory::response()->type('place')->setData($dataLocation[0])->ready();
 					}
 				}
 				// subEvent
 				if (in_array('subEvent', $properties)) {
-					$dataSubEvent = ApiFactory::request()->type('event')->get(['superEvent'=>$idevent])->ready();
-					if (isset($dataSubEvent[0])) {
-						$data[$key]['subEvent'] = ApiFactory::response()->type('event')->setData($dataSubEvent)->ready();
-					}
+					$subEventData = $this->get(['superEvent' => $idevent, 'fields' => 'idevent,thing,name,startDate,endDate,location', 'properties' => 'location']);
+					$data[$key]['subEvent'] = ApiFactory::response()->type('event')->setData($subEventData)->ready();
 				}
 				// super event
 				if (in_array('superEvent', $properties)) {

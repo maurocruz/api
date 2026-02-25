@@ -10,19 +10,22 @@ class ModuleController
 	 * @param array|null $params
 	 * @return string[]
 	 */
-	public function init(?array $params = null): array
+	public function installDatabase(?array $params = null): array
 	{
 		$name = $params['name'] ?? null;
 		$email = $params['email'] ?? null;
 		$password = $params['password'] ?? null;
 		$passwordRepeat = $params['passwordRepeat'] ?? null;
 		if ($name && $email && $password && $passwordRepeat) {
-			// check if table 'user' exists
+
+			// IF USER MODULE EXISTS
 			$userTableExists = ApiFactory::request()->server()->connectBd('user')->showTableStatus();
 			if (isset($userTableExists['status']) && $userTableExists['status'] === 'fail') {
-				// RUN SQL
+
+				// INSTALL USER MODULE
 				$install = self::runSql(__DIR__ . '/database/user.sql', 'User');
 				if (isset($install['status']) && $install['status'] === 'success') {
+
 					// REGISTER USER
 					$dataRegister = ApiFactory::request()->user()->authentication()->register($params);
 					if (isset($dataRegister['status']) && $dataRegister['status'] === 'success') {
@@ -30,7 +33,17 @@ class ModuleController
 						$iduser = $dataRegister['data']['iduser'];
 						$paramsPrivileges = ['iduser' => $iduser, 'function' => '5', 'action' => 'crud', 'namespace' => 'all', 'userCreator'=>$iduser];
 						$dataPrivileges = ApiFactory::request()->server()->connectBd('user_privileges')->created($paramsPrivileges);
-						$dataRegister['data']['privileges'] = empty($dataPrivileges) ? $paramsPrivileges : ['status'=>'fail','message'=>'Privileges not set','data'=>$dataPrivileges];
+						$dataRegister['data']['user'] = [
+							'iduser' => $iduser,
+							'privileges' => empty($dataPrivileges) ? $paramsPrivileges : ['status'=>'fail','message'=>'Privileges not set','data'=>$dataPrivileges]
+						];
+					}
+					// INSTALL MODULES CORE THING, ACTION
+					if (isset($dataRegister['status']) && ($dataRegister['status'] === 'success')) {
+						$dataRegister['data']['modulesInstalled'] = [
+							self::installer('thing'),
+							self::installer('action'),
+						];
 					}
 					return $dataRegister;
 				} else {
@@ -39,6 +52,7 @@ class ModuleController
 			} else {
 				return ['status'=>'fail','message'=>'Database already installed'];
 			}
+
 		} else {
 			return ['status'=>'fail','message'=>'Mandatory fields (name, email, password and passwordRepeat) are missing'];
 		}

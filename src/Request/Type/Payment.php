@@ -1,11 +1,7 @@
 <?php
-
-declare(strict_types=1);
-
 namespace Plinct\Api\Request\Type;
 
 use Plinct\Api\Request\Server\Entity;
-use ReflectionException;
 
 class Payment extends Entity
 {
@@ -41,9 +37,10 @@ class Payment extends Entity
 
     /**
      * @param array $params
+     * @param array|null $uploadfiles
      * @return array
      */
-    public function post(array $params): array
+    public function post(array $params, array $uploadfiles = null): array
     {
         $params = self::setHistory("CREATE", $params);
         return parent::post($params);
@@ -70,16 +67,6 @@ class Payment extends Entity
     {
         $params = self::setHistory("DELETE", $params);
         return parent::delete([ "idpayment" => $params['id'] ]);
-    }
-
-    /**
-     * @param null $type
-     * @return array
-     * @throws ReflectionException
-     */
-    public function createSqlTable($type = null): array
-    {
-        return parent::createSqlTable("Payment");
     }
 
     /**

@@ -4,12 +4,13 @@ namespace Plinct\Api\Request\Type\CreativeWork;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\Server\GetData\GetData;
+use Plinct\Api\Request\Server\Relationship;
 
 class Review extends CreativeWork
 {
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('review');
 	}
 
@@ -19,9 +20,24 @@ class Review extends CreativeWork
 	 */
 	public function get(array $params = []): array
 	{
+		$properties = self::propertiesToArray($params['properties'] ?? null);
 		$getData = new GetData('review');
 		$getData->setParams($params);
 		$data = $getData->render();
+
+		if (isset($data['error'])) {
+			return ApiFactory::response()->message()->error()->anErrorHasOcurred($data);
+		}
+
+		if ($properties) {
+			foreach ($data as $key => $value) {
+				$itemReviewed = $value['itemReviewed'];
+				if (in_array('itemReviewed', $properties)) {
+					$dataItemReviewed = ApiFactory::request()->type('thing')->get(['idthing' => $itemReviewed, 'hasPart'=>true])->ready();
+					$data[$key]['itemReviewed'] = isset($dataItemReviewed[0]) ? ApiFactory::response()->type($dataItemReviewed[0]['type'])->setData($dataItemReviewed[0])->ready() : null;
+				}
+			}
+		}
 		return $this->sortData($data);
 	}
 

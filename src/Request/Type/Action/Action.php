@@ -2,6 +2,7 @@
 namespace Plinct\Api\Request\Type\Action;
 
 use Plinct\Api\ApiFactory;
+use Plinct\Api\Request\Server\Relationship;
 use Plinct\Api\Request\Type\Thing;
 
 class Action extends Thing
@@ -9,9 +10,9 @@ class Action extends Thing
 	/**
 	 *
 	 */
-	public function __construct()
+	public function __construct(Relationship $relationship = null)
 	{
-		parent::__construct();
+		parent::__construct($relationship);
 		$this->setTable('action');
 	}
 
