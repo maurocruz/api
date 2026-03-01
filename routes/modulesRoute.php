@@ -1,0 +1,76 @@
+<?php
+
+use Plinct\Api\ApiFactory;
+use Plinct\Api\Http\Controller\Modules\CreativeWork\MediaObject\MediaObjectController;
+use Plinct\Api\Middleware\AuthMiddleware;
+use Plinct\Api\Middleware\CorsMiddleware;
+use Slim\Routing\RouteCollectorProxy;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
+
+return function (RouteCollectorProxy $route)
+{
+	// MEDIA OBJECT
+	$route->get('mediaObject', MediaObjectController::class)->setName('mediaObject.read');
+
+	$route->group('{type}', function (RouteCollectorProxy $route) {
+
+		$route->options('',function (Request $request, Response $response) {
+			return $response;
+		})->addMiddleware(new CorsMiddleware([
+			"Access-Control-Allow-Methods" => "OPTIONS,PUT,POST,GET,DELETE",
+			"Access-Control-Allow-Headers" => "origin, x-requested-with, content-type, Authorization"
+		]));
+
+
+		/**
+		 * Generic GET
+		 */
+		$route->get('[/]', function (Request $request, Response $response)
+		{
+			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
+			$params = $request->getQueryParams() ?? null;
+			if ($type) {
+				$dataRequest = ApiFactory::request()->type($type)->get($params)->ready();
+				$data = ApiFactory::response()->type($type)->setData($dataRequest)->setParams($params)->ready();
+			} else {
+				$data = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
+			}
+			return ApiFactory::response()->write($response, $data);
+		});
+
+		/**
+		 * POST
+		 */
+		$route->post('', function(Request $request, Response $response)
+		{
+			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
+			$params = $request->getParsedBody();
+			$uploadedFiles = $_FILES;
+			$data = ApiFactory::request()->type($type)->post($params, $uploadedFiles)->ready();
+			return ApiFactory::response()->write($response, $data);
+		})->addMiddleware(new AuthMiddleware());
+
+		/**
+		 * PUT
+		 */
+		$route->put('', function (Request $request, Response $response)
+		{
+			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
+			$params = $request->getParsedBody() ?? null;
+			$data = ApiFactory::request()->type($type)->put($params)->ready();
+			return ApiFactory::response()->write($response, $data);
+		})->addMiddleware(new AuthMiddleware());
+
+		/**
+		 * DELETE
+		 */
+		$route->delete("[/{id}]", function (Request $request, Response $response)
+		{
+			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
+			$params = $request->getQueryParams() ?? null;
+			$data = ApiFactory::request()->type($type)->delete($params)->ready();
+			return ApiFactory::response()->write($response, $data);
+		})->addMiddleware(new AuthMiddleware());
+	});
+};

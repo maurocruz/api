@@ -2,27 +2,54 @@
 declare(strict_types=1);
 namespace Plinct\Api;
 
+use DI\Bridge\Slim\Bridge;
+use DI\ContainerBuilder;
+use Exception;
 use Plinct\Api\Helper\Helper;
+use Plinct\Api\Middleware\CorsMiddleware;
+use Plinct\Api\Middleware\GatewayMiddleware;
+use Plinct\Api\Middleware\LoggedUserMiddleware;
 use Plinct\Api\Request\Request;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Plinct\Api\Request\User\User;
 use Plinct\Api\Response\Response;
-use Slim\App;
 
 class ApiFactory
 {
 	/**
-	 * @param App $slimApp
-	 * @return ApiApp
+	 * @throws Exception
 	 */
-	public static function create(App $slimApp): ApiApp
+	public static function create(array $settings): ApiApp
 	{
-		// for enabling routes PUT and DELETE
-		$slimApp->addBodyParsingMiddleware();
-		// error handling
-		$slimApp->addErrorMiddleware(true,true,true);
+		$debug = $settings['debug'] ?? false;
+		// ERROR
+		error_reporting($debug ? E_ALL : 0);
 
-		return new ApiApp($slimApp);
+
+		// CONTAINER
+		$builder = new ContainerBuilder();
+		$builder->addDefinitions(['settings' => $settings]);
+		$builder->addDefinitions(__DIR__ . '/Container/container.php');
+		$container = $builder->build();
+
+		// SLIM APP (middlewares and routes)
+		$slimApp = Bridge::create($container);
+		$slimApp->addBodyParsingMiddleware();
+		$slimApp->addErrorMiddleware($debug,$debug,$debug);
+		$slimApp->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]))
+			->addMiddleware(new LoggedUserMiddleware())
+			->addMiddleware(new GatewayMiddleware());
+
+		// ROUTES
+		(require __DIR__ . '/../routes/routes.php')($slimApp);
+
+		$apiApp = new ApiApp($slimApp);
+		// CONNECT DB
+		if (isset($settings['db'])) {
+			$apiApp->connect($settings['db']['driver'], $settings['db']['host'], $settings['db']['name'], $settings['db']['user'], $settings['db']['pass'], $settings['db']['options'] ?? []);
+		}
+		// RETURN;
+		return $apiApp;
 	}
 
 	/**

@@ -139,16 +139,14 @@ class ApiApp
 		return self::$logdir;
 	}
 
-  /**
-   * @return mixed
-   */
-  public function run(): mixed
+  public function run(): void
   {
-		$this->slimApp->addBodyParsingMiddleware();
+		$this->slimApp->run();
+		/*$this->slimApp->addBodyParsingMiddleware();
 		$this->slimApp
 			->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]))
 			->addMiddleware(new LoggedUserMiddleware())
 			->addMiddleware(new GatewayMiddleware());
-		return ApiFactory::request()->routes()->home($this->slimApp);
+		return ApiFactory::request()->routes()->home($this->slimApp);*/
   }
 }

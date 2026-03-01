@@ -1,0 +1,70 @@
+<?php
+
+use Plinct\Api\ApiFactory;
+use Plinct\Api\Middleware\AuthMiddleware;
+use Plinct\Api\Middleware\CorsMiddleware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Routing\RouteCollectorProxy;
+
+return function (RouteCollectorProxy $route)
+{
+	$route->group('user', function (RouteCollectorProxy $route) {
+
+		$route->options('', function (ServerRequestInterface $request, ResponseInterface $response) {
+			return $response;
+		})->addMiddleware(new CorsMiddleware([
+			'Access-Control-Allow-Headers' => 'origin, x-requested-with, content-type, Authorization'
+		]));
+
+		/**
+		 * GET
+		 */
+		$route->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
+			$params = $request->getQueryParams();
+			$data = ApiFactory::request()->user()->get($params);
+			return ApiFactory::response()->write($response, $data);
+		});
+
+		/**
+		 * POST
+		 */
+		$route->post('', function (ServerRequestInterface $request, ResponseInterface $response) {
+			$data = ApiFactory::request()->user()->httpRequest()->withPrivileges('c','user_admin')->post($request->getParsedBody());
+			return ApiFactory::response()->write($response, $data);
+		});
+
+		/**
+		 * PUT
+		 */
+		$route->put('', function (ServerRequestInterface $request, ResponseInterface $response) {
+			$params = $request->getParsedBody();
+			$httpRequest = ApiFactory::request()->user()->httpRequest();
+			if (isset($params['iduser'])) {
+				if ($params['iduser'] == ApiFactory::user()->userLogged()->getIduser()) {
+					$data = $httpRequest->setPermission()->put($params);
+				} else {
+					$data = $httpRequest->withPrivileges('u', 'user_admin')->put($params);
+				}
+			} else {
+				$data = ApiFactory::response()->message()->fail()->inputDataIsMissing(__FILE__.' on line '.__LINE__);
+			}
+			return ApiFactory::response()->write($response, $data);
+		});
+
+		/**
+		 * DELETE
+		 */
+		$route->delete('', function (ServerRequestInterface $request, ResponseInterface $response) {
+			$data = ApiFactory::request()->user()->httpRequest()->withPrivileges('d','user_admin')->delete($request->getQueryParams());
+			return ApiFactory::response()->write($response, $data);
+		});
+
+
+		$route->group('/privileges', function(RouteCollectorProxy $route) {
+			$privilegesRoutes = require __DIR__.'/userPrivilegesRoutes.php';
+			return $privilegesRoutes($route);
+		});
+
+	})->addMiddleware(new AuthMiddleware());
+};
