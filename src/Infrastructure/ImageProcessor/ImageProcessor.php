@@ -17,15 +17,14 @@ class ImageProcessor
 	/**
 	 * @throws ImagickException
 	 */
-	public function generateThumbnail(UploadedFile $file, string $outputDir = DesignPatternFactory::UPLOAD_PATH)
+	public function generateThumbnail(UploadedFile $file, string $outputDir = DesignPatternFactory::UPLOAD_PATH): array|string
 	{
-		$returns = [];
+		$imagick = new Imagick();
 
 		// IF DOCUMENT PDF
 		if ($file->getClientMediaType() === 'application/pdf') {
 			$outputFilePath = $outputDir . DesignPatternFactory::fileNameGenerator($file->getClientFilename(), 'thumb') . "." . DesignPatternFactory::THUMBNAIL_FORMAT;
 
-			$imagick = new Imagick();
 			$imagick->readImage($file->getFilePath() . '[0]');
 			// Força fundo branco
 			$imagick->setImageBackgroundColor('white');
@@ -43,16 +42,13 @@ class ImageProcessor
 			$imagick->clear();
 
 			return ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $outputFilePath;
-
-
 		} else {
-			foreach (DesignPatternFactory::imageMeasures() as $imageFormat => $imageQuality) {
+			foreach (DesignPatternFactory::imageMeasures() as $imageQuality) {
 				$outputFilename = DesignPatternFactory::fileNameGenerator($file->getClientFilename(), $imageQuality['suffix']);
 				$outputFilePath = $outputDir . $outputFilename . '.' . DesignPatternFactory::THUMBNAIL_FORMAT;
 				$width = $imageQuality['width'];
 
 				// IMAGICK
-				$imagick = new Imagick();
 				$imagick->setResolution(200, 200);
 				$imagick->readImage($file->getFilePath());
 
@@ -62,13 +58,9 @@ class ImageProcessor
 				$imagick->thumbnailImage($width, 0);
 				$imagick->writeImage($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $outputFilePath);
 				$imagick->clear();
-
-				// RETURNS
-				$returns[] = [
-					'image' => ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $outputFilePath,
-				];
 			}
+			// RETURNS
+			return ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $outputDir . DesignPatternFactory::fileNameGenerator($file->getClientFilename()) . '.' . DesignPatternFactory::THUMBNAIL_FORMAT;
 		}
-		return $returns;
 	}
 }

@@ -14,8 +14,8 @@ class FileProcessor
 	private string $fileName;
 	private string $fileType;
 	private string $fileSize;
-	private string $contentUrl;
-	private string $imageRepresentative;
+	private ?string $contentUrl = null;
+	private ?string $imageRepresentative = null;
 	private string $directoryDestination;
 	private string $fileExtension;
 
@@ -24,9 +24,9 @@ class FileProcessor
 	}
 
 	/**
-	 * @return string
+	 * @return ?string
 	 */
-	public function getContentUrl(): string
+	public function getContentUrl(): ?string
 	{
 		return $this->contentUrl;
 	}
@@ -40,9 +40,9 @@ class FileProcessor
 	}
 
 	/**
-	 * @return string
+	 * @return ?string
 	 */
-	public function getImageRepresentative(): string
+	public function getImageRepresentative(): ?string
 	{
 		return $this->imageRepresentative;
 	}
