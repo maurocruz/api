@@ -26,22 +26,22 @@ class ModuleDomain
 		'VideoObject',
 		'WebSite'
 	];
-	private array $modulesEnabled = [];
+	private static array $modulesEnabled = [];
 
 	/**
 	 * @param array $modulesEnabled
 	 */
-	public function setModulesEnabled(array $modulesEnabled): void
+	public static function setModulesEnabled(array $modulesEnabled): void
 	{
-		$this->modulesEnabled = $modulesEnabled;
+		self::$modulesEnabled = $modulesEnabled;
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getModulesEnabled(): array
+	public static function getModulesEnabled(): array
 	{
-		return $this->modulesEnabled;
+		return self::$modulesEnabled;
 	}
 
 	public static function getModulesAvailable(): array

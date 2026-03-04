@@ -1,0 +1,124 @@
+<?php
+namespace Plinct\Api\Infrastructure\Persistence\Database;
+
+use Exception;
+use PDO;
+use PDOException;
+
+abstract class ConnectDB
+{
+	/**
+	 * @var PDO|null
+	 */
+	private static ?PDO $PDOConnect = null;
+	/**
+	 * @var ?PDOException
+	 */
+	private static ?PDOException $ERROR = null;
+	/**
+	 * @var ?string
+	 */
+	private static ?string $DBNAME = null;
+
+	/**
+	 * @param $driver
+	 * @param $host
+	 * @param $dbname
+	 * @param $username
+	 * @param $password
+	 * @param array $options
+	 * @return PDOException|PDO|Exception|null
+	 */
+	public function connect($driver, $host, $dbname, $username, $password, array $options = []): PDOException|PDO|Exception|null
+	{
+		self::$DBNAME = $dbname;
+		$default_options = [
+			PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",
+			PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+			PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+			PDO::ATTR_EMULATE_PREPARES => true
+		];
+		$options = array_replace($default_options, $options);
+		$dsn = $driver . ":host=" . $host . ";dbname=" . $dbname;
+		try {
+			$PDOConnect = new PDO($dsn, $username, $password, $options);
+			self::$PDOConnect = $PDOConnect;
+		} catch (PDOException $e) {
+			self::$ERROR = $e;
+		} finally {
+			return self::$PDOConnect ?? self::$ERROR;
+		}
+	}
+
+	public static function testConnection(): bool
+	{
+		return (bool) self::$PDOConnect;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getDbname(): string
+	{
+		return self::$DBNAME;
+	}
+
+	/**
+	 * @return array[]|null
+	 */
+	public static function getError(): ?array
+	{
+		if (!self::testConnection()) {
+			return ["error" => "Não foi possível conectar ao banco de dados ['".self::$DBNAME."']. Verifique os dados de admissão!"];
+		} elseif (self::$ERROR) {
+			return [ "error" => [
+				"message" => self::$ERROR->getMessage(),
+				"code" => self::$ERROR->getCode()
+			]];
+		}
+		return ["error" => "Um erro ocorreu!"];
+	}
+	/**
+	 * @param $query
+	 * @param null $args
+	 * @return array[]
+	 */
+	public static function run($query, $args = NULL): array
+	{
+		if(self::$PDOConnect) {
+			$connect = self::$PDOConnect;
+			try {
+				if ($connect && $connect->errorCode() == '0000') {
+					$q = $connect->prepare($query);
+					$q->setFetchMode(PDO::FETCH_ASSOC);
+					$q->execute($args);
+					if (str_starts_with($q->queryString, "DELETE")) {
+						return ['rows'=>$q->rowCount()];
+					} else {
+						return $q->fetchAll();
+					}
+				} else {
+					throw new PDOException();
+				}
+			} catch (PDOException $e) {
+				error_log("[" . date('c') . "] Error: " . $e->getMessage());
+				return ["error" => [
+					"message" => $e->getMessage(),
+					"code" => $e->getCode(),
+					"query" => $query
+				]];
+			}
+		} else {
+			return self::getError();
+		}
+	}
+
+	/**
+	 * LAST INSERT ID
+	 */
+	public static function lastInsertId(): int {
+		$query = "SELECT LAST_INSERT_ID() AS id;";
+		$return = self::run($query);
+		return $return[0]['id'];
+	}
+}

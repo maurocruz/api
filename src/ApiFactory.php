@@ -6,8 +6,8 @@ use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Exception;
 use Plinct\Api\Helper\Helper;
+use Plinct\Api\Http\Middleware\GlobalMiddleware;
 use Plinct\Api\Middleware\CorsMiddleware;
-use Plinct\Api\Middleware\GatewayMiddleware;
 use Plinct\Api\Middleware\LoggedUserMiddleware;
 use Plinct\Api\Request\Request;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
@@ -25,7 +25,6 @@ class ApiFactory
 		// ERROR
 		error_reporting($debug ? E_ALL : 0);
 
-
 		// CONTAINER
 		$builder = new ContainerBuilder();
 		$builder->addDefinitions(['settings' => $settings]);
@@ -38,7 +37,7 @@ class ApiFactory
 		$slimApp->addErrorMiddleware($debug,$debug,$debug);
 		$slimApp->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]))
 			->addMiddleware(new LoggedUserMiddleware())
-			->addMiddleware(new GatewayMiddleware());
+			->add(GlobalMiddleware::class);
 
 		// ROUTES
 		(require __DIR__ . '/../routes/routes.php')($slimApp);

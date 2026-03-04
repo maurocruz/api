@@ -1,0 +1,99 @@
+<?php
+namespace Plinct\Api\Http\Response\ParseSchema;
+
+use Plinct\Api\ApiFactory;
+
+class ParseSchema
+{
+	/**
+	 * @var string
+	 */
+	private string $type;
+	/**
+	 * @var array|null
+	 */
+	private ?array $data;
+
+	private ?array $params;
+
+	/**
+	 * @param array $data
+	 * @param array $params
+	 */
+	public function __construct(array $data, array $params = [])
+	{
+		$this->data = $data;
+		$type = $data['type'] ?? null;
+		$this->type = lcfirst($type);
+		$this->params = $params;
+	}
+
+	/**
+	 * @param ?array $data
+	 * @return $this
+	 */
+	public function setData(?array $data): ParseSchema
+	{
+		$this->data = $data;
+		return $this;
+	}
+
+	/**
+	 * @param array|null $params
+	 * @return $this
+	 */
+	public function setParams(?array $params): ParseSchema
+	{
+		$this->params = $params;
+		return $this;
+	}
+
+	/**
+	 * @return array|null
+	 */
+	public function ready(): ?array
+	{
+		$format = $this->params['format'] ?? null;
+		if (empty($this->data)) {
+			return [];
+		} else {
+			if (isset($this->data['error']) || (isset($this->data['status']) && $this->data['status'] === 'error')) {
+				return ApiFactory::response()->message()->error()->anErrorHasOcurred($this->data);
+			} elseif (isset($this->data['status']) && $this->data['status'] === 'fail') {
+				return $this->data;
+			} else {
+				$newData = [];
+				if (isset($this->data[0])) {
+					foreach ($this->data as $value) {
+						$typeSchema = new TypeSchema($this->type);
+						$typeSchema->setValue($value);
+						$newData[] = $typeSchema->ready();
+					}
+				} else {
+					$typeSchema = new TypeSchema($this->type);
+					$typeSchema->setValue($this->data);
+					$newData = $typeSchema->ready();
+				}
+				// ITEM LIST
+				if ($format == 'ItemList') {
+					$listItem = [
+						'@context'=>'https://schema.org',
+						'@type'=>'ItemList',
+						'itemListOrder' => $this->params['ordering'] ?? 'ascending',
+						'numberOfItems'=>count($newData),
+						'itemListElement'=>[]
+					];
+					foreach ($newData as $key => $item) {
+						$listItem['itemListElement'][] = [
+							'@type'=>'ListItem',
+							'position'=>($key + 1),
+							'item'=> $item
+						];
+					}
+					return $listItem;
+				}
+				return $newData;
+			}
+		}
+	}
+}

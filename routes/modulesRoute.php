@@ -2,6 +2,7 @@
 
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Http\Controller\Modules\CreativeWork\MediaObject\MediaObjectController;
+use Plinct\Api\Http\Controller\Modules\CreativeWork\MediaObject\MediaObjectCreateController;
 use Plinct\Api\Middleware\AuthMiddleware;
 use Plinct\Api\Middleware\CorsMiddleware;
 use Slim\Routing\RouteCollectorProxy;
@@ -12,6 +13,10 @@ return function (RouteCollectorProxy $route)
 {
 	// MEDIA OBJECT
 	$route->get('mediaObject', MediaObjectController::class)->setName('mediaObject.read');
+	$route->post('mediaObject', MediaObjectCreateController::class)->setName('mediaObject.create');
+
+
+
 
 	$route->group('{type}', function (RouteCollectorProxy $route) {
 

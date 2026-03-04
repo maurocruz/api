@@ -11,50 +11,49 @@ class ConfigurationDomain
 	private const string DOCUMENTATION = "https://plinct.com.br/api/docs";
 	private const string SCHEMA_ORG = "https://schema.org";
 
-	private array $modulesEnabled;
-	private ?string $apiHost;
+	private static string $host;
 
-	public function __construct(string $apiHost, array $modulesEnabled)
+	public static function setHost(string $host): void
 	{
-		$this->modulesEnabled = $modulesEnabled;
-		$this->apiHost = $apiHost;
+		self::$host = $host;
 	}
 
-	public static function entryPoint(string $apiHost): array {
-		return [
+	public static function getHost(): string
+	{
+		return self::$host;
+	}
+
+
+	public static function verbose(): array
+	{
+		$apiHost = self::getHost()."/api";
+		// WEB API
+		$graph[] = [
+			"@type" => self::API_TYPE,
+			"name" => self::NAME,
+			"description" => self::DESCRIPTION,
+			"documentation" => self::DOCUMENTATION,
+			"@id" => $apiHost . "#api",
+			"isSimilarTo" => array_map(fn($module) => ["@id" => $apiHost ."/" . lcfirst($module)."#module"], ModuleDomain::getModulesAvailable())
+		];
+		// ENTRY POINT
+		$graph[] = [
 			"@type" => "EntryPoint",
 			"@id" => $apiHost,
 			"url" => $apiHost,
 			"name" => self::NAME,
 			"description" => "Ponto de entrada principal da Plinct API"
 		];
-	}
-	public static function getConfiguration(): array
-	{
-		return [
-			"@type" => self::API_TYPE,
-			"name" => self::NAME,
-			"description" => self::DESCRIPTION,
-			"documentation" => self::DOCUMENTATION
-		];
-	}
-
-	public function buildGraphModulesEnabled(): array
-	{
-		$graph = [];
-		foreach ($this->modulesEnabled as $module) {
+		// MODULES
+		foreach (ModuleDomain::getModulesAvailable() as $module) {
 			$graph[] = [
 				"@type" => "Service",
-				"@id" => "$this->apiHost.api/$module",
+				"@id" => ConfigurationDomain::getHost()."/api/".lcfirst($module)."#module",
 				"name" => $module,
-				"offers" => in_array($module, $this->modulesEnabled) ? "InStock" : "OutOfStock"
+				"offers" => in_array($module, ModuleDomain::getModulesEnabled()) ? "InStock" : "OutOfStock"
 			];
 		}
-		return $graph;
-	}
-
-	public static function addGraphInContext(array $graph): array
-	{
+		// RETURN
 		return [
 			"@context" => self::SCHEMA_ORG,
 			"@graph" => $graph
