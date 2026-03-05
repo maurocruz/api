@@ -2,7 +2,7 @@
 namespace Plinct\Api\Infrastructure\FileProcessor;
 
 use Exception;
-use getID3;
+use ImagickException;
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
 use Plinct\Api\Domain\DesignPatterns\DesignPatternFactory;
 use Plinct\Api\Infrastructure\ImageProcessor\ImageProcessor;
@@ -10,6 +10,7 @@ use Slim\Psr7\UploadedFile;
 
 class FileProcessor
 {
+	private UploadedFile $file;
 	private string $filePath;
 	private string $fileName;
 	private string $fileType;
@@ -18,6 +19,7 @@ class FileProcessor
 	private ?string $imageRepresentative = null;
 	private string $directoryDestination;
 	private string $fileExtension;
+	private string $newFileNamePath;
 
 	public function __construct(private readonly ImageProcessor $imageProcessor)
 	{
@@ -93,18 +95,33 @@ class FileProcessor
 		if ($file->getError()!== UPLOAD_ERR_OK) {
 			throw new Exception('Erro ao enviar arquivo');
 		}
+		$this->file = $file;
 		$this->filePath = $file->getFilePath();
 		$this->fileName = $file->getClientFilename();
 		$this->fileType = $file->getClientMediaType();
 		$this->fileSize = $file->getSize();
+
 		$this->directoryDestination = match ($file->getClientMediaType()) {
 			'application/pdf' => DesignPatternFactory::DOCUMENT_PATH,
 			'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml' => DesignPatternFactory::IMAGE_PATH,
 			'default' => DesignPatternFactory::UPLOAD_PATH
 		};
+		$this->newFileNamePath =  $this->directoryDestination . DesignPatternFactory::fileNameGenerator($file->getClientFilename());
 		$this->fileExtension = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
 	}
 
+	/**
+	 * @param string $directoryDestination
+	 */
+	public function setDirectoryDestination(string $directoryDestination): void
+	{
+		$this->directoryDestination = $this->directoryDestination . $directoryDestination. DIRECTORY_SEPARATOR;
+		$this->newFileNamePath =  $this->directoryDestination . DesignPatternFactory::fileNameGenerator($this->file->getClientFilename());
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getMetadata(): array
 	{
 		if ($this->fileType === 'application/pdf'){
@@ -117,43 +134,70 @@ class FileProcessor
 	/**
 	 * @throws Exception
 	 */
-	public function uploadFile(UploadedFile $file): bool
+	public function uploadFile(): void
 	{
 		// VERIFICA ERRO
-		if ($file->getError() !== UPLOAD_ERR_OK) {
+		if ($this->file->getError() !== UPLOAD_ERR_OK) {
 			throw new Exception('Erro ao enviar arquivo');
 		}
 		// SE UPLOADED
-		if(!is_uploaded_file($file->getFilePath())) {
+		if(!is_uploaded_file($this->file->getFilePath())) {
 			throw new Exception('Erro ao enviar arquivo');
 		}
+		// MAKES DIRECTORY IF NOT EXISTS
 		if (!is_dir($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->directoryDestination)){
 			mkdir($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->directoryDestination, 0755, true);
 		}
-		// GENERATE THUMBNAILS
-		$this->imageRepresentative = $this->imageProcessor->generateThumbnail($file, $this->directoryDestination);
 
-		// CONTENT URL
-		$this->contentUrl = ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $this->directoryDestination . DesignPatternFactory::fileNameGenerator($file->getClientFilename()) . "." . $this->fileExtension;
+		if ($this->file->getClientMediaType() === 'image/svg+xml') {
+			$this->uploadSVG();
+		}
+		// IF IMAGE
+		elseif (str_starts_with($this->file->getClientMediaType(), 'image/')) {
+			$this->uploadImage();
+		}
+		// IF DOCUMENT PDF
+		elseif ($this->file->getClientMediaType() === 'application/pdf') {
+			$this->uploadPDF();
+		}
+	}
 
-		// MOVE FILE TO UPLOADS
-		return move_uploaded_file(
-			$file->getFilePath(),
-			$_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->directoryDestination . DesignPatternFactory::fileNameGenerator($file->getClientFilename()) . "." . $this->fileExtension
+	private function uploadSVG(): void
+	{
+		// SET CONTENT URL
+		$this->imageRepresentative = ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $this->newFileNamePath . "." . $this->fileExtension;
+		$this->contentUrl = $this->imageRepresentative;
+		move_uploaded_file(
+			$this->file->getFilePath(),
+			$_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->newFileNamePath . "." . $this->fileExtension
 		);
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws ImagickException
 	 */
-	public function parseMidia(string $filename): array
+	private function uploadImage(): void
 	{
-		$getID3 = new getID3();
-		$parser = $getID3->analyze($filename);
-		if (!$parser) {
-			throw new Exception('File not found');
-		}
-		return $parser;
+		// GENERATE THUMBNAILS
+		$this->imageProcessor->generateThumbnailImage($this->file, $this->newFileNamePath);
+		// SET CONTENT URL
+		$this->imageRepresentative = ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $this->newFileNamePath . "." . DesignPatternFactory::THUMBNAIL_FORMAT;
+		$this->contentUrl = $this->imageRepresentative;
 	}
 
+	/**
+	 * @throws ImagickException
+	 */
+	private function uploadPDF(): void
+	{
+		// GENERATE THUMBNAILS
+		$this->imageRepresentative = $this->imageProcessor->generateThumbnailPDF($this->file, $this->directoryDestination);
+		// CONTENT URL
+		$this->contentUrl = ConfigurationDomain::getHost() . DIRECTORY_SEPARATOR . $this->newFileNamePath . "." . $this->fileExtension;
+		// MOVE FILE
+		move_uploaded_file(
+			$this->file->getFilePath(),
+			$_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $this->newFileNamePath . "." . $this->fileExtension
+		);
+	}
 }

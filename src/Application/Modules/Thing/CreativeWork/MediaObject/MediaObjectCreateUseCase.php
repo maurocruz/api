@@ -14,14 +14,13 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 	public function create(array|null $params = [], array $filesUpload = []): array
 	{
 		$uploadFile = $filesUpload['uploadfile'] ?? null;
-		$uploadFiles = $filesUpload['uploadfiles'] ?? null;
 		// IF UPLOAD FILE
-		if ($uploadFile) {
+		if ($uploadFile instanceof UploadedFile) {
 			return $this->saveWithUploadFile($params, $uploadFile);
 		}
 		// IF UPLOAD FILES
-		elseif ($uploadFiles) {
-			return $this->saveWithUploadFiles($params, $uploadFiles);
+		elseif (is_array($uploadFile)) {
+			return $this->saveWithUploadFiles($params, $uploadFile);
 		} else {
 			return ['status' => false, 'message' => 'No input data was found.'];
 		}
@@ -94,6 +93,9 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 	private function uploadFile(array|null $params, UploadedFile $uploadFile): array
 	{
 		$this->fileProcessor->setUploadFile($uploadFile);
+		if (isset($params['location'])) {
+			$this->fileProcessor->setDirectoryDestination($params['location']);
+		}
 		$metaData = $this->fileProcessor->getMetadata();
 		$params['type'] = match ($this->fileProcessor->getFileType()) {
 			'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'  => 'ImageObject',
@@ -109,11 +111,12 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 		$params['dateModified'] = $metaData['ModDate'] ?? null;
 		$params['size'] = $metaData['Pages'] ?? null;
 		// UPLOAD FILE
-		$this->fileProcessor->uploadFile($uploadFile);
+		$this->fileProcessor->uploadFile();
 		$params['image'] = $this->fileProcessor->getImageRepresentative();
 		$params['contentUrl'] = $this->fileProcessor->getContentUrl();
 		$params['url'] = $this->fileProcessor->getContentUrl();
-		$params['name'] = $params['name'] ?? date('Ymd-His')."_".microtime(true)."_".$this->fileProcessor->getFileName();
+		$microtimeString = str_replace('.','',(string)microtime(true));
+		$params['name'] = $params['name'] ?? date('Ymd-His') . "_" . (substr($microtimeString,-4)) . "_" . $this->fileProcessor->getFileName();
 		return $params;
 	}
 }

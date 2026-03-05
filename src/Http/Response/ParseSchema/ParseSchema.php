@@ -23,7 +23,7 @@ class ParseSchema
 	public function __construct(array $data, array $params = [])
 	{
 		$this->data = $data;
-		$type = $data['type'] ?? null;
+		$type = $data['type'] ?? $data['@type'] ?? 'Thing';
 		$this->type = lcfirst($type);
 		$this->params = $params;
 	}

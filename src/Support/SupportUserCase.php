@@ -1,6 +1,9 @@
 <?php
 namespace Plinct\Api\Support;
 
+use ImagickException;
+use Plinct\Tool\Image\ImageProcessor;
+
 class SupportUserCase
 {
 	public static function propertiesToArray(string $properties = null): ?array
@@ -19,5 +22,13 @@ class SupportUserCase
 			$new_array[$key] = $value;
 		}
 		return $new_array;
+	}
+
+	/**
+	 * @throws ImagickException
+	 */
+	public static function imageProcessorTool(string $sourcePath, string $outputDir): ImageProcessor
+	{
+		return new ImageProcessor($sourcePath, $outputDir);
 	}
 }

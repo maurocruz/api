@@ -17,14 +17,13 @@ class DesignPatternFactory
 	public const int IMAGE_MEDIUM = 720;
 	public const int IMAGE_LARGE = 1280;
 
-
 	public static function imageMeasures(): array
 	{
 		return [
-			'tiny'   => ['suffix' => 't', 'width' => 320],
-			'small'  => ['suffix' => 's', 'width' => 520],
-			'medium' => ['suffix' => 'm', 'width' => 720],
-			'large'  => ['suffix' => 'l', 'width' => 1280],
+			'tiny'   => ['suffix' => '_t', 'width' => 320],
+			'small'  => ['suffix' => '_s', 'width' => 520], // ~ 320 * 1,618 = 517,76
+			'medium' => ['suffix' => '_m', 'width' => 840], // ~ 520 * 1,618 = 841,36
+			'large'  => ['suffix' => null, 'width' => 1290], // 840 * 1,618 = 1360
 		];
 	}
 
@@ -32,6 +31,6 @@ class DesignPatternFactory
 	{
 		$date = date('Ymd-His');
 		$hash = sha1($originalName);
-		return "{$date}_$hash" . ($suffix ? "_$suffix" : '');
+		return "{$date}_$hash" . ($suffix ?: '');
 	}
 }
