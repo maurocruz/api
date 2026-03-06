@@ -8,6 +8,15 @@ use Smalot\PdfParser\Parser;
 
 class PdfMetadataExtractor
 {
+	private const array METADATA_FIELD_MAP = [
+		'Pages' => 'size',
+		'Author' => 'author',
+		'Creator' => 'editor',
+		'Producer' => 'publisher',
+		'CreationDate' => 'dateCreated',
+		'ModDate' => 'dateModified',
+	];
+
 	protected string $filePath;
 
 	public function __construct(string $filePath)
@@ -23,7 +32,7 @@ class PdfMetadataExtractor
 		}
 	}
 
-	public function extract(): array
+	public function extract(array $params = []): array
 	{
 		// Prioridade 1: pdfinfo (melhor opção)
 		if ($this->commandExists('pdfinfo')) {
@@ -37,6 +46,38 @@ class PdfMetadataExtractor
 
 		// Prioridade 3: PHP puro
 		return $this->extractUsingPurePhp();
+	}
+
+	protected function applyMetadata(array $params, array $metadata): array
+	{
+		foreach (self::METADATA_FIELD_MAP as $sourceField => $targetField) {
+			if (!$this->hasFilledMetadataValue($metadata, $sourceField)) {
+				continue;
+			}
+
+			$params[$targetField] = $metadata[$sourceField];
+		}
+
+		return $params;
+	}
+
+	protected function hasFilledMetadataValue(array $metadata, string $field): bool
+	{
+		if (!array_key_exists($field, $metadata)) {
+			return false;
+		}
+
+		$value = $metadata[$field];
+
+		if ($value === null) {
+			return false;
+		}
+
+		if (is_string($value)) {
+			return trim($value) !== '';
+		}
+
+		return true;
 	}
 
 	protected function isPdf(): bool

@@ -124,9 +124,13 @@ class FileProcessor
 	 */
 	public function getMetadata(): array
 	{
-		if ($this->fileType === 'application/pdf'){
+		if ($this->fileType === 'application/pdf') {
 			$pdfExtractor = new PdfMetadataExtractor($this->filePath);
 			return $pdfExtractor->extract();
+		}
+
+		if (str_starts_with($this->fileType, 'image/')) {
+			return $this->imageProcessor->getImageMetadata($this->filePath);
 		}
 		return [];
 	}
