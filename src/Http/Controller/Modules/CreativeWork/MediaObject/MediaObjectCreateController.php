@@ -21,11 +21,9 @@ readonly class MediaObjectCreateController
 		$params = $request->getParsedBody();
 		$fileupload = $request->getUploadedFiles();
 		$dataUseCase = $this->mediaObjectCreateUseCase->create($params, $fileupload);
-
 		if ($dataUseCase['status'] === true) {
 			$dataUseCase['data'] = [ResponseFactory::parseSchema($dataUseCase['data'])];
 		}
-
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ));
 		return $response;
 	}
