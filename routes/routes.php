@@ -14,5 +14,7 @@ return function (RouteCollectorProxy $route) {
 		(require __DIR__ . '/userRoute.php')($route);
 		// MODULES
 		(require_once __DIR__ . '/modulesRoute.php')($route);
+		// CONFIGURATION
+		(require_once __DIR__ . '/configRoute.php')($route);
 	});
 };

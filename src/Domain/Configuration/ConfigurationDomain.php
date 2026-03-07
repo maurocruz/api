@@ -34,7 +34,7 @@ class ConfigurationDomain
 			"description" => self::DESCRIPTION,
 			"documentation" => self::DOCUMENTATION,
 			"@id" => $apiHost . "#api",
-			"isSimilarTo" => array_map(fn($module) => ["@id" => $apiHost ."/" . lcfirst($module)."#module"], ModuleDomain::getModulesAvailable())
+			"isSimilarTo" => array_map(fn($module) => ["@id" => $apiHost ."/" . lcfirst($module)."#module"], ModuleDomain::getNamesOfModulesAvailable())
 		];
 		// ENTRY POINT
 		$graph[] = [
@@ -45,7 +45,7 @@ class ConfigurationDomain
 			"description" => "Ponto de entrada principal da Plinct API"
 		];
 		// MODULES
-		foreach (ModuleDomain::getModulesAvailable() as $module) {
+		foreach (ModuleDomain::getNamesOfModulesAvailable() as $module) {
 			$graph[] = [
 				"@type" => "Service",
 				"@id" => ConfigurationDomain::getHost()."/api/".lcfirst($module)."#module",

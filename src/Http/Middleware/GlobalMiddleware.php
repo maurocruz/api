@@ -37,7 +37,7 @@ readonly class GlobalMiddleware implements MiddlewareInterface
 		}
 		// SET MODULES ENABLED
 		$showTables = $this->databaseStructure->showTables();
-		$modulesAvailable = ModuleDomain::getModulesAvailable();
+		$modulesAvailable = ModuleDomain::getNamesOfModulesAvailable();
 		$arrayFilter = array_filter($showTables, function($item) use ($modulesAvailable) {
 			return in_array(ucfirst($item), $modulesAvailable);
 		});
