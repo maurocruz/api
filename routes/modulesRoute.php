@@ -3,6 +3,7 @@
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Http\Controller\Modules\CreativeWork\MediaObject\MediaObjectController;
 use Plinct\Api\Http\Controller\Modules\CreativeWork\MediaObject\MediaObjectCreateController;
+use Plinct\Api\Http\Controller\Modules\ModuleActionsController;
 use Plinct\Api\Middleware\AuthMiddleware;
 use Plinct\Api\Middleware\CorsMiddleware;
 use Slim\Routing\RouteCollectorProxy;
@@ -15,6 +16,9 @@ return function (RouteCollectorProxy $route)
 	$route->get('mediaObject', MediaObjectController::class)->setName('mediaObject.read');
 	$route->post('mediaObject', MediaObjectCreateController::class)->setName('mediaObject.create');
 
+	// ACTIONS
+	$route->put('{type}',[ModuleActionsController::class, 'update'])->setName('modules.action.update');
+	$route->delete('{type}',[ModuleActionsController::class, 'delete'])->setName('modules.action.delete');
 
 
 
@@ -59,23 +63,23 @@ return function (RouteCollectorProxy $route)
 		/**
 		 * PUT
 		 */
-		$route->put('', function (Request $request, Response $response)
+	/*	$route->put('', function (Request $request, Response $response)
 		{
 			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
 			$params = $request->getParsedBody() ?? null;
 			$data = ApiFactory::request()->type($type)->put($params)->ready();
 			return ApiFactory::response()->write($response, $data);
-		})->addMiddleware(new AuthMiddleware());
+		})->addMiddleware(new AuthMiddleware());*/
 
 		/**
 		 * DELETE
 		 */
-		$route->delete("[/{id}]", function (Request $request, Response $response)
+		/*$route->delete("[/{id}]", function (Request $request, Response $response)
 		{
 			$type = $request->getAttribute('type') ? lcfirst($request->getAttribute('type')) : null;
 			$params = $request->getQueryParams() ?? null;
 			$data = ApiFactory::request()->type($type)->delete($params)->ready();
 			return ApiFactory::response()->write($response, $data);
-		})->addMiddleware(new AuthMiddleware());
+		})->addMiddleware(new AuthMiddleware());*/
 	});
 };
