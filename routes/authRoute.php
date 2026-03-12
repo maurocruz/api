@@ -8,7 +8,7 @@ return function (RouteCollectorProxy $route)
 	$route->group('auth/', function (RouteCollectorProxy $route) {
 
 		// LOGIN
-		$route->post('login', AuthLoginController::class);
+		$route->post('login', AuthLoginController::class)->setName('auth.login');
 
 	});
 };

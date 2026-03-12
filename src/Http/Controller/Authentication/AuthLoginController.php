@@ -2,17 +2,17 @@
 namespace Plinct\Api\Http\Controller\Authentication;
 
 use Plinct\Api\ApiFactory;
-use Plinct\Api\Application\Auth\AuthLoginUseCase;
+use Plinct\Api\Application\User\UserLoginUseCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class AuthLoginController
+readonly class AuthLoginController
 {
-	public function __construct(private AuthLoginUseCase $authLoginUseCase)
+	public function __construct(private UserLoginUseCase $authLoginUseCase)
 	{
 	}
 
-	public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
+	public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$params = $request->getParsedBody();
 		$data = $this->authLoginUseCase->login($params);
