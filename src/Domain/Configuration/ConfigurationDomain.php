@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Configuration;
 
+use Firebase\JWT\JWT;
 use Plinct\Api\Domain\Modules\ModuleDomain;
 
 class ConfigurationDomain
@@ -21,6 +22,22 @@ class ConfigurationDomain
 	public static function getHost(): string
 	{
 		return self::$host;
+	}
+
+	/**
+	 * @param int $iduser
+	 * @param string $name
+	 * @return string
+	 */
+	public static function createAuthToken(int $iduser, string $name): string
+	{
+		$payload = [
+			"iss" => self::getHost(),
+			"exp" => time() + $_ENV['JWT_EXPIRATION'],
+			"name" => $name,
+			"uid" => $iduser
+		];
+		return JWT::encode($payload, $_ENV['JWT_SECRET'],'HS256');
 	}
 
 
