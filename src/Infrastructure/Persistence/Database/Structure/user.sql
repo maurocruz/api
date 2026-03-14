@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS `user_privileges` (
   `function` INT UNSIGNED NOT NULL DEFAULT '1',
   `action` CHAR(4) NOT NULL DEFAULT 'r',
   `namespace` VARCHAR(45) NOT NULL DEFAULT '',
-  `userCreator` INT NULL DEFAULT NULL,
+  `userCreator` INT UNSIGNED NULL,
   PRIMARY KEY (`iduser_privileges`,`iduser`),
   UNIQUE INDEX `unique` (`function`,`iduser`,`namespace`,`action`),
   INDEX `fk_user_privileges_user_idx` (`iduser`),
