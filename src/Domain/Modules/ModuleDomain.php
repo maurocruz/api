@@ -1,35 +1,29 @@
 <?php
 namespace Plinct\Api\Domain\Modules;
 
-class ModuleDomain
-{
-	private const array MODULES_AVAILABLE = [
-		['name' => 'Action', 'dependencies' => ['Thing']],
-		['name' => 'Article', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'AudioObject', 'dependencies' => ['Thing','CreativeWork','MediaObject']],
-		['name' => 'Book', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'Certification', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'Collection', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'CreativeWork', 'dependencies' => ['Thing']],
-		['name' => 'Event', 'dependencies' => ['Thing','Place']],
-		['name' => 'ImageObject', 'dependencies' => ['Thing','CreativeWork','MediaObject']],
-		['name' => 'MediaObject', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'Order', 'dependencies' => ['Thing','Offer','OrderItem','Invoice']],
-		['name' => 'Organization', 'dependencies' => ['Thing','Place']],
-		['name' => 'Person', 'dependencies' => ['Thing','PostalAddress','Place']],
-		['name' => 'Place', 'dependencies' => ['Thing']],
-		['name' => 'Product', 'dependencies' => ['Thing']],
-		['name' => 'Review', 'dependencies' => ['Thing','CreativeWork']],
-		['name' => 'Role', 'dependencies' => ['Thing','Person','Organization']],
-		['name' => 'Service', 'dependencies' => ['Thing']],
-		['name' => 'Taxon', 'dependencies' => ['Thing']],
-		['name' => 'Thing', 'dependencies' => []],
-		['name' => 'VideoObject', 'dependencies' => ['Thing','CreativeWork','MediaObject']],
-		['name' => 'WebSite', 'dependencies' => ['Thing','CreativeWork','WebPage','WebPageElement']],
-	];
+use Plinct\Api\Domain\Entities\Entities;
+use ReflectionClass;
+use ReflectionException;
 
+class ModuleDomain extends Entities
+{
 	private static array $modulesEnabled = [];
 
+	/**
+	 */
+	public static function getModulesAvailable(): array
+	{
+		$modulesAvailable = [];
+		foreach (parent::ENTITIES as $entity) {
+			if (class_exists($entity['object'])) {
+				$object = new $entity['object']();
+				if ($object::IS_MODULE) {
+					$modulesAvailable[] = $entity;
+				}
+			}
+		}
+		return $modulesAvailable;
+	}
 	/**
 	 * @param array $modulesEnabled
 	 */
@@ -46,49 +40,78 @@ class ModuleDomain
 		return self::$modulesEnabled;
 	}
 
+	/**
+	 * @return array
+	 */
 	public static function getNamesOfModulesAvailable(): array
 	{
 		$moduleNames = [];
-		foreach (self::MODULES_AVAILABLE as $module) {
+		foreach (self::getModulesAvailable() as $module) {
 			$moduleNames[] = $module['name'];
 		}
 
 		return $moduleNames;
 	}
 
-	public static function getModulesAvailable(): array
-	{
-		return self::MODULES_AVAILABLE;
-	}
-
-	public static function getDependenciesOfModule(string $moduleName): array
-	{
-		$dependencies = [];
-		foreach (self::MODULES_AVAILABLE as $module) {
-			if ($module['name'] === $moduleName) {
-				$dependencies = $module['dependencies'];
-			}
-		}
-		return $dependencies ?? [];
-	}
 
 	public static function moduleExists(string $moduleName): bool
 	{
-		return in_array($moduleName, self::getNamesOfModulesAvailable(), true);
+		return in_array(ucfirst($moduleName), self::getNamesOfModulesAvailable(), true);
 	}
 
 	public static function moduleIsEnabled(string $moduleName): bool
 	{
-		return in_array($moduleName, self::getModulesEnabled(), true);
+		return in_array(ucfirst($moduleName), self::getModulesEnabled(), true);
 	}
 
-	public function isModuleEnabled(string $moduleName): bool
+	public static function getModuleNamespace(string $moduleName): ?string
 	{
-		return $this->moduleIsEnabled($moduleName);
+		foreach (self::ENTITIES as $module) {
+			if ($module['name'] === ucfirst($moduleName)) {
+			  return $module['object'] ?? null;
+			}
+		}
+		return null;
 	}
 
-	public function isModuleAvailable(string $moduleName): bool
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function getReflexionClass(string $moduleName): ?ReflectionClass
 	{
-		return $this->moduleExists($moduleName);
+		$moduleNamespace = self::getModuleNamespace($moduleName);
+		return $moduleNamespace ? new ReflectionClass($moduleNamespace) : null;
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function getModuleClass(string $moduleName): object|string
+	{
+		$moduleNamespace = self::getModuleNamespace($moduleName);
+		$reflection = new ReflectionClass($moduleNamespace);
+		return $reflection->newInstanceWithoutConstructor();
+	}
+
+	public static function getModuleClassPath(string $moduleName): string
+	{
+		$moduleNamespace = self::getModuleNamespace($moduleName);
+		return str_replace('\\', '/', $moduleNamespace);
+	}
+
+	public static function getModuleClassPathNamespace(string $moduleName): string
+	{
+		$moduleNamespace = self::getModuleNamespace($moduleName);
+		return str_replace('\\', '\\\\', $moduleNamespace);
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function isModule(string $moduleName): bool
+	{
+		$moduleClass = self::getReflexionClass($moduleName);
+		$moduleNamespace = self::getModuleNamespace($moduleName);
+		return $moduleClass->hasConstant('IS_MODULE') ? $moduleNamespace::IS_MODULE : false;
 	}
 }
