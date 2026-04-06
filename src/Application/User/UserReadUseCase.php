@@ -3,6 +3,7 @@ namespace Plinct\Api\Application\User;
 
 use Plinct\Api\Application\Support\SanitizeParams;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
+use ReflectionException;
 
 readonly class UserReadUseCase
 {
@@ -14,6 +15,7 @@ readonly class UserReadUseCase
 	/**
 	 * @param array $params
 	 * @return array
+	 * @throws ReflectionException
 	 */
 	public function read(array $params = []): array
 	{
@@ -48,6 +50,7 @@ readonly class UserReadUseCase
 	/**
 	 * @param array $params
 	 * @return array
+	 * @throws ReflectionException
 	 */
 	public function userPrivileges(array $params = []): array
 	{

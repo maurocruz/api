@@ -6,6 +6,7 @@ use Plinct\Api\Application\User\UserReadUseCase;
 use Plinct\Api\Application\User\UserUpdateUseCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionException;
 
 readonly class UserController
 {
@@ -16,6 +17,10 @@ readonly class UserController
 	){	}
 
 	// READ
+
+	/**
+	 * @throws ReflectionException
+	 */
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$params = $request->getQueryParams();

@@ -4,6 +4,7 @@ namespace Plinct\Api\Application\User;
 use Plinct\Api\ApiFactory;
 use Plinct\Api\Domain\User\UserLogged;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
+use ReflectionException;
 
 readonly class UserLoggedUseCase
 {
@@ -27,6 +28,7 @@ readonly class UserLoggedUseCase
 	 *
 	 * @param object $tokenDecoded
 	 * @return array
+	 * @throws ReflectionException
 	 */
 	public function saveUserLogged(object $tokenDecoded) : array
 	{
