@@ -8,8 +8,4 @@ interface EntityInterface
 	const array DEPENDENCIES = [];
 
 	public function hydrateParams(array $data, bool $withParent = false): array;
-
-	public function gettype(): string;
-
-	public function getIdthing(): int;
 }

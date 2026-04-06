@@ -21,6 +21,7 @@ class CreativeWork extends Thing
 	public ?string $datePublished = null;
 	public ?string $editor = null;
 	public ?string $encodingFormat = null;
+	public mixed $hasPart = null;
 	public ?string $headline = null;
 	public string $keywords = '';
 	public ?string $licence = null;
@@ -32,10 +33,6 @@ class CreativeWork extends Thing
 	public ?string $thumbnail = null;
 	public string $version = '';
 
-	public static function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{

@@ -11,6 +11,7 @@ class WebPageElement extends CreativeWork
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
 	protected int $idwebPageElement;
+	protected int $thing;
 	protected int $creativeWork;
 	public ?string $cssSelector = null;
 

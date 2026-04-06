@@ -24,23 +24,9 @@ class Thing implements EntityInterface
 	public string $type;
 	public ?string $url = null;
 
-
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getType(): string
-	{
-		return $this->type;
-	}
-
-	public function getIdthing(): int
-	{
-		return $this->idthing;
 	}
 }

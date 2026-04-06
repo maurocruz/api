@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities;
 
+use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Contracts\EntityInterface;
 use Plinct\Api\Domain\Entities\Thing\Action\Action;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\Article\Article;
@@ -8,11 +9,19 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\Book\Book;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObject;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\VideoObject\VideoObject;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\Review\Review;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPage\WebPage;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPageElement\WebPageElement;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebSite\WebSite;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Property;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PropertyValue;
 use Plinct\Api\Domain\Entities\Thing\Product\Product;
 use Plinct\Api\Domain\Entities\Thing\Thing;
+use Plinct\Api\Domain\Entities\User\User;
+use Plinct\Api\Domain\Entities\User\User_history;
+use Plinct\Api\Domain\Entities\User\User_passwordReset;
+use Plinct\Api\Domain\Entities\User\User_privileges;
 use Plinct\Api\Domain\Modules\ModuleDomain;
 use ReflectionClass;
 use ReflectionException;
@@ -27,7 +36,15 @@ class Entities
 		['name' => 'ImageObject', 'object' => ImageObject::class],
 		['name' => 'MediaObject', 'object' => MediaObject::class],
 		['name' => 'Product', 'object' => Product::class ],
+		['name' => 'PropertyValue', 'object' => PropertyValue::class],
+		['name' => 'Review', 'object' => Review::class],
 		['name' => 'Thing', 'object' => Thing::class],
+		['name' => 'Thing_has_thing', 'object' => Property::class],
+		['name' => 'User', 'object' => User::class],
+		['name' => 'User_history', 'object' => User_history::class],
+		['name' => 'User_passwordReset', 'object' => User_passwordReset::class],
+		['name' => 'User_privileges', 'object' => User_privileges::class],
+		['name' => 'VideoObject', 'object' => VideoObject::class],
 		['name' => 'WebPage', 'object' => WebPage::class],
 		['name' => 'WebPageElement', 'object' => WebPageElement::class],
 		['name' => 'WebSite', 'object' => WebSite::class]
@@ -60,6 +77,21 @@ class Entities
 	public static function isEnabled(string $entityName): bool
 	{
 		return ModuleDomain::moduleIsEnabled($entityName);
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function isOwnProperty(string $entityName, string $property): bool
+	{
+		$entityReflection = new EntityReflections($entityName);
+		$properties = $entityReflection->getOwnProperties();
+		foreach ($properties as $propertyReflection) {
+			if ($property == $propertyReflection->getName()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

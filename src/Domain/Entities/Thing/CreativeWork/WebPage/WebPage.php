@@ -11,7 +11,6 @@ class WebPage extends CreativeWork
 
 	protected int $idwebPage;
 	protected int $thing;
-	protected int $creativeWork;
 	public ?string $breadcrumb = null;
 	public ?int $primaryImageOfPage = null;
 

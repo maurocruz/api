@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Product;
 
+use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Product extends Thing
@@ -10,7 +11,7 @@ class Product extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	protected int $idproduct;
-	private int $thing;
+	protected int $thing;
 	public ?string $brand = null;
 	public ?string $category = null;
 	public ?string $color = null;
@@ -21,8 +22,9 @@ class Product extends Thing
 	public ?string $mpn = null;
 	public ?string $productionDate = null;
 
-	public static function getDependencies(): array
+	public function hydrateParams(array $data, bool $withParent = false): array
 	{
-		return self::DEPENDENCIES;
+		$reflection = new EntityReflections(self::class);
+		return $reflection->hydrateOwnProperties($data);
 	}
 }
