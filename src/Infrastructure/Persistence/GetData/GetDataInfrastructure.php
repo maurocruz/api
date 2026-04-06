@@ -1,7 +1,8 @@
 <?php
-namespace Plinct\Api\Infrastructure\Persistence\Database\GetData;
+namespace Plinct\Api\Infrastructure\Persistence\GetData;
 
-use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
+use Plinct\Api\Infrastructure\Persistence\Database\ConnectDB;
+use ReflectionException;
 
 class GetDataInfrastructure extends GetDataInfrastructureAbstract
 {
@@ -23,6 +24,17 @@ class GetDataInfrastructure extends GetDataInfrastructureAbstract
 	public function setLeftJoin(string $table, string $condition, string $alias = null): static
 	{
 		$this->setJoin($table, $condition, $alias, 'LEFT');
+		return $this;
+	}
+
+	public function setJoin(string $table, string $condition, string $alias = null, string $tableFactor = null): static
+	{
+		if ($alias) {
+			$condition = str_replace("`$table`", $alias, $condition);
+			$this->setJoins("$tableFactor JOIN `$table` as $alias ON $condition", $table);
+		} else {
+			$this->setJoins("$tableFactor JOIN `$table` ON $condition", $table);
+		}
 		return $this;
 	}
 
@@ -55,10 +67,16 @@ class GetDataInfrastructure extends GetDataInfrastructureAbstract
 
 	/**
 	 * @return array
+	 * @throws ReflectionException
 	 */
 	public function render(): array
 	{
 		$this->setQuery();
-		return PDOConnect::run($this->getQuery());
+		$data = ConnectDB::run($this->getQuery());
+		if (!isset($data['error'])) {
+			return ['status' => true, 'message' => "Get data in '$this->table' item successfuly", 'data' => $data];
+		} else {
+			return ['status' => false, 'message' => "Get data in '$this->table' failed", 'data' => $data];
+		}
 	}
 }
