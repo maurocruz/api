@@ -3,31 +3,34 @@ namespace Plinct\Api\Application\Entities\Thing\CreativeWork;
 
 use Plinct\Api\Application\Entities\Thing\ThingCreateUseCase;
 use Plinct\Api\Application\Support\SupportApplication;
-use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 class CreativeWorkCreateUseCase extends ThingCreateUseCase
 {
-	public function __construct(DatabaseActions $databaseActions)
-	{
-		parent::__construct($databaseActions);
-	}
-
 	public function create(array $parseBody): array
 	{
 		// SANITIZE PARAMS
-		$params = SupportApplication::sanitizeParams('creativeWork', $parseBody);
+		$sanitizedParams = SupportApplication::sanitizeParams('creativeWork', $parseBody);
 
-		// SALVAR THING
-		$thingData =  parent::create($params);
-		if ($thingData['status'] === false) {
-			return $thingData;
+		if (!isset($sanitizedParams['name'])) {
+			return ['status' => false, 'message' => 'Name is required'];
 		}
-		$valueThing = $thingData['data'][0];
-		$params['thing'] = $valueThing['idthing'];
+		// SAVE THING
+		$saveThing = parent::create($sanitizedParams);
+		if($saveThing['status'] === false) {
+			return $saveThing;
+		} else {
+			$thingData = $saveThing['data'][0];
+			$thing = $thingData['idthing'];
 
-		// SALVA CREATIVE WORK
-		$entityCreativeWork = SupportApplication::getEntity('CreativeWork');
-		$paramsHidrated = $entityCreativeWork->hydrateParams($params);
-		return $this->databaseActions->create('creativeWork', $paramsHidrated);
+			$hidratedParams = SupportApplication::hydrateOwnProperties('creativeWork', $sanitizedParams);
+			$saveCreativework = $this->databaseActions->create('creativeWork', $hidratedParams + ['thing' => $thing]);
+
+			if ($saveCreativework['status'] === false) {
+				return $saveCreativework;
+			} else {
+				$creativeWorkData = $saveCreativework['data'];
+				return ['status' => true, 'message' => 'CreativeWork item has created', 'data' => $creativeWorkData];
+			}
+		}
 	}
 }

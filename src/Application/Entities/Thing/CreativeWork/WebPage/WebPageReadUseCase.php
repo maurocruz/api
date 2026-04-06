@@ -2,6 +2,7 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebPage;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
+use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class WebPageReadUseCase extends CreativeWorkReadUseCase
@@ -12,6 +13,70 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 	 */
 	public function read(array $queryParams = []): array
 	{
-		return $this->readEntity('WebPage', $queryParams);
+		// SANITIZE PARAMS
+		$sanitizedParams = SupportApplication::sanitizeParams('WebPage',$queryParams);
+
+		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
+		$typeIsPartOf = $sanitizedParams['typeIsPartOf'] ?? null;
+
+		if ($idIsPartOf) {
+			$params['idIsPartOf'] = $idIsPartOf;
+			if ($typeIsPartOf) {
+				$params['typeIsPartOf'] = $typeIsPartOf;
+			}
+			$getData = $this->databaseActions->read('thing_has_thing', $params)
+				->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart');
+		} else {
+			// OBTÈM DADOS DO BANCO DE DADOS
+			$getData = $this->databaseActions->read('webPage', $sanitizedParams);
+			$getData->setJoin('creativeWork', 'creativeWork.thing = webPage.thing');
+		}
+		$databaseData = $getData->render();
+
+		if ($databaseData['status'] === false) {
+			return $databaseData;
+		}
+
+		// IF PROPERTIES
+		$properties = $sanitizedParams['properties'] ?? null;
+		if ($properties) {
+			foreach ($databaseData['data'] as $key => $webPage) {
+				$idthing = $webPage['idthing'];
+				// IS PART OF
+				if (in_array('isPartOf', $properties)) {
+					$relationshipData = parent::getHasPart($idthing, 'WebPage', 'WebSite');
+					if ($relationshipData['status'] === false) {
+						return $relationshipData;
+					}
+					$databaseData['data'][$key]['isPartOf'] = $relationshipData['data'];
+				}
+				// HAS PART
+				if (in_array('hasPart', $properties)) {
+					$paramsHasPart['idHasPart'] = $idthing;
+					$paramsHasPart['typeHasPart'] = 'WebPage';
+					$paramsHasPart['orderBy'] = $sanitizedParams['orderBy'] ?? 'thing.name';
+					$dataGetHasPart = $this->databaseActions->read('thing_has_thing', $paramsHasPart);
+					$dataGetHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
+					$dataHasPart = $dataGetHasPart->render();
+
+
+
+					if ($dataHasPart['status'] === false) {
+						return $dataHasPart;
+					}
+					foreach ($dataHasPart['data'] as $key2 => $value) {
+						$type = $value['type'];
+						$thing = $value['idthing'];
+						$dataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing])->render();
+						if ($dataThing['status'] === false) {
+							return $dataThing;
+						}
+						$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataThing['data'][0]);
+					}
+					$databaseData['data'][$key]['hasPart'] = $dataHasPart['data'] ?? null;
+				}
+			}
+		}
+		return SupportApplication::returnDTOFromDatabaseData($databaseData,  'WebPage found');
 	}
 }

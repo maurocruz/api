@@ -4,17 +4,10 @@ namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite;
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkCreateUseCase;
 use Plinct\Api\Application\Support\SanitizeParams;
 use Plinct\Api\Application\Support\SupportApplication;
-use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
 class WebSiteCreateUseCase extends CreativeWorkCreateUseCase
 {
-
-	public function __construct(DatabaseActions $databaseActions)
-	{
-		parent::__construct($databaseActions);
-	}
-
 
 	/**
 	 * @throws ReflectionException
