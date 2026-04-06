@@ -2,6 +2,7 @@
 namespace Plinct\Api\Application\Support;
 
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
+use Plinct\Api\Domain\Entities\Entities;
 use Plinct\Api\Domain\Modules\ModuleDomain;
 use ReflectionClass;
 use ReflectionException;
@@ -21,7 +22,7 @@ class EntityReflections
 		if (class_exists($className)) {
 			$classPathNamespace = $className;
 		} else {
-			$classPathNamespace = ModuleDomain::getModuleNamespace($className);
+			$classPathNamespace = Entities::getEntityNamespace($className);
 			if (!$classPathNamespace) {
 				throw new ReflectionException("Class $className in Domain not found");
 			}
@@ -43,6 +44,14 @@ class EntityReflections
 	public function getShortName(): string
 	{
 		return $this->reflection->getShortName();
+	}
+
+	public function getOwnProperties(): array
+	{
+		return array_filter(
+			$this->reflection->getProperties(),
+			fn($prop) => $prop->getDeclaringClass()->getName() === $this->reflection->getName()
+		);
 	}
 
 	/**
@@ -130,7 +139,8 @@ class EntityReflections
 				elseif ($property->isPublic()) {
 					// SE PROPRIEDADE FOR OBJETO
 					if (is_array($value)) {
-						$result[$key][$name] = self::convertFromObjectToSchemaOrgArrayDTO($value);
+						$entities = SupportApplication::hydrateFromDatabase($value);
+						$result[$key][$name] = self::convertFromObjectToSchemaOrgArrayDTO($entities);
 					} else {
 						$result[$key][$name] = $value;
 					}

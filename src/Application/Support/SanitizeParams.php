@@ -12,6 +12,9 @@ class SanitizeParams
 	{
 		$newParams = [];
 		foreach ($params as $key => $value) {
+			if ($value === null) {
+				continue;
+			}
 			// ELIMINA ESPAÇOS EM BRANCO
 			$value = trim($value," \t\n\r\0\x0B");
 
@@ -33,15 +36,6 @@ class SanitizeParams
 				}
 				if (!in_array('type',$valueArray)) {
 					array_unshift($valueArray, 'type');
-				}
-				if (!in_array('lastModified',$valueArray)) {
-					array_unshift($valueArray, 'lastModified');
-				}
-				if (!in_array('dateRegistered',$valueArray)) {
-					array_unshift($valueArray, 'dateRegistered');
-				}
-				if (!in_array('name',$valueArray)) {
-					array_unshift($valueArray, 'name');
 				}
 				$value = implode(',',$valueArray);
 			}

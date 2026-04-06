@@ -43,6 +43,18 @@ class SupportApplication
 		return Entities::getEntity($name);
 	}
 
+	/**
+	 * @param string|null $properties
+	 * @return string[]|null
+	 */
+	public static function propertiesToArray(string $properties = null): ?array
+	{
+		if (!$properties) return [];
+		$propertiesArray = explode(',',$properties);
+		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
+		return $propertiesArray;
+	}
+
 	public static function returnDTO(bool|int $status, string $message, array $data = [], string $file = null): array
 	{
 		$returns['status'] = $status;
@@ -98,10 +110,22 @@ class SupportApplication
 
 		// DATA
 			// HIDRATA DADOS
-			$entities = SupportApplication::hydrateFromDatabase($data);
-			$schemaOrgFormat = SupportApplication::convertFromObjectToSchemaOrgArrayDTO($entities);
+			//$entities = SupportApplication::hydrateFromDatabase($data);
+			//$schemaOrgFormat = SupportApplication::convertFromObjectToSchemaOrgArrayDTO($entities);
+			$schemaOrgFormat = self::convertDataToSchemaOrg($data);
+
 		$entityDTO->setData($schemaOrgFormat);
 
 		return $entityDTO->ready();
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function convertDataToSchemaOrg(array $data): array
+	{
+		if (isset($data['data'])) return [];
+		$entities = SupportApplication::hydrateFromDatabase($data);
+		return SupportApplication::convertFromObjectToSchemaOrgArrayDTO($entities);
 	}
 }
