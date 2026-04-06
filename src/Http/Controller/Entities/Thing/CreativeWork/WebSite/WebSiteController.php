@@ -2,6 +2,7 @@
 namespace Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite\WebSiteCreateUseCase;
+use Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite\WebSiteReadUseCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -9,9 +10,22 @@ use ReflectionException;
 readonly class WebSiteController
 {
 	public function __construct(
+		private WebSiteReadUseCase $webSiteReadUseCase,
 		private WebSiteCreateUseCase $webSiteCreateUseCase
 	) { }
 
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+	{
+		$queryParams = $request->getQueryParams();
+		$data = $this->webSiteReadUseCase->read($queryParams);
+		$response = $response->withHeader('Content-Type', 'application/json');
+		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		return $response;
+	}
 	/**
 	 * @throws ReflectionException
 	 */
