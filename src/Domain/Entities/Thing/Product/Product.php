@@ -6,7 +6,6 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Product extends Thing
 {
-
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
@@ -21,6 +20,8 @@ class Product extends Thing
 	public ?string $model = null;
 	public ?string $mpn = null;
 	public ?string $productionDate = null;
+	public ?string $productId = null;
+	public ?string $purchaseDate = null;
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
