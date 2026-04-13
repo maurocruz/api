@@ -1,6 +1,7 @@
 <?php
 
-use Plinct\Api\Http\Controller\Entities\Action\ActionReadController;
+use Plinct\Api\Http\Controller\Entities\Action\ActionController;
+use Plinct\Api\Http\Controller\Entities\EntityDeleteController;
 use Plinct\Api\Http\Controller\Entities\EntityReadController;
 use Plinct\Api\Http\Controller\Entities\EntityUpdateController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkController;
@@ -11,15 +12,13 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageContro
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
-use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductReadController;
-use Plinct\Api\Http\Controller\Modules\ModuleActionsController;
 use Plinct\Api\Http\Middleware\AuthMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 
 return function (RouteCollectorProxy $route)
 {
 	// ACTION
-	$route->get('action', ActionReadController::class)->setName('action.read');
+	$route->get('action', [ActionController::class,'read'])->setName('action.read');
 
 	// CREATIVE WORK
 	$route->get('creativeWork', [CreativeWorkController::class, 'read'])->setName('creativeWork.read');
@@ -31,7 +30,7 @@ return function (RouteCollectorProxy $route)
 	$route->get('mediaObject', MediaObjectReadController::class)->setName('mediaObject.read');
 
 	// PRODUCT
-	$route->get('product', ProductReadController::class)->setName('product.read');
+	$route->get('product', [ProductController::class,'read'])->setName('product.read');
 
 	// WEB PAGE
 	$route->get('webPage', [WebPageController::class, 'read'])->setName('webPage.read');
@@ -45,10 +44,14 @@ return function (RouteCollectorProxy $route)
 	// DEFAULT
 	$route->get('{type}',[EntityReadController::class, 'read'])->setName('modules.read');
 
-
+	//
 	// METHODS ACTIONS
+	//
 	$route->group('', function (RouteCollectorProxy $route)
 	{
+		// ACTION
+		$route->post('action', [ActionController::class,'create'])->setName('modules.create');
+
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
 
@@ -57,7 +60,6 @@ return function (RouteCollectorProxy $route)
 
 		// PRODUCT
 		$route->post('product', [ProductController::class, 'create'])->setName('product.create');
-		$route->delete('product', [ProductController::class, 'delete'])->setName('product.delete');
 
 		// WEB PAGE
 		$route->post('webPage', [WebPageController::class, 'create'])->setName('webPage.create');
@@ -70,7 +72,7 @@ return function (RouteCollectorProxy $route)
 
 		// DEFAULT
 		$route->put('{type}', EntityUpdateController::class)->setName('entity.update');
-		$route->delete('{type}',[ModuleActionsController::class, 'delete'])->setName('modules.delete');
+		$route->delete('{type}', EntityDeleteController::class)->setName('modules.delete');
 
 	})->add(AuthMiddleware::class);
 

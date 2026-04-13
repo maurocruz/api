@@ -18,9 +18,9 @@ readonly class ThingUpdateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	protected function updateRelationship(string $idHasPart, string $idIsPartOf, string $position = null, string $caption = null, string $representativeOfPage = null): array
+	protected function updateRelationship(string $idHasPart, string $idIsPartOf, string $caption = null, int $position = null, string $representativeOfPage = ''): array
 	{
-		$responsedatabase = $this->databaseActions->updateRelationship($idHasPart, $idIsPartOf, $position, $caption, $representativeOfPage);
+		$responsedatabase = $this->databaseActions->updateRelationship($idHasPart, $idIsPartOf, $caption, $position, $representativeOfPage);
 		if ($responsedatabase['status'] === false) {
 			return $responsedatabase;
 		}
@@ -30,6 +30,9 @@ readonly class ThingUpdateUseCase
 			$isPartOfData = $this->databaseActions->read('thing', ['idthing'=>$idIsPartOf])->setWithThings(false)->render();
 			if ($isPartOfData['status'] === false) {
 				return $isPartOfData;
+			}
+			if (empty($isPartOfData['data'])) {
+				return ['status'=> false, 'message'=> 'Thing is part of not found', 'data'=>[]];
 			}
 			$isPartOf = $isPartOfData['data'][0];
 			$image = $isPartOf['image'];

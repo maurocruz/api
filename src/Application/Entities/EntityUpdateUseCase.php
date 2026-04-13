@@ -20,9 +20,9 @@ readonly class EntityUpdateUseCase extends ThingUpdateUseCase
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		if ($idIsPartOf && $idHasPart) {
-			$representativeOfPage = $sanitizedParams['representativeOfPage'] ?? null;
 			$caption = $sanitizedParams['caption'] ?? null;
-			$position = $sanitizedParams['position'] ?? null;
+			$position = isset($sanitizedParams['position']) ? (int) $sanitizedParams['position'] : 0;
+			$representativeOfPage = $sanitizedParams['representativeOfPage'] ?? '';
 			return self::updateRelationship($idHasPart, $idIsPartOf, $caption, $position, $representativeOfPage);
 		}
 

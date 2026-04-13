@@ -23,17 +23,16 @@ class ThingCreateUseCase
 
 		// VALIDAR ENTRADAS
 		$name = $sanitizedParams['name'] ?? null;
-		if (!$name) {
-			return ['status'=> false, 'message'=> 'Name is required'];
+		$type = $sanitizedParams['type'] ?? null;
+		if (!$name || !$type) {
+			return ['status'=> false, 'message'=> 'Name and type is required'];
 		}
 		// PARAMETROS OBRIGATORIOS
 		$sanitizedParams['dateCreated'] = $sanitizedParams['dateCreated'] ?? date('Y-m-d H:i:s');
 		$sanitizedParams['dateModified'] = $sanitizedParams['dateModified'] ?? date('Y-m-d H:i:s');
 
 		// SALVAR ITEM
-		$hidratedParams = SupportApplication::hydrateOwnProperties('thing',$sanitizedParams);
-		$responseData = $this->databaseActions->create('thing', $hidratedParams);
-
+		$responseData = $this->databaseActions->create('thing', $sanitizedParams);
 
 		// RETORNAR
 		if ($responseData['status'] === false) {

@@ -231,7 +231,10 @@ END;
 --
 DROP procedure IF EXISTS `sp_thing_has_thing_delete`;
 
-CREATE PROCEDURE `sp_thing_has_thing_delete`(IN p_idHasPart int unsigned, IN p_idIsPartOf int unsigned)
+CREATE PROCEDURE `sp_thing_has_thing_delete`(
+  IN p_idHasPart int unsigned,
+  IN p_idIsPartOf int unsigned
+)
 BEGIN
   DECLARE v_typeIsPartOf INT UNSIGNED;
   DECLARE v_sqlstate CHAR(5);

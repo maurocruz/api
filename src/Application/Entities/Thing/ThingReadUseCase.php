@@ -33,8 +33,27 @@ class ThingReadUseCase
 		if ($isPartOf) {
 			return self::readRelationshipIsPartOf($isPartOf, $type, $sanitizedParams);
 		}
+
 		// BUSCA POR PARAMS
-		return $this->databaseActions->read(lcfirst($type), $sanitizedParams)->render();
+		$databaseData = $this->databaseActions->read(lcfirst($type), $sanitizedParams)->render();
+		if ($databaseData['status'] === false) {
+			return $databaseData;
+		}
+		$data = $databaseData['data'];
+
+		// HAS PART IS TRUE
+		if (isset($sanitizedParams['hasPart'])) {
+			foreach ($data as $key => $value) {
+				$type = $value['type'];
+				$thing = $value['idthing'];
+				$databaseDataPart = $this->databaseActions->read(lcfirst($type), ['thing' => $thing])->render();
+				if ($databaseDataPart['status'] === false) {
+					return $databaseDataPart;
+				}
+				$databaseData['data'][$key] = $databaseDataPart['data'][0];
+			}
+		}
+		return $databaseData;
 	}
 
 	/**

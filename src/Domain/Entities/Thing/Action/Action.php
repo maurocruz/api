@@ -9,7 +9,7 @@ class Action extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	public int $idaction;
+	protected int $idaction;
 	protected int $thing;
 	public ?string $actionProcess = null;
 	public string $actionStatus;
@@ -21,7 +21,7 @@ class Action extends Thing
 	public string $startTime;
 	public ?string $targetCollection = null;
 
-	public static function getDependencies(): array
+	public function getDependencies(): array
 	{
 		return self::DEPENDENCIES;
 	}
