@@ -20,6 +20,7 @@ readonly class EntityReadController
 		$type = $request->getAttribute('type');
 		$queryParams = $request->getQueryParams();
 		$dataUseCase = $this->entityReadUseCase->read($type, $queryParams);
+		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	}

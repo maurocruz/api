@@ -25,13 +25,17 @@ class ThingReadUseCase
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
 		if ($idHasPart && $idIsPartOf) {
-			return self::readRelationshipHasPart($idHasPart, $idIsPartOf, $sanitizedParams);
+			return self::readRelationship($idHasPart, $idIsPartOf, $sanitizedParams);
 		}
 
 		// BUSCA POR IS PART OF (RELATIONSHIP)
-		$isPartOf = $sanitizedParams['isPartOf'] ?? $sanitizedParams['idHasPart'] ?? null;
-		if ($isPartOf) {
-			return self::readRelationshipIsPartOf($isPartOf, $type, $sanitizedParams);
+		if ($idIsPartOf) {
+			return self::readRelationshipIsPartOf($idIsPartOf, $type, $sanitizedParams);
+		}
+
+		// BUSCA POR HAS PART (RELATIONSHIP)
+		if ($idHasPart) {
+			return self::readRelationshipHasPart($idHasPart, $type, $sanitizedParams);
 		}
 
 		// BUSCA POR PARAMS
@@ -59,7 +63,7 @@ class ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	private function readRelationshipHasPart(string $idHasPart, string $idIsPartOf, array $addtionalparams = []): array
+	private function readRelationship(string $idHasPart, string $idIsPartOf, array $addtionalparams = []): array
 	{
 		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'idIsPartOf' => $idIsPartOf]);
 		$getData->setParams($addtionalparams);
@@ -85,9 +89,9 @@ class ThingReadUseCase
 	private function readRelationshipIsPartOf(string $idHasPart, string $typeHasPart, array $addtionalparams = []): array
 	{
 		$addtionalparams = array_merge(['orderBy'=>'position', 'ordering'=>'desc'], $addtionalparams);
-		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => ucfirst($typeHasPart)]);
+		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeHasPart' => ucfirst($typeHasPart)]);
 		$getData->setParams($addtionalparams);
-		$getData->setJoin('thing', 'thing_has_thing.idIsPartOf = thing.idthing', 'thing');
+		$getData->setJoin('thing', 'thing_has_thing.idHasPart = thing.idthing', 'thing');
 		$responseData = $getData->render();
 
 		if ($responseData['status'] === false) {
@@ -106,6 +110,26 @@ class ThingReadUseCase
 		}
 		// OBTÉM DADOS DO TYPEHASPART
 		return $this->databaseActions->read(lcfirst($typeHasPart), ['thing' => implode('|',$things)])->render();
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	private function readRelationshipHasPart(string $idHasPart, string $typeIsPartOf, array $addtionalparams = []): array
+	{
+		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => ucfirst($typeIsPartOf)]);
+		$getData->setParams($addtionalparams);
+		$getData->setJoin('thing', 'thing_has_thing.idIsPartOf = thing.idthing', 'thing');
+		$responseData = $getData->render();
+		if ($responseData['status'] === false) {
+			return $responseData;
+		}
+		$data = $responseData['data'];
+
+		if (empty($data)) {
+			return ['status'=> true, 'message'=> $typeIsPartOf . ' not found', 'data'=>[]];
+		}
+		return ['status'=> true, 'message'=> $typeIsPartOf . ' found', 'data'=> $data];
 	}
 
 	/**
@@ -136,31 +160,4 @@ class ThingReadUseCase
 		// OBTÉM DADOS DO TYPEHASPART
 		return  $this->databaseActions->read(lcfirst($typeHasPart), ['thing' => implode('|',$things)])->render();
 	}
-
-	/**
-	 * @throws ReflectionException
-	 */
-	protected function getIsPartOf(string $type, int $idthing): ?array
-	{
-		$paramsHasPart['idHasPart'] = $idthing;
-		$paramsHasPart['typeHasPart'] = $type;
-		$paramsHasPart['orderBy'] = $sanitizedParams['orderBy'] ?? 'thing.name';
-		$dataGetHasPart = $this->databaseActions->read('thing_has_thing', $paramsHasPart);
-		$dataGetHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
-		$dataHasPart = $dataGetHasPart->render();
-		if ($dataHasPart['status'] === false) {
-			return $dataHasPart;
-		}
-		foreach ($dataHasPart['data'] as $key2 => $value) {
-			$type = $value['type'];
-			$thing = $value['idthing'];
-			$dataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing])->render();
-			if ($dataThing['status'] === false) {
-				return $dataThing;
-			}
-			$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataThing['data'][0]);
-		}
-		return $dataHasPart['data'] ?? null;
-	}
-
 }

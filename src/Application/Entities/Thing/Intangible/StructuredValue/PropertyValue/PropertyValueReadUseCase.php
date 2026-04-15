@@ -1,0 +1,33 @@
+<?php
+namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\PropertyValue;
+
+use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
+use Plinct\Api\Application\Support\SanitizeParams;
+use Plinct\Api\Application\Support\SupportApplication;
+use ReflectionException;
+
+class PropertyValueReadUseCase extends ThingReadUseCase
+{
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public function read(array $queryParams): array
+	{
+		// SANITIZE PARAMS
+		$sanitizedParams = SanitizeParams::sanitize('propertyValue', $queryParams);
+
+		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
+
+		if ($idHasPart) {
+			$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => 'PropertyValue']);
+			$getData->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
+			$getData->setJoin('propertyValue', 'propertyValue.thing = thing_has_thing.idIsPartOf');
+			$data = $getData->render();
+		} else {
+			$data = $this->readEntity('PropertyValue', $sanitizedParams);
+		}
+
+		return SupportApplication::returnDTOFromDatabaseData($data);
+	}
+}
