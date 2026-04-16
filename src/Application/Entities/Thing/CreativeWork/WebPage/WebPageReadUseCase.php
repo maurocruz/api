@@ -16,18 +16,22 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 		// SANITIZE PARAMS
 		$sanitizedParams = SupportApplication::sanitizeParams('WebPage',$queryParams);
 
-		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
-		$typeIsPartOf = $sanitizedParams['typeIsPartOf'] ?? null;
+		$orderBy = $sanitizedParams['orderBy'] ?? null;
+		if ($orderBy === 'position') {
+			unset($sanitizedParams['orderBy']);
+		}
 
-		if ($idIsPartOf) {
-			$params['idIsPartOf'] = $idIsPartOf;
-			if ($typeIsPartOf) {
-				$params['typeIsPartOf'] = $typeIsPartOf;
-			}
-			$getData = $this->databaseActions->read('thing_has_thing', $params)
-				->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart');
+		// OBTÈM DADOS DO BANCO DE DADOS
+		$idHasPart = $sanitizedParams['idHasPart'] ?? $sanitizedParams['isPartOf'] ?? null;
+		if ($idHasPart) {
+			$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => 'WebPage'])
+				->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf')
+				->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf')
+				->setJoin('webPage', 'webPage.thing = thing_has_thing.idIsPartOf');
+				if($orderBy) {
+					$getData->setParams(['orderBy' => $orderBy]);
+				}
 		} else {
-			// OBTÈM DADOS DO BANCO DE DADOS
 			$getData = $this->databaseActions->read('webPage', $sanitizedParams);
 			$getData->setJoin('creativeWork', 'creativeWork.thing = webPage.thing');
 		}
@@ -39,9 +43,10 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 
 		// IF PROPERTIES
 		$properties = $sanitizedParams['properties'] ?? null;
-		if ($properties) {
+		if (!empty($properties)) {
 			foreach ($databaseData['data'] as $key => $webPage) {
 				$idthing = $webPage['idthing'];
+
 				// IS PART OF
 				if (in_array('isPartOf', $properties)) {
 					$relationshipData = parent::getHasPart($idthing, 'WebPage', 'WebSite');
@@ -50,16 +55,15 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 					}
 					$databaseData['data'][$key]['isPartOf'] = $relationshipData['data'];
 				}
+
 				// HAS PART
 				if (in_array('hasPart', $properties)) {
 					$paramsHasPart['idHasPart'] = $idthing;
 					$paramsHasPart['typeHasPart'] = 'WebPage';
-					$paramsHasPart['orderBy'] = $sanitizedParams['orderBy'] ?? 'thing.name';
+					$paramsHasPart['orderBy'] = $orderBy ?? 'thing.name';
 					$dataGetHasPart = $this->databaseActions->read('thing_has_thing', $paramsHasPart);
 					$dataGetHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
 					$dataHasPart = $dataGetHasPart->render();
-
-
 
 					if ($dataHasPart['status'] === false) {
 						return $dataHasPart;
