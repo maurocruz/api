@@ -21,10 +21,14 @@ return function (RouteCollectorProxy $route) {
 		// USER
 		(require __DIR__ . '/userRoute.php')($route);
 
+		// SCHEMA
+		(require_once __DIR__ . '/schemaRoute.php')($route);
+
 		// MODULES
 		(require_once __DIR__ . '/entityRoutes.php')($route);
 
 		// CONFIGURATION
 		(require_once __DIR__ . '/configRoute.php')($route);
-	});
+
+	})->add(new PermissioMiddleware());
 };
