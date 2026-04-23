@@ -11,6 +11,7 @@ class MediaObject extends CreativeWork
 
 	protected int $idmediaObject;
 	protected int $thing;
+	protected int $creativeWork;
 	public ?int $bitrate = null;
 	public ?string $duration = null;
 	public ?string $contentSize = null;

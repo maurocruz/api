@@ -71,7 +71,11 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 					foreach ($dataHasPart['data'] as $key2 => $value) {
 						$type = $value['type'];
 						$thing = $value['idthing'];
-						$dataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing])->render();
+						$getDataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing]);
+						if($type === 'WebPageElement') {
+							$getDataThing->setJoin('creativeWork', "`creativeWork`.thing = $thing");
+						}
+						$dataThing = $getDataThing->render();
 						if ($dataThing['status'] === false) {
 							return $dataThing;
 						}

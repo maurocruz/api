@@ -39,7 +39,9 @@ class ThingReadUseCase
 		}
 
 		// BUSCA POR PARAMS
-		$databaseData = $this->databaseActions->read(lcfirst($type), $sanitizedParams)->render();
+		$getData = $this->databaseActions->read(lcfirst($type), $sanitizedParams);
+		$databaseData = $getData->render();
+
 		if ($databaseData['status'] === false) {
 			return $databaseData;
 		}
@@ -135,7 +137,7 @@ class ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	protected function getHasPart(string $idIsPartOf, string $typeIsPartOf, string $typeHasPart = null, array $params = []): array
+	protected function getHasPart(string $idIsPartOf, string $typeIsPartOf = null, string $typeHasPart = null, array $params = []): array
 	{
 		$getData = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $idIsPartOf, 'typeIsPartOf' => ucfirst($typeIsPartOf)]);
 		$getData->setJoin('thing', 'thing_has_thing.idHasPart = thing.idthing', 'thing');

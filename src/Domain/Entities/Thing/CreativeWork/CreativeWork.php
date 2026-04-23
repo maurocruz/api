@@ -7,7 +7,6 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 class CreativeWork extends Thing
 {
 	public const bool IS_MODULE = true;
-
 	public const array DEPENDENCIES = ['Thing'];
 
 	protected int $idcreativeWork;
@@ -23,10 +22,12 @@ class CreativeWork extends Thing
 	public ?string $encodingFormat = null;
 	public mixed $hasPart = null;
 	public ?string $headline = null;
+	public mixed $isPartOf = null;
 	public string $keywords = '';
 	public ?string $licence = null;
 	public ?string $locationCreated = null;
 	public ?string $maintainer = null;
+	public ?int $position = null;
 	public ?string $publisher = null;
 	public ?string $size = null;
 	public ?string $text = null;

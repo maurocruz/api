@@ -7,14 +7,15 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
 class ImageObject extends MediaObject
 {
 	public const bool IS_MODULE = false;
-
 	public const array DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
 
 	protected int $idimageObject;
 	protected int $thing;
-	public ?string $caption = null;
-	public int $representativeOfPage = 0;
+	protected int $creativeWork;
+	protected int $mediaObject;
 
+	public ?string $caption = null;
+	public ?int $representativeOfPage = null;
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{

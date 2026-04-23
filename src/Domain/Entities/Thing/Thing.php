@@ -7,7 +7,6 @@ use Plinct\Api\Domain\Contracts\EntityInterface;
 class Thing implements EntityInterface
 {
 	public const bool IS_MODULE = false;
-
 	public const array DEPENDENCIES = [];
 
 	protected int $idthing;
@@ -28,5 +27,20 @@ class Thing implements EntityInterface
 	{
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
+	}
+
+	public function getIdthing(): int
+	{
+		return $this->idthing;
+	}
+
+	public function getType(): string
+	{
+		return $this->type;
+	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
 	}
 }

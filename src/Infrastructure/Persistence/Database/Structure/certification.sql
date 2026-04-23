@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS `certification`(
   `idcertification` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `creativeWork` INT UNSIGNED NOT NULL,
   `thing` INT UNSIGNED NOT NULL,
-  `about` INT UNSIGNED NOT NULL,
   `auditDate` DATETIME DEFAULT NULL,
   `certificationIdentification` VARCHAR(120) NOT NULL,
   `certificationStatus` TINYINT default 0,

@@ -4,6 +4,7 @@ use Plinct\Api\Http\Controller\Entities\Action\ActionController;
 use Plinct\Api\Http\Controller\Entities\EntityDeleteController;
 use Plinct\Api\Http\Controller\Entities\EntityReadController;
 use Plinct\Api\Http\Controller\Entities\EntityUpdateController;
+use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Collection\CollectionController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObjectCreateController;
@@ -20,6 +21,8 @@ return function (RouteCollectorProxy $route)
 {
 	// ACTION
 	$route->get('action', [ActionController::class,'read'])->setName('action.read');
+	// COLLECTION
+	$route->get('collection', [CollectionController::class, 'read'])->setName('collection.read');
 	// CREATIVE WORK
 	$route->get('creativeWork', [CreativeWorkController::class, 'read'])->setName('creativeWork.read');
 	// IMAGE OBJECT
@@ -46,6 +49,8 @@ return function (RouteCollectorProxy $route)
 	{
 		// ACTION
 		$route->post('action', [ActionController::class,'create'])->setName('modules.create');
+		// COLLECTION
+		$route->post('collection', [CollectionController::class, 'create'])->setName('collection.create');
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
 		// MEDIA OBJECT
@@ -64,5 +69,4 @@ return function (RouteCollectorProxy $route)
 		$route->put('{type}', EntityUpdateController::class)->setName('entity.update');
 		$route->delete('{type}', EntityDeleteController::class)->setName('modules.delete');
 	})->add(AuthMiddleware::class);
-
 };

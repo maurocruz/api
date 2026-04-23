@@ -11,6 +11,13 @@ class CreativeWorkCreateUseCase extends ThingCreateUseCase
 		// SANITIZE PARAMS
 		$sanitizedParams = SupportApplication::sanitizeParams('creativeWork', $parseBody);
 
+		// VERIFICA SE NÃO É APENAS RELACIONAMENTO
+		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
+		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
+		if ($idHasPart && $idIsPartOf) {
+			return $this->createRelationship($idHasPart, $idIsPartOf);
+		}
+
 		if (!isset($sanitizedParams['name'])) {
 			return ['status' => false, 'message' => 'Name is required'];
 		}

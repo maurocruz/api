@@ -41,9 +41,8 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 				$results[] = $result['data'];
 			}
 		}
-
 		if (!empty($results)) {
-			return ['status' => true, 'message' => 'Upload files was success.', 'data' => $results];
+			return SupportApplication::returnDTOFromDatabaseData(['status' => true, 'message' => 'Upload files was success.', 'data' => $results]);
 		}
 		return ['status' => false, 'message' => 'Upload failed.', 'data' => []];
 	}
@@ -119,9 +118,8 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 		} else {
 			$status = true;
 			$message = 'MediaObject has created.';
-			$data = $saveCreativeWork['data'] + $saveMediaObject['data'];
+			$data = $creativeWorkData + $mediaObjectData;
 		}
-
 		return SupportApplication::returnDTO($status, $message, $data);
 	}
 
