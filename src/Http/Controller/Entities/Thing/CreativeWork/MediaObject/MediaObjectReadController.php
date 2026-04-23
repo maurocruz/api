@@ -1,7 +1,7 @@
 <?php
 namespace Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject;
 
-use Plinct\Api\Application\Modules\Thing\CreativeWork\MediaObject\MediaObjectReadUseCase;
+use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\MediaObjectReadUseCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
