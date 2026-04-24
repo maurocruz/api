@@ -12,6 +12,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObje
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
 use Plinct\Api\Http\Middleware\AuthMiddleware;
@@ -23,6 +24,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('action', [ActionController::class,'read'])->setName('action.read');
 	// COLLECTION
 	$route->get('collection', [CollectionController::class, 'read'])->setName('collection.read');
+	// CONTACT POINT
+	$route->get('contactPoint', [ContactPointController::class, 'read'])->setName('contactPoint.read');
 	// CREATIVE WORK
 	$route->get('creativeWork', [CreativeWorkController::class, 'read'])->setName('creativeWork.read');
 	// IMAGE OBJECT
@@ -51,6 +54,8 @@ return function (RouteCollectorProxy $route)
 		$route->post('action', [ActionController::class,'create'])->setName('modules.create');
 		// COLLECTION
 		$route->post('collection', [CollectionController::class, 'create'])->setName('collection.create');
+		// CONTACT POINT
+		$route->post('contactPoint', [ContactPointController::class, 'create'])->setName('contactPoint.create');
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
 		// MEDIA OBJECT
