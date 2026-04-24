@@ -7,6 +7,9 @@ return function (RouteCollectorProxy $route)
 {
 	$route->group('config', function (RouteCollectorProxy $route) {
 		// INSTALL MODULE
-		$route->post('/installModule', [ConfigController::class,'installModule'])->setName('config.installModule.send');
+		$route->post('/installModule', [ConfigController::class,'installModule'])->setName('config.installModule');
+
+		// UPDATE
+		$route->get('/update', [ConfigController::class,'update'])->setName('config.update');
 	});
 };
