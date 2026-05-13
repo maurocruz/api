@@ -4,6 +4,7 @@ use Plinct\Api\Http\Controller\Entities\Action\ActionController;
 use Plinct\Api\Http\Controller\Entities\EntityDeleteController;
 use Plinct\Api\Http\Controller\Entities\EntityReadController;
 use Plinct\Api\Http\Controller\Entities\EntityUpdateController;
+use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Book\BookController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Collection\CollectionController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectController;
@@ -13,7 +14,10 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageContro
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress\PostalAddressController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueController;
+use Plinct\Api\Http\Controller\Entities\Thing\Place\PlaceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
 use Plinct\Api\Http\Middleware\AuthMiddleware;
 use Slim\Routing\RouteCollectorProxy;
@@ -22,6 +26,8 @@ return function (RouteCollectorProxy $route)
 {
 	// ACTION
 	$route->get('action', [ActionController::class,'read'])->setName('action.read');
+	// BOOK
+	$route->get('book', [BookController::class, 'read'])->setName('book.read');
 	// COLLECTION
 	$route->get('collection', [CollectionController::class, 'read'])->setName('collection.read');
 	// CONTACT POINT
@@ -32,6 +38,10 @@ return function (RouteCollectorProxy $route)
 	$route->get('imageObject', [ImageObjectController::class, 'read'])->setName('imageObject.read');
 	// MEDIA OBJECT
 	$route->get('mediaObject', MediaObjectReadController::class)->setName('mediaObject.read');
+	// ORGANIZATION
+
+	// PLACE
+	$route->get('place', [PlaceController::class, 'read'])->setName('place.read');
 	// PRODUCT
 	$route->get('product', [ProductController::class,'read'])->setName('product.read');
 	// PROPERTY VALUE
@@ -56,10 +66,15 @@ return function (RouteCollectorProxy $route)
 		$route->post('collection', [CollectionController::class, 'create'])->setName('collection.create');
 		// CONTACT POINT
 		$route->post('contactPoint', [ContactPointController::class, 'create'])->setName('contactPoint.create');
+		// GEO COORDINATES
+		$route->put('geoCoordinates', [GeoCoordinatesController::class, 'update'])->setName('geoCoordinates.update');
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
 		// MEDIA OBJECT
 		$route->post('mediaObject', MediaObjectCreateController::class)->setName('mediaObject.create');
+		// POSTAL ADDRESS
+		$route->post('postalAddress', [PostalAddressController::class, 'create'])->setName('place.create');
+		$route->put('postalAddress', [PostalAddressController::class, 'update'])->setName('place.update');
 		// PRODUCT
 		$route->post('product', [ProductController::class, 'create'])->setName('product.create');
 		// PROPERTY VALUE

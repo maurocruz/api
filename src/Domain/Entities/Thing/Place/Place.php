@@ -7,12 +7,12 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 class Place extends Thing
 {
 	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing'];
+	public const array DEPENDENCIES = ['Thing','GeoCoordinates'];
 
 	protected int $idplace;
 	protected int $thing;
 	public ?string $keywords = null;
-	public ?int $geo = null;
+	public mixed $geo = null;
 	public ?int $publicAccess = 0;
 
 	public function hydrateParams(array $data, bool $withParent = false): array
