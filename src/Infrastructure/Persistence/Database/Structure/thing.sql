@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `thing_has_thing` (
   `idIsPartOf` INT UNSIGNED NOT NULL,
   `typeIsPartOf` VARCHAR(48) NOT NULL,
   `caption` VARCHAR(255) NULL DEFAULT NULL,
-  `position` INT UNSIGNED NULL DEFAULT '1',
+  `position` INT UNSIGNED NOT NULL DEFAULT '1',
   `representativeOfPage` TINYINT NOT NULL DEFAULT 0,
   `repUniqueFlag` TINYINT GENERATED ALWAYS AS (CASE WHEN `representativeOfPage` = 1 THEN 1 END) VIRTUAL,
   PRIMARY KEY (`idHasPart`, `idIsPartOf`, `typeHasPart`, `typeIsPartOf`),
