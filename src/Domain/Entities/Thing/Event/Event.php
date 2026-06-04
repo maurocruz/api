@@ -15,11 +15,11 @@ class Event extends Thing
 	public ?string $director = null;
 	public ?string $endDate = null;
 	public ?string $keywords = null;
-	public ?int $location = null;
+	public mixed $location = null;
 	public ?string $organizer = null;
 	public ?string $startDate = null;
-	public ?int $subEvent = null;
-	public ?int $superEvent = null;
+	public mixed $subEvent = null;
+	public mixed $superEvent = null;
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
