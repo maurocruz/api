@@ -3,20 +3,11 @@
 use Plinct\Api\Http\Controller\User\UserController;
 use Plinct\Api\Http\Controller\User\UserPrivilegesController;
 use Plinct\Api\Http\Middleware\AuthMiddleware;
-use Plinct\Api\Middleware\CorsMiddleware;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Routing\RouteCollectorProxy;
 
 return function (RouteCollectorProxy $route)
 {
 	$route->group('user', function (RouteCollectorProxy $route) {
-
-		$route->options('', function (ServerRequestInterface $request, ResponseInterface $response) {
-			return $response;
-		})->addMiddleware(new CorsMiddleware([
-			'Access-Control-Allow-Headers' => 'origin, x-requested-with, content-type, Authorization'
-		]));
 
 		$route->get('', [UserController::class,'read'])->setName('user.read');
 		$route->put('', [UserController::class,'update'])->setName('user.update');

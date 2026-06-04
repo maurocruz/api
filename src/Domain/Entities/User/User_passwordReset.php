@@ -19,4 +19,19 @@ class User_passwordReset implements EntityInterface
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
 	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
+	}
+
+	public function getType(): string
+	{
+		return 'User_passwordReset';
+	}
+
+	public function getId(): int
+	{
+		return $this->iduser;
+	}
 }

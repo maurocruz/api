@@ -21,4 +21,19 @@ class User_history implements EntityInterface
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
 	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
+	}
+
+	public function getType(): string
+	{
+		return 'User_history';
+	}
+
+	public function getId(): int
+	{
+		return $this->iduser_history;
+	}
 }
