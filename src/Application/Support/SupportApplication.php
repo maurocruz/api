@@ -19,13 +19,19 @@ class SupportApplication
 	/**
 	 * @throws ReflectionException
 	 */
-	public static function hydrateFromDatabase(array $databaseData): array
+	public static function hydrateFromDatabase(array $databaseData): array|object
 	{
 		$result = [];
-		foreach ($databaseData as $value) {
-			$type = $value['type'];
+		if (isset($databaseData[0])) {
+			foreach ($databaseData as $value) {
+				$type = $value['type'] ?? $value['@type'];
+				$reflection = new EntityReflections($type);
+				$result[] = $reflection->hydrateFromDatabase($value);
+			}
+		} elseif (isset($databaseData['type'])) {
+			$type = $databaseData['type'];
 			$reflection = new EntityReflections($type);
-			$result[] = $reflection->hydrateFromDatabase($value);
+			return $reflection->hydrateFromDatabase($databaseData);
 		}
 		return $result;
 	}
@@ -38,6 +44,10 @@ class SupportApplication
 		return EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
 	}
 
+	/**
+	 * @param string $name
+	 * @return EntityInterface|null
+	 */
 	public static function getEntity(string $name): ?EntityInterface
 	{
 		return Entities::getEntity($name);
@@ -55,6 +65,13 @@ class SupportApplication
 		return $propertiesArray;
 	}
 
+	/**
+	 * @param bool|int $status
+	 * @param string $message
+	 * @param array $data
+	 * @param string|null $file
+	 * @return array
+	 */
 	public static function returnDTO(bool|int $status, string $message, array $data = [], string $file = null): array
 	{
 		$returns['status'] = $status;
@@ -64,11 +81,23 @@ class SupportApplication
 		return $returns;
 	}
 
+	/**
+	 * @param bool|int $status
+	 * @param string $message
+	 * @param array $data
+	 * @param string|null $file
+	 * @return string
+	 */
 	public static function returnDTOToJson(bool|int $status, string $message, array $data = [], string $file = null): string
 	{
 		return json_encode(self::returnDTO($status, $message, $data, $file), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 	}
 
+	/**
+	 * @param string $type
+	 * @param array $param
+	 * @return array
+	 */
 	public static function sanitizeParams(string $type, array $param): array
 	{
 		return SanitizeParams::sanitize($type, $param);
@@ -86,8 +115,6 @@ class SupportApplication
 		$data = $databaseData['data'] ?? [];
 
 		$entityDTO = new EntityDTO();
-
-		// STATUS
 		$entityDTO->setStatus($status);
 
 		// MENSAGEM
@@ -108,14 +135,9 @@ class SupportApplication
 		$count = $countFields ?? count($data) ?? 'nd';
 		$entityDTO->setCount($count);
 
-		// DATA
-			// HIDRATA DADOS
-			//$entities = SupportApplication::hydrateFromDatabase($data);
-			//$schemaOrgFormat = SupportApplication::convertFromObjectToSchemaOrgArrayDTO($entities);
-			$schemaOrgFormat = self::convertDataToSchemaOrg($data);
-
+		// HIDRATA DADOS
+		$schemaOrgFormat = self::convertDataToSchemaOrg($data);
 		$entityDTO->setData($schemaOrgFormat);
-
 		return $entityDTO->ready();
 	}
 
@@ -126,6 +148,6 @@ class SupportApplication
 	{
 		if (isset($data['data'])) return [];
 		$entities = SupportApplication::hydrateFromDatabase($data);
-		return SupportApplication::convertFromObjectToSchemaOrgArrayDTO($entities);
+		return EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
 	}
 }
