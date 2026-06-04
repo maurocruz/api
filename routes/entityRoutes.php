@@ -1,9 +1,7 @@
 <?php
 
 use Plinct\Api\Http\Controller\Entities\Action\ActionController;
-use Plinct\Api\Http\Controller\Entities\EntityDeleteController;
-use Plinct\Api\Http\Controller\Entities\EntityReadController;
-use Plinct\Api\Http\Controller\Entities\EntityUpdateController;
+use Plinct\Api\Http\Controller\Entities\EntityController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Book\BookController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Collection\CollectionController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkController;
@@ -13,6 +11,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObje
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
+use Plinct\Api\Http\Controller\Entities\Thing\Event\EventController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress\PostalAddressController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
@@ -34,6 +33,10 @@ return function (RouteCollectorProxy $route)
 	$route->get('contactPoint', [ContactPointController::class, 'read'])->setName('contactPoint.read');
 	// CREATIVE WORK
 	$route->get('creativeWork', [CreativeWorkController::class, 'read'])->setName('creativeWork.read');
+	// EVENT
+	$route->get('event', [EventController::class, 'read'])->setName('event.read');
+	// GEOCOORDINATES
+	$route->get('geoCoordinates', [GeoCoordinatesController::class, 'read'])->setName('geoCoordinates.read');
 	// IMAGE OBJECT
 	$route->get('imageObject', [ImageObjectController::class, 'read'])->setName('imageObject.read');
 	// MEDIA OBJECT
@@ -53,7 +56,7 @@ return function (RouteCollectorProxy $route)
 	// WEB SITE
 	$route->get('webSite', [WebSiteController::class, 'read'])->setName('webSite.read');
 	// DEFAULT
-	$route->get('{type}',[EntityReadController::class, 'read'])->setName('modules.read');
+	$route->get('{type}',[EntityController::class, 'read'])->setName('modules.read');
 
 	//
 	// METHODS ACTIONS
@@ -66,7 +69,10 @@ return function (RouteCollectorProxy $route)
 		$route->post('collection', [CollectionController::class, 'create'])->setName('collection.create');
 		// CONTACT POINT
 		$route->post('contactPoint', [ContactPointController::class, 'create'])->setName('contactPoint.create');
+		// EVENT
+		$route->post('event', [EventController::class, 'create'])->setName('event.create');
 		// GEO COORDINATES
+		$route->post('geoCoordinates', [GeoCoordinatesController::class, 'create'])->setName('geoCoordinates.create');
 		$route->put('geoCoordinates', [GeoCoordinatesController::class, 'update'])->setName('geoCoordinates.update');
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
@@ -86,7 +92,8 @@ return function (RouteCollectorProxy $route)
 		// WEB SITE
 		$route->post('webSite', [WebSiteController::class, 'create'])->setName('webSite.create');
 		// DEFAULT
-		$route->put('{type}', EntityUpdateController::class)->setName('entity.update');
-		$route->delete('{type}', EntityDeleteController::class)->setName('modules.delete');
+		$route->post('{type}', [EntityController::class, 'create'])->setName('modules.create');
+		$route->put('{type}', [EntityController::class, 'update'])->setName('entity.update');
+		$route->delete('{type}', [EntityController::class, 'delete'])->setName('modules.delete');
 	})->add(AuthMiddleware::class);
 };

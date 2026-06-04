@@ -6,7 +6,10 @@ use Plinct\Api\Domain\Contracts\EntityInterface;
 use Plinct\Api\Domain\Entities\Thing\Action\Action;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\Article\Article;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\Book\Book;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\Certification\Certification;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\Collection\Collection;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\AudioObject\AudioObject;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObject;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\VideoObject\VideoObject;
@@ -14,8 +17,16 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\Review\Review;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPage\WebPage;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPageElement\WebPageElement;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebSite\WebSite;
+use Plinct\Api\Domain\Entities\Thing\Event\Event;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Property;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\ContactPoint;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\GeoCoordinates;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PostalAddress;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PropertyValue;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Trip\Trip;
+use Plinct\Api\Domain\Entities\Thing\Organization\Organization;
+use Plinct\Api\Domain\Entities\Thing\Person\Person;
+use Plinct\Api\Domain\Entities\Thing\Place\Place;
 use Plinct\Api\Domain\Entities\Thing\Product\Product;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 use Plinct\Api\Domain\Entities\User\User;
@@ -31,15 +42,26 @@ class Entities
 	public const array ENTITIES = [
 		['name' => 'Action', 'object' => Action::class],
 		['name' => 'Article', 'object' => Article::class],
+		['name' => 'AudioObject', 'object' => AudioObject::class],
 		['name' => 'Book', 'object' => Book::class ],
+		['name' => 'Certification', 'object' => Certification::class ],
+		['name' => 'Collection', 'object' => Collection::class ],
+		['name' => 'ContactPoint', 'object' => ContactPoint::class ],
 		['name' => 'CreativeWork', 'object' => CreativeWork::class],
+		['name' => 'Event', 'object' => Event::class],
+		['name' => 'GeoCoordinates', 'object' => GeoCoordinates::class],
 		['name' => 'ImageObject', 'object' => ImageObject::class],
 		['name' => 'MediaObject', 'object' => MediaObject::class],
+		['name' => 'Organization', 'object' => Organization::class ],
+		['name' => 'Person', 'object' => Person::class],
+		['name' => 'Place', 'object' => Place::class],
+		['name' => 'PostalAddress', 'object' => PostalAddress::class],
 		['name' => 'Product', 'object' => Product::class ],
 		['name' => 'PropertyValue', 'object' => PropertyValue::class],
 		['name' => 'Review', 'object' => Review::class],
 		['name' => 'Thing', 'object' => Thing::class],
 		['name' => 'Thing_has_thing', 'object' => Property::class],
+		['name' => 'Trip', 'object' => Trip::class],
 		['name' => 'User', 'object' => User::class],
 		['name' => 'User_history', 'object' => User_history::class],
 		['name' => 'User_passwordReset', 'object' => User_passwordReset::class],

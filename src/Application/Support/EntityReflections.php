@@ -3,7 +3,6 @@ namespace Plinct\Api\Application\Support;
 
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
 use Plinct\Api\Domain\Entities\Entities;
-use Plinct\Api\Domain\Modules\ModuleDomain;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
@@ -36,16 +35,25 @@ class EntityReflections
 		}
 	}
 
+	/**
+	 * @return ReflectionClass
+	 */
 	public function getReflection(): ReflectionClass
 	{
 		return $this->reflection;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getShortName(): string
 	{
 		return $this->reflection->getShortName();
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getOwnProperties(): array
 	{
 		return array_filter(
@@ -59,31 +67,23 @@ class EntityReflections
 	 */
 	public function hydrateFromDatabase(array $database): ?object
 	{
-
 		// CRIA NOVA INSTANCIA
 		$entity = $this->reflection->newInstanceWithoutConstructor();
 
 		foreach ($this->reflection->getProperties() as $property) {
 			$name = $property->getName();
-			$type = $property->getType();
-
-			if ($type instanceof ReflectionNamedType) {
-				$typeName = $type->getName();
-			} elseif ($type instanceof ReflectionUnionType) {
-				$typeName = $type->getTypes()[0]->getName();
-			} else {
-				$typeName = null;
-			}
+			$type = self::getTypeName($property);
 
 			if (!array_key_exists($name, $database)) continue;
 			$value = $database[$name];
 
 			// SE A PROPRIEDADE É INT OU FLOAT E O VALOR FOR UMA STRING VAZIA, SETA O VALOR COMO NULL
-			if ($value === '' && ($typeName === 'int' || $typeName === 'float' )) {
+			if ($value === '' && ($type === 'int' || $type === 'float' )) {
 				$property->setValue($entity, null);
 				continue;
 			}
-			$property->setValue($entity, self::castValue($value, $typeName));
+
+			$property->setValue($entity, self::castValue($value, $type));
 		}
 		return  $entity;
 	}
@@ -98,10 +98,11 @@ class EntityReflections
 			if (!$withParent && $this->reflection->getName() !== $property->getDeclaringClass()->getName()) continue;
 
 			$name = $property->getName();
+			$type = self::getTypeName($property);
 
 			if (!array_key_exists($name, $params)) continue;
 
-			$paramsArray[$name] = $params[$name];
+			$paramsArray[$name] = self::castValue($params[$name], $type);
 
 		}
 		return $paramsArray;
@@ -110,50 +111,73 @@ class EntityReflections
 	/**
 	 * @throws ReflectionException
 	 */
-	public static function convertFromObjectToSchemaOrgArrayDTO(array $entities): array
+	public static function convertFromObjectToSchemaOrgArrayDTO(array|object $entities): array
 	{
 		$result = [];
-		foreach ($entities as $key => $entity)
-		{
-			$result[$key]['@context'] = 'https://schema.org';
-			$result[$key]['@type'] = $entity->getType();
-			$result[$key]['@id'] = ConfigurationDomain::getHost() . '/schema/' . lcfirst($entity->getType()) . '/' . $entity->getIdthing();
-
-			$reflection = new ReflectionClass($entity);
-
-			foreach ($reflection->getProperties() as $property)
-			{
-				// EXCLUI PROPRIEDADES NAO INICIALIZADAS
-				if (!$property->isInitialized($entity)) continue;
-
-				// EXCLUI PROPRIEDADES PRIVADAS
-				if ($property->isPrivate()) continue;
-
-				$value = $property->getValue($entity);
-				$name = $property->getName();
-
-				// SEPARA PROPRIEDADES PROTEGIDAS DE PUBLICAS
-				if ($property->isProtected()) {
-					$result[$key]['identifier'][] = ['@type' => 'PropertyValue', 'name' => $name, 'value' => $value];
-				}
-				elseif ($property->isPublic()) {
-					// SE PROPRIEDADE FOR OBJETO
-					if (is_array($value)) {
-						$entities = SupportApplication::hydrateFromDatabase($value);
-						$result[$key][$name] = self::convertFromObjectToSchemaOrgArrayDTO($entities);
-					} else {
-						$result[$key][$name] = $value;
-					}
-				}
+		if (is_object($entities)) {
+			$result = self::buildDTO($entities);
+		} else {
+			foreach ($entities as $key => $entity) {
+				$result[$key] = self::buildDTO($entity);
 			}
 		}
 		// ORDENA OS DADOS
-		foreach ($result as $key => $value) {
-			$identifiers = $value['identifier'];
-			unset($value['identifier']);
-			ksort($value);
-			$value['identifier'] = $identifiers;
-			$result[$key] = array_filter($value);
+		if (is_object($entities)) {
+			$identifiers = $result['identifier'];
+			unset($result['identifier']);
+			ksort($result);
+			$result['identifier'] = $identifiers;
+		} else {
+			foreach ($result as $key => $value) {
+				$identifiers = $value['identifier'];
+				unset($value['identifier']);
+				ksort($value);
+				$value['identifier'] = $identifiers;
+				$result[$key] = array_filter($value);
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	private static function buildDTO($entity): array
+	{
+		$result['@context'] = 'https://schema.org';
+		$result['@type'] = $entity->getType();
+		$result['@id'] = ConfigurationDomain::getHost() . '/schema/' . lcfirst($entity->getType()) . '/' . $entity->getId();
+
+		$reflection = new ReflectionClass($entity);
+
+		foreach ($reflection->getProperties() as $property)
+		{
+			// EXCLUI PROPRIEDADES NAO INICIALIZADAS
+			if (!$property->isInitialized($entity)) continue;
+
+			// EXCLUI PROPRIEDADES PRIVADAS
+			if ($property->isPrivate()) continue;
+
+			$value = $property->getValue($entity);
+			$name = $property->getName();
+
+			// SEPARA PROPRIEDADES PROTEGIDAS DE PUBLICAS
+			if ($property->isProtected()) {
+				$result['identifier'][] = ['@type' => 'PropertyValue', 'name' => $name, 'value' => $value];
+			}
+			elseif ($property->isPublic()) {
+				// SE PROPRIEDADE FOR OBJETO
+				if (is_array($value)) {
+					$entities = SupportApplication::hydrateFromDatabase($value);
+					if ($name === 'identifier') { // SE FOR IDENTIFICADOR
+						$result['identifier'] = array_merge($result['identifier'],$value);
+					} else {
+						$result[$name] = self::convertFromObjectToSchemaOrgArrayDTO($entities);
+					}
+				} else {
+					$result[$name] = $value;
+				}
+			}
 		}
 		return $result;
 	}
@@ -173,6 +197,18 @@ class EntityReflections
 			'array' => (array) $value,
 			default => $value
 		};
+	}
+
+	private static function getTypeName($property): ?string
+	{
+		$type = $property->getType();
+		if ($type instanceof ReflectionNamedType) {
+			return $type->getName();
+		} elseif ($type instanceof ReflectionUnionType) {
+			return $type->getTypes()[0]->getName();
+		} else {
+			return null;
+		}
 	}
 
 
