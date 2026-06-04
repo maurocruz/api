@@ -3,7 +3,6 @@ namespace Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\ImageOb
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\MediaObjectReadUseCase;
 use Plinct\Api\Application\Support\SanitizeParams;
-use Plinct\Api\Application\Support\SupportApplication;
 
 class ImageObjectReadUseCase extends MediaObjectReadUseCase
 {
@@ -26,11 +25,6 @@ class ImageObjectReadUseCase extends MediaObjectReadUseCase
 			$getData->setJoin('creativeWork', 'creativeWork.thing = imageObject.thing');
 			$getData->setJoin('mediaObject', 'mediaObject.thing = imageObject.thing');
 		}
-		$databaseData = $getData->render();
-
-		if ($databaseData['status'] === false) {
-			return $databaseData;
-		}
-		return SupportApplication::returnDTOFromDatabaseData($databaseData,  'ImageObject found');
+		return $getData->render();
 	}
 }

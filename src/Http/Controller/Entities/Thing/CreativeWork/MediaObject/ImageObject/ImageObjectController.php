@@ -3,6 +3,7 @@ namespace Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\Ima
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectCreateUseCase;
 use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectReadUseCase;
+use Plinct\Api\Application\Support\SupportApplication;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -22,7 +23,7 @@ readonly class ImageObjectController
 		$queryParams = $request->getQueryParams();
 		$responseData = $this->imageObjectReadUseCase->read($queryParams);
 		$response = $response->withHeader('Content-Type', 'application/json');
-		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		$response->getBody()->write(json_encode(SupportApplication::returnDTOFromDatabaseData($responseData), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	}
 
@@ -34,7 +35,7 @@ readonly class ImageObjectController
 		$parseBody = $request->getParsedBody();
 		$responseData = $this->imageObjectCreateUseCase->create($parseBody);
 		$response = $response->withHeader('Content-Type', 'application/json');
-		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		$response->getBody()->write(json_encode(SupportApplication::returnDTOFromDatabaseData($responseData), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	}
 }

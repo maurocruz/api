@@ -42,49 +42,55 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 		}
 
 		// IF PROPERTIES
-		$properties = $sanitizedParams['properties'] ?? null;
-		if (!empty($properties)) {
-			foreach ($databaseData['data'] as $key => $webPage) {
-				$idthing = $webPage['idthing'];
+		$properties = $sanitizedParams['properties'] ?? [];
+		foreach ($databaseData['data'] as $key => $webPage) {
+			$idthing = $webPage['idthing'];
 
-				// IS PART OF
-				if (in_array('isPartOf', $properties)) {
-					$relationshipData = parent::getHasPart($idthing, 'WebPage', 'WebSite');
-					if ($relationshipData['status'] === false) {
-						return $relationshipData;
-					}
-					$databaseData['data'][$key]['isPartOf'] = $relationshipData['data'];
+			// HAS PROPERTY VALUE
+			$dataPropertiesValue = $this->getPropertiesValue($idthing);
+			if ($dataPropertiesValue['status'] === false) {
+				return $dataPropertiesValue;
+			}
+			$databaseData['data'][$key]['identifier'] = $dataPropertiesValue['data'];
+
+			// IS PART OF
+			if (in_array('isPartOf', $properties)) {
+				$relationshipData = parent::getHasPart($idthing, 'WebPage', 'WebSite');
+				if ($relationshipData['status'] === false) {
+					return $relationshipData;
 				}
+				$databaseData['data'][$key]['isPartOf'] = $relationshipData['data'];
+			}
 
-				// HAS PART
-				if (in_array('hasPart', $properties)) {
-					$paramsHasPart['idHasPart'] = $idthing;
-					$paramsHasPart['typeHasPart'] = 'WebPage';
-					$paramsHasPart['orderBy'] = $orderBy ?? 'thing.name';
-					$dataGetHasPart = $this->databaseActions->read('thing_has_thing', $paramsHasPart);
-					$dataGetHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
-					$dataHasPart = $dataGetHasPart->render();
+			// HAS PART
+			if (in_array('hasPart', $properties)) {
+				$paramsHasPart['idHasPart'] = $idthing;
+				$paramsHasPart['typeHasPart'] = 'WebPage';
+				$paramsHasPart['orderBy'] = $orderBy ?? 'thing.name';
+				$dataGetHasPart = $this->databaseActions->read('thing_has_thing', $paramsHasPart);
+				$dataGetHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
+				$dataGetHasPart->setWhere('typeIsPartOf <> "PropertyValue"');
+				$dataHasPart = $dataGetHasPart->render();
 
-					if ($dataHasPart['status'] === false) {
-						return $dataHasPart;
-					}
-					foreach ($dataHasPart['data'] as $key2 => $value) {
-						$type = $value['type'];
-						$thing = $value['idthing'];
-						$getDataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing]);
-						if($type === 'WebPageElement') {
-							$getDataThing->setJoin('creativeWork', "`creativeWork`.thing = $thing");
-						}
-						$dataThing = $getDataThing->render();
-						if ($dataThing['status'] === false) {
-							return $dataThing;
-						}
-						$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataThing['data'][0]);
-					}
-					$databaseData['data'][$key]['hasPart'] = $dataHasPart['data'] ?? null;
+				if ($dataHasPart['status'] === false) {
+					return $dataHasPart;
 				}
+				foreach ($dataHasPart['data'] as $key2 => $value) {
+					$type = $value['type'];
+					$thing = $value['idthing'];
+					$getDataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing]);
+					if($type === 'WebPageElement') {
+						$getDataThing->setJoin('creativeWork', "`creativeWork`.thing = $thing");
+					}
+					$dataThing = $getDataThing->render();
+					if ($dataThing['status'] === false) {
+						return $dataThing;
+					}
+					$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataThing['data'][0]);
+				}
+				$databaseData['data'][$key]['hasPart'] = $dataHasPart['data'] ?? null;
 			}
 		}
-		return SupportApplication::returnDTOFromDatabaseData($databaseData,  'WebPage found');
+		return $databaseData;
 	}
 }

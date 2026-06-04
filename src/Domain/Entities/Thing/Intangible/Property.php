@@ -24,4 +24,19 @@ class Property implements EntityInterface
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
 	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
+	}
+
+	public function getType(): string
+	{
+		return 'Property';
+	}
+
+	public function getId(): int
+	{
+		return $this->idproperty;
+	}
 }

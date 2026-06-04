@@ -49,7 +49,8 @@ class PlaceReadUseCase extends ThingReadUseCase
 			foreach ($data['data'] as $key => $place) {
 				// GEO
 				if (in_array('geo', $properties)) {
-					$geo = $place['geo'];
+					$geo = $place['geo'] ?? null;
+					if (!$geo) continue;
 					$dataGeo = $this->geoCoordinatesReadUseCase->read(['idgeoCoordinates' => $geo, 'properties' => 'address']);
 					if ($dataGeo['status'] === false) {
 						return $dataGeo;

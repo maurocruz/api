@@ -119,7 +119,7 @@ class ThingReadUseCase
 	 */
 	private function readRelationshipHasPart(string $idHasPart, string $typeIsPartOf, array $addtionalparams = []): array
 	{
-		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => ucfirst($typeIsPartOf)]);
+		$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart]);
 		$getData->setParams($addtionalparams);
 		$getData->setJoin('thing', 'thing_has_thing.idIsPartOf = thing.idthing', 'thing');
 		$responseData = $getData->render();
@@ -161,5 +161,16 @@ class ThingReadUseCase
 		}
 		// OBTÉM DADOS DO TYPEHASPART
 		return  $this->databaseActions->read(lcfirst($typeHasPart), ['thing' => implode('|',$things)])->render();
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	protected function getPropertiesValue(string $idthing): array
+	{
+		return $this->databaseActions->read('thing_has_thing',['idHasPart'=>$idthing,'typeIsPartOf'=>'PropertyValue','fields'=>'name,value,type as `@type`'])
+			->setJoin('thing', 'thing_has_thing.idIsPartOf = thing.idthing')
+			->setJoin('propertyValue', 'thing_has_thing.idIsPartOf = propertyValue.thing')
+			->render();
 	}
 }

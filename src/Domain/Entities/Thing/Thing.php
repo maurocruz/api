@@ -22,6 +22,7 @@ class Thing implements EntityInterface
 	public ?string $sameAs = null;
 	public string $type;
 	public ?string $url = null;
+	public array $identifier = [];
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
@@ -29,7 +30,7 @@ class Thing implements EntityInterface
 		return $reflection->hydrateOwnProperties($data);
 	}
 
-	public function getIdthing(): int
+	public function getId(): int
 	{
 		return $this->idthing;
 	}

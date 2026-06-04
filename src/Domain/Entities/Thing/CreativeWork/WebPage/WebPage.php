@@ -7,7 +7,7 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 class WebPage extends CreativeWork
 {
 	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Thing'];
+	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
 	protected int $idwebPage;
 	protected int $thing;

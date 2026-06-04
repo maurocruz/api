@@ -21,10 +21,14 @@ class MediaObject extends CreativeWork
 	public ?int $width = null;
 	public string $uploadDate;
 
-
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
+	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
 	}
 }

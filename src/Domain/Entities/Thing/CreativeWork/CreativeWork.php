@@ -2,6 +2,7 @@
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork;
 
 use Plinct\Api\Application\Support\EntityReflections;
+use Plinct\Api\Domain\Entities\Entities;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class CreativeWork extends Thing
@@ -34,10 +35,26 @@ class CreativeWork extends Thing
 	public ?string $thumbnail = null;
 	public string $version = '';
 
-
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
+	}
+
+	public function getDependencies(): array
+	{
+		return self::DEPENDENCIES;
+	}
+
+	public static function getChildren(): array
+	{
+		$returns = [];
+		foreach (Entities::ENTITIES as $entity) {
+			if ($entity['object'] === CreativeWork::class) continue;
+			if (in_array('CreativeWork', $entity['object']::DEPENDENCIES)) {
+				$returns[] = $entity['name'];
+			}
+		}
+		return $returns;
 	}
 }

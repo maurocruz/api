@@ -21,7 +21,6 @@ class CollectionReadUseCase extends CreativeWorkReadUseCase
 			if ($dataCollection['status'] === false) {
 				return $dataCollection;
 			}
-			return SupportApplication::returnDTOFromDatabaseData($dataCollection, 'Collection found');
 		} else {
 			$getData = $this->databaseActions->read('collection', $sanitizedParams);
 			$getData->setJoin('creativeWork', 'creativeWork.thing = collection.thing');
@@ -46,7 +45,7 @@ class CollectionReadUseCase extends CreativeWorkReadUseCase
 					}
 				}
 			}
-			return SupportApplication::returnDTOFromDatabaseData($dataCollection, 'Collection found');
 		}
+		return SupportApplication::returnDTOFromDatabaseData($dataCollection, 'Collection found');
 	}
 }
