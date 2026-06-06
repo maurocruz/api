@@ -1,14 +1,8 @@
 <?php
 namespace Plinct\Api;
 
-use Dotenv\Dotenv;
-use Plinct\Api\Middleware\CorsMiddleware;
-use Plinct\Api\Middleware\GatewayMiddleware;
-use Plinct\Api\Middleware\LoggedUserMiddleware;
 use Plinct\Api\Request\Server\ConnectBd\PDOConnect;
 use Slim\App;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 class ApiApp
 {
@@ -48,13 +42,6 @@ class ApiApp
   public function __construct(App $slimApp)
   {
     $this->slimApp = $slimApp;
-		$slimApp->add(function (Request $request, RequestHandler $handler) {
-			self::$HOST = $request->getUri()->getScheme().'://'.$request->getUri()->getHost();
-			return $handler->handle($request);
-		});
-	  // Carrega as variáveis do arquivo .env
-	  $dotenv = Dotenv::createImmutable(__DIR__.'/../');
-	  $dotenv->load();
   }
 
   /**
@@ -142,11 +129,5 @@ class ApiApp
   public function run(): void
   {
 		$this->slimApp->run();
-		/*$this->slimApp->addBodyParsingMiddleware();
-		$this->slimApp
-			->addMiddleware(new CorsMiddleware(["Content-type"=>"application/json", "Access-Control-Allow-Origin"=>"*"]))
-			->addMiddleware(new LoggedUserMiddleware())
-			->addMiddleware(new GatewayMiddleware());
-		return ApiFactory::request()->routes()->home($this->slimApp);*/
   }
 }

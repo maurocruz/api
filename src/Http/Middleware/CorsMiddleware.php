@@ -9,9 +9,10 @@ use Slim\Psr7\Response;
 
 readonly class CorsMiddleware implements MiddlewareInterface
 {
-
-	public function __construct(private bool $dev, private string $host)
-	{	}
+	public function __construct(
+		private bool $dev,
+		private string $host
+	) {	}
 
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
 	{

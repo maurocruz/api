@@ -9,6 +9,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as Handler;
+use ReflectionException;
 use Slim\Exception\HttpGoneException;
 use Slim\Exception\HttpUnauthorizedException;
 use Slim\Routing\RouteContext;
@@ -16,11 +17,14 @@ use Throwable;
 
 readonly class AuthMiddleware implements MiddlewareInterface
 {
-	public function __construct(private UserLoggedUseCase $authLoginUseCase)
-	{
-	}
+	public function __construct(
+		private UserLoggedUseCase $authLoginUseCase
+	) { }
 
-  public function process(Request $request, Handler $handler): ResponseInterface
+	/**
+	 * @throws ReflectionException
+	 */
+	public function process(Request $request, Handler $handler): ResponseInterface
   {
 		$routeContext = RouteContext::fromRequest($request);
 		$routeName = $routeContext->getRoute()->getName();
@@ -48,6 +52,8 @@ readonly class AuthMiddleware implements MiddlewareInterface
 		$parts = explode('.', $routeName);
 		$namespace = $parts[0];
 		$action = $parts[1];
+
+		// TODO melhorar esse sistema, pois usuários novos, sem nemhuma permissao não passa daqui
 		if (!UserLogged::hasPermission($namespace, $action, 1)) {
 			throw new HttpUnauthorizedException($request);
 		}

@@ -1,5 +1,6 @@
 <?php
 
+use Plinct\Api\Http\ExceptionHandlers\DefaultException;
 use Plinct\Api\Http\ExceptionHandlers\HttpBadRequestExceptionHandler;
 use Plinct\Api\Http\ExceptionHandlers\HttpInternalServerErrorExceptionHandler;
 use Plinct\Api\Http\ExceptionHandlers\HttpNotFoundExceptionHandler;
@@ -43,4 +44,7 @@ return function (SlimApp $slimApp, array $settings = [])
 
 	// BAD REQUEST
 	$errorMiddleware->setErrorHandler(HttpBadRequestException::class, HttpBadRequestExceptionHandler::class);
+
+	// ERROR DEFAULT
+	$errorMiddleware->setDefaultErrorHandler(DefaultException::class);
 };

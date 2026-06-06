@@ -30,18 +30,13 @@ class ApiFactory
 		$slimApp = Bridge::create($container);
 
 		// MIDDLEWARES
-		(require __DIR__ . '/Http/Middleware/middlewares.php')($slimApp, $debug);
+		(require __DIR__ . '/Http/Middleware/middlewares.php')($slimApp, $settings);
 
 		// ROUTES
 		(require __DIR__ . '/../routes/routes.php')($slimApp);
 
-		$apiApp = new ApiApp($slimApp);
-		// CONNECT DB
-		if (isset($settings['db'])) {
-			$apiApp->connect($settings['db']['driver'], $settings['db']['host'], $settings['db']['name'], $settings['db']['user'], $settings['db']['pass'], $settings['db']['options'] ?? []);
-		}
-		// RETURN;
-		return $apiApp;
+		// RETURN
+		return new ApiApp($slimApp);
 	}
 
 	/**

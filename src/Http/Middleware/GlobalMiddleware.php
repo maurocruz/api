@@ -17,9 +17,11 @@ use Slim\Exception\HttpTooManyRequestsException;
 
 readonly class GlobalMiddleware implements MiddlewareInterface
 {
-	public function __construct(private ContainerInterface $container, private ConfigurationDomain $configurationDomain, private DatabaseActions $databaseStructure)
-	{
-	}
+	public function __construct(
+		private ContainerInterface $container,
+		private ConfigurationDomain $configurationDomain,
+		private DatabaseActions $databaseStructure
+	)	{	}
 
 	/**
 	 * @inheritDoc
