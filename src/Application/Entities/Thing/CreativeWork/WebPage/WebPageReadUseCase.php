@@ -2,11 +2,19 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebPage;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
+use Plinct\Api\Application\Entities\Thing\CreativeWork\WebPageElement\WebPageElementReadUseCase;
 use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
 class WebPageReadUseCase extends CreativeWorkReadUseCase
 {
+	public function __construct(
+		DatabaseActions $databaseActions,
+		private readonly WebPageElementReadUseCase $webPageElementReadUseCase
+	) {
+		parent::__construct($databaseActions);
+	}
 
 	/**
 	 * @throws ReflectionException
@@ -78,15 +86,16 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 				foreach ($dataHasPart['data'] as $key2 => $value) {
 					$type = $value['type'];
 					$thing = $value['idthing'];
-					$getDataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing]);
-					if($type === 'WebPageElement') {
-						$getDataThing->setJoin('creativeWork', "`creativeWork`.thing = $thing");
+					if ($type === 'WebPageElement') {
+						$dataItem = $this->webPageElementReadUseCase->read(['thing' => $thing]);
+					} else {
+						$getDataThing = $this->databaseActions->read(lcfirst($type), ['thing' => $thing]);
+						$dataItem = $getDataThing->render();
 					}
-					$dataThing = $getDataThing->render();
-					if ($dataThing['status'] === false) {
-						return $dataThing;
+					if ($dataItem['status'] === false) {
+						return $dataItem;
 					}
-					$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataThing['data'][0]);
+					$dataHasPart['data'][$key2] = array_merge($dataHasPart['data'][$key2], $dataItem['data'][0]);
 				}
 				$databaseData['data'][$key]['hasPart'] = $dataHasPart['data'] ?? null;
 			}
