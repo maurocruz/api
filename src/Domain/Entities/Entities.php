@@ -18,9 +18,14 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPage\WebPage;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPageElement\WebPageElement;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebSite\WebSite;
 use Plinct\Api\Domain\Entities\Thing\Event\Event;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Invoice\Invoice;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Offer\Offer;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Order\Order;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Property;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Service\Service;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\ContactPoint;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\GeoCoordinates;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\OrderItem;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PostalAddress;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PropertyValue;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Trip\Trip;
@@ -51,7 +56,11 @@ class Entities
 		['name' => 'Event', 'object' => Event::class],
 		['name' => 'GeoCoordinates', 'object' => GeoCoordinates::class],
 		['name' => 'ImageObject', 'object' => ImageObject::class],
+		['name' => 'Invoice', 'object' => Invoice::class],
 		['name' => 'MediaObject', 'object' => MediaObject::class],
+		['name' => 'Order', 'object' => Order::class],
+		['name' => 'OrderItem', 'object' => OrderItem::class],
+		['name' => 'Offer', 'object' => Offer::class],
 		['name' => 'Organization', 'object' => Organization::class ],
 		['name' => 'Person', 'object' => Person::class],
 		['name' => 'Place', 'object' => Place::class],
@@ -62,6 +71,7 @@ class Entities
 		['name' => 'Thing', 'object' => Thing::class],
 		['name' => 'Thing_has_thing', 'object' => Property::class],
 		['name' => 'Trip', 'object' => Trip::class],
+		['name' => 'Service', 'object' => Service::class],
 		['name' => 'User', 'object' => User::class],
 		['name' => 'User_history', 'object' => User_history::class],
 		['name' => 'User_passwordReset', 'object' => User_passwordReset::class],

@@ -1,0 +1,119 @@
+<?php
+namespace Plinct\Api\Support;
+
+use Plinct\Api\Application\Support\EntityDTO;
+use Plinct\Api\Application\Support\EntityReflections;
+use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Entities;
+use ReflectionException;
+
+class SupportController
+{
+	public static function sanitizeParams(string $type, array $params): array
+	{
+		$newParams = [];
+		foreach ($params as $key => $value) {
+			if ($value === null) {
+				continue;
+			}
+			// PEGA A CLASSE DO TIPO
+			$entities =  new Entities();
+			$entity = $entities->getEntity($type);
+
+			// ELIMINA ESPAÇOS EM BRANCO
+			$value = trim($value," \t\n\r\0\x0B");
+
+			// SÓ WEB PAGE ELEMENT NA PROPRIEDADE TEXT ACEITA TAGS
+			if ($type !== 'webPageElement' && $key === 'text') {
+				$value = htmlspecialchars(strip_tags($value));
+			}
+
+			// CONVERTE A PROPRIEDADE 'properties' NUM ARRAY
+			if ($key === 'properties') {
+				$value = array_map('trim', explode(',',$value));
+			}
+
+			// FIELDS MANDATORIES
+			if ($key === 'fields') {
+				$valueArray = explode(',',$value);
+				// adiciona igthing
+				if (!in_array('idthing', $valueArray) && property_exists($entity, 'idthing')) {
+					array_unshift($valueArray, 'idthing');
+				}
+				// adiciona type
+				if (!in_array('type',$valueArray) && property_exists($entity, 'type')) {
+					array_unshift($valueArray, 'type');
+				}
+				$value = implode(',',$valueArray);
+			}
+
+			// CONSTRÓI ARRAY
+			$newParams[$key] = $value;
+		}
+		return $newParams;
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public static function returnDTO(array $databaseData, string $message = null): array
+	{
+		$status = $databaseData['status'] ?? false;
+		if ($status === false) {
+			return $databaseData;
+		}
+		$data = $databaseData['data'] ?? [];
+
+		$entityDTO = new EntityDTO();
+		$entityDTO->setStatus($status);
+
+		// MENSAGEM
+		$message = $message ?? $databaseData['message'] ?? '';
+		$entityDTO->setMessage($message);
+
+		// COUNT
+		// VERIFICAR SE EXISTE UM COUNT
+		$padrao = '/^count\([a-zA-Z0-9_\s]+\)$/';
+		$countFields = null;
+		foreach ($data as $valor) {
+			foreach ($valor as $key2 => $valor2) {
+				if (preg_match($padrao, $key2)) {
+					$countFields = $valor2;
+				}
+			}
+		}
+		$count = $countFields ?? count($data) ?? 'nd';
+		$entityDTO->setCount($count);
+
+		// HIDRATA DADOS
+		if ($countFields === null) {
+			$entities = self::hydrateFromDatabase($data);
+			$schemaOrgFormat = EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
+		} else {
+			$schemaOrgFormat = $data;
+		}
+
+		$entityDTO->setData($schemaOrgFormat);
+		return $entityDTO->ready();
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	private static function hydrateFromDatabase(array $databaseData): array|object
+	{
+		$result = [];
+		if (isset($databaseData[0])) {
+			foreach ($databaseData as $value) {
+				$type = $value['type'] ?? $value['@type'];
+				$reflection = new EntityReflections($type);
+				$result[] = $reflection->hydrateFromDatabase($value);
+			}
+		} elseif (isset($databaseData['type'])) {
+			$type = $databaseData['type'];
+			$reflection = new EntityReflections($type);
+			return $reflection->hydrateFromDatabase($databaseData);
+		}
+		return $result;
+	}
+}

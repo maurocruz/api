@@ -12,6 +12,8 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageContro
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
 use Plinct\Api\Http\Controller\Entities\Thing\Event\EventController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Offer\OfferController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Order\OrderController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress\PostalAddressController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
@@ -41,6 +43,10 @@ return function (RouteCollectorProxy $route)
 	$route->get('imageObject', [ImageObjectController::class, 'read'])->setName('imageObject.read');
 	// MEDIA OBJECT
 	$route->get('mediaObject', MediaObjectReadController::class)->setName('mediaObject.read');
+	// OFFER
+	$route->get('offer', [OfferController::class, 'read'])->setName('offer.read');
+	// ORDER
+	$route->get('order', [OrderController::class, 'read'])->setName('order.read');
 	// ORGANIZATION
 
 	// PLACE
