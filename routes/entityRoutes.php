@@ -12,11 +12,13 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageContro
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
 use Plinct\Api\Http\Controller\Entities\Thing\Event\EventController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Invoice\InvoiceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Offer\OfferController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Order\OrderController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress\PostalAddressController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\OrderItem\OrderItemController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueController;
 use Plinct\Api\Http\Controller\Entities\Thing\Place\PlaceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
@@ -47,6 +49,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('offer', [OfferController::class, 'read'])->setName('offer.read');
 	// ORDER
 	$route->get('order', [OrderController::class, 'read'])->setName('order.read');
+	// ORDER ITEM
+	$route->get('orderItem', [OrderItemController::class, 'read'])->setName('orderItem.read');
 	// ORGANIZATION
 
 	// PLACE
@@ -82,8 +86,16 @@ return function (RouteCollectorProxy $route)
 		$route->put('geoCoordinates', [GeoCoordinatesController::class, 'update'])->setName('geoCoordinates.update');
 		// IMAGE OBJECT
 		$route->post('imageObject', [ImageObjectController::class, 'create'])->setName('imageObject.create');
+		// INVOICE
+		$route->post('invoice', [InvoiceController::class, 'create'])->setName('invoice.create');
+		$route->put('invoice', [InvoiceController::class, 'update'])->setName('invoice.update');
+		$route->delete('invoice', [InvoiceController::class, 'delete'])->setName('invoice.delete');
 		// MEDIA OBJECT
 		$route->post('mediaObject', MediaObjectCreateController::class)->setName('mediaObject.create');
+		// ORDER iTEM
+		$route->post('orderItem', [OrderItemController::class, 'create'])->setName('orderItem.create');
+		$route->put('orderItem', [OrderItemController::class, 'update'])->setName('orderItem.update');
+		$route->delete('orderItem', [OrderItemController::class, 'delete'])->setName('orderItem.delete');
 		// POSTAL ADDRESS
 		$route->post('postalAddress', [PostalAddressController::class, 'create'])->setName('place.create');
 		$route->put('postalAddress', [PostalAddressController::class, 'update'])->setName('place.update');

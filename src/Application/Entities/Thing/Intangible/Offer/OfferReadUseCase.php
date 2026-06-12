@@ -13,16 +13,23 @@ class OfferReadUseCase extends ThingReadUseCase
 	{
 		$properties = $sanitizedParams['properties'] ?? [];
 		$orderItemNumber = $sanitizedParams['orderItemNumber'] ?? null;
+		$isValidThrough = array_key_exists('isValidThrough',$sanitizedParams);
 
 		// BUSCA DADOS NO BANCO DE DADOS
 		if ($orderItemNumber) {
-			$databaseData = $this->databaseActions->read('orderItem', ['orderItemNumber' => $orderItemNumber])
+			$getData = $this->databaseActions->read('orderItem', ['orderItemNumber' => $orderItemNumber])
 				->setJoin('offer', 'offer.thing = orderItem.orderedItem')
-				->setJoin('thing', 'thing.idthing = orderItem.orderedItem')
-				->render();
+				->setJoin('thing', 'thing.idthing = orderItem.orderedItem');
 		} else {
-			$databaseData = $this->databaseActions->read('offer', $sanitizedParams)->render();
+			$getData = $this->databaseActions->read('offer', $sanitizedParams);
 		}
+
+		// IS VALID THROUGH
+		if ($isValidThrough) {
+			$getData->setWhere('offer.validThrough >= NOW()');
+		}
+
+		$databaseData = $getData->render();
 		if ($databaseData['status'] === false) {
 			return $databaseData;
 		}

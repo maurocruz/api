@@ -56,6 +56,16 @@ readonly class OrderReadUseCase
 				}
 				$dataBaseData['data'][$key]['customer'] = $dataCustomer['data'][0];
 			}
+			// SELLER
+			if (in_array('seller', $properties)) {
+				$dataSeller = $this->databaseActions->read('thing', ['idthing' => $value['seller'], 'hasPart' => true])
+					->setJoin('organization', 'organization.thing = thing.idthing')
+					->render();
+				if ($dataSeller['status'] === false) {
+					return $dataSeller;
+				}
+				$dataBaseData['data'][$key]['seller'] = $dataSeller['data'][0];
+			}
 		}
 		return $dataBaseData;
 	}
