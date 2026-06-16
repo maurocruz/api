@@ -37,6 +37,15 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 			}
 			return $data;
 		}
+
+		// IF IS PART OF
+		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
+		if ($idIsPartOf) {
+			$getData = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $idIsPartOf] + $sanitizedParams);
+			$getData->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart');
+			return $getData->render();
+		}
+
 		return $this->readEntity('CreativeWork', $sanitizedParams);
 	}
 }
