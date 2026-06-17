@@ -15,13 +15,18 @@ class Organization extends Thing
 	public ?int $logo = null;
 	public ?string $taxId = null;
 	public ?string $hasOfferCatalog = null;
-	public ?int $location = null;
-	public ?int $address = null;
+	public mixed $location = null;
+	public mixed $address = null;
 	public ?int $areaServed = null;
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);
 		return $reflection->hydrateOwnProperties($data);
+	}
+
+	public function getType(): string
+	{
+		return 'Organization';
 	}
 }
