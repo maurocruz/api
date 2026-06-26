@@ -64,6 +64,15 @@ abstract class ConnectDB
 	}
 
 	/**
+	 * @param string $tableName
+	 * @return array[]
+	 */
+	public static function tableExists(string $tableName): array
+	{
+		return self::run("SELECT * FROM information_schema.tables WHERE table_name = '$tableName' AND table_schema = '".self::$DBNAME."';");
+	}
+
+	/**
 	 * @return array[]|null
 	 */
 	public static function getError(): ?array
@@ -120,5 +129,16 @@ abstract class ConnectDB
 		$query = "SELECT LAST_INSERT_ID() AS id;";
 		$return = self::run($query);
 		return $return[0]['id'];
+	}
+
+
+	/**
+	 * @param string $table
+	 * @return array
+	 */
+	public static function showColumnsName(string $table): array
+	{
+		$schema = self::getDbname();
+		return self::run("SELECT column_name FROM information_schema.columns WHERE table_schema = '$schema' AND table_name = '$table';");
 	}
 }

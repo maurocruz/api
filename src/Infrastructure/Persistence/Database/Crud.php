@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Infrastructure\Persistence\Database;
 
+use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\GetData\GetDataInfrastructure;
 use ReflectionException;
 
@@ -19,27 +20,38 @@ class Crud extends ConnectDB
 	 */
 	public function create(string $table, array $params = []): array
 	{
+		// SE NÃO HOUVER DADOS RETORNA FALSO
+		if (empty($params)) {
+			return [ 'status' => false, "message" => "Record in $this->table not created because data is empty" ];
+		}
+
+		// HIDRATA PARAMETROS
+		$hidratedParams = SupportApplication::hydrateOwnProperties($table, $params);
+
+		// CONSTROI QUERIES
 		$table = lcfirst($table);
 		$names = null;
 		$values = null;
 		$bindValues = null;
-		if (empty($params)) {
-			return [ 'status' => false, "message" => "Record in $this->table not created because data is empty" ];
-		}
-		// query
-		foreach ($params as $key => $value) {
+		foreach ($hidratedParams as $key => $value) {
 			$names[] = "`$key`";
 			$values[] = "?";
 			$bindValues[] = $value;
 		}
 		$columns = implode(",", $names);
 		$rows = implode(",", $values);
+
+		// EXECUTA QUERY
 		$query = "INSERT INTO `$table` ($columns) VALUES ($rows)";
 		$responseData = parent::run($query, $bindValues);
+
+		// RETORNA DADOS
 		if (empty($responseData)) {
-			if (array_key_exists('idHasPart', $params) && array_key_exists('idIsPartOf', $params)) {
-				$itemData = $this->read('thing_has_thing', ['idHasPart' => $params['idHasPart'], 'idIsPartOf' => $params['idIsPartOf']])->render();
+			// SE FOR RELACIONAMENTO RETORNA DADOS
+			if (array_key_exists('idHasPart', $hidratedParams) && array_key_exists('idIsPartOf', $hidratedParams)) {
+				$itemData = $this->read('thing_has_thing', ['idHasPart' => $hidratedParams['idHasPart'], 'idIsPartOf' => $hidratedParams['idIsPartOf']])->render();
 			} else {
+				// BUSCA ITEM CRIADO
 				$lastId = parent::lastInsertId();
 				$getData= $this->read($table, ["id$table" => $lastId]);
 				if ($table === 'thing') $getData->setWithThings(false);
@@ -47,7 +59,7 @@ class Crud extends ConnectDB
 			}
 			return [ 'status' => true, "message" => "Record in $table created", "data" => $itemData['data'] ];
 		} else {
-			return [ 'status' => false, "message" => "Record in $table was not created", 'data' => $responseData['error'] ?? '' ];
+			return [ 'status' => false, "message" => "Record in $table was not created", 'data' => $responseData ];
 		}
 	}
 
