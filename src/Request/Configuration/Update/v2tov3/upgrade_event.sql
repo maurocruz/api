@@ -16,7 +16,6 @@ ALTER TABLE `event`
   ADD COLUMN `thing` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
   ADD COLUMN `about` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
   ADD COLUMN `keywords` VARCHAR(255) DEFAULT NULL AFTER `idevent`,
-  ADD COLUMN `subEvent` INT UNSIGNED DEFAULT NULL AFTER `idevent`,
   DROP PRIMARY KEY,
   ADD PRIMARY KEY (`idevent`);
 
@@ -54,6 +53,12 @@ UPDATE `event`
   SET event.location=place.thing
   WHERE event.location IS NOT NULL;
 
+-- moda o super event de idevent para thing
+UPDATE `event`
+  JOIN `event` AS ev2 ON ev2.idevent=`event`.superEvent
+  SET `event`.superEvent=ev2.thing
+  WHERE `event`.superEvent IS NOT NULL;
+
 -- insert images
 CALL insert_thing_has_thing('event','imageObject');
 
@@ -89,9 +94,7 @@ DROP TABLE `event_has_imageObject`;
 ALTER TABLE `event`
   ADD KEY `fk_event_thing_idx` (`thing`),
   ADD KEY `fk_event_location_idx` (`location`),
-  ADD KEY `fk_event_subEvent_idx` (`subEvent`),
   ADD KEY `fk_event_superEvent_idx` (`superEvent`),
   ADD CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_event_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`) ON DELETE SET NULL ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ON UPDATE NO ACTION;
+  ADD CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`thing`) ON DELETE SET NULL ON UPDATE NO ACTION;

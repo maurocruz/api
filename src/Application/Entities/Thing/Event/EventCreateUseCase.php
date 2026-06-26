@@ -6,11 +6,8 @@ use Plinct\Api\Application\Support\SupportApplication;
 
 class EventCreateUseCase extends ThingCreateUseCase
 {
-	public function create(array $parseBody): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('event', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$name = $sanitizedParams['name'] ?? null;
 		$startDate = $sanitizedParams['startDate'] ?? null;

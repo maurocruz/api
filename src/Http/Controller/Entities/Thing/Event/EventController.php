@@ -33,7 +33,8 @@ readonly class EventController
 	public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$params = $request->getParsedBody() ?? [];
-		$dataUseCase = SupportApplication::returnDTOFromDatabaseData($this->eventCreateUseCase->create($params));
+		$sanitizedParams = SupportApplication::sanitizeParams('Event', $params);
+		$dataUseCase = SupportApplication::returnDTOFromDatabaseData($this->eventCreateUseCase->create($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		return $response;
