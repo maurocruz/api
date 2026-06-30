@@ -3,6 +3,7 @@ namespace Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite\WebSiteCreateUseCase;
 use Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite\WebSiteReadUseCase;
+use Plinct\Api\Support\SupportController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -21,7 +22,8 @@ readonly class WebSiteController
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$queryParams = $request->getQueryParams();
-		$data = $this->webSiteReadUseCase->read($queryParams);
+		$sanitizedParams = SupportController::sanitizeParams('WebSite', $queryParams);
+		$data = $this->webSiteReadUseCase->read($sanitizedParams);
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

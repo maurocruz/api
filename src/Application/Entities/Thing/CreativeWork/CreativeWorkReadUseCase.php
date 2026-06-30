@@ -11,10 +11,8 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams = []): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('CreativeWork', $queryParams);
 
 		// IF ID HAS PART
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;

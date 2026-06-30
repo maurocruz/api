@@ -35,6 +35,41 @@ class CreativeWork extends Thing
 	public ?string $thumbnail = null;
 	public string $version = '';
 
+	public function __construct(array $value = ["@type" => "Thing"])
+	{
+		$this->idcreativeWork = $value['idcreativeWork'] ?? 0;
+		$this->type = $this->type ?? 'CreativeWork';
+		if ($this->idcreativeWork !== 0) {
+			$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idcreativeWork', 'value' => $this->idcreativeWork];
+		}
+
+		parent::__construct($value);
+
+		$this->thing = $value['thing'] ?? 0;
+		$this->about = $value['about'] ?? null;
+		$this->acquireLicensePage = $value['acquireLicensePage'] ?? null;
+		$this->alternativeHeadline = $value['alternativeHeadline'] ?? null;
+		$this->author = $value['author'] ?? null;
+		$this->copyrightHolder = $value['copyrightHolder'] ?? null;
+		$this->creativeWorkStatus = $value['creativeWorkStatus'] ?? null;
+		$this->datePublished = $value['datePublished'] ?? null;
+		$this->editor = $value['editor'] ?? null;
+		$this->encodingFormat = $value['encodingFormat'] ?? null;
+		$this->hasPart = $value['hasPart'] ?? null;
+		$this->headline = $value['headline'] ?? null;
+		$this->isPartOf = $value['isPartOf'] ?? null;
+		$this->keywords = $value['keywords'] ?? '';
+		$this->licence = $value['licence'] ?? null;
+		$this->locationCreated = $value['locationCreated'] ?? null;
+		$this->maintainer = $value['maintainer'] ?? null;
+		$this->position = $value['position'] ?? null;
+		$this->publisher = $value['publisher'] ?? null;
+		$this->size = $value['size'] ?? null;
+		$this->text = $value['text'] ?? null;
+		$this->thumbnail = $value['thumbnail'] ?? null;
+		$this->version = $value['version'] ?? '';
+	}
+
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);

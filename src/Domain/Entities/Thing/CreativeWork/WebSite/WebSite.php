@@ -13,6 +13,20 @@ class WebSite extends CreativeWork
 	protected int $thing;
 	protected int $creativeWork;
 
+	public function __construct(array $value = ["@type" => "Thing"])
+	{
+		$this->idwebSite = $value['idwebSite'] ?? 0;
+		if ($this->idwebSite !== 0) {
+			$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idwebSite', 'value' => $this->idwebSite];
+		}
+		$this->type = 'WebSite';
+
+		parent::__construct($value);
+
+		$this->thing = $value['thing'] ?? 0;
+		$this->creativeWork = $value['creativeWork'] ?? 0;
+	}
+
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);

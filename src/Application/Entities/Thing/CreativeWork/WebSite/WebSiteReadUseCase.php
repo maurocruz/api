@@ -3,13 +3,13 @@ namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
 use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebSite\WebSite;
 
 class WebSiteReadUseCase extends CreativeWorkReadUseCase
 {
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams = []): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('WebSite',$queryParams);
+		$properties = $sanitizedParams['properties'] ?? null;
 
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
 		$typeIsPartOf = $sanitizedParams['typeIsPartOf'] ?? null;
@@ -33,7 +33,6 @@ class WebSiteReadUseCase extends CreativeWorkReadUseCase
 			return $databaseData;
 		}
 
-		$properties = $sanitizedParams['properties'] ?? null;
 		if ($properties) {
 			foreach ($databaseData['data'] as $key => $webSite) {
 				$idthing = $webSite['idthing'];
@@ -62,6 +61,8 @@ class WebSiteReadUseCase extends CreativeWorkReadUseCase
 			}
 		}
 
-		return SupportApplication::returnDTOFromDatabaseData($databaseData,  'WebSite found');
+		$dataObject = array_map(fn($value) => new WebSite($value), $databaseData['data']);
+
+		return SupportApplication::returnDTO(true, 'WebSite found', $dataObject);
 	}
 }

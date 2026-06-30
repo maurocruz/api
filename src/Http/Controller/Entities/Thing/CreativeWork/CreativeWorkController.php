@@ -19,7 +19,8 @@ readonly class CreativeWorkController
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$queryParams = $request->getQueryParams();
-		$responseRead = $this->creativeWorkReadUseCase->read($queryParams);
+		$sanitizedParams = SupportApplication::sanitizeParams('CreativeWork', $queryParams);
+		$responseRead = $this->creativeWorkReadUseCase->read($sanitizedParams);
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode(SupportApplication::returnDTOFromDatabaseData($responseRead), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
