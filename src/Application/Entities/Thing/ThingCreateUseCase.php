@@ -16,11 +16,8 @@ class ThingCreateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function create(array $parseBody): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('thing', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$name = $sanitizedParams['name'] ?? null;
 		$type = $sanitizedParams['type'] ?? null;
