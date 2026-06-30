@@ -1,15 +1,15 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Organization;
 
-use Plinct\Api\Application\Entities\Thing\Place\PlaceReadUseCase;
+use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Thing\Organization\Organization;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
 readonly class OrganizationUseCase
 {
 	public function __construct(
-		private DatabaseActions $databaseActions,
-		private PlaceReadUseCase $placeReadUseCase
+		private DatabaseActions $databaseActions
 	) {	}
 
 	/**
@@ -21,26 +21,21 @@ readonly class OrganizationUseCase
 
 		// OBTÉM DADOS DO BANCO DE DADOS
 		$getData = $this->databaseActions->read('organization', $sanitizedParams);
+
+		// LOCATION
+		if (in_array('location', $properties)) {
+			$getData->setJoin('place', 'place.thing = organization.location');
+			$getData->setJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates = `place`.geo', null, 'LEFT');
+			$getData->setJoin('postalAddress','`postalAddress`.idpostalAddress = `geoCoordinates`.address', null, 'LEFT');
+		}
 		$databaseData = $getData->render();
 
 		if ($databaseData['status'] === false) {
 			return $databaseData;
 		}
 
-		foreach ($databaseData['data'] as $key => $value) {
-			// LOCATION
-			if (in_array('location', $properties)) {
-				$paramsPlace = ['thing' => $value['location']];
-				if (in_array('geo', $properties)) {
-					$paramsPlace['properties'] = 'geo';
-				}
-				$placeData = $this->placeReadUseCase->read($paramsPlace);
-				if ($placeData['status'] === false) {
-					return $placeData;
-				}
-				$databaseData['data'][$key]['location'] = $placeData['data'][0];
-			}
-		}
-		return $databaseData;
+		$dataObject = array_map(fn($value) => (new Organization($value)), $databaseData['data']);
+
+		return SupportApplication::returnDTO(true, 'Organization found', $dataObject);
 	}
 }

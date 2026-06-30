@@ -22,6 +22,8 @@ use Plinct\Api\Domain\Entities\Thing\Intangible\Invoice\Invoice;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Offer\Offer;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Order\Order;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Property;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Rating\AggregateRating;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Rating\Rating;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Service\Service;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\ContactPoint;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\GeoCoordinates;
@@ -29,6 +31,7 @@ use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\OrderItem;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PostalAddress;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PropertyValue;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Trip\Trip;
+use Plinct\Api\Domain\Entities\Thing\Organization\LocalBusiness;
 use Plinct\Api\Domain\Entities\Thing\Organization\Organization;
 use Plinct\Api\Domain\Entities\Thing\Person\Person;
 use Plinct\Api\Domain\Entities\Thing\Place\Place;
@@ -46,6 +49,7 @@ class Entities
 {
 	public const array ENTITIES = [
 		['name' => 'Action', 'object' => Action::class],
+		['name' => 'AggregateRating', 'object' => AggregateRating::class],
 		['name' => 'Article', 'object' => Article::class],
 		['name' => 'AudioObject', 'object' => AudioObject::class],
 		['name' => 'Book', 'object' => Book::class ],
@@ -57,6 +61,7 @@ class Entities
 		['name' => 'GeoCoordinates', 'object' => GeoCoordinates::class],
 		['name' => 'ImageObject', 'object' => ImageObject::class],
 		['name' => 'Invoice', 'object' => Invoice::class],
+		['name' => 'LocalBusiness', 'object' => LocalBusiness::class],
 		['name' => 'MediaObject', 'object' => MediaObject::class],
 		['name' => 'Order', 'object' => Order::class],
 		['name' => 'OrderItem', 'object' => OrderItem::class],
@@ -67,6 +72,7 @@ class Entities
 		['name' => 'PostalAddress', 'object' => PostalAddress::class],
 		['name' => 'Product', 'object' => Product::class ],
 		['name' => 'PropertyValue', 'object' => PropertyValue::class],
+		['name' => 'Rating', 'object' => Rating::class],
 		['name' => 'Review', 'object' => Review::class],
 		['name' => 'Thing', 'object' => Thing::class],
 		['name' => 'Thing_has_thing', 'object' => Property::class],

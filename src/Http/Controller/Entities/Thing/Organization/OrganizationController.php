@@ -21,9 +21,8 @@ readonly class OrganizationController
 		$queryParams = $request->getQueryParams();
 		$sanitizedParams = SupportController::sanitizeParams('Organization', $queryParams);
 		$dataUseCase = $this->organizationUseCase->read($sanitizedParams);
-		$dto = SupportController::returnDTO($dataUseCase);
 		$response = $response->withHeader('Content-Type', 'application/json');
-		$response->getBody()->write(json_encode($dto, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	}
 }

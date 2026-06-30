@@ -20,6 +20,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\Contact
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\OrderItem\OrderItemController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueController;
+use Plinct\Api\Http\Controller\Entities\Thing\Organization\LocalBusinessController;
 use Plinct\Api\Http\Controller\Entities\Thing\Organization\OrganizationController;
 use Plinct\Api\Http\Controller\Entities\Thing\Place\PlaceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
@@ -44,6 +45,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('geoCoordinates', [GeoCoordinatesController::class, 'read'])->setName('geoCoordinates.read');
 	// IMAGE OBJECT
 	$route->get('imageObject', [ImageObjectController::class, 'read'])->setName('imageObject.read');
+	// LOCAL BUSINESS
+	$route->get('localBusiness', [LocalBusinessController::class, 'read'])->setName('localBusiness.read');
 	// MEDIA OBJECT
 	$route->get('mediaObject', MediaObjectReadController::class)->setName('mediaObject.read');
 	// OFFER
