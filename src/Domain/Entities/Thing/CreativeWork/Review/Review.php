@@ -11,10 +11,28 @@ class Review extends CreativeWork
 
 	protected int $idreview;
 	protected int $thing;
+	protected int $creativeWork;
 	public int $itemReviewed;
 	public ?string $reviewAspect = null;
 	public ?string $reviewBody = null;
 	public int $reviewRating = 0;
+
+	public function __construct(array $value = ['@type' => 'Review'])
+	{
+		$this->idreview = $value['idreview'] ?? 0;
+		if ($this->idreview !== 0) {
+			$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idreview', 'value' => $this->idreview];
+		}
+		$this->type = 'Review';
+
+		parent::__construct($value);
+
+		$this->thing = $value['thing'] ?? 0;
+		$this->itemReviewed = $value['itemReviewed'] ?? 0;
+		$this->reviewAspect = $value['reviewAspect'] ?? null;
+		$this->reviewBody = $value['reviewBody'] ?? null;
+		$this->reviewRating = $value['reviewRating'] ?? 0;
+	}
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{

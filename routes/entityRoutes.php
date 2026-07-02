@@ -8,6 +8,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkControlle
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObjectCreateController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObjectReadController;
+use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Review\ReviewController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebSite\WebSiteController;
@@ -107,6 +108,8 @@ return function (RouteCollectorProxy $route)
 		$route->post('product', [ProductController::class, 'create'])->setName('product.create');
 		// PROPERTY VALUE
 		$route->post('propertyValue', [PropertyValueController::class, 'create'])->setName('propertyValue.create');
+		// REVIEW
+		$route->post('review',[ReviewController::class, 'create'])->setName('review.create');
 		// WEB PAGE
 		$route->post('webPage', [WebPageController::class, 'create'])->setName('webPage.create');
 		// WEB PAGE ELEMENT
