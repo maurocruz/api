@@ -13,10 +13,8 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 	/**
 	 * @throws Exception
 	 */
-	public function create(array $parseBody = [], array $filesUpload = []): array
+	public function create(array $sanitizedParams, array $filesUpload = []): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('mediaObject', $parseBody);
 		$uploadFile = $filesUpload['uploadfile'] ?? null;
 
 		// VALIDAR ENTRADAS
@@ -42,7 +40,7 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 			}
 		}
 		if (!empty($results)) {
-			return SupportApplication::returnDTOFromDatabaseData(['status' => true, 'message' => 'Upload files was success.', 'data' => $results]);
+			return $results;
 		}
 		return ['status' => false, 'message' => 'Upload failed.', 'data' => []];
 	}
@@ -50,16 +48,16 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 	/**
 	 * @throws Exception
 	 */
-	private function processSingleFile(UploadedFile $uploadFile, array $params): array
+	private function processSingleFile(UploadedFile $uploadFile, array $sanitizedParams): array
 	{
 		$this->fileProcessor->setUploadFile($uploadFile);
-		if (isset($params['location'])) {
-			$this->fileProcessor->setDirectoryDestination($params['location']);
+		if (isset($sanitizedParams['location'])) {
+			$this->fileProcessor->setDirectoryDestination($sanitizedParams['location']);
 		}
 
 		// CAPTURAR METADADOS DO ARQUIVO
 		$metadata = $this->fileProcessor->getMetadata();
-		$params = array_merge($params, $metadata, [
+		$paramsSanitized = array_merge($sanitizedParams, $metadata, [
 			'type' => $this->resolveMediaType($this->fileProcessor->getFileType()),
 			'contentSize' => $this->fileProcessor->getFileSize() ?? null,
 			'encodingFormat' => $this->fileProcessor->getFileType() ?? null,
@@ -68,15 +66,15 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 
 		// UPLOAD FILE
 		$this->fileProcessor->uploadFile();
-		$params['image'] = $this->fileProcessor->getImageRepresentative();
-		$params['contentUrl'] = $this->fileProcessor->getContentUrl();
-		$params['url'] = $this->fileProcessor->getContentUrl();
+		$paramsSanitized['image'] = $this->fileProcessor->getImageRepresentative();
+		$paramsSanitized['contentUrl'] = $this->fileProcessor->getContentUrl();
+		$paramsSanitized['url'] = $this->fileProcessor->getContentUrl();
 
 		$microtimeString = str_replace('.', '', (string)microtime(true));
-		$params['name'] = $params['name'] ?? date('Ymd-His') . "_" . (substr($microtimeString, -4)) . "_" . $this->fileProcessor->getFileName();
+		$paramsSanitized['name'] = $paramsSanitized['name'] ?? date('Ymd-His') . "_" . (substr($microtimeString, -4)) . "_" . $this->fileProcessor->getFileName();
 
 		// SALVAR CREATIVE WORK
-		$saveCreativeWork = parent::create($params);
+		$saveCreativeWork = parent::create($paramsSanitized);
 		if ($saveCreativeWork['status'] === false) {
 			return ['status' => false, 'message' => 'Failed to create CreativeWork', 'data' => $saveCreativeWork['data']];
 		}
@@ -85,7 +83,7 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 		$creativeWork = $creativeWorkData['idcreativeWork'];
 
 		// SALVAR MEDIA OBJECT
-		$hidratedParams = SupportApplication::hydrateOwnProperties('mediaObject',$params);
+		$hidratedParams = SupportApplication::hydrateOwnProperties('mediaObject',$paramsSanitized);
 		$saveMediaObject = $this->databaseActions->create('mediaObject', $hidratedParams + ['creativeWork' => $creativeWork, 'thing' => $idthing]);
 		if($saveMediaObject['status'] === false) {
 			return ['status' => false, 'message' => 'Failed to create MediaObject', 'data' => $saveMediaObject['data']];
@@ -94,7 +92,7 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 		$mediaObject = $mediaObjectData['idmediaObject'];
 
 		// VERIFICAR SE ENCODING FORMAT NÃO É FILHO DE MEDIA OBJECT (IMAGE, AUDIO OU VIDEO) E SALVAR FILHO, CASO SEJA
-		$childTable = match ($params['type']) {
+		$childTable = match ($paramsSanitized['type']) {
 			'ImageObject' => 'imageObject',
 			'AudioObject' => 'audioObject',
 			'VideoObject' => 'videoObject',
@@ -103,7 +101,7 @@ class MediaObjectCreateUseCase extends CreativeWorkCreateUseCase
 
 		$saveChild = [];
 		if ($childTable !== null) {
-			$hidratedParams = SupportApplication::hydrateOwnProperties($childTable,$params);
+			$hidratedParams = SupportApplication::hydrateOwnProperties($childTable,$paramsSanitized);
 			$saveChild = $this->databaseActions->create($childTable, $hidratedParams + [
 					'thing' => $idthing,
 					'creativeWork' => $creativeWork,

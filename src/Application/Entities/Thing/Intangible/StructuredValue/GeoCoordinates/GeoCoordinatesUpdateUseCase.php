@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\GeoCoordinates;
 
-use Plinct\Api\Application\Support\SanitizeParams;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -14,11 +13,8 @@ readonly class GeoCoordinatesUpdateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function update(array $parseBody = []): array
+	public function update(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SanitizeParams::sanitize('geoCoordinates', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$idgeoCoordinates = $sanitizedParams['idgeoCoordinates'] ?? null;
 		if (!$idgeoCoordinates) {

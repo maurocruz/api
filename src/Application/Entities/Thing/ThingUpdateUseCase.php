@@ -10,7 +10,7 @@ readonly class ThingUpdateUseCase
 		protected DatabaseActions $databaseActions
 	) { }
 
-	public function update(string $type, array $params): array
+	public function update(string $type, array $sanitizedParams): array
 	{
 		return ['status' => false, 'message' => 'Not implemented yet'];
 	}

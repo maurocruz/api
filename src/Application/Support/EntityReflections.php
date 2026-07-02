@@ -77,6 +77,9 @@ class EntityReflections
 			if (!array_key_exists($name, $database)) continue;
 			$value = $database[$name];
 
+			// SE O VALOR FOR NULL, PULA
+			if ($value === null) continue;
+
 			// SE A PROPRIEDADE É INT OU FLOAT E O VALOR FOR UMA STRING VAZIA, SETA O VALOR COMO NULL
 			if ($value === '' && ($type === 'int' || $type === 'float' )) {
 				$property->setValue($entity, null);
@@ -100,10 +103,14 @@ class EntityReflections
 			$name = $property->getName();
 			$type = self::getTypeName($property);
 
+			// SE A PROPRIEDADE NAO EXISTE NO ARRAY DE PARAMS, PULA
 			if (!array_key_exists($name, $params)) continue;
 
-			$paramsArray[$name] = self::castValue($params[$name], $type);
+			// SE O TIPO FOR MIXED E O VALOR FOR NULL, PULA
+			if ($type === 'mixed' && ($params[$name] === null || $params[$name] === '')) continue;
 
+			// SETA O VALOR CASTADO
+			$paramsArray[$name] = self::castValue($params[$name], $type);
 		}
 		return $paramsArray;
 	}
@@ -142,7 +149,7 @@ class EntityReflections
 	/**
 	 * @throws ReflectionException
 	 */
-	private static function buildDTO($entity): array
+	private static function buildDTO(object $entity): array
 	{
 		$result['@context'] = 'https://schema.org';
 		$result['@type'] = $entity->getType();
@@ -175,6 +182,7 @@ class EntityReflections
 						$result[$name] = self::convertFromObjectToSchemaOrgArrayDTO($entities);
 					}
 				} else {
+					if($value === null || $value === '') continue;
 					$result[$name] = $value;
 				}
 			}
@@ -210,6 +218,4 @@ class EntityReflections
 			return null;
 		}
 	}
-
-
 }

@@ -5,6 +5,7 @@ use Plinct\Api\Application\Entities\EntityCreateUseCase;
 use Plinct\Api\Application\Entities\EntityDeleteUseCase;
 use Plinct\Api\Application\Entities\EntityReadUseCase;
 use Plinct\Api\Application\Entities\EntityUpdateUseCase;
+use Plinct\Api\Support\SupportController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -25,7 +26,8 @@ readonly class EntityController
 	{
 		$type = $request->getAttribute('type');
 		$queryParams = $request->getQueryParams();
-		$dataUseCase = $this->entityReadUseCase->read($type, $queryParams);
+		$sanitizedParams = SupportController::sanitizeParams($type, $queryParams);
+		$dataUseCase =  SupportController::returnDTO($this->entityReadUseCase->read($type, $sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
@@ -37,8 +39,9 @@ readonly class EntityController
 	public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$type = $request->getAttribute('type') ?? null;
-		$params = $request->getParsedBody() ?? [];
-		$dataUseCase = $this->entityCreateUseCase->createEntity($type, $params);
+		$params = $request->getParsedBody();
+		$sanitizedParams = SupportController::sanitizeParams($type, $params);
+		$dataUseCase = SupportController::returnDTO($this->entityCreateUseCase->createEntity($type, $sanitizedParams));
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
 	}
@@ -49,8 +52,9 @@ readonly class EntityController
 	public function update(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$type = $request->getAttribute('type') ?? null;
-		$params = $request->getParsedBody() ?? [];
-		$responseData = $this->entityUpdateUseCase->update($type, $params);
+		$params = $request->getParsedBody();
+		$sanitizedParams = SupportController::sanitizeParams($type, $params);
+		$responseData = SupportController::returnDTO($this->entityUpdateUseCase->update($type, $sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
@@ -63,7 +67,8 @@ readonly class EntityController
 	{
 		$type = $request->getAttribute('type') ?? null;
 		$queryParams = $request->getQueryParams();
-		$responseData = $this->entityDeleteUseCase->delete($type, $queryParams);
+		$sanitizedParams = SupportController::sanitizeParams($type, $queryParams);
+		$responseData = SupportController::returnDTO($this->entityDeleteUseCase->delete($type, $sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

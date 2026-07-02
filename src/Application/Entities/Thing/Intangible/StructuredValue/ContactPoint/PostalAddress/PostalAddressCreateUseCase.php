@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress;
 
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -14,11 +13,8 @@ readonly class PostalAddressCreateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function create(array $parseBody = []): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('postalAddress', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$streetAddress = $sanitizedParams['streetAddress'] ?? null;
 		$addressLocality = $sanitizedParams['addressLocality'] ?? null;

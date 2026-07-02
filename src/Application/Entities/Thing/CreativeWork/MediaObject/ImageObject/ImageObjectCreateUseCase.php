@@ -2,22 +2,18 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\ImageObject;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\MediaObjectCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class ImageObjectCreateUseCase extends MediaObjectCreateUseCase
 {
 	/**
-	 * @param array $parseBody
+	 * @param array $sanitizedParams
 	 * @param array $filesUpload
 	 * @return array
 	 * @throws ReflectionException
 	 */
-	public function create(array $parseBody = [], array $filesUpload = []): array
+	public function create(array $sanitizedParams, array $filesUpload = []): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('ImageObject', $parseBody);
-
 		// VERIFICA SE NÃO É APENAS RELACIONAMENTO
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;

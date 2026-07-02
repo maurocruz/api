@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\GeoCoordinates;
 
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -15,11 +14,8 @@ readonly class GeoCoordinatesCreateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function create(array $parseBody): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = 	SupportApplication::sanitizeParams('geocoordinates', $parseBody);
-
 		$latitude = $sanitizedParams['latitude'] ?? null;
 		$longitude = $sanitizedParams['longitude'] ?? null;
 		$elevation = $sanitizedParams['elevation'] ?? null;

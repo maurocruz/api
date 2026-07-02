@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress;
 
-use Plinct\Api\Application\Support\SanitizeParams;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -14,11 +13,8 @@ readonly class PostalAddressUpdateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function update(array $parseBody = []): array
+	public function update(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SanitizeParams::sanitize('postalAddress', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$idpostalAddress = $sanitizedParams['idpostalAddress'] ?? null;
 		if (!$idpostalAddress) {

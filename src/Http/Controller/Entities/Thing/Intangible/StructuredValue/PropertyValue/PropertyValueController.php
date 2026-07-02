@@ -3,6 +3,7 @@ namespace Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\P
 
 use Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueCreateUseCase;
 use Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueReadUseCase;
+use Plinct\Api\Support\SupportController;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionException;
@@ -20,7 +21,8 @@ readonly class PropertyValueController
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$queryParams = $request->getQueryParams();
-		$responseData = $this->propertyValueReadUseCase->read($queryParams);
+		$sanitizedParams = SupportController::sanitizeParams('PropertyValue', $queryParams);
+		$responseData = SupportController::returnDTO($this->propertyValueReadUseCase->read($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;
@@ -32,7 +34,8 @@ readonly class PropertyValueController
 	public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$parseBody = $request->getParsedBody();
-		$responseData = $this->propertyValueCreateUseCase->create($parseBody);
+		$sanitizedParams = SupportController::sanitizeParams('PropertyValue', $parseBody);
+		$responseData = SupportController::returnDTO($this->propertyValueCreateUseCase->create($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($responseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

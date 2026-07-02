@@ -3,7 +3,6 @@ namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebPage;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
 use Plinct\Api\Application\Entities\Thing\CreativeWork\WebPageElement\WebPageElementReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -19,11 +18,8 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('WebPage',$queryParams);
-
 		$orderBy = $sanitizedParams['orderBy'] ?? null;
 		if ($orderBy === 'position') {
 			unset($sanitizedParams['orderBy']);

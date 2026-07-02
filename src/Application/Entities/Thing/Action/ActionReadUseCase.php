@@ -1,8 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Action;
 
-use Plinct\Api\Application\Support\SanitizeParams;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -15,11 +13,8 @@ readonly class ActionReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $params = []): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SanitizeParams::sanitize('action', $params);
-
 		// OBTÉM DADOS DO BANCO DE DADOS
 		$databaseData = $this->databaseActions->read('action', $sanitizedParams)->render();
 		if ($databaseData['status'] === false) {
@@ -48,7 +43,7 @@ readonly class ActionReadUseCase
 				}
 			}
 		}
-		return SupportApplication::returnDTOFromDatabaseData($databaseData, 'Action found');
+		return $databaseData;
 	}
 }
 

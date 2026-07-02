@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebPageElement;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class WebPageElementReadUseCase extends CreativeWorkReadUseCase
@@ -11,11 +10,8 @@ class WebPageElementReadUseCase extends CreativeWorkReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('WebPageElement', $queryParams);
-
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$orderBy = $sanitizedParams['orderBy'] ?? null;
 		if ($idHasPart) {

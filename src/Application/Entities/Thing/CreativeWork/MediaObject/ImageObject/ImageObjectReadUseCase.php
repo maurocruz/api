@@ -2,16 +2,12 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\ImageObject;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject\MediaObjectReadUseCase;
-use Plinct\Api\Application\Support\SanitizeParams;
 
 class ImageObjectReadUseCase extends MediaObjectReadUseCase
 {
 
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SanitizeParams::sanitize('image_object', $queryParams);
-
 		// OBTÉM DADOS DO BANCO DE DADOS
 		$idHasPart = $sanitizedParams['idHasPart'] ?? $sanitizedParams['isPartOf'] ?? null;
 		if ($idHasPart) {

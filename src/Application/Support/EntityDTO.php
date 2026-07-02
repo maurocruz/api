@@ -37,15 +37,6 @@ class EntityDTO
 		$this->returns['data'] = $data;
 	}
 
-	/**
-	 * @param array $data
-	 * @return array
-	 */
-	public static function convertToSchemaOrg(array $data): array
-	{
-		return (new ConvertToSchemaOrg($data))->convert();
-	}
-
 	public function ready(): array
 	{
 		return $this->returns;

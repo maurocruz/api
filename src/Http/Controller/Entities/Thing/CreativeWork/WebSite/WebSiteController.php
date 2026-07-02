@@ -34,7 +34,8 @@ readonly class WebSiteController
 	public function create(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$params = $request->getParsedBody();
-		$data = $this->webSiteCreateUseCase->create($params);
+		$sanitizedParams = SupportController::sanitizeParams('WebSite', $params);
+		$data = $this->webSiteCreateUseCase->create($sanitizedParams);
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

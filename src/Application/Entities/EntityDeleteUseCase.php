@@ -1,8 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities;
 
-use Plinct\Api\Application\Support\SanitizeParams;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -15,11 +13,8 @@ readonly class EntityDeleteUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function delete(string $type, array $queryParams): array
+	public function delete(string $type, array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SanitizeParams::sanitize($type, $queryParams);
-
 		// VERIFICA SE NÃO É APENAS RELACIONAMENTO
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
@@ -34,7 +29,7 @@ readonly class EntityDeleteUseCase
 		}
 
 		// BUSCA ITEM
-		$itemData = $this->databaseActions->read($type, ['thing' => $idthing])->render();
+		$itemData = $this->databaseActions->read($type, ['thing' => $idthing, 'idthing' => $idthing])->render();
 		if ($itemData['status'] === false) {
 			return $itemData;
 		}
@@ -48,6 +43,6 @@ readonly class EntityDeleteUseCase
 		}
 
 		// RETORNAR
-		return SupportApplication::returnDTOFromDatabaseData($itemData, "Item '$type' deleted" );
+		return $itemData;
 	}
 }

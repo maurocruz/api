@@ -11,14 +11,8 @@ class ProductCreateUseCase extends ThingCreateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function create(array $parseBody = []): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('product', $parseBody);
-		if (empty($sanitizedParams)) {
-			return SupportApplication::returnDTO(false, 'Params is empty');
-		}
-
 		// VALIDAR ENTRADAS
 		$name = $sanitizedParams['name'] ?? null;
 		if (!$name) {
@@ -36,11 +30,6 @@ class ProductCreateUseCase extends ThingCreateUseCase
 
 		// SALVAR PRODUTO
 		$sanitizedParams['thing'] = $thingId;
-		$productCreatedData = $this->databaseActions->create('product', $sanitizedParams);
-		if ($productCreatedData['status'] === false) {
-			return $productCreatedData;
-		}
-
-		return SupportApplication::returnDTOFromDatabaseData($productCreatedData);
+		return $this->databaseActions->create('product', $sanitizedParams);
 	}
 }

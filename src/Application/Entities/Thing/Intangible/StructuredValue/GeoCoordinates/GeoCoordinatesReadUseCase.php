@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\GeoCoordinates;
 
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class GeoCoordinatesReadUseCase extends ThingReadUseCase
@@ -10,11 +9,8 @@ class GeoCoordinatesReadUseCase extends ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('GeoCoordinates',$queryParams);
-
 		// OBTÉM DADOS DO BANCO DE DADOS
 		$getData = $this->databaseActions->read('geoCoordinates', $sanitizedParams)->setWithThings(false);
 		$data = $getData->render();

@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\MediaObject;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class MediaObjectReadUseCase extends CreativeWorkReadUseCase
@@ -10,11 +9,8 @@ class MediaObjectReadUseCase extends CreativeWorkReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams =[]): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('MediaObject', $queryParams);
-
 		// IF ID HAS PART
 		$idHasPart = $params['idHasPart'] ?? null;
 		if ($idHasPart) {
@@ -48,7 +44,7 @@ class MediaObjectReadUseCase extends CreativeWorkReadUseCase
 				}
 			}
 		}
-		return SupportApplication::returnDTOFromDatabaseData($databaseData);
+		return $databaseData;
 	}
 
 }

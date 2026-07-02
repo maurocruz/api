@@ -11,11 +11,8 @@ readonly class EntityUpdateUseCase extends ThingUpdateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function update(string $type, array $params): array
+	public function update(string $type, array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams($type, $params);
-
 		// SE FOR PARA ATUALIZAR RELACIONAMENTO
 		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
@@ -58,13 +55,7 @@ readonly class EntityUpdateUseCase extends ThingUpdateUseCase
 		}
 
 		// PEGA ITEM ATUALIZADO, HIDRATA E RETORNA
-		$results = $this->databaseActions->read(lcfirst($type), ['thing' => $idthing])->render();
-		if ($results['status'] === false) {
-			return $results;
-		}
-		$hydratedItem = SupportApplication::hydrateFromDatabase($results['data']);
-		$result = SupportApplication::convertFromObjectToSchemaOrgArrayDTO($hydratedItem);
-		return ['status' => true, 'message' => 'Module updated successfully', 'data' => $result];
+		return $this->databaseActions->read(lcfirst($type), ['thing' => $idthing])->render();
 	}
 
 	/**

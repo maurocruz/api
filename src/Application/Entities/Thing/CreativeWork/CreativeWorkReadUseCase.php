@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork;
 
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 use ReflectionException;
 
@@ -11,7 +10,7 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $sanitizedParams = []): array
+	public function read(array $sanitizedParams): array
 	{
 
 		// IF ID HAS PART

@@ -15,12 +15,12 @@ readonly class OrderReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams): array
+	public function read(array $sanitizedParams): array
 	{
-		$properties = $queryParams['properties'] ?? [];
+		$properties = $sanitizedParams['properties'] ?? [];
 
 		// OBTER DADOS DO BANCO DE DADOS
-		$dataBaseData = $this->databaseActions->read('order', $queryParams)->render();
+		$dataBaseData = $this->databaseActions->read('order', $sanitizedParams)->render();
 		if ($dataBaseData['status'] === false) {
 			return $dataBaseData;
 		}
@@ -49,7 +49,7 @@ readonly class OrderReadUseCase
 				$dataBaseData['data'][$key]['orderedItem'] = $dataOrderItem['data'];
 			}
 			// CUSTOMER
-			if (in_array('customer', $properties)) {
+			if (in_array('customer', $properties) && isset($value['customer'])) {
 				$dataCustomer = $this->databaseActions->read('thing', ['idthing' => $value['customer']])->render();
 				if ($dataCustomer['status'] === false) {
 					return $dataCustomer;

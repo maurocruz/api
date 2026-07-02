@@ -2,15 +2,12 @@
 namespace Plinct\Api\Application\Entities\Thing\Action;
 
 use Plinct\Api\Application\Entities\Thing\ThingCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 
 class ActionCreateUseCase extends ThingCreateUseCase
 {
 
-	public function create(array $parseBody): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('action', $parseBody);
 		$sanitizedParams['type'] = 'Action';
 
 		// VERIFICA CAMPOS OBRIGATÓRIOS
@@ -35,10 +32,6 @@ class ActionCreateUseCase extends ThingCreateUseCase
 		$idthing = $valueThing['idthing'];
 
 		// SALVA ACTION
-		$dataAction = $this->databaseActions->create('action', ['thing' => $idthing] + $sanitizedParams);
-		if ($dataAction['status'] === false) {
-			return $dataAction;
-		}
-		return SupportApplication::returnDTOFromDatabaseData($dataAction);
+		return $this->databaseActions->create('action', ['thing' => $idthing] + $sanitizedParams);
 	}
 }

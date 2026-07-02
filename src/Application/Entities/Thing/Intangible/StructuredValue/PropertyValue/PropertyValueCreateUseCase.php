@@ -2,14 +2,11 @@
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\PropertyValue;
 
 use Plinct\Api\Application\Entities\Thing\ThingCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 
 class PropertyValueCreateUseCase extends ThingCreateUseCase
 {
-	public function create(array $parseBody = []): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('propertyValue', $parseBody);
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$name = $sanitizedParams['name'] ?? null;
 		$value = $sanitizedParams['value'] ?? null;
@@ -28,11 +25,6 @@ class PropertyValueCreateUseCase extends ThingCreateUseCase
 		$thingId = $dadosCreateThing['data'][0]['idthing'];
 
 		// SALVAR PROPERTY VALUE
-		$dataCreatePropertyValue = $this->databaseActions->create('propertyValue', ['thing' => $thingId] + $sanitizedParams);
-		if ($dataCreatePropertyValue['status'] === false) {
-			return $dataCreatePropertyValue;
-		}
-		// RETORNAR
-		return SupportApplication::returnDTOFromDatabaseData($dataCreatePropertyValue);
+		return $this->databaseActions->create('propertyValue', ['thing' => $thingId] + $sanitizedParams);
 	}
 }

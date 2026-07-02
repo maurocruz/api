@@ -2,15 +2,11 @@
 namespace Plinct\Api\Application\Entities\Thing\Intangible\StructuredValue\ContactPoint;
 
 use Plinct\Api\Application\Entities\Thing\ThingCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 
 class ContactPointCreateUseCase extends ThingCreateUseCase
 {
-	public function create(array $parseBody = []): array
+	public function create(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('contactPoint', $parseBody);
-
 		// VALIDAR ENTRADAS
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$name = $sanitizedParams['name'] ?? null;
@@ -30,11 +26,6 @@ class ContactPointCreateUseCase extends ThingCreateUseCase
 		$thingId = $dadosCreateThing['data'][0]['idthing'];
 
 		// SALVAR PROPERTY VALUE
-		$dataCreateContactPoint = $this->databaseActions->create('contactPoint', ['thing' => $thingId] + $sanitizedParams);
-		if ($dataCreateContactPoint['status'] === false) {
-			return $dataCreateContactPoint;
-		}
-		// RETORNAR
-		return SupportApplication::returnDTOFromDatabaseData($dataCreateContactPoint);
+		return $this->databaseActions->create('contactPoint', ['thing' => $thingId] + $sanitizedParams);
 	}
 }

@@ -10,12 +10,8 @@ class EntityCreateUseCase extends ThingCreateUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function createEntity(string $type, array $parseBody): array
+	public function createEntity(string $type, array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams($type, $parseBody);
-
-		//
 		// SAVE THING
 		$saveThing = parent::create($sanitizedParams);
 		if($saveThing['status'] === false) {
@@ -24,8 +20,7 @@ class EntityCreateUseCase extends ThingCreateUseCase
 			$thingData = $saveThing['data'][0];
 			$thing = $thingData['idthing'];
 
-			$hidratedParams = SupportApplication::hydrateOwnProperties($type, $sanitizedParams);
-			$saveCreativework = $this->databaseActions->create($type, $hidratedParams + ['thing' => $thing]);
+			$saveCreativework = $this->databaseActions->create($type, $sanitizedParams + ['thing' => $thing]);
 
 			if ($saveCreativework['status'] === false) {
 				return $saveCreativework;

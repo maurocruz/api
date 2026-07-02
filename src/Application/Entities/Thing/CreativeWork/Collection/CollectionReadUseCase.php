@@ -2,15 +2,11 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\Collection;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 
 class CollectionReadUseCase extends CreativeWorkReadUseCase
 {
-	public function read(array $queryParams = []): array
+	public function read(array $sanitizedParams = []): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('Collection', $queryParams);
-
 		// ID HAS PART
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		if ($idHasPart) {
@@ -46,6 +42,6 @@ class CollectionReadUseCase extends CreativeWorkReadUseCase
 				}
 			}
 		}
-		return SupportApplication::returnDTOFromDatabaseData($dataCollection, 'Collection found');
+		return $dataCollection;
 	}
 }

@@ -3,7 +3,6 @@ namespace Plinct\Api\Application\Entities\Thing\Event;
 
 use Plinct\Api\Application\Entities\Thing\Place\PlaceReadUseCase;
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -19,11 +18,8 @@ class EventReadUseCase extends ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	public function read(array $queryParams): array
+	public function read(array $sanitizedParams): array
 	{
-		// SANITIZE PARAMS
-		$sanitizedParams = SupportApplication::sanitizeParams('event', $queryParams);
-
 		// OBTER DADOS DO BANCO DE DADOS
 		$getData = $this->databaseActions->read('event', $sanitizedParams);
 		$data = $getData->render();
