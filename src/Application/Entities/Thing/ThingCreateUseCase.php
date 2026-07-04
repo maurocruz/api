@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing;
 
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\FileProcessor\FileProcessor;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
@@ -71,10 +70,6 @@ class ThingCreateUseCase
 		$typeIsPartOf = $valueTypeIsPartOf['type'];
 
 		// SALVAR RELATIONAMENTO
-		$databaseData = $this->databaseActions->createRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
-		if ($databaseData['status'] === false) {
-			return $databaseData;
-		}
-		return ['status'=> true, 'message'=> "Relationship created with '$typeHasPart'", 'data'=> SupportApplication::convertDataToSchemaOrg($dataTypeIsPartOf['data'])];
+		return $this->databaseActions->createRelationship($idHasPart, $typeHasPart, $idIsPartOf, $typeIsPartOf);
 	}
 }
