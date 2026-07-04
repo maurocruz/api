@@ -3,6 +3,7 @@ namespace Plinct\Api\Application\Entities;
 
 use Plinct\Api\Application\Entities\Thing\ThingUpdateUseCase;
 use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Entities;
 use ReflectionException;
 
 readonly class EntityUpdateUseCase extends ThingUpdateUseCase
@@ -33,7 +34,7 @@ readonly class EntityUpdateUseCase extends ThingUpdateUseCase
 			return ['status' => false, 'message'=>'Idthing is required', 'data'=> []];
 		}
 		// VERIFICAR SE O ITEM EXISTE
-		$entity = SupportApplication::getEntity(ucfirst($type));
+		$entity = Entities::getEntity(ucfirst($type));
 		if (!$entity) {
 			return ['status' => false, 'message'=>'Module not found', 'data'=> []];
 		}
@@ -63,7 +64,7 @@ readonly class EntityUpdateUseCase extends ThingUpdateUseCase
 	 */
 	private function updateDependencies(string $moduleName, array $params, int $idthing): array
 	{
-		$entity = SupportApplication::getEntity($moduleName);
+		$entity = Entities::getEntity($moduleName);
 		$returnsOk = [];
 		foreach ($entity::DEPENDENCIES as $dependencyName) {
 			$whereClause = $dependencyName == 'Thing' ? ['idthing' => $idthing] : ['thing' => $idthing];

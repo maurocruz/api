@@ -2,6 +2,7 @@
 namespace Plinct\Api\Http\Middleware;
 
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
+use Plinct\Api\Domain\Entities\Entities;
 use Plinct\Api\Domain\Modules\ModuleDomain;
 use Plinct\Api\Infrastructure\Persistence\Database\ConnectDB;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
@@ -52,6 +53,7 @@ readonly class GlobalMiddleware implements MiddlewareInterface
 
 		// SET MODULES ENABLED
 		$showTables = $this->databaseStructure->showTables();
+		Entities::setActiveEntities($showTables);
 		$modulesAvailable = ModuleDomain::getNamesOfModulesAvailable();
 		$arrayFilter = array_filter($showTables, function($item) use ($modulesAvailable) {
 			return in_array(ucfirst($item), $modulesAvailable);

@@ -1,8 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Support;
 
-use Plinct\Api\Domain\Contracts\EntityInterface;
-use Plinct\Api\Domain\Entities\Entities;
 use ReflectionException;
 
 class SupportApplication
@@ -42,15 +40,6 @@ class SupportApplication
 	public static function convertFromObjectToSchemaOrgArrayDTO(array $entities): array
 	{
 		return EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
-	}
-
-	/**
-	 * @param string $name
-	 * @return EntityInterface|null
-	 */
-	public static function getEntity(string $name): ?EntityInterface
-	{
-		return Entities::getEntity($name);
 	}
 
 	/**

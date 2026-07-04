@@ -2,7 +2,7 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebPage;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Entities;
 use ReflectionException;
 
 class WebPageCreateUseCase extends CreativeWorkCreateUseCase
@@ -28,7 +28,7 @@ class WebPageCreateUseCase extends CreativeWorkCreateUseCase
 		$sanitizedParams['thing'] = $valueCreativeWork['thing'];
 
 		// SALVA WEB PAGE
-		$webPageEntity = SupportApplication::getEntity('WebPage');
+		$webPageEntity = Entities::getEntity('WebPage');
 		$webPageParamsHidrated = $webPageEntity->hydrateParams($sanitizedParams);
 		$creativeWorkDataCreated = $this->databaseActions->create('webPage', $webPageParamsHidrated);
 		if ($creativeWorkDataCreated['status'] === false) {

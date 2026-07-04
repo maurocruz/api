@@ -1,13 +1,16 @@
 <?php
 namespace Plinct\Api\Application\Config;
 
+use Plinct\Api\Domain\Entities\Entities;
 use Plinct\Api\Domain\Modules\ModuleDomain;
 use Plinct\Api\Infrastructure\Persistence\Modules\ModulesPersistence;
 
 readonly class InstallModuleUseCase
 {
-	public function __construct(private ModulesPersistence $modulesPersistence)
-	{}
+	public function __construct(
+		private ModulesPersistence $modulesPersistence
+	) { }
+
 	public function installModule(string $moduleName): array
 	{
 		// VERIFICAR A EXISTÊNCIA DO MÓDULO
@@ -24,15 +27,15 @@ readonly class InstallModuleUseCase
 		return $this->install($moduleName);
 	}
 
-
 	private function install(string $moduleName): array
 	{
 		$result = [];
 		// VERIFICA SE HÁ DEPENDENCIAS
-		foreach (ModuleDomain::getDependenciesOfModule($moduleName) as $dependency) {
-			// VERIFICA SE ESTA DEPENDENCIA ESTA INSTALADA
-			if (!ModuleDomain::moduleIsEnabled($dependency)) {
-				$installDependencyResult = $this->installModule($dependency);
+		$entity = Entities::getEntity($moduleName);
+		foreach ($entity::DEPENDENCIES as $dependency) {
+			// VERIFICA SE ESTA DEPENDENCIA EXISTE E ESTÁ INSTALADA
+			if (!(Entities::hasEntity($dependency) && Entities::isActiveEntity($dependency))) {
+				$installDependencyResult = $this->install($dependency);
 				if ($installDependencyResult['status'] === false) {
 					return ['status' => false, 'message' => 'Error installing module: ' . $dependency, 'data' => $installDependencyResult['data']];
 				} else {

@@ -88,14 +88,46 @@ class Entities
 		['name' => 'WebSite', 'object' => WebSite::class]
 	];
 
-	public static function hasEntity(string $entityName): bool
+	private static array $activeEntities = [];
+
+	/**
+	 * @return array
+	 */
+	public static function getActiveEntities(): array
 	{
-		foreach (self::ENTITIES as $entity) {
-			if ($entity['name'] === ucfirst($entityName)) return true;
-		}
-		return false;
+		return self::$activeEntities;
 	}
 
+	/**
+	 * @param array $activeEntities
+	 */
+	public static function setActiveEntities(array $activeEntities): void
+	{
+		self::$activeEntities = $activeEntities;
+	}
+
+	/**
+	 * @param string $entityName
+	 * @return bool
+	 */
+	public static function isActiveEntity(string $entityName): bool
+	{
+		return in_array(lcfirst($entityName),self::$activeEntities);
+	}
+
+	/**
+	 * @param string $entityName
+	 * @return bool
+	 */
+	public static function hasEntity(string $entityName): bool
+	{
+		return in_array($entityName,array_column(Entities::ENTITIES,'name'));
+	}
+
+	/**
+	 * @param string $entityName
+	 * @return EntityInterface|null
+	 */
 	public static function getEntity(string $entityName): ?EntityInterface
 	{
 		foreach (self::ENTITIES as $entity) {
@@ -104,6 +136,10 @@ class Entities
 		return null;
 	}
 
+	/**
+	 * @param string $entityName
+	 * @return string|null
+	 */
 	public static function getEntityNamespace(string $entityName): ?string
 	{
 		foreach (self::ENTITIES as $entity) {
@@ -112,6 +148,10 @@ class Entities
 		return null;
 	}
 
+	/**
+	 * @param string $entityName
+	 * @return bool
+	 */
 	public static function isEnabled(string $entityName): bool
 	{
 		return ModuleDomain::moduleIsEnabled($entityName);

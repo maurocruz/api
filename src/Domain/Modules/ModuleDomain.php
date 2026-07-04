@@ -53,7 +53,6 @@ class ModuleDomain extends Entities
 		return $moduleNames;
 	}
 
-
 	public static function moduleExists(string $moduleName): bool
 	{
 		return in_array(ucfirst($moduleName), self::getNamesOfModulesAvailable(), true);
@@ -112,6 +111,6 @@ class ModuleDomain extends Entities
 	{
 		$moduleClass = self::getReflexionClass($moduleName);
 		$moduleNamespace = self::getModuleNamespace($moduleName);
-		return $moduleClass->hasConstant('IS_MODULE') ? $moduleNamespace::IS_MODULE : false;
+		return $moduleNamespace && $moduleClass->hasConstant('IS_MODULE') ? $moduleNamespace::IS_MODULE : false;
 	}
 }
