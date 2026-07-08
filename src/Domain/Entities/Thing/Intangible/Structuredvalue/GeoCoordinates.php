@@ -15,6 +15,22 @@ class GeoCoordinates implements EntityInterface
 	public ?float $latitude = null;
 	public ?float $longitude = null;
 	public ?string $type = 'GeoCoordinates';
+	public array $identifier = [];
+
+	public function __construct(array $value = ['@type' => 'GeoCoordinates'])
+	{
+		$this->idgeoCoordinates = $value['idgeoCoordinates'] ?? 0;
+		$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idgeoCoordinates', 'value' => $this->idgeoCoordinates];
+		$this->elevation = $value['elevation'] ?? null;
+		$this->latitude = $value['latitude'] ?? null;
+		$this->longitude = $value['longitude'] ?? null;
+
+		if(isset($value['idpostalAddress'])) {
+			$this->address = new PostalAddress($value);
+		} else {
+			$this->address = $value['address'] ?? null;
+		}
+	}
 
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{

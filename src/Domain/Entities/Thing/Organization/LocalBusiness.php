@@ -10,7 +10,6 @@ class LocalBusiness extends Organization
 	protected int $thing;
 	public ?string $openingHours = null;
 	public ?string $paymentAccepted = null;
-	public mixed $location = null;
 
 	public function __construct(array $value = ['@type' => 'LocalBusiness'])
 	{

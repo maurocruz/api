@@ -16,6 +16,18 @@ class PostalAddress implements EntityInterface
 	public ?string $addressCountry = null;
 	public ?string $postalCode = null;
 
+	public ?string $type = 'PostalAddress';
+
+	public function __construct(array $value = ['@type' => 'PostalAddress'])
+	{
+		$this->idpostalAddress = $value['idpostalAddress'] ?? 0;
+		$this->streetAddress = $value['streetAddress'] ?? null;
+		$this->addressLocality = $value['addressLocality'] ?? null;
+		$this->addressRegion = $value['addressRegion'] ?? null;
+		$this->addressCountry = $value['addressCountry'] ?? null;
+		$this->postalCode = $value['postalCode'] ?? null;
+	}
+
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);

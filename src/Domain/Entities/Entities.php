@@ -121,7 +121,7 @@ class Entities
 	 */
 	public static function hasEntity(string $entityName): bool
 	{
-		return in_array($entityName,array_column(Entities::ENTITIES,'name'));
+		return in_array(ucfirst($entityName),array_column(Entities::ENTITIES,'name'));
 	}
 
 	/**
