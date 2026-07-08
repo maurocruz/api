@@ -16,6 +16,7 @@ class CreativeWorkCreateUseCase extends ThingCreateUseCase
 		if (!isset($sanitizedParams['name'])) {
 			return ['status' => false, 'message' => 'Name is required'];
 		}
+		$sanitizedParams['type'] = $sanitizedParams['type'] ?? 'CreativeWork';
 		// SAVE THING
 		$saveThing = parent::create($sanitizedParams);
 		if($saveThing['status'] === false) {

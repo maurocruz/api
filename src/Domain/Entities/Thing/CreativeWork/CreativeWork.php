@@ -55,7 +55,7 @@ class CreativeWork extends Thing
 		$this->datePublished = $value['datePublished'] ?? null;
 		$this->editor = $value['editor'] ?? null;
 		$this->encodingFormat = $value['encodingFormat'] ?? null;
-		$this->hasPart = $value['hasPart'] ?? null;
+		$this->hasPart = $value['hasPart'] ?? [];
 		$this->headline = $value['headline'] ?? null;
 		$this->isPartOf = $value['isPartOf'] ?? null;
 		$this->keywords = $value['keywords'] ?? '';

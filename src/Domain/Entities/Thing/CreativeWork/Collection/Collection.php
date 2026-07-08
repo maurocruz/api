@@ -13,6 +13,11 @@ class Collection extends CreativeWork
 	protected int $thing;
 	protected int $creativeWork;
 
+	public function __construct(array $value = ["@type" => "Collection"])
+	{
+		parent::__construct($value);
+	}
+
 	public function hydrateParams(array $data, bool $withParent = false): array
 	{
 		$reflection = new EntityReflections(self::class);
