@@ -11,7 +11,7 @@ class CreativeWork extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	protected int $idcreativeWork;
-	protected int $thing;
+	private int $thing;
 	public ?int $about = null;
 	public ?string $acquireLicensePage = null;
 	public ?string $alternativeHeadline = null;
@@ -45,7 +45,6 @@ class CreativeWork extends Thing
 
 		parent::__construct($value);
 
-		$this->thing = $value['thing'] ?? 0;
 		$this->about = $value['about'] ?? null;
 		$this->acquireLicensePage = $value['acquireLicensePage'] ?? null;
 		$this->alternativeHeadline = $value['alternativeHeadline'] ?? null;

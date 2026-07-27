@@ -40,6 +40,9 @@ class ThingReadUseCase
 
 		// BUSCA POR PARAMS
 		$getData = $this->databaseActions->read(lcfirst($type), $sanitizedParams);
+		if (strtolower($type) === 'thing') {
+			$getData->setWithThings(false);
+		}
 		$databaseData = $getData->render();
 
 		if ($databaseData['status'] === false) {

@@ -10,12 +10,23 @@ readonly class ThingUpdateUseCase
 		protected DatabaseActions $databaseActions
 	) { }
 
+	/**
+	 * @param string $type
+	 * @param array $sanitizedParams
+	 * @return array
+	 */
 	public function update(string $type, array $sanitizedParams): array
 	{
 		return ['status' => false, 'message' => 'Not implemented yet'];
 	}
 
 	/**
+	 * @param string $idHasPart
+	 * @param string $idIsPartOf
+	 * @param string|null $caption
+	 * @param int|null $position
+	 * @param string $representativeOfPage
+	 * @return array
 	 * @throws ReflectionException
 	 */
 	protected function updateRelationship(string $idHasPart, string $idIsPartOf, string $caption = null, int $position = null, string $representativeOfPage = ''): array
@@ -27,7 +38,11 @@ readonly class ThingUpdateUseCase
 		// SE REPRESENTATIVE OF PAGE FOR TRUE, ALTERAR IMAGE EM THING
 		if ($representativeOfPage) {
 			// PEGAR CAMINHO DA IMAGEM DE IS PART OF
-			$isPartOfData = $this->databaseActions->read('thing', ['idthing'=>$idIsPartOf])->setWithThings(false)->render();
+			$getDataisPartOf = $this->databaseActions->read('imageObject', ['thing'=>$idIsPartOf]);
+			$getDataisPartOf->setJoin('creativeWork', 'creativeWork.thing = imageObject.thing');
+			$getDataisPartOf->setJoin('mediaObject', 'mediaObject.thing = imageObject.thing');
+			$getDataisPartOf->setFields('imageObject.thing, contentUrl, thing.type, thing.idthing');
+			$isPartOfData = $getDataisPartOf->render();
 			if ($isPartOfData['status'] === false) {
 				return $isPartOfData;
 			}
@@ -35,13 +50,14 @@ readonly class ThingUpdateUseCase
 				return ['status'=> false, 'message'=> 'Thing is part of not found', 'data'=>[]];
 			}
 			$isPartOf = $isPartOfData['data'][0];
-			$image = $isPartOf['image'];
+			$image = $isPartOf['contentUrl'];
 			// ALTERAR IMAGEM EM THING
 			$hasPartData = $this->databaseActions->update('thing', ['image' => $image], ['idthing' => $idHasPart]);
 			if ($hasPartData['status'] === false) {
 				return $hasPartData;
 			}
+			return ['status'=> true, 'message'=> 'Representative of page updated', 'data'=>$isPartOfData['data']];
 		}
-		return ['status'=> true, 'message'=> 'Representative of page updated', 'data'=>$responsedatabase['data']];
+		return $responsedatabase;
 	}
 }

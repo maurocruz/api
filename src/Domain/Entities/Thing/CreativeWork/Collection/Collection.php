@@ -10,8 +10,8 @@ class Collection extends CreativeWork
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
 	protected int $idcollection;
-	protected int $thing;
-	protected int $creativeWork;
+	private int $thing;
+	private int $creativeWork;
 
 	public function __construct(array $value = ["@type" => "Collection"])
 	{

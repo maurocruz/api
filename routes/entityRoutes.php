@@ -8,6 +8,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkControlle
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\ImageObject\ImageObjectController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObjectCreateController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\MediaObjectReadController;
+use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\MediaObject\VideoObject\VideoObjectController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Review\ReviewController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPage\WebPageController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\WebPageElement\WebPageElementController;
@@ -45,7 +46,7 @@ return function (RouteCollectorProxy $route)
 	// GEOCOORDINATES
 	$route->get('geoCoordinates', [GeoCoordinatesController::class, 'read'])->setName('geoCoordinates.read');
 	// IMAGE OBJECT
-	$route->get('imageObject', [ImageObjectController::class, 'read'])->setName('imageObject.read');
+	$route->get('{imageObject: ImageObject|imageObject}', [ImageObjectController::class, 'read'])->setName('imageObject.read');
 	// LOCAL BUSINESS
 	$route->get('localBusiness', [LocalBusinessController::class, 'read'])->setName('localBusiness.read');
 	// MEDIA OBJECT
@@ -64,6 +65,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('product', [ProductController::class,'read'])->setName('product.read');
 	// PROPERTY VALUE
 	$route->get('propertyValue', [PropertyValueController::class,'read'])->setName('propertyValue.read');
+	// VIDEO OBJECT
+	$route->get('{videoObject: videoObject|VideoObject}', [VideoObjectController::class, 'read'])->setName('videoObject.read');
 	// WEB PAGE
 	$route->get('webPage', [WebPageController::class, 'read'])->setName('webPage.read');
 	// WEB PAGE ELEMENT

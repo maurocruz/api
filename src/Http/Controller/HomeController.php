@@ -12,6 +12,7 @@ readonly class HomeController
 	{
 		$useCaseData = ConfigurationDomain::verbose();
 		$responseJson = json_encode($useCaseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write($responseJson);
 		return $response;
 	}

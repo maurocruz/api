@@ -13,7 +13,6 @@ class Thing implements EntityInterface, JsonSerializable
 	public const array DEPENDENCIES = [];
 
 	protected int $idthing;
-	protected string $context = 'https://schema.org';
 	public string $type;
 	public ?string $additionalType = null;
 	public ?string $alternateName = null;

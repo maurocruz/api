@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities;
 
 use Plinct\Api\Application\Entities\Thing\ThingCreateUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use ReflectionException;
 
 class EntityCreateUseCase extends ThingCreateUseCase
@@ -12,6 +11,12 @@ class EntityCreateUseCase extends ThingCreateUseCase
 	 */
 	public function createEntity(string $type, array $sanitizedParams): array
 	{
+		// VERIFICA SE NÃO É APENAS RELACIONAMENTO
+		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
+		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
+		if ($idHasPart && $idIsPartOf) {
+			return $this->createRelationship($idHasPart, $idIsPartOf);
+		}
 		// SAVE THING
 		$saveThing = parent::create($sanitizedParams);
 		if($saveThing['status'] === false) {
