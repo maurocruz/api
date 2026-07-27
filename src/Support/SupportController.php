@@ -3,7 +3,6 @@ namespace Plinct\Api\Support;
 
 use Plinct\Api\Application\Support\EntityDTO;
 use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Domain\Entities\Entities;
 use ReflectionException;
 
@@ -24,7 +23,7 @@ class SupportController
 			$value = trim($value," \t\n\r\0\x0B");
 
 			// SÓ WEB PAGE ELEMENT NA PROPRIEDADE TEXT ACEITA TAGS
-			if ($type !== 'webPageElement' && $key === 'text') {
+			if ($key !== 'text') {
 				$value = htmlspecialchars(strip_tags($value));
 			}
 
@@ -38,11 +37,11 @@ class SupportController
 				$valueArray = explode(',',$value);
 				// adiciona igthing
 				if (!in_array('idthing', $valueArray) && property_exists($entity, 'idthing')) {
-					array_unshift($valueArray, 'idthing');
+					$valueArray[] = 'idthing';
 				}
 				// adiciona type
 				if (!in_array('type',$valueArray) && property_exists($entity, 'type')) {
-					array_unshift($valueArray, 'type');
+					$valueArray[] = 'type';
 				}
 				$value = implode(',',$valueArray);
 			}
