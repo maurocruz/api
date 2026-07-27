@@ -95,9 +95,10 @@ abstract class GetDataInfrastructureAbstract
 			$this->declareGroupBy();
 			// ORDER BY
 			self::declareOrderBy();
-			// LIMIT AND OFFSET
-			self::declareLimit();
 		}
+		// LIMIT AND OFFSET
+		self::declareLimit();
+
 		$this->query .= ";";
 	}
 
@@ -150,19 +151,20 @@ abstract class GetDataInfrastructureAbstract
 	 */
 	protected function whereCondition(): void
 	{
+
+		//  WHERE WITH PARAMS
+		if (array_key_exists('where',$this->params)) {
+			$this->where[] = $this->params['where'];
+		}
+
 		foreach ($this->params as $key => $value) {
 			$currentTable = $this->isProperty($key);
 			if (!$currentTable) {
 				continue;
 			}
 
-			//  WHERE WITH PARAMS
-			if ($key == 'where') {
-				$this->where[] = $value;
-			}
-
 			// WHERE CONDITION
-			if (str_contains($value,'|')) {
+			if ($value && str_contains($value,'|')) {
 				$orArray = [];
 				foreach (explode('|', $value) as $orValue) {
 					$orArray[] = "`$currentTable`.$key='$orValue'";
@@ -234,8 +236,7 @@ abstract class GetDataInfrastructureAbstract
 	private function declareOrderBy(): void
 	{
 		$orderBy = $this->params['orderBy'] ?? '';
-		$ordering = $this->params['ordering'] ?? '';
-
+		$ordering = $this->params['ordering'] ?? 'asc';
 		if ($orderBy) {
 			$explodeOrderBy = explode(',', $orderBy);
 			$explodeOrdering = explode(',', $ordering);
@@ -243,11 +244,11 @@ abstract class GetDataInfrastructureAbstract
 			foreach ($explodeOrderBy as $key => $value) {
 				$item = str_replace([' desc', ' asc'], '', trim($value));
 				if ($this->isProperty($item) || $item == 'rand()') {
-					$orderByArray[] = (
-						Entities::isOwnProperty(ucfirst($this->table), $item)
-							? "`$this->table`."
-							: null
-						) . $item . ' ' . ($explodeOrdering[$key] ?? ' asc');
+					foreach ($this->tables as $table) {
+						if (Entities::isOwnProperty($table, $item) && ($table !== 'creativeWork' && $item === 'position')) {
+							$orderByArray[] = "`$table`.$item". ' ' . ($explodeOrdering[$key] ?? ' '.$ordering);
+						}
+					}
 				}
 			}
 			$orderFiltered = implode(',', $orderByArray);
