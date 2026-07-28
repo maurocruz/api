@@ -245,7 +245,7 @@ abstract class GetDataInfrastructureAbstract
 				$item = str_replace([' desc', ' asc'], '', trim($value));
 				if ($this->isProperty($item) || $item == 'rand()') {
 					foreach ($this->tables as $table) {
-						if (Entities::isOwnProperty($table, $item) && ($table !== 'creativeWork' && $item === 'position')) {
+						if (Entities::isOwnProperty($table, $item) && !($table === 'creativeWork' && $item === 'position')) {
 							$orderByArray[] = "`$table`.$item". ' ' . ($explodeOrdering[$key] ?? ' '.$ordering);
 						}
 					}
