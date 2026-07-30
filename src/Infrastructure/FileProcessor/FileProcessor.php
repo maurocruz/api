@@ -6,6 +6,7 @@ use ImagickException;
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
 use Plinct\Api\Domain\DesignPatterns\DesignPatternFactory;
 use Plinct\Api\Infrastructure\ImageProcessor\ImageProcessor;
+use RuntimeException;
 use Slim\Psr7\UploadedFile;
 
 class FileProcessor
@@ -21,9 +22,11 @@ class FileProcessor
 	private string $fileExtension;
 	private string $newFileNamePath;
 
-	public function __construct(private readonly ImageProcessor $imageProcessor)
-	{
-	}
+	public function __construct(
+		private readonly ImageProcessor $imageProcessor,
+		private readonly MediaTypeDetector $mediaTypeDetector,
+		private readonly PdfMetadataExtractor $pdfMetadataExtractor
+	){}
 
 	/**
 	 * @return ?string
@@ -124,15 +127,13 @@ class FileProcessor
 	 */
 	public function getMetadata(): array
 	{
-		if ($this->fileType === 'application/pdf') {
-			$pdfExtractor = new PdfMetadataExtractor($this->filePath);
-			return $pdfExtractor->extract();
-		}
-
-		if (str_starts_with($this->fileType, 'image/')) {
-			return $this->imageProcessor->getImageMetadata($this->filePath);
-		}
-		return [];
+		$mimeType = $this->mediaTypeDetector->detect($this->filePath);
+		return match ($mimeType) {
+			MediaTypeDetector::TYPE_IMAGE => $this->imageProcessor->getImageMetadata($this->filePath),
+			MediaTypeDetector::TYPE_PDF => $this->pdfMetadataExtractor->extract($this->filePath),
+			//MediaTypeDetector::TYPE_AUDIO, MediaTypeDetector::TYPE_VIDEO => $this->audioVideoMetadataExtractor->extract($this->filePath),
+			default => throw new RuntimeException('Tipo de arquivo não permitido'),
+		};
 	}
 
 	/**

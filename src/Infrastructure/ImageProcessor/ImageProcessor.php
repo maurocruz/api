@@ -76,16 +76,27 @@ class ImageProcessor
 
 	/**
 	 */
-	public function getImageMetadata(string $path): array
+	public function getImageMetadata(string $filePath): array
 	{
 		$metadata = [];
 		try {
-			$imagick = new Imagick($path);
+			$imagick = new Imagick($filePath);
 			// Obtém todas as propriedades, incluindo prefixos exif: e iptc:
 			$properties = $imagick->getImageProperties();
 			// Mapeamento para propriedades do Schema.org
-			$metadata['width'] = $imagick->getImageWidth();
-			$metadata['height'] = $imagick->getImageHeight();
+
+			// SE A IMAGEM ORIGINAL FOR MAIOR QUE MAX WIDTH IMAGE
+			if ($imagick->getImageWidth() > DesignPatternFactory::IMAGE_LARGE) {
+				$width = DesignPatternFactory::IMAGE_LARGE;
+				$height = $imagick->getImageWidth() * ($imagick->getImageHeight()/$imagick->getImageWidth());
+			} else {
+
+				$width = $imagick->getImageWidth();
+				$height = $imagick->getImageHeight();
+			}
+
+			$metadata['width'] = $width;
+			$metadata['height'] = $height;
 			$metadata['author'] = $properties['exif:Artist'] ?? $properties['iptc:By-line'] ?? null;
 			$metadata['copyrightHolder'] = $properties['exif:Copyright'] ?? $properties['iptc:CopyrightNotice'] ?? null;
 			$metadata['datePublished'] = $properties['exif:DateTime'] ?? $properties['date:create'] ?? null;
@@ -97,6 +108,5 @@ class ImageProcessor
 			return $metadata;
 		}
 	}
-
 }
 

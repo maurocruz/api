@@ -19,21 +19,16 @@ class PdfMetadataExtractor
 
 	protected string $filePath;
 
-	public function __construct(string $filePath)
+	public function extract(string $filePath): array
 	{
 		if (!file_exists($filePath)) {
 			throw new InvalidArgumentException("Arquivo não encontrado.");
 		}
-
 		$this->filePath = $filePath;
-
 		if (!$this->isPdf()) {
 			throw new InvalidArgumentException("Arquivo não é um PDF válido.");
 		}
-	}
 
-	public function extract(array $params = []): array
-	{
 		// Prioridade 1: pdfinfo (melhor opção)
 		if ($this->commandExists('pdfinfo')) {
 			return $this->extractUsingPdfInfo();
