@@ -23,7 +23,7 @@ class SupportController
 			$value = trim($value," \t\n\r\0\x0B");
 
 			// SÓ WEB PAGE ELEMENT NA PROPRIEDADE TEXT ACEITA TAGS
-			if ($key !== 'text' && $key !== 'description') {
+			if ($key !== 'text' && $key !== 'description' && $key !== 'where') {
 				$value = htmlspecialchars(strip_tags($value));
 			}
 
