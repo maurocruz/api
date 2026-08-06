@@ -100,6 +100,10 @@ return function (RouteCollectorProxy $route)
 		$route->delete('invoice', [InvoiceController::class, 'delete'])->setName('invoice.delete');
 		// MEDIA OBJECT
 		$route->post('mediaObject', MediaObjectCreateController::class)->setName('mediaObject.create');
+		// ORDER
+		$route->post('order', [OrderController::class, 'create'])->setName('order.create');
+		$route->put('order', [OrderController::class, 'update'])->setName('order.update');
+		$route->delete('order', [OrderController::class, 'delete'])->setName('order.delete');
 		// ORDER iTEM
 		$route->post('orderItem', [OrderItemController::class, 'create'])->setName('orderItem.create');
 		$route->put('orderItem', [OrderItemController::class, 'update'])->setName('orderItem.update');
