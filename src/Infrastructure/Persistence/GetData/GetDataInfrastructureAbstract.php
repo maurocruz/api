@@ -80,7 +80,7 @@ abstract class GetDataInfrastructureAbstract
 		$this->query = "SELECT $fields FROM `$this->table`";
 		// LEFT JOIN THING
 		$entity = Entities::getEntity(ucfirst($this->table));
-		if ($this->withThings && $entity && property_exists($entity, 'idthing') && !$this->isCount !== null) {
+		if ($this->withThings && $entity && property_exists($entity, 'idthing') && !$this->isCount !== null && $this->table !== 'thing') {
 			$this->setJoin('thing',"`thing`.idthing = `$this->table`.thing");
 		}
 		// JOIN
