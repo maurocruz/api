@@ -56,7 +56,7 @@ class RelationshipInfrastructure
 	/**
 	 * @param string|null $typeIsPartOf
 	 */
-	public function setTypeIsPartOf(?string $typeIsPartOf): void
+	private function setTypeIsPartOf(?string $typeIsPartOf): void
 	{
 		$this->typeIsPartOf = $typeIsPartOf;
 	}
@@ -64,7 +64,7 @@ class RelationshipInfrastructure
 	/**
 	 * @param array|null $params
 	 */
-	public function setParams(?array $params): void
+	private function setParams(?array $params): void
 	{
 		$this->params = $params;
 	}
@@ -119,7 +119,7 @@ class RelationshipInfrastructure
 		return $this->getHasParts();
 	}
 
-	public function getHasParts(): array
+	private function getHasParts(): array
 	{
 		$getData = new GetData('thing_has_thing');
 		$getData->setParams($this->params + ['limit'=>'none']);
@@ -162,7 +162,7 @@ class RelationshipInfrastructure
 		return $this->getIsPartOfs();
 	}
 
-	public function getIsPartOfs(): array
+	private function getIsPartOfs(): array
 	{
 		$getData = new GetData('thing_has_thing');
 		$getData->setParams($this->params + ['limit'=>'none']);

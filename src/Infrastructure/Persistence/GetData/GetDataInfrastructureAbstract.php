@@ -78,15 +78,8 @@ abstract class GetDataInfrastructureAbstract
 		$fields = $this->buildFields();
 		// QUERY
 		$this->query = "SELECT $fields FROM `$this->table`";
-		// LEFT JOIN THING
-		$entity = Entities::getEntity(ucfirst($this->table));
-		if ($this->withThings && $entity && property_exists($entity, 'idthing') && !$this->isCount !== null && $this->table !== 'thing') {
-			$this->setJoin('thing',"`thing`.idthing = `$this->table`.thing");
-		}
 		// JOIN
-		if ($this->joins) {
-			$this->query .= " " . implode(' ',$this->joins);
-		}
+		$this->declareJoins();
 		// WHERE
 		$this->whereCondition();
 		// PARAMS
@@ -100,22 +93,6 @@ abstract class GetDataInfrastructureAbstract
 		self::declareLimit();
 
 		$this->query .= ";";
-	}
-
-	/**
-	 * @param string $joins
-	 * @param string|null $table
-	 * @return GetDataInfrastructure
-	 */
-	public function setJoins(string $joins, string $table = null): static
-	{
-		if ($table === 'thing') {
-			array_unshift($this->joins, $joins);
-		} else {
-			$this->joins[] = $joins;
-		}
-		$this->tables[] = $table;
-		return $this;
 	}
 
 	/**
@@ -145,13 +122,32 @@ abstract class GetDataInfrastructureAbstract
 		return implode(',', $this->fields);
 	}
 
+	private function declareJoins(): void
+	{
+		$entity = Entities::getEntity(ucfirst($this->table));
+		if ($this->withThings && $entity && property_exists($entity, 'idthing') && !$this->isCount !== null && $this->table !== 'thing') {
+		 array_unshift($this->joins, ['table'=> 'thing', 'condition' => "`thing`.idthing = `$this->table`.thing"]);
+		}
+
+		foreach ($this->joins as $join) {
+			$statement = " ";
+			$statement .= isset($join['factor']) ? " {$join['factor']} " : null;
+			$statement .= "JOIN `{$join['table']}`";
+			$statement .= isset($join['alias']) ? " AS {$join['alias']}" : null;
+			$statement .= " ON {$join['condition']}";
+			$this->query .= $statement;
+			if(!in_array($join['table'], $this->tables)) {
+				$this->tables[] = $join['table'];
+			}
+		}
+	}
+
 	/**
 	 *
 	 * @throws ReflectionException
 	 */
 	protected function whereCondition(): void
 	{
-
 		//  WHERE WITH PARAMS
 		if (array_key_exists('where',$this->params)) {
 			$this->where[] = $this->params['where'];

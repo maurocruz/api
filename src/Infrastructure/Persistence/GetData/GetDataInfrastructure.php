@@ -29,12 +29,7 @@ class GetDataInfrastructure extends GetDataInfrastructureAbstract
 
 	public function setJoin(string $table, string $condition, string $alias = null, string $tableFactor = null): static
 	{
-		if ($alias) {
-			$condition = str_replace("`$table`", $alias, $condition);
-			$this->setJoins("$tableFactor JOIN `$table` as $alias ON $condition", $table);
-		} else {
-			$this->setJoins("$tableFactor JOIN `$table` ON $condition", $table);
-		}
+		$this->joins[] =['table' => $table, 'condition' => $condition, 'alias' => $alias, 'factor' => $tableFactor ];
 		return $this;
 	}
 

@@ -137,7 +137,7 @@ class Crud extends ConnectDB
 	  $run = parent::run($query);
 	  $rows = $run['rows'] ?? null;
 	  if ((int) $rows > 0) {
-		  return ['status' => true, 'message'=>"Deleted successfully. $rows rows affected."];
+		  return ['status' => true, 'message'=>"Deleted successfully. $rows rows affected.", 'data'=> $run];
 	  } else {
 		  return ['status' => false, 'message'=>"$rows rows affected", 'data'=>$query];
 	  }
