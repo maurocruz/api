@@ -17,10 +17,23 @@ readonly class OrderUseCase
 	public function create(array $sanitizedParams): array
 	{
 		$seller = $sanitizedParams['seller'] ?? null;
-		if (!$seller) {
+		$customer = $sanitizedParams['customer'] ?? null;
+		$orderDate = $sanitizedParams['orderDate'] ?? null;
+		$orderStatus = $sanitizedParams['orderStatus'] ?? null;
+		$paymentDueDate = $sanitizedParams['paymentDueDate'] ?? null;
+
+		if (!$seller || !$customer || !$orderDate || !$orderStatus || !$paymentDueDate) {
 			return ['status' => false, 'message' => 'Missing required fields'];
 		}
-		return $this->databaseActions->create('order', ['seller' => $seller]);
+
+		$databaseData = $this->databaseActions->create('order', $sanitizedParams);
+		if ($databaseData['status'] === false) {
+			return $databaseData;
+		}
+		foreach ($databaseData['data'] as $key => $value) {
+			$databaseData['data'][$key]['type'] = 'Order';
+		}
+		return $databaseData;
 	}
 
 	/**
