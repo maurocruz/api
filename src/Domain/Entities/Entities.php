@@ -36,6 +36,7 @@ use Plinct\Api\Domain\Entities\Thing\Organization\Organization;
 use Plinct\Api\Domain\Entities\Thing\Person\Person;
 use Plinct\Api\Domain\Entities\Thing\Place\Place;
 use Plinct\Api\Domain\Entities\Thing\Product\Product;
+use Plinct\Api\Domain\Entities\Thing\Taxon\Taxon;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 use Plinct\Api\Domain\Entities\User\User;
 use Plinct\Api\Domain\Entities\User\User_history;
@@ -74,10 +75,11 @@ class Entities
 		['name' => 'PropertyValue', 'object' => PropertyValue::class],
 		['name' => 'Rating', 'object' => Rating::class],
 		['name' => 'Review', 'object' => Review::class],
+		['name' => 'Service', 'object' => Service::class],
+		['name' => 'Taxon', 'object' => Taxon::class],
 		['name' => 'Thing', 'object' => Thing::class],
 		['name' => 'Thing_has_thing', 'object' => Property::class],
 		['name' => 'Trip', 'object' => Trip::class],
-		['name' => 'Service', 'object' => Service::class],
 		['name' => 'User', 'object' => User::class],
 		['name' => 'User_history', 'object' => User_history::class],
 		['name' => 'User_passwordReset', 'object' => User_passwordReset::class],

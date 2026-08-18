@@ -26,6 +26,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\Organization\LocalBusinessControll
 use Plinct\Api\Http\Controller\Entities\Thing\Organization\OrganizationController;
 use Plinct\Api\Http\Controller\Entities\Thing\Place\PlaceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
+use Plinct\Api\Http\Controller\Entities\Thing\Taxon\TaxonController;
 use Plinct\Api\Http\Middleware\AuthMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -65,6 +66,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('product', [ProductController::class,'read'])->setName('product.read');
 	// PROPERTY VALUE
 	$route->get('propertyValue', [PropertyValueController::class,'read'])->setName('propertyValue.read');
+	// TAXON
+	$route->get('taxon', [TaxonController::class, 'read'])->setName('taxon.read');
 	// VIDEO OBJECT
 	$route->get('{videoObject: videoObject|VideoObject}', [VideoObjectController::class, 'read'])->setName('videoObject.read');
 	// WEB PAGE
