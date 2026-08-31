@@ -2,6 +2,7 @@
 
 use Plinct\Api\Http\Controller\Entities\Action\ActionController;
 use Plinct\Api\Http\Controller\Entities\EntityController;
+use Plinct\Api\Http\Controller\Entities\Thing\Article\ArticleController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Book\BookController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Collection\CollectionController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\CreativeWorkController;
@@ -34,6 +35,8 @@ return function (RouteCollectorProxy $route)
 {
 	// ACTION
 	$route->get('action', [ActionController::class,'read'])->setName('action.read');
+	// ARTICLE
+	$route->get('article', [ArticleController::class, 'read'])->setName('article.read');
 	// BOOK
 	$route->get('book', [BookController::class, 'read'])->setName('book.read');
 	// COLLECTION
