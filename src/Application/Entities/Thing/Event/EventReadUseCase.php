@@ -40,7 +40,7 @@ class EventReadUseCase extends ThingReadUseCase
 					if ($dataLocation['status'] === false) {
 						return $dataLocation;
 					}
-					$data['data'][$key]['location'] = $dataLocation['data'][0];
+					$data['data'][$key]['location'] = $dataLocation['data'][0] ?? $location;
 				}
 
 				// SUPER EVENT
