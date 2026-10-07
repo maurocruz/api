@@ -26,8 +26,8 @@ class SupportApplication
 				$reflection = new EntityReflections($type);
 				$result[] = $reflection->hydrateFromDatabase($value);
 			}
-		} elseif (isset($databaseData['type'])) {
-			$type = $databaseData['type'];
+		} elseif (isset($databaseData['type']) || isset($databaseData['@type'])) {
+			$type = $databaseData['type'] ?? $databaseData['@type'];
 			$reflection = new EntityReflections($type);
 			return $reflection->hydrateFromDatabase($databaseData);
 		}
