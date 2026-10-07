@@ -18,9 +18,19 @@ readonly class OrderReadUseCase
 	public function read(array $sanitizedParams): array
 	{
 		$properties = $sanitizedParams['properties'] ?? [];
+		$customerNameLike = $sanitizedParams['customerNameLike'] ?? null;
+		$query = $sanitizedParams['query'] ?? null;
+		if ($query === 'invoiceDue') {
+			return $this->invoiceDue($sanitizedParams);
+		}
 
 		// OBTER DADOS DO BANCO DE DADOS
-		$dataBaseData = $this->databaseActions->read('order', $sanitizedParams)->render();
+		$getData = $this->databaseActions->read('order', $sanitizedParams);
+		if ($customerNameLike) {
+			$getData->setJoin('thing','thing.idthing=`order`.customer');
+			$getData->setWhere("`thing`.`name` LIKE '%$customerNameLike%'");
+		}
+		$dataBaseData = $getData->render();
 		if ($dataBaseData['status'] === false) {
 			return $dataBaseData;
 		}
@@ -68,5 +78,33 @@ readonly class OrderReadUseCase
 			}
 		}
 		return $dataBaseData;
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	private function invoiceDue(array $sanitizedParams): array
+	{
+		$getData = $this->databaseActions->read('order', $sanitizedParams);
+		$getData->setFields("
+		order.idorder, 
+		order.orderDate, 
+		order.paymentDueDate, 
+		t.name, 
+		count(idorder) as numberOfInvoices, 
+		SUM(invoice.paymentStatus = 'PaymentDue') AS numberOfInvoicesPaymentDue, 
+		MIN(CASE WHEN invoice.paymentStatus = 'PaymentDue' THEN invoice.scheduledPaymentDate END) AS nextScheduledPaymentDate");
+		$getData->setJoin('invoice', 'invoice.referencesOrder = order.idorder');
+		$getData->setJoin('thing','t.idthing= order.customer','t');
+		$getData->setParams(['groupBy' => 'idorder', 'orderBy' => 'scheduledPaymentDate', 'ordering' => 'desc']);
+		$data = $getData->render();
+
+		if ($data['status'] === false) {
+			return $data;
+		}
+		foreach ($data['data'] as $key => $value) {
+			$data['data'][$key]['type'] = 'Order';
+		}
+		return $data;
 	}
 }

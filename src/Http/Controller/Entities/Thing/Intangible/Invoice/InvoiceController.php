@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Http\Controller\Entities\Thing\Intangible\Invoice;
 
+use Plinct\Api\Application\Entities\Thing\Intangible\Invoice\InvoiceReadUseCase;
 use Plinct\Api\Application\Entities\Thing\Intangible\Invoice\InvoiceUseCase;
 use Plinct\Api\Support\SupportController;
 use Psr\Http\Message\ResponseInterface;
@@ -10,8 +11,23 @@ use ReflectionException;
 readonly class InvoiceController
 {
 	public function __construct(
-		private InvoiceUseCase $invoiceUseCase
+		private InvoiceUseCase $invoiceUseCase,
+		private InvoiceReadUseCase $invoiceReadUseCase,
 	)	{	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+	{
+		$queryParams = $request->getQueryParams();
+		$sanitizedParams = SupportController::sanitizeParams('invoice', $queryParams);
+		$dataUseCase = $this->invoiceReadUseCase->read($sanitizedParams);
+		$returnDTO = SupportController::returnDTO($dataUseCase);
+		$response = $response->withHeader('Content-Type', 'application/json');
+		$response->getBody()->write(json_encode($returnDTO, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+		return $response;
+	}
 
 	/**
 	 * @throws ReflectionException

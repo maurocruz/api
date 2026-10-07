@@ -51,6 +51,8 @@ return function (RouteCollectorProxy $route)
 	$route->get('geoCoordinates', [GeoCoordinatesController::class, 'read'])->setName('geoCoordinates.read');
 	// IMAGE OBJECT
 	$route->get('{imageObject: ImageObject|imageObject}', [ImageObjectController::class, 'read'])->setName('imageObject.read');
+	// INVOICE
+	$route->get('invoice', [InvoiceController::class, 'read'])->setName('invoice.read');
 	// LOCAL BUSINESS
 	$route->get('localBusiness', [LocalBusinessController::class, 'read'])->setName('localBusiness.read');
 	// MEDIA OBJECT

@@ -11,10 +11,12 @@ class Invoice implements EntityInterface
 
 	protected int $idinvoice;
 	public mixed $customer;
-	public int $referencesOrder;
+	public mixed $referencesOrder;
 	public mixed $provider;
 	public float $totalPaymentDue;
 	public string $scheduledPaymentDate;
+	public int $numberOfPaymentDue;
+	public int $numberOfInvoices;
 	public ?string $paymentDueDate = null;
 	public ?string $paymentStatus = null;
 
