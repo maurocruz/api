@@ -30,5 +30,5 @@ return function (RouteCollectorProxy $route) {
 		// CONFIGURATION
 		(require_once __DIR__ . '/configRoute.php')($route);
 
-	})->add(new PermissioMiddleware());
+	});
 };
