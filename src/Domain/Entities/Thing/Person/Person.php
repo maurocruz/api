@@ -1,7 +1,9 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Person;
 
-use Plinct\Api\Application\Support\EntityReflections;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Role\Role;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\ContactPoint;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\PostalAddress;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Person extends Thing
@@ -9,12 +11,12 @@ class Person extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','Place','PostalAddress'];
 
-	protected int $idperson;
-	private int $thing;
+	private ?int $thing;
 	public ?string $additionalName = null;
-	public ?int $address = null;
+	public mixed $address = null;
 	public ?string $birthDate = null;
 	public ?string $birthPlace = null;
+	public mixed $contactPoint = null;
 	public ?string $deathDate = null;
 	public ?string $deathPlace = null;
 	public ?string $familyName = null;
@@ -22,15 +24,31 @@ class Person extends Thing
 	public ?int $homeLocation = null;
 	public ?string $gender = null;
 	public ?string $givenName = null;
+	public mixed $memberOf = null;
+	protected int $idperson;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Person"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->additionalName = $value['additionalName'] ?? null;
+		$this->address = isset($value['idpostalAddress']) ? (new PostalAddress($value))->jsonSerialize() : $value['address'] ?? null;
+		$this->birthDate = $value['birthDate'] ?? null;
+		$this->birthPlace = $value['birthPlace'] ?? null;
+		$this->contactPoint = isset($value['contactPoint']) && is_array($value['contactPoint']) ? array_map(fn($contactPoint) => (new ContactPoint($contactPoint))->jsonSerialize(), $value['contactPoint']) : null;
+		$this->deathDate = $value['deathDate'] ?? null;
+		$this->deathPlace = $value['deathPlace'] ?? null;
+		$this->familyName = $value['familyName'] ?? null;
+		$this->hasOccupation = $value['hasOccupation'] ?? null;
+		$this->homeLocation = $value['homeLocation'] ?? null;
+		$this->gender = $value['gender'] ?? null;
+		$this->givenName = $value['givenName'] ?? null;
+		$this->memberOf = isset($value['memberOf']) && is_array($value['memberOf']) ? array_map(fn($role) => (new Role($role))->jsonSerialize(), $value['memberOf']) : null;
+		$this->idperson = $value['idperson'];
 	}
 
-	public function getDependencies(): array
+	public function getId(): ?int
 	{
-		return self::DEPENDENCIES;
+		return $this->idperson;
 	}
 }

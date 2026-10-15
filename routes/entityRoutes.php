@@ -18,6 +18,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\Event\EventController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Invoice\InvoiceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Offer\OfferController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Order\OrderController;
+use Plinct\Api\Http\Controller\Entities\Thing\Intangible\Role\RoleController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\ContactPointController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\ContactPoint\PostalAddress\PostalAddressController;
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\GeoCoordinates\GeoCoordinatesController;
@@ -25,6 +26,7 @@ use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\OrderIt
 use Plinct\Api\Http\Controller\Entities\Thing\Intangible\StructuredValue\PropertyValue\PropertyValueController;
 use Plinct\Api\Http\Controller\Entities\Thing\Organization\LocalBusinessController;
 use Plinct\Api\Http\Controller\Entities\Thing\Organization\OrganizationController;
+use Plinct\Api\Http\Controller\Entities\Thing\Person\PersonController;
 use Plinct\Api\Http\Controller\Entities\Thing\Place\PlaceController;
 use Plinct\Api\Http\Controller\Entities\Thing\Product\ProductController;
 use Plinct\Api\Http\Controller\Entities\Thing\Taxon\TaxonController;
@@ -65,12 +67,16 @@ return function (RouteCollectorProxy $route)
 	$route->get('orderItem', [OrderItemController::class, 'read'])->setName('orderItem.read');
 	// ORGANIZATION
 	$route->get('organization', [OrganizationController::class, 'read'])->setName('organization.read');
+	// PERSON
+	$route->get('person', [PersonController::class, 'read'])->setName('person.read');
 	// PLACE
 	$route->get('place', [PlaceController::class, 'read'])->setName('place.read');
 	// PRODUCT
 	$route->get('product', [ProductController::class,'read'])->setName('product.read');
 	// PROPERTY VALUE
 	$route->get('propertyValue', [PropertyValueController::class,'read'])->setName('propertyValue.read');
+	// ROLE
+	$route->get('role', [RoleController::class, 'read'])->setName('role.read');
 	// TAXON
 	$route->get('taxon', [TaxonController::class, 'read'])->setName('taxon.read');
 	// VIDEO OBJECT
