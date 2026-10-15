@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Person;
 
-use Plinct\Api\Domain\Entities\Thing\Person\Person;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -49,8 +48,6 @@ readonly class PersonUseCase
 				$data['data'][$key]['memberOf'] = $roleData['data'];
 			}
 		}
-
-		$data['data'] = array_map(fn($person) => (new Person($person))->jsonSerialize(), $data['data']);
 		return $data;
 	}
 }

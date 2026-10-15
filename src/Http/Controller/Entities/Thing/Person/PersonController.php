@@ -19,7 +19,7 @@ readonly class PersonController
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$sanitizedParams = SupportController::sanitizeParams('person',$request->getQueryParams());
-		$useCaseData = $this->personUseCase->read($sanitizedParams);
+		$useCaseData = SupportController::returnDTO($this->personUseCase->read($sanitizedParams));
 		if ($useCaseData['status'] === false) {
 			throw new Exception($useCaseData['message']);
 		}

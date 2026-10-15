@@ -22,7 +22,7 @@ readonly class EventController
 	{
 		$queryParams = $request->getQueryParams();
 		$sanitizedParams = SupportController::sanitizeParams('Event', $queryParams);
-		$dataUseCase = SupportController::returnDTO($this->eventReadUseCase->read($sanitizedParams));
+		$dataUseCase = $this->eventReadUseCase->read($sanitizedParams);
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 		return $response;
