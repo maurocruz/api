@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Product;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Product extends Thing
@@ -9,8 +8,8 @@ class Product extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
+	private ?int $thing;
 	protected int $idproduct;
-	protected int $thing;
 	public ?string $brand = null;
 	public ?string $category = null;
 	public ?string $color = null;
@@ -23,9 +22,25 @@ class Product extends Thing
 	public ?string $productId = null;
 	public ?string $purchaseDate = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Product"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idproduct = $value['idproduct'];
+		$this->brand = $value['brand'] ?? null;
+		$this->category = $value['category'] ?? null;
+		$this->color = $value['color'] ?? null;
+		$this->keywords = $value['keywords'] ?? null;
+		$this->manufacturer = $value['manufacturer'] ?? null;
+		$this->material = $value['material'] ?? null;
+		$this->model = $value['model'] ?? null;
+		$this->mpn = $value['mpn'] ?? null;
+		$this->productionDate = $value['productionDate'] ?? null;
+		$this->productId = $value['productId'] ?? null;
+		$this->purchaseDate = $value['purchaseDate'] ?? null;
+	}
+	public function getId(): ?int
+	{
+		return $this->idproduct;
 	}
 }

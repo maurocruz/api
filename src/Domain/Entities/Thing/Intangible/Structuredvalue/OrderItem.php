@@ -1,10 +1,9 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
+use Plinct\Api\Domain\Entities\Thing\Thing;
 
-class OrderItem implements EntityInterface
+class OrderItem extends Thing
 {
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','Offer','Order'];
@@ -15,24 +14,18 @@ class OrderItem implements EntityInterface
 	public mixed $orderedItem; // TODO alterar para acceptedOffer
 	public int $orderQuantity;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
+		parent::__construct($value);
 
-	public function getType(): string
-	{
-		return 'OrderItem';
+		$this->orderItemNumber = $value['orderItemNumber'] ?? null;
+		$this->offer = $value['offer'] ?? null;
+		$this->orderedItem = $value['orderedItem'] ?? null;
+		$this->orderQuantity = $value['orderQuantity'] ?? null;
 	}
 
 	public function getId(): int
 	{
 		return $this->idorderItem;
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
 	}
 }

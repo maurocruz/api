@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\ImageObject;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
 
 class ImageObject extends MediaObject
@@ -9,17 +8,24 @@ class ImageObject extends MediaObject
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
 
+	private int $thing;
 	protected int $idimageObject;
-	protected int $thing;
 	protected int $creativeWork;
 	protected int $mediaObject;
-
 	public ?string $caption = null;
 	public ?int $representativeOfPage = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "ImageObject"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idimageObject = $value['idimageObject'];
+		$this->creativeWork = $value['creativeWork'];
+		$this->mediaObject = $value['mediaObject'];
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idimageObject;
 	}
 }

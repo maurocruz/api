@@ -16,7 +16,7 @@ class ModuleDomain extends Entities
 		$modulesAvailable = [];
 		foreach (parent::ENTITIES as $entity) {
 			if (class_exists($entity['object'])) {
-				$object = new $entity['object']();
+				$object = $entity['object'];
 				if ($object::IS_MODULE) {
 					$modulesAvailable[] = $entity;
 				}

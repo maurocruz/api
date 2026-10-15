@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\AudioObject;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
 
 class AudioObject extends MediaObject
@@ -9,20 +8,22 @@ class AudioObject extends MediaObject
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
 
+	private int $thing;
 	protected int $idaudioObject;
-	protected int $thing;
 	protected int $creativeWork;
 	protected int $mediaObject;
 
-
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "AudioObject"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idaudioObject = $value['idaudioObject'];
+		$this->creativeWork = $value['creativeWork'];
+		$this->mediaObject = $value['mediaObject'];
 	}
 
-	public function getDependencies(): array
+	public function getId(): ?int
 	{
-		return self::DEPENDENCIES;
+		return $this->idaudioObject;
 	}
 }

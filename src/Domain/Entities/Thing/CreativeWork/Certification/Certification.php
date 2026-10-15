@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\Certification;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class Certification extends CreativeWork
@@ -9,8 +8,8 @@ class Certification extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
+	private int $thing;
 	protected int $idcertification;
-	protected int $thing;
 	protected int $creativeWork;
 	public ?string $auditDate = null;
 	public string $certificationIdentification;
@@ -19,9 +18,22 @@ class Certification extends CreativeWork
 	public ?string $expires = null;
 	public int $issuedBy;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Certification"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idcertification = $value['idcertification'];
+		$this->creativeWork = $value['creativeWork'];
+		$this->auditDate = $value['auditDate'] ?? null;
+		$this->certificationIdentification = $value['certificationIdentification'];
+		$this->certificationStatus = $value['certificationStatus'] ?? 0;
+		$this->datePublished = $value['datePublished'] ?? null;
+		$this->expires = $value['expires'] ?? null;
+		$this->issuedBy = $value['issuedBy'] ?? 0;
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idcertification;
 	}
 }

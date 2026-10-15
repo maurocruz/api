@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Trip;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Trip extends Thing
@@ -9,15 +8,24 @@ class Trip extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	protected int $idthing;
-	protected int $thing;
+	private ?int $thing;
+	protected int $idtrip;
 	public ?string $arrivalTime = null;
 	public ?string $departureTime = null;
 	public int $provider;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idtrip = $value['idtrip'] ?? null;
+		$this->arrivalTime = $value['arrivalTime'] ?? null;
+		$this->departureTime = $value['departureTime'] ?? null;
+		$this->provider = $value['provider'] ?? null;
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idtrip;
 	}
 }

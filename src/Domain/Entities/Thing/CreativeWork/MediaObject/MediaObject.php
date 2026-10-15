@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class MediaObject extends CreativeWork
@@ -9,8 +8,8 @@ class MediaObject extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
+	private int $thing;
 	protected int $idmediaObject;
-	protected int $thing;
 	protected int $creativeWork;
 	public ?int $bitrate = null;
 	public ?string $duration = null;
@@ -21,14 +20,25 @@ class MediaObject extends CreativeWork
 	public ?int $width = null;
 	public string $uploadDate;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "MediaObject"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idmediaObject = $value['idmediaObject'];
+		$this->creativeWork = $value['creativeWork'];
+
+		$this->bitrate = $value['bitrate'] ?? null;
+		$this->duration = $value['duration'] ?? null;
+		$this->contentSize = $value['contentSize'] ?? null;
+		$this->contentUrl = $value['contentUrl'];
+		$this->encodingFormat = $value['encodingFormat'] ?? null;
+		$this->height = $value['height'] ?? null;
+		$this->width = $value['width'] ?? null;
+		$this->uploadDate = $value['uploadDate'];
 	}
 
-	public function getDependencies(): array
+	public function getId(): ?int
 	{
-		return self::DEPENDENCIES;
+		return $this->idmediaObject;
 	}
 }

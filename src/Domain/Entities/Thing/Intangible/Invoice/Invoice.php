@@ -1,10 +1,9 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Invoice;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
+use Plinct\Api\Domain\Entities\Thing\Thing;
 
-class Invoice implements EntityInterface
+class Invoice extends Thing
 {
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Order'];
@@ -20,15 +19,20 @@ class Invoice implements EntityInterface
 	public ?string $paymentDueDate = null;
 	public ?string $paymentStatus = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ['@type' => 'Invoice'])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
+		parent::__construct(['@type' => 'Invoice']);
 
-	public function getType(): string
-	{
-		return 'Invoice';
+		$this->customer = $value['customer'] ?? null;
+		$this->referencesOrder = $value['referencesOrder'] ?? null;
+		$this->provider = $value['provider'] ?? null;
+		$this->totalPaymentDue = $value['totalPaymentDue'] ?? null;
+		$this->scheduledPaymentDate = $value['scheduledPaymentDate'] ?? null;
+		$this->numberOfPaymentDue = $value['numberOfPaymentDue'] ?? null;
+		$this->numberOfInvoices = $value['numberOfInvoices'] ?? null;
+		$this->paymentDueDate = $value['paymentDueDate'] ?? null;
+		$this->paymentStatus = $value['paymentStatus'] ?? null;
+
 	}
 
 	public function getId(): int
@@ -36,8 +40,4 @@ class Invoice implements EntityInterface
 		return $this->idinvoice;
 	}
 
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
 }

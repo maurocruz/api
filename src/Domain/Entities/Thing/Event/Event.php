@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Event;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Event extends Thing
@@ -10,7 +9,7 @@ class Event extends Thing
 	public const array DEPENDENCIES = ['Thing','Place'];
 
 	protected int $idevent;
-	protected int $thing;
+	private int $thing;
 	public ?int $about = null;
 	public ?string $director = null;
 	public ?string $endDate = null;
@@ -21,9 +20,24 @@ class Event extends Thing
 	public mixed $subEvent = null;
 	public mixed $superEvent = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function   __construct(array $value = ["@type" => "Event"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idevent = $value['idevent'] ?? null;
+		$this->about = $value['about'] ?? null;
+		$this->director = $value['director'] ?? null;
+		$this->endDate = $value['endDate'] ?? null;
+		$this->keywords = $value['keywords'] ?? null;
+		$this->location = $value['location'] ?? null;
+		$this->organizer = $value['organizer'] ?? null;
+		$this->startDate = $value['startDate'] ?? null;
+		$this->subEvent = $value['subEvent'] ?? null;
+		$this->superEvent = $value['superEvent'] ?? null;
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idevent;
 	}
 }

@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\WebPage;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class WebPage extends CreativeWork
@@ -9,19 +8,22 @@ class WebPage extends CreativeWork
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
+	private int $thing;
 	protected int $idwebPage;
-	protected int $thing;
 	public ?string $breadcrumb = null;
 	public ?int $primaryImageOfPage = null;
 
-	/**
-	 * @param array $data
-	 * @param bool $withParent
-	 * @return array
-	 */
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "WebPage"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data, $withParent);
+		parent::__construct($value);
+
+		$this->idwebPage = $value['idwebPage'];
+		$this->breadcrumb = $value['breadcrumb'] ?? null;
+		$this->primaryImageOfPage = $value['primaryImageOfPage'] ?? null;
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idwebPage;
 	}
 }

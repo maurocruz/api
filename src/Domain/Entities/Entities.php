@@ -24,6 +24,7 @@ use Plinct\Api\Domain\Entities\Thing\Intangible\Order\Order;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Property;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Rating\AggregateRating;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Rating\Rating;
+use Plinct\Api\Domain\Entities\Thing\Intangible\Role\Role;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Service\Service;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\ContactPoint;
 use Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue\GeoCoordinates;
@@ -75,6 +76,7 @@ class Entities
 		['name' => 'PropertyValue', 'object' => PropertyValue::class],
 		['name' => 'Rating', 'object' => Rating::class],
 		['name' => 'Review', 'object' => Review::class],
+		['name' => 'Role', 'object' => Role::class],
 		['name' => 'Service', 'object' => Service::class],
 		['name' => 'Taxon', 'object' => Taxon::class],
 		['name' => 'Thing', 'object' => Thing::class],
@@ -128,12 +130,12 @@ class Entities
 
 	/**
 	 * @param string $entityName
-	 * @return EntityInterface|null
+	 * @return mixed|string|null
 	 */
-	public static function getEntity(string $entityName): ?EntityInterface
+	public static function getEntity(string $entityName): mixed
 	{
 		foreach (self::ENTITIES as $entity) {
-			if ($entity['name'] === ucfirst($entityName)) return new $entity['object']();
+			if ($entity['name'] === ucfirst($entityName)) return $entity['object'];
 		}
 		return null;
 	}

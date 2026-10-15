@@ -1,10 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities\User;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
-
-class User implements EntityInterface
+class User
 {
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = [];
@@ -16,20 +13,14 @@ class User implements EntityInterface
 	public string $dateCreated;
 	public string $dateModified;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $data = [])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
-
-	public function getType(): string
-	{
-		return 'User';
+		$this->iduser = $data['iduser'] ?? null;
+		$this->name = $data['name'] ?? null;
+		$this->email = $data['email'] ?? null;
+		$this->password = $data['password'] ?? null;
+		$this->dateCreated = $data['dateCreated'] ?? null;
+		$this->dateModified = $data['dateModified'] ?? null;
 	}
 
 	public function getId(): int

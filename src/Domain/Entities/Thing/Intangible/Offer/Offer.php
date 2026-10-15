@@ -8,8 +8,8 @@ class Offer extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing'];
 
+	private int $thing;
 	protected int $idoffer;
-	protected int $thing;
 	public mixed $itemOffered;
 	public mixed $offeredBy;
 	public float $price;
@@ -19,9 +19,19 @@ class Offer extends Thing
 	public ?string $eligibleQuantity = null;
 	public ?string $eligibleDuration = null;
 
-	public function getType(): string
+	public function __construct(array $value = ["@type" => "Offer"])
 	{
-		return 'Offer';
+		parent::__construct($value);
+
+		$this->idoffer = $value['idoffer'];
+		$this->itemOffered = $value['itemOffered'] ?? null;
+		$this->offeredBy = $value['offeredBy'] ?? null;
+		$this->price = $value['price'] ?? null;
+		$this->priceCurrency = $value['priceCurrency'] ?? 'BRL';
+		$this->validThrough = $value['validThrough'] ?? null;
+		$this->availability = $value['availability'] ?? null;
+		$this->eligibleQuantity = $value['eligibleQuantity'] ?? null;
+		$this->eligibleDuration = $value['eligibleDuration'] ?? null;
 	}
 
 	public function getId(): int

@@ -2,7 +2,6 @@
 namespace Plinct\Api\Domain\Entities\Thing;
 
 use JsonSerializable;
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Configuration\ConfigurationDomain;
 use Plinct\Api\Domain\Contracts\EntityInterface;
 use ReflectionClass;
@@ -12,42 +11,39 @@ class Thing implements EntityInterface, JsonSerializable
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = [];
 
-	protected int $idthing;
 	public string $type;
 	public ?string $additionalType = null;
 	public ?string $alternateName = null;
-	protected string $dateRegistered;
-	protected string $lastModified;
 	public ?string $description = null;
 	public ?string $disambiguatingDescription = null;
 	public ?string $image = null;
 	public ?string $mainEntityOfPage = null;
-	public string $name;
+	public ?string $name = null;
 	public ?string $sameAs = null;
 	public ?string $url = null;
-	public array $identifier = [];
 	public ?array $aggregateRating = null;
+	protected ?int $idthing;
+	protected ?string $dateRegistered = null;
+	protected ?string $lastModified = null;
+	private bool $isCount;
+	private array $value;
 
 	public function __construct(array $value = ["@type" => "Thing"])
 	{
+		$this->value = $value;
 		$this->type = $this->type ?? $value['type'] ?? $value["@type"] ?? "Thing";
-		$this->name = $value['name'] ?? $value['@id'] ?? "Thing";
-		$this->idthing = $value['idthing'] ?? 0;
+		$this->name = $value['name'] ?? $value['@id'] ?? null;
+		$this->idthing = $value['idthing'] ?? null;
 		$this->additionalType = $value['additionalType'] ?? null;
 		$this->alternateName = $value['alternateName'] ?? null;
-		$this->dateRegistered = $value['dateRegistered'] ?? date('Y-m-d H:i:s');
-		$this->lastModified = $value['lastModified'] ?? date('Y-m-d H:i:s');
+		$this->dateRegistered = $value['dateRegistered'] ?? null;
+		$this->lastModified = $value['lastModified'] ?? null;
 		$this->description = $value['description'] ?? null;
 		$this->disambiguatingDescription = $value['disambiguatingDescription'] ?? null;
 		$this->image = $value['image'] ?? null;
 		$this->mainEntityOfPage = $value['mainEntityOfPage'] ?? null;
 		$this->sameAs = $value['sameAs'] ?? null;
 		$this->url = $value['url'] ?? null;
-		//$this->identifier = ($value['identifier'] ?? []);
-		$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idthing', 'value' => $this->idthing];
-		$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'lastModified', 'value' => $this->lastModified];
-		$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'dateRegistered', 'value' => $this->dateRegistered];
-
 
 		// AGGREGATE RATING
 		if(isset($value['idreview'])) {
@@ -57,31 +53,32 @@ class Thing implements EntityInterface, JsonSerializable
 				'reviewCount' => $value['reviewCount'] ?? null,
 			];
 		}
+
+		$this->isCount =  (bool) preg_grep('/count\(.*\)/i', array_keys($value));
 	}
 
-	public function hydrateParams(array $data, bool $withParent = false): array
-	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->idthing;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
 		return $this->type;
 	}
 
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
-
+	/**
+	 * @return array
+	 */
 	public function jsonSerialize(): array
 	{
+		if ($this->isCount) {
+			return $this->value;
+		}
+
 		$data = [
 			"@context" => "https://schema.org",
 			"@type" => $this->type,
@@ -99,25 +96,31 @@ class Thing implements EntityInterface, JsonSerializable
 			if ($property->isPrivate()) {
 				continue;
 			}
-			// EXCLUI PROPRIEDADES PROTEGIDAS DE PUBLICAS
-			if ($property->isProtected()) {
-				continue;
-			}
 
 			$value = $property->getValue($this);
-
 			// SE O VALOR FOR NULL, PULA
 			if ($value === null) {
 				continue;
 			}
-
 			$name = $property->getName();
-
 			if ($name === 'type') {
 				$name = '@type';
 			}
 
-			$data[$name] = $value;
+			// SE A PROPRIEDADE PROTEGIDA COLOCA EM IDENTIFIER
+			if ($property->isProtected()) {
+				$data['identifier'][] = ["@type" => "PropertyValue", "name" => $name, "value" => $value];
+			} else {
+				$data[$name] = $value;
+			}
+		}
+
+		// ORDENA O ARRAY DEIXANDO IDENTIFIER POR ÚLTIMO
+		$identifier = $data['identifier'] ?? null;
+		unset($data['identifier']);
+		ksort($data);
+		if ($identifier !== null) {
+			$data['identifier'] = $identifier;
 		}
 
 		return $data;

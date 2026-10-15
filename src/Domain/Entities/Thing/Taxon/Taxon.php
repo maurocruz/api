@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Taxon;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Taxon extends Thing
@@ -9,8 +8,8 @@ class Taxon extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
+	private ?int $thing;
 	protected int $idtaxon;
-	private int $thing;
 	public ?string $taxonRank = null;
 	public ?string $vernacularName = null;
 	public mixed $parentTaxon = null;
@@ -29,12 +28,26 @@ class Taxon extends Thing
 	public function __construct(array $value = ["@type" => "Taxon"])
 	{
 		parent::__construct($value);
+
+		$this->idtaxon = $value['idtaxon'];
+		$this->taxonRank = $value['taxonRank'] ?? null;
+		$this->vernacularName = $value['vernacularName'] ?? null;
+		$this->parentTaxon = $value['parentTaxon'] ?? null;
+		$this->childTaxon = $value['childTaxon'] ?? null;
+		$this->scientificNameAuthorship = $value['scientificNameAuthorship'] ?? null;
+		$this->occurrence = $value['occurrence'] ?? null;
+		$this->flowering = $value['flowering'] ?? null;
+		$this->fructification = $value['fructification'] ?? null;
+		$this->height = $value['height'] ?? null;
+		$this->roots = $value['roots'] ?? null;
+		$this->leafs = $value['leafs'] ?? null;
+		$this->flowers = $value['flowers'] ?? null;
+		$this->fruits = $value['fruits'] ?? null;
+		$this->citations = $value['citations'] ?? null;
 	}
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function getId(): ?int
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		return $this->idtaxon;
 	}
-
 }

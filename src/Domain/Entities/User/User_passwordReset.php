@@ -1,10 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities\User;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
-
-class User_passwordReset implements EntityInterface
+class User_passwordReset
 {
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['User'];
@@ -14,20 +11,12 @@ class User_passwordReset implements EntityInterface
 	protected ?string $token = null;
 	protected ?string $expires = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = [])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
-
-	public function getType(): string
-	{
-		return 'User_passwordReset';
+		$this->iduser = $value['iduser'] ?? null;
+		$this->selector = $value['selector'] ?? null;
+		$this->token = $value['token'] ?? null;
+		$this->expires = $value['expires'] ?? null;
 	}
 
 	public function getId(): int

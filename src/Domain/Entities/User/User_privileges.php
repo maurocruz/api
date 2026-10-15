@@ -1,10 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities\User;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
-
-class User_privileges implements EntityInterface
+class User_privileges
 {
 
 	public const bool IS_MODULE = false;
@@ -18,20 +15,14 @@ class User_privileges implements EntityInterface
 	protected string $namespace = '';
 	protected ?int $userCreator = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = [])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
-
-	public function getType(): string
-	{
-		return 'User_privileges';
+		$this->iduser_privileges = $value['iduser_privileges'] ?? null;
+		$this->iduser = $value['iduser'] ?? null;
+		$this->function = $value['function'] ?? null;
+		$this->action = $value['action'] ?? null;
+		$this->namespace = $value['namespace'] ?? null;
+		$this->userCreator = $value['userCreator'] ?? null;
 	}
 
 	public function getId(): int

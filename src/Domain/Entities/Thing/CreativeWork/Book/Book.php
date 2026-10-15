@@ -1,17 +1,15 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork\Book;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class Book extends CreativeWork
 {
 	public const bool IS_MODULE = true;
-
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
+	private int $thing;
 	protected int $idbook;
-	protected int $thing;
 	protected int $creativeWork;
 	public ?string $bookFormat = null;
 	public ?int $illustrator = null;
@@ -19,9 +17,21 @@ class Book extends CreativeWork
 	public ?string $bookEdition = null;
 	public ?string $numberOfPages = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Book"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->idbook = $value['idbook'];
+		$this->creativeWork = $value['creativeWork'];
+		$this->bookFormat = $value['bookFormat'] ?? null;
+		$this->illustrator = $value['illustrator'] ?? null;
+		$this->isbn = $value['isbn'] ?? null;
+		$this->bookEdition = $value['bookEdition'] ?? null;
+		$this->numberOfPages = $value['numberOfPages'] ?? null;
+	}
+
+	public function getId(): ?int
+	{
+		return $this->idbook;
 	}
 }

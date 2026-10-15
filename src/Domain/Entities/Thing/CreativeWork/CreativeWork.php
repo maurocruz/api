@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\CreativeWork;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Entities;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
@@ -10,8 +9,8 @@ class CreativeWork extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	protected int $idcreativeWork;
-	private int $thing;
+	protected ?int $idcreativeWork;
+	private ?int $thing;
 	public ?int $about = null;
 	public ?string $acquireLicensePage = null;
 	public ?string $alternativeHeadline = null;
@@ -37,14 +36,9 @@ class CreativeWork extends Thing
 
 	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$this->idcreativeWork = $value['idcreativeWork'] ?? 0;
-		$this->type = $this->type ?? 'CreativeWork';
-		if ($this->idcreativeWork !== 0) {
-			$this->identifier[] = ['@type' => 'PropertyValue', 'name' => 'idcreativeWork', 'value' => $this->idcreativeWork];
-		}
-
 		parent::__construct($value);
 
+		$this->idcreativeWork = $value['idcreativeWork'] ?? null;
 		$this->about = $value['about'] ?? null;
 		$this->acquireLicensePage = $value['acquireLicensePage'] ?? null;
 		$this->alternativeHeadline = $value['alternativeHeadline'] ?? null;
@@ -54,7 +48,7 @@ class CreativeWork extends Thing
 		$this->datePublished = $value['datePublished'] ?? null;
 		$this->editor = $value['editor'] ?? null;
 		$this->encodingFormat = $value['encodingFormat'] ?? null;
-		$this->hasPart = $value['hasPart'] ?? [];
+		$this->hasPart = $value['hasPart'] ?? null;
 		$this->headline = $value['headline'] ?? null;
 		$this->isPartOf = $value['isPartOf'] ?? null;
 		$this->keywords = $value['keywords'] ?? '';
@@ -69,15 +63,9 @@ class CreativeWork extends Thing
 		$this->version = $value['version'] ?? '';
 	}
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function getId(): ?int
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
+		return $this->idcreativeWork;
 	}
 
 	public static function getChildren(): array

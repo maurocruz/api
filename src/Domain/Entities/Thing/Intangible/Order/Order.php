@@ -1,10 +1,9 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Order;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
+use Plinct\Api\Domain\Entities\Thing\Thing;
 
-class Order implements EntityInterface
+class Order extends Thing
 {
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
@@ -20,24 +19,23 @@ class Order implements EntityInterface
 	public ?string $orderStatus = null;
 	public ?int $discount = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
+		parent::__construct($value);
 
-	public function getType(): string
-	{
-		return 'Order';
+		$this->acceptedOffer = $value['acceptedOffer'] ?? null;
+		$this->customer = $value['customer'] ?? null;
+		$this->seller = $value['seller'] ?? null;
+		$this->orderDate = $value['orderDate'] ?? null;
+		$this->paymentDueDate = $value['paymentDueDate'] ?? null;
+		$this->tags = $value['tags'] ?? null;
+		$this->orderedItem = $value['orderedItem'] ?? null;
+		$this->orderStatus = $value['orderStatus'] ?? null;
+		$this->discount = $value['discount'] ?? null;
 	}
 
 	public function getId(): int
 	{
 		return $this->idorder;
-	}
-
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
 	}
 }

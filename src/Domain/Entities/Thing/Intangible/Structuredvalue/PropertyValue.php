@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue;
 
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class PropertyValue extends Thing
@@ -10,12 +9,17 @@ class PropertyValue extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	protected int $idpropertyValue;
-	protected int $thing;
 	public ?string $value = null;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
+		parent::__construct($value);
+
+		$this->value = $value['value'] ?? null;
+	}
+
+	public function getId(): int
+	{
+		return $this->idpropertyValue;
 	}
 }

@@ -1,10 +1,9 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible;
 
-use Plinct\Api\Application\Support\EntityReflections;
-use Plinct\Api\Domain\Contracts\EntityInterface;
+use Plinct\Api\Domain\Entities\Thing\Thing;
 
-class Property implements EntityInterface
+class Property extends Thing
 {
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = [];
@@ -17,22 +16,19 @@ class Property implements EntityInterface
 	public ?string $caption = null;
 	public ?int $position = 1;
 	public int $representativeOfPage = 0;
-	protected int $repUniqueFlag = 0;
 
-	public function hydrateParams(array $data, bool $withParent = false): array
+	public function __construct(array $value = ["@type" => "Thing"])
 	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
+		parent::__construct($value);
 
-	public function getDependencies(): array
-	{
-		return self::DEPENDENCIES;
-	}
-
-	public function getType(): string
-	{
-		return 'Property';
+		$this->idproperty = $value['idproperty'] ?? null;
+		$this->idHasPart = $value['idHasPart'] ?? null;
+		$this->idIsPartOf = $value['idIsPartOf'] ?? null;
+		$this->typeHasPart = $value['typeHasPart'] ?? null;
+		$this->typeIsPartOf = $value['typeIsPartOf'] ?? null;
+		$this->caption = $value['caption'] ?? null;
+		$this->position = $value['position'] ?? null;
+		$this->representativeOfPage = $value['representativeOfPage'] ?? null;
 	}
 
 	public function getId(): int
