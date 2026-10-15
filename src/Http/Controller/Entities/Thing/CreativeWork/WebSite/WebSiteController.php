@@ -23,7 +23,7 @@ readonly class WebSiteController
 	{
 		$queryParams = $request->getQueryParams();
 		$sanitizedParams = SupportController::sanitizeParams('WebSite', $queryParams);
-		$data = $this->webSiteReadUseCase->read($sanitizedParams);
+		$data = SupportController::returnDTO($this->webSiteReadUseCase->read($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

@@ -2,8 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\CreativeWork\WebSite;
 
 use Plinct\Api\Application\Entities\Thing\CreativeWork\CreativeWorkReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
-use Plinct\Api\Domain\Entities\Thing\CreativeWork\WebSite\WebSite;
 
 class WebSiteReadUseCase extends CreativeWorkReadUseCase
 {
@@ -60,9 +58,6 @@ class WebSiteReadUseCase extends CreativeWorkReadUseCase
 				}
 			}
 		}
-
-		$dataObject = array_map(fn($value) => new WebSite($value), $databaseData['data']);
-
-		return SupportApplication::returnDTO(true, 'WebSite found', $dataObject);
+		return $databaseData;
 	}
 }

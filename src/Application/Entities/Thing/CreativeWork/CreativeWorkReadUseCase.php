@@ -43,8 +43,6 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 			$getData = $this->databaseActions->read('creativeWork', $sanitizedParams);
 			$data = $getData->render();
 		}
-
-		$data['data'] = array_map(fn($creativeWork) => (new CreativeWork($creativeWork))->jsonSerialize(), $data['data']);
 		return $data;
 	}
 }
