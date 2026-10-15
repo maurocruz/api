@@ -4,6 +4,7 @@ namespace Plinct\Api\Application\Entities\Thing\Event;
 use Plinct\Api\Application\Entities\Thing\Place\PlaceReadUseCase;
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
 use Plinct\Api\Application\Support\SupportApplication;
+use Plinct\Api\Domain\Entities\Thing\Event\Event;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -21,6 +22,8 @@ class EventReadUseCase extends ThingReadUseCase
 	 */
 	public function read(array $sanitizedParams): array
 	{
+		$properties = $sanitizedParams['properties'] ?? null;
+
 		// OBTER DADOS DO BANCO DE DADOS
 		$getData = $this->databaseActions->read('event', $sanitizedParams);
 		$data = $getData->render();
@@ -29,7 +32,6 @@ class EventReadUseCase extends ThingReadUseCase
 		}
 
 		// PROPERTIES
-		$properties = $sanitizedParams['properties'] ?? null;
 		if ($properties) {
 			foreach ($data['data'] as $key => $value) {
 				$location = $value['location'] ?? null;
@@ -65,6 +67,7 @@ class EventReadUseCase extends ThingReadUseCase
 			}
 
 		}
+		$data['data'] = array_map(fn($place) => (new Event($place))->jsonSerialize(), $data['data']);
 		return $data;
 	}
 }

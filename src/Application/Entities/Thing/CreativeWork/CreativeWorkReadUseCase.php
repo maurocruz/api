@@ -12,9 +12,10 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 	 */
 	public function read(array $sanitizedParams): array
 	{
+		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
+		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
 
 		// IF ID HAS PART
-		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		if ($idHasPart) {
 			// OBTER TODOS AS ENTIDADES QUE DEPENDEM DE CREATIVE WORK
 			$creativeWorkChildren = CreativeWork::getChildren();
@@ -32,17 +33,18 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 				$data['data'][$key]['type'] = $value['typeIsPartOf'];
 				$data['data'][$key]['idthing'] = $value['idIsPartOf'];
 			}
-			return $data;
 		}
-
 		// IF IS PART OF
-		$idIsPartOf = $sanitizedParams['idIsPartOf'] ?? null;
-		if ($idIsPartOf) {
+		elseif ($idIsPartOf) {
 			$getData = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $idIsPartOf] + $sanitizedParams);
 			$getData->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart');
-			return $getData->render();
+			$data = $getData->render();
+		} else {
+			$getData = $this->databaseActions->read('creativeWork', $sanitizedParams);
+			$data = $getData->render();
 		}
 
-		return $this->readEntity('CreativeWork', $sanitizedParams);
+		$data['data'] = array_map(fn($creativeWork) => (new CreativeWork($creativeWork))->jsonSerialize(), $data['data']);
+		return $data;
 	}
 }

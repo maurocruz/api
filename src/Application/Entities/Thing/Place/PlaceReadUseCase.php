@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\Place;
 
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Domain\Entities\Thing\Place\Place;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
@@ -30,7 +29,6 @@ class PlaceReadUseCase extends ThingReadUseCase
 			$getData->setJoin('place','place.thing=thing_has_thing.idIsPartOf');
 			return $getData->render();
 		}
-
 		// OBTÉM DADOS DO BANCO DE DADOS
 		$getData = $this->databaseActions->read('place', $sanitizedParams);
 		// AGGREGATE RATING
@@ -50,8 +48,7 @@ class PlaceReadUseCase extends ThingReadUseCase
 			return $data;
 		}
 
-		$dataObject = array_map(fn($value) => (new Place($value)), $data['data']);
-
-		return SupportApplication::returnDTO(true, 'Place found', $dataObject);
+		$data['data'] = array_map(fn($value) => (new Place($value))->jsonSerialize(), $data['data']);
+		return $data;
 	}
 }
