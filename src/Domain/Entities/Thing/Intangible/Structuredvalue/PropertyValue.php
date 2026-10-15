@@ -8,17 +8,18 @@ class PropertyValue extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing'];
 
-	protected int $idpropertyValue;
+	protected ?int $idpropertyValue;
 	public ?string $value = null;
 
 	public function __construct(array $value = ["@type" => "Thing"])
 	{
 		parent::__construct($value);
 
+		$this->idpropertyValue = $value['idpropertyValue'] ?? null;
 		$this->value = $value['value'] ?? null;
 	}
 
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->idpropertyValue;
 	}

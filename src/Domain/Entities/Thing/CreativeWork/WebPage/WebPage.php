@@ -8,8 +8,9 @@ class WebPage extends CreativeWork
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idwebPage;
+	private ?int $thing;
+	protected ?int $idwebPage;
+	protected ?int $creativeWork;
 	public ?string $breadcrumb = null;
 	public ?int $primaryImageOfPage = null;
 
@@ -17,7 +18,8 @@ class WebPage extends CreativeWork
 	{
 		parent::__construct($value);
 
-		$this->idwebPage = $value['idwebPage'];
+		$this->idwebPage = $value['idwebPage'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 		$this->breadcrumb = $value['breadcrumb'] ?? null;
 		$this->primaryImageOfPage = $value['primaryImageOfPage'] ?? null;
 	}

@@ -8,9 +8,9 @@ class MediaObject extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idmediaObject;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idmediaObject;
+	protected ?int $creativeWork;
 	public ?int $bitrate = null;
 	public ?string $duration = null;
 	public ?string $contentSize = null;
@@ -24,8 +24,8 @@ class MediaObject extends CreativeWork
 	{
 		parent::__construct($value);
 
-		$this->idmediaObject = $value['idmediaObject'];
-		$this->creativeWork = $value['creativeWork'];
+		$this->idmediaObject = $value['idmediaObject'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 
 		$this->bitrate = $value['bitrate'] ?? null;
 		$this->duration = $value['duration'] ?? null;

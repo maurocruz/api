@@ -9,7 +9,7 @@ class Product extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	private ?int $thing;
-	protected int $idproduct;
+	protected ?int $idproduct;
 	public ?string $brand = null;
 	public ?string $category = null;
 	public ?string $color = null;
@@ -26,7 +26,7 @@ class Product extends Thing
 	{
 		parent::__construct($value);
 
-		$this->idproduct = $value['idproduct'];
+		$this->idproduct = $value['idproduct'] ?? null;
 		$this->brand = $value['brand'] ?? null;
 		$this->category = $value['category'] ?? null;
 		$this->color = $value['color'] ?? null;
@@ -39,6 +39,10 @@ class Product extends Thing
 		$this->productId = $value['productId'] ?? null;
 		$this->purchaseDate = $value['purchaseDate'] ?? null;
 	}
+
+	/**
+	 * @return int|null
+	 */
 	public function getId(): ?int
 	{
 		return $this->idproduct;

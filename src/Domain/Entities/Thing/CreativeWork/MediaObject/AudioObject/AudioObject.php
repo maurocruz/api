@@ -8,18 +8,18 @@ class AudioObject extends MediaObject
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
 
-	private int $thing;
-	protected int $idaudioObject;
-	protected int $creativeWork;
-	protected int $mediaObject;
+	private ?int $thing;
+	protected ?int $idaudioObject;
+	protected ?int $creativeWork;
+	protected ?int $mediaObject;
 
 	public function __construct(array $value = ["@type" => "AudioObject"])
 	{
 		parent::__construct($value);
 
-		$this->idaudioObject = $value['idaudioObject'];
-		$this->creativeWork = $value['creativeWork'];
-		$this->mediaObject = $value['mediaObject'];
+		$this->idaudioObject = $value['idaudioObject'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
+		$this->mediaObject = $value['mediaObject'] ?? null;
 	}
 
 	public function getId(): ?int

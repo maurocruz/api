@@ -12,6 +12,7 @@ class Person extends Thing
 	public const array DEPENDENCIES = ['Thing','Place','PostalAddress'];
 
 	private ?int $thing;
+	protected ?int $idperson;
 	public ?string $additionalName = null;
 	public mixed $address = null;
 	public ?string $birthDate = null;
@@ -25,12 +26,12 @@ class Person extends Thing
 	public ?string $gender = null;
 	public ?string $givenName = null;
 	public mixed $memberOf = null;
-	protected int $idperson;
 
 	public function __construct(array $value = ["@type" => "Person"])
 	{
 		parent::__construct($value);
 
+		$this->idperson = $value['idperson'] ?? null;
 		$this->additionalName = $value['additionalName'] ?? null;
 		$this->address = isset($value['idpostalAddress']) ? (new PostalAddress($value))->jsonSerialize() : $value['address'] ?? null;
 		$this->birthDate = $value['birthDate'] ?? null;
@@ -44,7 +45,6 @@ class Person extends Thing
 		$this->gender = $value['gender'] ?? null;
 		$this->givenName = $value['givenName'] ?? null;
 		$this->memberOf = isset($value['memberOf']) && is_array($value['memberOf']) ? array_map(fn($role) => (new Role($role))->jsonSerialize(), $value['memberOf']) : null;
-		$this->idperson = $value['idperson'];
 	}
 
 	public function getId(): ?int

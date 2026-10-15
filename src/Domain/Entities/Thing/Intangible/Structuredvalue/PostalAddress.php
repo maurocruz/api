@@ -11,13 +11,13 @@ class PostalAddress extends ContactPoint
 	public ?string $addressRegion = null;
 	public ?string $addressCountry = null;
 	public ?string $postalCode = null;
-	protected int $idpostalAddress;
+	protected ?int $idpostalAddress;
 
 	public function __construct(array $value = ['@type' => 'PostalAddress'])
 	{
 		parent::__construct(['@type' => 'PostalAddress']);
 
-		$this->idpostalAddress = $value['idpostalAddress'] ?? 0;
+		$this->idpostalAddress = $value['idpostalAddress'] ?? null;
 		$this->streetAddress = $value['streetAddress'] ?? null;
 		$this->addressLocality = $value['addressLocality'] ?? null;
 		$this->addressRegion = $value['addressRegion'] ?? null;

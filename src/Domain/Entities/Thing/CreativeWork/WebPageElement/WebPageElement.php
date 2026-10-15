@@ -8,9 +8,9 @@ class WebPageElement extends CreativeWork
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idwebPageElement;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idwebPageElement;
+	protected ?int $creativeWork;
 	public ?string $cssSelector = null;
 
 	public function __construct(array $value = ["@type" => "WebPageElement"])

@@ -9,7 +9,7 @@ class Trip extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	private ?int $thing;
-	protected int $idtrip;
+	protected ?int $idtrip;
 	public ?string $arrivalTime = null;
 	public ?string $departureTime = null;
 	public int $provider;

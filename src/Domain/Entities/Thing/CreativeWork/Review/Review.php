@@ -8,9 +8,9 @@ class Review extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idreview;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idreview;
+	protected ?int $creativeWork;
 	public int $itemReviewed;
 	public ?string $reviewAspect = null;
 	public ?string $reviewBody = null;
@@ -20,8 +20,8 @@ class Review extends CreativeWork
 	{
 		parent::__construct($value);
 
-		$this->idreview = $value['idreview'];
-		$this->creativeWork = $value['creativeWork'];
+		$this->idreview = $value['idreview'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 		$this->itemReviewed = $value['itemReviewed'] ?? 0;
 		$this->reviewAspect = $value['reviewAspect'] ?? null;
 		$this->reviewBody = $value['reviewBody'] ?? null;

@@ -8,16 +8,16 @@ class WebSite extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idwebSite;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idwebSite;
+	protected ?int $creativeWork;
 
 	public function __construct(array $value = ["@type" => "Thing"])
 	{
 		parent::__construct($value);
 
-		$this->idwebSite = $value['idwebSite'];
-		$this->creativeWork = $value['creativeWork'] ?? 0;
+		$this->idwebSite = $value['idwebSite'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 	}
 
 	public function getId(): ?int

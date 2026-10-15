@@ -1,8 +1,6 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Intangible\Rating;
 
-use Plinct\Api\Application\Support\EntityReflections;
-
 class AggregateRating extends Rating
 {
 	public const bool IS_MODULE = false;
@@ -20,11 +18,4 @@ class AggregateRating extends Rating
 		$this->ratingCount = $value['ratingCount'] ?? null;
 		$this->reviewCount = $value['reviewCount'] ?? null;
 	}
-
-	public function hydrateParams(array $data, bool $withParent = false): array
-	{
-		$reflection = new EntityReflections(self::class);
-		return $reflection->hydrateOwnProperties($data);
-	}
-
 }

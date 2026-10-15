@@ -8,16 +8,16 @@ class Collection extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idcollection;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idcollection;
+	protected ?int $creativeWork;
 
 	public function __construct(array $value = ["@type" => "Collection"])
 	{
 		parent::__construct($value);
 
-		$this->idcollection = $value['idcollection'];
-		$this->creativeWork = $value['creativeWork'];
+		$this->idcollection = $value['idcollection'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 	}
 
 	public function getId(): ?int

@@ -8,8 +8,8 @@ class Service extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	private int $thing;
-	protected int $idservice;
+	private ?int $thing;
+	protected ?int $idservice;
 	public mixed $provider = null;
 	public ?string $category = null;
 	public ?string $serviceType = null;
@@ -21,7 +21,7 @@ class Service extends Thing
 	{
 		parent::__construct($value);
 
-		$this->idservice = $value['idservice'];
+		$this->idservice = $value['idservice'] ?? null;
 		$this->provider = $value['provider'] ?? null;
 		$this->category = $value['category'] ?? null;
 		$this->serviceType = $value['serviceType'] ?? null;

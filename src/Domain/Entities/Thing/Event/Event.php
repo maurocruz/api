@@ -8,8 +8,8 @@ class Event extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','Place'];
 
-	protected int $idevent;
-	private int $thing;
+	protected ?int $idevent;
+	private ?int $thing;
 	public ?int $about = null;
 	public ?string $director = null;
 	public ?string $endDate = null;

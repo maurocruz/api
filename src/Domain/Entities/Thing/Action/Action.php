@@ -8,8 +8,8 @@ class Action extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	protected int $idaction;
-	private int $thing;
+	protected ?int $idaction;
+	private ?int $thing;
 	public ?string $actionProcess = null;
 	public string $actionStatus;
 	public ?int $agent = null;
@@ -24,6 +24,7 @@ class Action extends Thing
 	{
 		parent::__construct($value);
 
+		$this->idaction = $value['idaction'] ?? null;
 		$this->actionProcess = $value['actionProcess'] ?? null;
 		$this->actionStatus = $value['actionStatus'] ?? null;
 		$this->agent = $value['agent'] ?? null;

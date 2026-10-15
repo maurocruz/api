@@ -8,8 +8,8 @@ class Offer extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing'];
 
-	private int $thing;
-	protected int $idoffer;
+	private ?int $thing;
+	protected ?int $idoffer;
 	public mixed $itemOffered;
 	public mixed $offeredBy;
 	public float $price;
@@ -23,7 +23,7 @@ class Offer extends Thing
 	{
 		parent::__construct($value);
 
-		$this->idoffer = $value['idoffer'];
+		$this->idoffer = $value['idoffer'] ?? null;
 		$this->itemOffered = $value['itemOffered'] ?? null;
 		$this->offeredBy = $value['offeredBy'] ?? null;
 		$this->price = $value['price'] ?? null;

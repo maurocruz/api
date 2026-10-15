@@ -130,7 +130,7 @@ class Entities
 
 	/**
 	 * @param string $entityName
-	 * @return mixed|string|null
+	 * @return mixed
 	 */
 	public static function getEntity(string $entityName): mixed
 	{
@@ -141,13 +141,14 @@ class Entities
 	}
 
 	/**
-	 * @param string $entityName
-	 * @return string|null
+	 * @param string $classname
+	 * @param array $value
+	 * @return EntityInterface|null
 	 */
-	public static function getEntityNamespace(string $entityName): ?string
+	public static function getObjectByClassName(string $classname, array $value): ?EntityInterface
 	{
 		foreach (self::ENTITIES as $entity) {
-			if ($entity['name'] === ucfirst($entityName)) return $entity['object'] ?? null;
+			if ($entity['name'] === ucfirst($classname)) return new $entity['object']($value) ?? null;
 		}
 		return null;
 	}
@@ -184,7 +185,7 @@ class Entities
 		$items = [];
 		$identifiers = [];
 		$itemDataFiltered = array_filter($itemData);
-		$entityClassName = self::getEntityNamespace($entityName);
+		$entityClassName = self::getEntity($entityName);
 
 		$reflection = new ReflectionClass($entityClassName);
 

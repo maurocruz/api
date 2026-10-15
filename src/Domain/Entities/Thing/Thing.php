@@ -31,9 +31,9 @@ class Thing implements EntityInterface, JsonSerializable
 	public function __construct(array $value = ["@type" => "Thing"])
 	{
 		$this->value = $value;
+		$this->idthing = $value['idthing'] ?? null;
 		$this->type = $this->type ?? $value['type'] ?? $value["@type"] ?? "Thing";
 		$this->name = $value['name'] ?? $value['@id'] ?? null;
-		$this->idthing = $value['idthing'] ?? null;
 		$this->additionalType = $value['additionalType'] ?? null;
 		$this->alternateName = $value['alternateName'] ?? null;
 		$this->dateRegistered = $value['dateRegistered'] ?? null;

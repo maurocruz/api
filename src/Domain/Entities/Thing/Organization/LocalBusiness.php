@@ -15,6 +15,7 @@ class LocalBusiness extends Organization
 	{
 		parent::__construct($value);
 
+		$this->idlocalBusiness = $value['idlocalBusiness'] ?? null;
 		$this->openingHours = $value['openingHours'] ?? null;
 		$this->paymentAccepted = $value['paymentAccepted'] ?? null;
 	}

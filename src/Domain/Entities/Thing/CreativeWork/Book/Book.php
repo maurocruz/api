@@ -8,9 +8,9 @@ class Book extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idbook;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idbook;
+	protected ?int $creativeWork;
 	public ?string $bookFormat = null;
 	public ?int $illustrator = null;
 	public ?string $isbn = null;
@@ -21,8 +21,8 @@ class Book extends CreativeWork
 	{
 		parent::__construct($value);
 
-		$this->idbook = $value['idbook'];
-		$this->creativeWork = $value['creativeWork'];
+		$this->idbook = $value['idbook'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 		$this->bookFormat = $value['bookFormat'] ?? null;
 		$this->illustrator = $value['illustrator'] ?? null;
 		$this->isbn = $value['isbn'] ?? null;

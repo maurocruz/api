@@ -8,7 +8,7 @@ class OrderItem extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','Offer','Order'];
 
-	protected int $idorderItem;
+	protected ?int $idorderItem;
 	public int $orderItemNumber;
 	public int $offer;
 	public mixed $orderedItem; // TODO alterar para acceptedOffer
@@ -18,13 +18,14 @@ class OrderItem extends Thing
 	{
 		parent::__construct($value);
 
+		$this->idorderItem = $value['idorderItem'] ?? null;
 		$this->orderItemNumber = $value['orderItemNumber'] ?? null;
 		$this->offer = $value['offer'] ?? null;
 		$this->orderedItem = $value['orderedItem'] ?? null;
 		$this->orderQuantity = $value['orderQuantity'] ?? null;
 	}
 
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->idorderItem;
 	}

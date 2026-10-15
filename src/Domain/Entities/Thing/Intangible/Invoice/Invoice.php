@@ -8,7 +8,7 @@ class Invoice extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Order'];
 
-	protected int $idinvoice;
+	protected ?int $idinvoice;
 	public mixed $customer;
 	public mixed $referencesOrder;
 	public mixed $provider;
@@ -23,6 +23,7 @@ class Invoice extends Thing
 	{
 		parent::__construct(['@type' => 'Invoice']);
 
+		$this->idinvoice = $value['idinvoice'] ?? null;
 		$this->customer = $value['customer'] ?? null;
 		$this->referencesOrder = $value['referencesOrder'] ?? null;
 		$this->provider = $value['provider'] ?? null;
@@ -32,7 +33,6 @@ class Invoice extends Thing
 		$this->numberOfInvoices = $value['numberOfInvoices'] ?? null;
 		$this->paymentDueDate = $value['paymentDueDate'] ?? null;
 		$this->paymentStatus = $value['paymentStatus'] ?? null;
-
 	}
 
 	public function getId(): int

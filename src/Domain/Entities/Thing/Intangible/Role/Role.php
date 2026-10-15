@@ -9,8 +9,8 @@ class Role extends Thing
 	public const bool IS_MODULE = false;
 	public const array DEPENDENCIES = ['Thing','Person'];
 
-	private int $thing;
-	protected int $idrole;
+	private ?int $thing;
+	protected ?int $idrole;
 	protected mixed $person;
 	protected mixed $organization;
 	public ?string $endDate = null;
@@ -22,7 +22,7 @@ class Role extends Thing
 	{
 		parent::__construct($value);
 
-		$this->idrole = $value['idrole'];
+		$this->idrole = $value['idrole'] ?? null;
 		$this->endDate = (isset($value['endDate']) && $value['endDate'] === '0000-00-00') ? null : $value['endDate'];
 		$this->startDate = $value['startDate'] === '0000-00-00' ? null : $value['startDate'];
 

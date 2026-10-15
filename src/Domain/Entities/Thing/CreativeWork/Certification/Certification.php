@@ -8,9 +8,9 @@ class Certification extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing','CreativeWork'];
 
-	private int $thing;
-	protected int $idcertification;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idcertification;
+	protected ?int $creativeWork;
 	public ?string $auditDate = null;
 	public string $certificationIdentification;
 	public int $certificationStatus = 0;
@@ -22,8 +22,8 @@ class Certification extends CreativeWork
 	{
 		parent::__construct($value);
 
-		$this->idcertification = $value['idcertification'];
-		$this->creativeWork = $value['creativeWork'];
+		$this->idcertification = $value['idcertification'] ?? null;
+		$this->creativeWork = $value['creativeWork'] ?? null;
 		$this->auditDate = $value['auditDate'] ?? null;
 		$this->certificationIdentification = $value['certificationIdentification'];
 		$this->certificationStatus = $value['certificationStatus'] ?? 0;

@@ -8,7 +8,7 @@ class Order extends Thing
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['Thing'];
 
-	protected int $idorder;
+	protected ?int $idorder;
 	public mixed $acceptedOffer;
 	public mixed $customer;
 	public mixed $seller;
@@ -23,6 +23,7 @@ class Order extends Thing
 	{
 		parent::__construct($value);
 
+		$this->idorder = $value['idorder'] ?? null;
 		$this->acceptedOffer = $value['acceptedOffer'] ?? null;
 		$this->customer = $value['customer'] ?? null;
 		$this->seller = $value['seller'] ?? null;

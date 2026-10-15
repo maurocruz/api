@@ -8,9 +8,9 @@ class Article extends CreativeWork
 	public const bool IS_MODULE = true;
 	public const array DEPENDENCIES = ['CreativeWork'];
 
-	private int $thing;
-	protected int $idarticle;
-	protected int $creativeWork;
+	private ?int $thing;
+	protected ?int $idarticle;
+	protected ?int $creativeWork;
 	public ?string $articleBody = null;
 	public ?string $articleSection = null;
 	public ?string $backstory = null;
@@ -19,6 +19,7 @@ class Article extends CreativeWork
 	{
 		parent::__construct($value);
 
+		$this->idarticle = $value['idarticle'] ?? null;
 		$this->creativeWork = $value['creativeWork'];
 		$this->articleBody = $value['articleBody'] ?? null;
 		$this->articleSection = $value['articleSection'] ?? null;

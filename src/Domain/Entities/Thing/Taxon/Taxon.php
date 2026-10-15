@@ -9,7 +9,7 @@ class Taxon extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	private ?int $thing;
-	protected int $idtaxon;
+	protected ?int $idtaxon;
 	public ?string $taxonRank = null;
 	public ?string $vernacularName = null;
 	public mixed $parentTaxon = null;
@@ -29,7 +29,7 @@ class Taxon extends Thing
 	{
 		parent::__construct($value);
 
-		$this->idtaxon = $value['idtaxon'];
+		$this->idtaxon = $value['idtaxon'] ?? null;
 		$this->taxonRank = $value['taxonRank'] ?? null;
 		$this->vernacularName = $value['vernacularName'] ?? null;
 		$this->parentTaxon = $value['parentTaxon'] ?? null;

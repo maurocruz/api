@@ -10,7 +10,7 @@ class Organization extends Thing
 	public const array DEPENDENCIES = ['Thing'];
 
 	private ?int $thing;
-	protected int $idorganization;
+	protected ?int $idorganization;
 	public ?string $legalName = null;
 	public ?int $logo = null;
 	public ?string $taxId = null;
@@ -23,6 +23,7 @@ class Organization extends Thing
 	{
 		parent::__construct($value);
 
+		$this->idorganization = $value['idorganization'] ?? null;
 		$this->legalName = $value['legalName'] ?? null;
 		$this->logo = $value['logo'] ?? null;
 		$this->taxId = $value['taxId'] ?? null;
@@ -30,7 +31,6 @@ class Organization extends Thing
 		$this->address = $value['address'] ?? null;
 		$this->areaServed = $value['areaServed'] ?? null;
 		$this->location = isset($value['idplace'])? (new Place($value))->jsonSerialize() : $value['location'] ?? null;
-
 	}
 
 	public function getId(): ?int
