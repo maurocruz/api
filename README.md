@@ -6,9 +6,11 @@ Interface for manipulating data in an SQL database modeled according to schema.o
 
 ## Depedencies
 - composer
-- php 7.4 | 8.0
+- php 8.2
 - slim/slim 4
 - slim/psr7
+- php-di/slim-bridge
+- vlucas/phpdotenv
 
 ## Getting Start
 
@@ -23,34 +25,39 @@ For install in your website
 > GRANT INSERT ON schema.user TO 'publicUser'@'hostname' IDENTIFIED BY 'password';
 
 
-Add in index page on the root
+Create index.php and save in /www/api 
  
 ``` 
 <?php
-declare(strict_types=1);
+/**
+ *   PLINCT API
+ */
+include '../../vendor/autoload.php';
 
-use \Slim\Factory\AppFactory;
-use Plinct\Api\PlinctApiFactory;
+use Dotenv\Dotenv;
+use Plinct\Api\ApiFactory;
 
-// autoload
-include '../vendor/autoload.php';
+// Carrega as variáveis do arquivo .env
+$dotenv = Dotenv::createImmutable(__DIR__.'/../../');
+$dotenv->load();
 
-// slim app
-$slimApp = AppFactory::create();
+$settings = [
+  'development' => [true|false],
+  'host' => 'https://[your domain]/',
+];
 
-// for enable routes PUT and DELETE
-$slimApp->addBodyParsingMiddleware();
 
-/******** PLINCT API ***********/
-// api factory
-$api = PlinctApiFactory::create($slimApp);
-// database connect
-$api->connect("driver", "host", "dbname", "username", "password");
+/******* PLINCT *********/
+// API
+try {
+  $api = ApiFactory::create($settings);
+  $api->run();
+} catch (Exception $e) {
+  print '<pre>';
+    var_dump($e);
+  print '</pre>';
+}
 
-$api->run();
-
-// run
-$slimApp->run();
 ```
 
 > Start api using https://domain/api/start with request HTTP POST request, sending the database admin username and password by form url encoded using <username> and <password> with name of values;
@@ -65,22 +72,26 @@ $slimApp->run();
 - Action
 - Article
 - Book
+- Certification
+- Collection
 - ContactPoint
 - Event
 - ImageObject
 - LocalBusiness
+- MediaObject
+- Order
 - Organization
 - Person
 - Place
 - PostalAddress
 - Product
 - PropertyValue
+- Review
 - Service
 - Taxon
+- Trip
 - VideoObject
 - WebSite
-- WebPage
-- WebPageElement
 
 ## Api access
 
@@ -98,12 +109,8 @@ $slimApp->run();
 
 ### properties from use in query strings
 
-> format=
-> >   ItemList: 
-> >   - return a ItemList type with **numberOfItems** and **ItemListElement** properties
-> >
-> > classHierarchy
-> >   - return data with type, class (subClass of type) and subClass (subClasses of subClass)
-> 
+> properties
+> > Use properties from type. E.g: https://yourdomain.dpn/api/[type]?properties=[property1,property]
+ 
 
 
