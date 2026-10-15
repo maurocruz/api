@@ -1,7 +1,7 @@
 <?php
 
-use Plinct\Api\Http\Controller\Entities\Action\ActionController;
 use Plinct\Api\Http\Controller\Entities\EntityController;
+use Plinct\Api\Http\Controller\Entities\Thing\Action\ActionController;
 use Plinct\Api\Http\Controller\Entities\Thing\Article\ArticleController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Book\BookController;
 use Plinct\Api\Http\Controller\Entities\Thing\CreativeWork\Collection\CollectionController;

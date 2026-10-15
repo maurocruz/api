@@ -1,5 +1,5 @@
 <?php
-namespace Plinct\Api\Http\Controller\Entities\Action;
+namespace Plinct\Api\Http\Controller\Entities\Thing\Action;
 
 use Plinct\Api\Application\Entities\Thing\Action\ActionCreateUseCase;
 use Plinct\Api\Application\Entities\Thing\Action\ActionReadUseCase;
