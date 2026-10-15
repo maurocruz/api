@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Support;
 
-use Plinct\Api\Domain\Configuration\ConfigurationDomain;
 use Plinct\Api\Domain\Entities\Entities;
 use ReflectionClass;
 use ReflectionException;
@@ -21,7 +20,7 @@ class EntityReflections
 		if (class_exists($className)) {
 			$classPathNamespace = $className;
 		} else {
-			$classPathNamespace = Entities::getEntityNamespace($className);
+			$classPathNamespace = Entities::getEntity($className);
 			if (!$classPathNamespace) {
 				throw new ReflectionException("Class $className in Domain not found");
 			}
@@ -33,22 +32,6 @@ class EntityReflections
 			$this->reflection = new ReflectionClass($classPathNamespace);
 			self::$cache[$classPathNamespace] = $this->reflection;
 		}
-	}
-
-	/**
-	 * @return ReflectionClass
-	 */
-	public function getReflection(): ReflectionClass
-	{
-		return $this->reflection;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getShortName(): string
-	{
-		return $this->reflection->getShortName();
 	}
 
 	/**
@@ -113,81 +96,6 @@ class EntityReflections
 			$paramsArray[$name] = self::castValue($params[$name], $type);
 		}
 		return $paramsArray;
-	}
-
-	/**
-	 * @throws ReflectionException
-	 */
-	public static function convertFromObjectToSchemaOrgArrayDTO(array|object $entities): array
-	{
-		$result = [];
-		if (is_object($entities)) {
-			$result = self::buildDTO($entities);
-		} else {
-			foreach ($entities as $key => $entity) {
-				$result[$key] = self::buildDTO($entity);
-			}
-		}
-		// ORDENA OS DADOS
-		if (is_object($entities)) {
-			$identifiers = $result['identifier'];
-			unset($result['identifier']);
-			ksort($result);
-			$result['identifier'] = $identifiers;
-		} else {
-			foreach ($result as $key => $value) {
-				$identifiers = $value['identifier'];
-				unset($value['identifier']);
-				ksort($value);
-				$value['identifier'] = $identifiers;
-				$result[$key] = array_filter($value);
-			}
-		}
-		return $result;
-	}
-
-	/**
-	 * @throws ReflectionException
-	 */
-	private static function buildDTO(object $entity): array
-	{
-		$result['@context'] = 'https://schema.org';
-		$result['@type'] = $entity->getType();
-		$result['@id'] = ConfigurationDomain::getHost() . '/schema/' . lcfirst($entity->getType()) . '/' . $entity->getId();
-
-		$reflection = new ReflectionClass($entity);
-
-		foreach ($reflection->getProperties() as $property)
-		{
-			// EXCLUI PROPRIEDADES NAO INICIALIZADAS
-			if (!$property->isInitialized($entity)) continue;
-
-			// EXCLUI PROPRIEDADES PRIVADAS
-			if ($property->isPrivate()) continue;
-
-			$value = $property->getValue($entity);
-			$name = $property->getName();
-
-			// SEPARA PROPRIEDADES PROTEGIDAS DE PUBLICAS
-			if ($property->isProtected()) {
-				$result['identifier'][] = ['@type' => 'PropertyValue', 'name' => $name, 'value' => $value];
-			}
-			elseif ($property->isPublic()) {
-				// SE PROPRIEDADE FOR OBJETO
-				if (is_array($value)) {
-					$entities = SupportApplication::hydrateFromDatabase($value);
-					if ($name === 'identifier') { // SE FOR IDENTIFICADOR
-						$result['identifier'] = array_merge($result['identifier'],$value);
-					} else {
-						$result[$name] = self::convertFromObjectToSchemaOrgArrayDTO($entities);
-					}
-				} else {
-					if($value === null || $value === '') continue;
-					$result[$name] = $value;
-				}
-			}
-		}
-		return $result;
 	}
 
 	/**

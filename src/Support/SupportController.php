@@ -2,12 +2,15 @@
 namespace Plinct\Api\Support;
 
 use Plinct\Api\Application\Support\EntityDTO;
-use Plinct\Api\Application\Support\EntityReflections;
 use Plinct\Api\Domain\Entities\Entities;
-use ReflectionException;
 
 class SupportController
 {
+	/**
+	 * @param string $type
+	 * @param array $params
+	 * @return array
+	 */
 	public static function sanitizeParams(string $type, array $params): array
 	{
 		$newParams = [];
@@ -53,7 +56,9 @@ class SupportController
 	}
 
 	/**
-	 * @throws ReflectionException
+	 * @param array $databaseData
+	 * @param string|null $message
+	 * @return array
 	 */
 	public static function returnDTO(array $databaseData, string $message = null): array
 	{
@@ -85,34 +90,12 @@ class SupportController
 		$entityDTO->setCount($count);
 
 		// HIDRATA DADOS
-		if ($countFields === null) {
-			$entities = self::hydrateFromDatabase($data);
-			$schemaOrgFormat = EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
-		} else {
-			$schemaOrgFormat = $data;
+		foreach ($data as $key => $value) {
+			$type = $value['type'] ?? $value['@type'];
+			$objectType = Entities::getObjectByClassName($type, $value);
+			$data[$key] = $objectType->jsonSerialize();
 		}
-
-		$entityDTO->setData($schemaOrgFormat);
+		$entityDTO->setData($data);
 		return $entityDTO->ready();
-	}
-
-	/**
-	 * @throws ReflectionException
-	 */
-	private static function hydrateFromDatabase(array $databaseData): array|object
-	{
-		$result = [];
-		if (isset($databaseData[0])) {
-			foreach ($databaseData as $value) {
-				$type = $value['type'] ?? $value['@type'];
-				$reflection = new EntityReflections($type);
-				$result[] = $reflection->hydrateFromDatabase($value);
-			}
-		} elseif (isset($databaseData['type'])) {
-			$type = $databaseData['type'];
-			$reflection = new EntityReflections($type);
-			return $reflection->hydrateFromDatabase($databaseData);
-		}
-		return $result;
 	}
 }

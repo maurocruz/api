@@ -35,26 +35,6 @@ class SupportApplication
 	}
 
 	/**
-	 * @throws ReflectionException
-	 */
-	public static function convertFromObjectToSchemaOrgArrayDTO(array $entities): array
-	{
-		return EntityReflections::convertFromObjectToSchemaOrgArrayDTO($entities);
-	}
-
-	/**
-	 * @param string|null $properties
-	 * @return string[]|null
-	 */
-	public static function propertiesToArray(string $properties = null): ?array
-	{
-		if (!$properties) return [];
-		$propertiesArray = explode(',',$properties);
-		array_walk($propertiesArray, function (&$value) {$value = trim($value);});
-		return $propertiesArray;
-	}
-
-	/**
 	 * @param bool|int $status
 	 * @param string $message
 	 * @param array $data
