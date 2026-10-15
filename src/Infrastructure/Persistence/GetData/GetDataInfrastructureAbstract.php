@@ -22,7 +22,13 @@ abstract class GetDataInfrastructureAbstract
 	 * @var string
 	 */
 	protected string $table;
-
+	/**
+	 * @var string|null
+	 */
+	protected ?string $tableAlias = null;
+	/**
+	 * @var array
+	 */
 	protected array $tables = [];
 	/**
 	 * @var array|null
@@ -59,6 +65,14 @@ abstract class GetDataInfrastructureAbstract
 	}
 
 	/**
+	 * @param string $tableAlias
+	 */
+	public function setTableAlias(string $tableAlias): void
+	{
+		$this->tableAlias = $tableAlias;
+	}
+
+	/**
 	 * @param bool $withThings
 	 * @return GetDataInfrastructureAbstract
 	 */
@@ -78,6 +92,9 @@ abstract class GetDataInfrastructureAbstract
 		$fields = $this->buildFields();
 		// QUERY
 		$this->query = "SELECT $fields FROM `$this->table`";
+		if ($this->tableAlias) {
+			$this->query .= " AS $this->tableAlias";
+		}
 		// JOIN
 		$this->declareJoins();
 		// WHERE
@@ -119,13 +136,14 @@ abstract class GetDataInfrastructureAbstract
 		} elseif (!$this->fields) {
 			$this->fields = ['*'];
 		}
-		return implode(',', $this->fields);
+		$fields = array_map('htmlspecialchars_decode',$this->fields);
+		return implode(',', $fields);
 	}
 
 	private function declareJoins(): void
 	{
 		$entity = Entities::getEntity(ucfirst($this->table));
-		if ($this->withThings && $entity && property_exists($entity, 'idthing') && !$this->isCount !== null && $this->table !== 'thing') {
+		if ($this->withThings && $entity && property_exists($entity, 'thing') && !$this->isCount !== null) {
 		 array_unshift($this->joins, ['table'=> 'thing', 'condition' => "`thing`.idthing = `$this->table`.thing"]);
 		}
 
