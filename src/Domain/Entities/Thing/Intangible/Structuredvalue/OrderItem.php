@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class OrderItem extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Thing','Offer','Order'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['Thing','Offer','Order'];
 
 	protected ?int $idorderItem;
 	public int $orderItemNumber;

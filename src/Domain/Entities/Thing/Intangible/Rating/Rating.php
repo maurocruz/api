@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Rating extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = [];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = [];
 
 	public ?float $ratingValue = null;
 	public ?string $reviewAspect = null;

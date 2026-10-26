@@ -8,8 +8,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Person extends Thing
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing','Place','PostalAddress'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing','Place','PostalAddress'];
 
 	private ?int $thing;
 	protected ?int $idperson;

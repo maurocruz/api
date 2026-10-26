@@ -6,8 +6,9 @@ use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 readonly class UserDeleteUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	public function delete(array $queryParams): array
 	{

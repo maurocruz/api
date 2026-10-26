@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Action extends Thing
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing'];
 
 	protected ?int $idaction;
 	private ?int $thing;

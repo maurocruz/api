@@ -6,8 +6,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Role extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Thing','Person'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['Thing','Person'];
 
 	private ?int $thing;
 	protected ?int $idrole;

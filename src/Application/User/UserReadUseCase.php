@@ -7,10 +7,9 @@ use ReflectionException;
 
 readonly class UserReadUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	/**
 	 * @param array $params

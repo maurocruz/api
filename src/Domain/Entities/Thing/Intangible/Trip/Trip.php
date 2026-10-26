@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Trip extends Thing
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing'];
 
 	private ?int $thing;
 	protected ?int $idtrip;

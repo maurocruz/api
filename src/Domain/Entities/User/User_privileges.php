@@ -4,9 +4,8 @@ namespace Plinct\Api\Domain\Entities\User;
 class User_privileges
 {
 
-	public const bool IS_MODULE = false;
-
-	public const array DEPENDENCIES = ['User'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['User'];
 
 	protected int $iduser_privileges;
 	protected int $iduser;

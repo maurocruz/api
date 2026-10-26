@@ -6,8 +6,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Place extends Thing
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing','GeoCoordinates'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing','GeoCoordinates'];
 
 	private ?int $thing;
 	protected ?int $idplace = null;

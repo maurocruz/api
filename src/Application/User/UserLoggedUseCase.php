@@ -8,9 +8,9 @@ use ReflectionException;
 
 readonly class UserLoggedUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	/**
 	 * LOGIN

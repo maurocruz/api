@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\User;
 
 class User
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = [];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = [];
 
 	protected int $iduser;
 	public string $name;

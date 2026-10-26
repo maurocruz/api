@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\Thing\Intangible\Rating;
 
 class AggregateRating extends Rating
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = [];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = [];
 
 	public mixed $itemReviewed;
 	public ?int $ratingCount = null;

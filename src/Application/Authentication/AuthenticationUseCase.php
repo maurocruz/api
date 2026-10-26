@@ -9,9 +9,9 @@ use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 readonly class AuthenticationUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	public function register(array $params): array
 	{

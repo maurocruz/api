@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class Article extends CreativeWork
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['CreativeWork'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['CreativeWork'];
 
 	private ?int $thing;
 	protected ?int $idarticle;

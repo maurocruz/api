@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\User;
 
 class User_history
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['User'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['User'];
 
 	protected int $iduser_history;
 	protected ?int $iduser = null;

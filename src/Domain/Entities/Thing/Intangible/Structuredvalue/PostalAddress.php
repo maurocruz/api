@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\Thing\Intangible\Structuredvalue;
 
 class PostalAddress extends ContactPoint
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = [];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = [];
 
 	public ?string $streetAddress = null;
 	public ?string $addressLocality = null;

@@ -40,14 +40,6 @@ class ApiFactory
 	}
 
 	/**
-	 * @return Helper
-	 */
-	public static function helper(): Helper
-	{
-		return new Helper();
-	}
-
-	/**
 	 * @return User
 	 */
 	public static function user(): User

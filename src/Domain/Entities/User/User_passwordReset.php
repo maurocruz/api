@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\User;
 
 class User_passwordReset
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['User'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['User'];
 
 	protected int $iduser;
 	protected ?string $selector = null;

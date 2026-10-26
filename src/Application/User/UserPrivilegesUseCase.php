@@ -7,9 +7,9 @@ use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 readonly class UserPrivilegesUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	// READ
 	public function read(array $queryParam): array

@@ -9,14 +9,16 @@ use Plinct\Api\Application\Support\SanitizeParams;
 use Plinct\Api\Application\Support\SupportApplication;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use Random\RandomException;
+use ReflectionException;
 
 readonly class ResetPasswordUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{ }
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	/**
-	 * @throws RandomException
+	 * @throws RandomException|ReflectionException
 	 */
 	public function resetPassword(array $parseBody): array
 	{

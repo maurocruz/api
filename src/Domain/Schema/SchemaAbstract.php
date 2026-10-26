@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Schema;
 
 class SchemaAbstract
 {
-	const string SCHEMA_PLINCT = __DIR__.'/schemasJson/plinct.json';
-	const string SCHEMA_ORG = __DIR__.'/schemasJson/schemaorg-current-http.jsonld';
+	const SCHEMA_PLINCT = __DIR__.'/schemasJson/plinct.json';
+	const SCHEMA_ORG = __DIR__.'/schemasJson/schemaorg-current-http.jsonld';
 	/**
 	 * @var array
 	 */

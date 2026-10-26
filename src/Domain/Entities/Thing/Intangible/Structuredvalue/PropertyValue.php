@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class PropertyValue extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Thing'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['Thing'];
 
 	protected ?int $idpropertyValue;
 	public ?string $value = null;

@@ -6,10 +6,9 @@ use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 readonly class UserLoginUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) { }
 
 	public function login(array $params): array
 	{

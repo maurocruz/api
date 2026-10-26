@@ -5,11 +5,11 @@ use finfo;
 
 class MediaTypeDetector
 {
-	public const string TYPE_IMAGE = 'image';
-	public const string TYPE_VIDEO = 'video';
-	public const string TYPE_AUDIO = 'audio';
-	public const string TYPE_PDF   = 'pdf';
-	public const string TYPE_UNKNOWN = 'unknown';
+	public const TYPE_IMAGE = 'image';
+	public const TYPE_VIDEO = 'video';
+	public const TYPE_AUDIO = 'audio';
+	public const TYPE_PDF   = 'pdf';
+	public const TYPE_UNKNOWN = 'unknown';
 
 	public function detect(string $filePath): string
 	{

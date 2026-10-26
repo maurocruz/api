@@ -8,7 +8,7 @@ use Smalot\PdfParser\Parser;
 
 class PdfMetadataExtractor
 {
-	private const array METADATA_FIELD_MAP = [
+	private const METADATA_FIELD_MAP = [
 		'Pages' => 'size',
 		'Author' => 'author',
 		'Creator' => 'editor',

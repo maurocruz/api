@@ -6,11 +6,11 @@ use Plinct\Api\Domain\Modules\ModuleDomain;
 
 class ConfigurationDomain
 {
-	private const string API_TYPE = 'WebApi';
-	private const string NAME = 'Plinct API';
-	private const string DESCRIPTION = 'API baseada em schema.org com módulos habilitáveis';
-	private const string DOCUMENTATION = "https://plinct.com.br/api/docs";
-	private const string SCHEMA_ORG = "https://schema.org";
+	private const API_TYPE = 'WebApi';
+	private const NAME = 'Plinct API';
+	private const DESCRIPTION = 'API baseada em schema.org com módulos habilitáveis';
+	private const DOCUMENTATION = "https://plinct.com.br/api/docs";
+	private const SCHEMA_ORG = "https://schema.org";
 
 	private static string $host;
 

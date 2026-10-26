@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class GeoCoordinates extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['PostalAddress'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['PostalAddress'];
 
 	private ?int $thing;
 	protected ?int $idgeoCoordinates;

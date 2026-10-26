@@ -7,9 +7,9 @@ use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 
 readonly class ChangePasswordUseCase
 {
-	public function __construct(private DatabaseActions $databaseActions)
-	{
-	}
+	public function __construct(
+		private DatabaseActions $databaseActions
+	) {	}
 
 	public function changePassword(array $parseBody): array
 	{

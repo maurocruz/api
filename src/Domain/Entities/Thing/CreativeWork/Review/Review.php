@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\CreativeWork;
 
 class Review extends CreativeWork
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing','CreativeWork'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing','CreativeWork'];
 
 	private ?int $thing;
 	protected ?int $idreview;

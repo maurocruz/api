@@ -10,7 +10,7 @@ readonly class OrderReadUseCase
 	public function __construct(
 		private DatabaseActions $databaseActions,
 		private OrderItemReadUseCase $orderItemReadUseCase
-	) {}
+	) { }
 
 	/**
 	 * @throws ReflectionException

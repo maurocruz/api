@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Entities\Thing\Organization;
 
 class LocalBusiness extends Organization
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Thing','Organization','Place'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['Thing','Organization','Place'];
 
 	private ?int $thing;
 	protected ?int $idlocalBusiness;

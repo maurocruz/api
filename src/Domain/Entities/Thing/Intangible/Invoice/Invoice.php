@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Invoice extends Thing
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = ['Order'];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = ['Order'];
 
 	protected ?int $idinvoice;
 	public mixed $customer;
