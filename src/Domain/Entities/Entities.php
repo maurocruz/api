@@ -49,7 +49,7 @@ use ReflectionException;
 
 class Entities
 {
-	public const array ENTITIES = [
+	public const ENTITIES = [
 		['name' => 'Action', 'object' => Action::class],
 		['name' => 'AggregateRating', 'object' => AggregateRating::class],
 		['name' => 'Article', 'object' => Article::class],
@@ -130,9 +130,9 @@ class Entities
 
 	/**
 	 * @param string $entityName
-	 * @return mixed
+	 * @return string|null
 	 */
-	public static function getEntity(string $entityName): mixed
+	public static function getEntity(string $entityName): ?string
 	{
 		foreach (self::ENTITIES as $entity) {
 			if ($entity['name'] === ucfirst($entityName)) return $entity['object'];

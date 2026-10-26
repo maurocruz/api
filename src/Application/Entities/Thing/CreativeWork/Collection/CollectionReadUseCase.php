@@ -21,8 +21,10 @@ class CollectionReadUseCase extends CreativeWorkReadUseCase
 			}
 			$getData = $this->databaseActions->read('collection', $sanitizedParams);
 			$getData->setJoin('creativeWork', 'creativeWork.thing = collection.thing');
-			$getData->setJoin('thing_has_thing', 'thing_has_thing.idHasPart = collection.thing');
-			$getData->setWhere('thing_has_thing.idIsPartOf <> collection.thing AND thing_has_thing.typeIsPartOf = "Collection"');
+			$getData->setJoin('thing_has_thing', 't1.idHasPart = collection.thing', 't1');
+			$getData->setJoin('thing_has_thing', 't2.idIsPartOf = t1.idHasPart', 't2', 'left');
+			$getData->setWhere('t2.idIsPartOf is null');
+			$getData->setParams(['groupBy'=>'t1.idHasPart','limit'=>'none']);
 		} else {
 			$getData = $this->databaseActions->read('collection', $sanitizedParams);
 			$getData->setJoin('creativeWork', 'creativeWork.thing = collection.thing');
@@ -39,7 +41,7 @@ class CollectionReadUseCase extends CreativeWorkReadUseCase
 				if (in_array('hasPart', $properties)) {
 					unset($sanitizedParams['url']);
 					unset($sanitizedParams['idcollection']);
-					$getDataHasPart = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $collection['thing']] + $sanitizedParams);
+					$getDataHasPart = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $collection['thing']]);
 					$getDataHasPart->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
 					$getDataHasPart->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
 					if ($typeIsPartOf) {

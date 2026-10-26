@@ -5,8 +5,8 @@ use Plinct\Api\Domain\Entities\Thing\CreativeWork\MediaObject\MediaObject;
 
 class VideoObject extends MediaObject
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing','CreativeWork','MediaObject'];
 
 	private ?int $thing;
 	protected ?int $idvideoObject;

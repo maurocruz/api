@@ -45,4 +45,19 @@ class CreativeWorkReadUseCase extends ThingReadUseCase
 		}
 		return $data;
 	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	protected function getIsPartOf(int $idthing)
+	{
+		$dataGet = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $idthing]);
+		$dataGet->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart');
+		$dataGet->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idHasPart');
+		$dataIsPartOf = $dataGet->render();
+		if ($dataIsPartOf['status'] === false) {
+			return $dataIsPartOf;
+		}
+		return $dataIsPartOf['data'];
+	}
 }

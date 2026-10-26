@@ -8,8 +8,8 @@ use ReflectionClass;
 
 class Thing implements EntityInterface, JsonSerializable
 {
-	public const bool IS_MODULE = false;
-	public const array DEPENDENCIES = [];
+	public const IS_MODULE = false;
+	public const DEPENDENCIES = [];
 
 	public string $type;
 	public ?string $additionalType = null;
@@ -98,8 +98,8 @@ class Thing implements EntityInterface, JsonSerializable
 			}
 
 			$value = $property->getValue($this);
-			// SE O VALOR FOR NULL, PULA
-			if ($value === null) {
+			// SE O VALOR FOR NULL OU VAZIO, PULA
+			if ($value === null || $value === '') {
 				continue;
 			}
 			$name = $property->getName();

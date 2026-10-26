@@ -6,8 +6,8 @@ use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class CreativeWork extends Thing
 {
-	public const bool IS_MODULE = true;
-	public const array DEPENDENCIES = ['Thing'];
+	public const IS_MODULE = true;
+	public const DEPENDENCIES = ['Thing'];
 
 	protected ?int $idcreativeWork;
 	private ?int $thing;
@@ -48,9 +48,33 @@ class CreativeWork extends Thing
 		$this->datePublished = $value['datePublished'] ?? null;
 		$this->editor = $value['editor'] ?? null;
 		$this->encodingFormat = $value['encodingFormat'] ?? null;
-		$this->hasPart = $value['hasPart'] ?? null;
+		// HAS PART
+		if (isset($value['hasPart']) && is_array($value['hasPart'])) {
+			foreach ($value['hasPart'] as $valueHasPart) {
+				$typeIsPartOf = $valueHasPart['typeIsPartOf'] ?? null;
+				$idIsPartOf = $valueHasPart['idIsPartOf'] ?? null;
+				if ($typeIsPartOf && $idIsPartOf) {
+					$entity = Entities::getEntity($typeIsPartOf);
+					$this->hasPart[] = (new $entity($valueHasPart))->jsonSerialize();
+				}
+			}
+		} else {
+			$this->hasPart = $value['hasPart'] ?? null;
+		}
+		// IS PART OF
+		if (isset($value['isPartOf']) && is_array($value['isPartOf'])) {
+			foreach ($value['isPartOf'] as $valueIsPartOf) {
+				$typeIsPartOf = $valueIsPartOf['typeIsPartOf'] ?? null;
+				$idIsPartOf = $valueIsPartOf['idIsPartOf'] ?? null;
+				if ($typeIsPartOf && $idIsPartOf) {
+					$entity = Entities::getEntity($typeIsPartOf);
+					$this->isPartOf[] = (new $entity($valueIsPartOf))->jsonSerialize();
+				}
+			}
+		} else {
+			$this->isPartOf = $value['isPartOf'] ?? null;
+		}
 		$this->headline = $value['headline'] ?? null;
-		$this->isPartOf = $value['isPartOf'] ?? null;
 		$this->keywords = $value['keywords'] ?? '';
 		$this->licence = $value['licence'] ?? null;
 		$this->locationCreated = $value['locationCreated'] ?? null;
