@@ -3,8 +3,8 @@ namespace Plinct\Api\Domain\Contracts;
 
 interface EntityInterface
 {
-	const bool IS_MODULE = true;
-	const array DEPENDENCIES = [];
+	const IS_MODULE = true;
+	const DEPENDENCIES = [];
 
 	public function getId(): ?int;
 
