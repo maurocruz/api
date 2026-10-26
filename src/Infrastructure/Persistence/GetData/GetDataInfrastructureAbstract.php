@@ -9,7 +9,7 @@ abstract class GetDataInfrastructureAbstract
 	/**
 	 * @var string
 	 */
-	const string __LIMIT__ = '200';
+	const __LIMIT__ = '200';
 	/**
 	 * @var ?string
 	 */
@@ -225,22 +225,13 @@ abstract class GetDataInfrastructureAbstract
 	}
 
 	// GROUP BY
-	/**
-	 * @throws ReflectionException
-	 */
 	protected function declareGroupBy(): void
 	{
 		$groupBy = $this->params['groupBy'] ?? null;
 		if (!$groupBy) {
 			return;
 		}
-		if (strtolower(substr($groupBy,0,9)) == 'substring') {
-			$this->query .= " GROUP BY $groupBy";
-		} else {
-			if ($this->isProperty($groupBy)) {
-				$this->query .= " GROUP BY " . (Entities::isOwnProperty(ucfirst($this->table), $groupBy) ? "`$this->table`.$groupBy" : $groupBy);
-			}
-		}
+		$this->query .= " GROUP BY $groupBy";
 	}
 
 	// ORDER BY
