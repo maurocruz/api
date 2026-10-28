@@ -63,8 +63,8 @@ readonly class GlobalMiddleware implements MiddlewareInterface
 
 		// SET CONFIGURATION
 		$schema = $request->getUri()->getScheme();
-		$host = $request->getUri()->getHost();
-		$this->configurationDomain->setHost($schema."://".$host);
+		$host = $schema."://".$request->getUri()->getHost();
+		$this->configurationDomain->setHost($settings['host'] ?? $host);
 
 		return $handler->handle($request);
 	}

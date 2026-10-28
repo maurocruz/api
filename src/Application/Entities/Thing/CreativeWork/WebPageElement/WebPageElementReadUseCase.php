@@ -14,13 +14,14 @@ class WebPageElementReadUseCase extends CreativeWorkReadUseCase
 	{
 		$idHasPart = $sanitizedParams['idHasPart'] ?? null;
 		$orderBy = $sanitizedParams['orderBy'] ?? null;
+		$ordering = $sanitizedParams['ordering'] ?? "asc";
 		if ($idHasPart) {
 			$getData = $this->databaseActions->read('thing_has_thing', ['idHasPart' => $idHasPart, 'typeIsPartOf' => 'WebPageElement']);
 			$getData->setJoin('thing', 'thing.idthing = thing_has_thing.idIsPartOf');
 			$getData->setJoin('creativeWork', 'creativeWork.thing = thing_has_thing.idIsPartOf');
 			$getData->setJoin('webPageElement', 'webPageElement.thing = thing_has_thing.idIsPartOf');
 			if ($orderBy) {
-				$getData->setParams(['orderBy' => $orderBy]);
+				$getData->setParams(['orderBy' => $orderBy, 'ordering' => $ordering]);
 			}
 		} else {
 			$getData = $this->databaseActions->read('webPageElement', $sanitizedParams);
@@ -46,7 +47,7 @@ class WebPageElementReadUseCase extends CreativeWorkReadUseCase
 
 			// IS PART OF THE WEB PAGE
 			if (in_array('isPartOf', $properties)) {
-				$databaseData['data'][$key]['isPartOf'] = $this->isPartOf($idthing);
+				$databaseData['data'][$key]['isPartOf'] = $this->getIsPartOf($idthing);
 			}
 
 			// HAS PART
@@ -72,34 +73,6 @@ class WebPageElementReadUseCase extends CreativeWorkReadUseCase
 				$databaseData['data'][$key]['hasPart'] = $dataHasPart['data'] ?? null;
 			}
 		}
-
 		return $databaseData;
-	}
-
-	/**
-	 * @throws ReflectionException
-	 */
-	private function isPartOf(string $idthing)
-	{
-		$relationshipData = parent::getHasPart($idthing, 'webPageElement', 'WebPage');
-
-		if ($relationshipData['status'] === false) {
-			return $relationshipData;
-		}
-		// OBTEM WEBSITE COMO PARTE DE WEB PAGE
-		if (!empty($relationshipData['data'])) {
-			$valueWebPage = $relationshipData['data'][0];
-			$webPageThing = $valueWebPage['thing'];
-			$webSiteData = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $webPageThing, 'typeIsPartOf' => 'WebPage'])
-				->setJoin('thing', 'thing.idthing = thing_has_thing.idHasPart')
-				->setJoin('webSite', 'webSite.thing = thing_has_thing.idHasPart')
-				->render();
-			if ($webSiteData['status'] === false) {
-				return $webSiteData;
-			}
-			$valueWebSite = $webSiteData['data'];
-			$relationshipData['data'][0]['isPartOf'] = $valueWebSite;
-		}
-		return $relationshipData['data'];
 	}
 }

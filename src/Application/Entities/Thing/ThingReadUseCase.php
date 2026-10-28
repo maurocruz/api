@@ -140,35 +140,6 @@ class ThingReadUseCase
 	/**
 	 * @throws ReflectionException
 	 */
-	protected function getHasPart(string $idIsPartOf, string $typeIsPartOf = null, string $typeHasPart = null, array $params = []): array
-	{
-		$getData = $this->databaseActions->read('thing_has_thing', ['idIsPartOf' => $idIsPartOf, 'typeIsPartOf' => ucfirst($typeIsPartOf)]);
-		$getData->setJoin('thing', 'thing_has_thing.idHasPart = thing.idthing', 'thing');
-		$getData->setParams($params);
-		$responseData = $getData->render();
-
-		if ($responseData['status'] === false) {
-			return $responseData;
-		}
-		$data = $responseData['data'];
-
-		if (empty($data)) {
-			return ['status'=> true, 'message'=> $typeHasPart . ' not found', 'data'=>[]];
-		}
-
-		// RETORNA ID DOS THINGS
-
-		$things = [];
-		foreach ($data as $value) {
-			$things[] = $value['idHasPart'];
-		}
-		// OBTÉM DADOS DO TYPEHASPART
-		return  $this->databaseActions->read(lcfirst($typeHasPart), ['thing' => implode('|',$things)])->render();
-	}
-
-	/**
-	 * @throws ReflectionException
-	 */
 	protected function getPropertiesValue(string $idthing): array
 	{
 		return $this->databaseActions->read('thing_has_thing',['idHasPart'=>$idthing,'typeIsPartOf'=>'PropertyValue','fields'=>'name,value,type as `@type`'])
