@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `fk_event_superEvent_idx1` (`superEvent`),
   CONSTRAINT `fk_event_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
   CONSTRAINT `fk_event_about` FOREIGN KEY (`about`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE,
-  CONSTRAINT `fk_event_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`) ON DELETE SET NULL,
+  CONSTRAINT `fk_event_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`) ON DELETE SET NULL,
   CONSTRAINT `fk_event_subEvent` FOREIGN KEY (`subEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL ,
   CONSTRAINT `fk_event_superEvent` FOREIGN KEY (`superEvent`) REFERENCES `event` (`idevent`) ON DELETE SET NULL
 ) ENGINE = InnoDB;

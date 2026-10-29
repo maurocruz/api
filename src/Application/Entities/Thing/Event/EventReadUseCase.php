@@ -38,7 +38,7 @@ class EventReadUseCase extends ThingReadUseCase
 
 				// LOCATION
 				if (in_array('location', $properties) && $location) {
-					$dataLocation = $this->placeReadUseCase->read(SupportController::sanitizeParams('place',['idplace' => $location, 'properties' => 'geo']));
+					$dataLocation = $this->placeReadUseCase->read(SupportController::sanitizeParams('place',['thing' => $location, 'properties' => 'geo']));
 					if ($dataLocation['status'] === false) {
 						return $dataLocation;
 					}

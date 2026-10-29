@@ -14,6 +14,6 @@ CREATE TABLE IF NOT EXISTS `organization` (
   PRIMARY KEY (`idorganization`, `thing`),
   INDEX `fk_organization_thing_idx` (`thing` ASC) VISIBLE,
   INDEX `fk_organization_location_idx` (`location` ASC) VISIBLE,
-  CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`idplace`)  ON DELETE CASCADE,
+  CONSTRAINT `fk_organization_location` FOREIGN KEY (`location`) REFERENCES `place` (`thing`)  ON DELETE CASCADE,
   CONSTRAINT `fk_organization_thing` FOREIGN KEY (`thing`) REFERENCES `thing` (`idthing`) ON DELETE CASCADE
 ) ENGINE = InnoDB;
