@@ -2,7 +2,6 @@
 namespace Plinct\Api\Application\Entities\Thing\Place;
 
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Domain\Entities\Thing\Place\Place;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -42,13 +41,6 @@ class PlaceReadUseCase extends ThingReadUseCase
 			$getData->setJoin('geoCoordinates','`geoCoordinates`.idgeoCoordinates = `place`.geo', null, 'LEFT');
 			$getData->setJoin('postalAddress','`postalAddress`.idpostalAddress = `geoCoordinates`.address', null, 'LEFT');
 		}
-		$data = $getData->render();
-
-		if ($data['status'] === false) {
-			return $data;
-		}
-
-		$data['data'] = array_map(fn($value) => (new Place($value))->jsonSerialize(), $data['data']);
-		return $data;
+		return $getData->render();
 	}
 }

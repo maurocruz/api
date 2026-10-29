@@ -3,9 +3,8 @@ namespace Plinct\Api\Application\Entities\Thing\Event;
 
 use Plinct\Api\Application\Entities\Thing\Place\PlaceReadUseCase;
 use Plinct\Api\Application\Entities\Thing\ThingReadUseCase;
-use Plinct\Api\Application\Support\SupportApplication;
-use Plinct\Api\Domain\Entities\Thing\Event\Event;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
+use Plinct\Api\Support\SupportController;
 use ReflectionException;
 
 class EventReadUseCase extends ThingReadUseCase
@@ -36,9 +35,10 @@ class EventReadUseCase extends ThingReadUseCase
 			foreach ($data['data'] as $key => $value) {
 				$location = $value['location'] ?? null;
 				$superEvent = $value['superEvent'] ?? null;
+
 				// LOCATION
 				if (in_array('location', $properties) && $location) {
-					$dataLocation = $this->placeReadUseCase->read(SupportApplication::sanitizeParams('place',['thing' => $location, 'properties' => 'geo']));
+					$dataLocation = $this->placeReadUseCase->read(SupportController::sanitizeParams('place',['idplace' => $location, 'properties' => 'geo']));
 					if ($dataLocation['status'] === false) {
 						return $dataLocation;
 					}
@@ -58,7 +58,7 @@ class EventReadUseCase extends ThingReadUseCase
 				// SUB EVENT
 				// TODO precisa mudar de idevent para idthing
 				if (in_array('subEvent', $properties)) {
-					$dataSubEvent = $this->read(SupportApplication::sanitizeParams('event',['superEvent'=>$value['idevent'],'properties'=>'location','fields'=>'location,name,startDate']));
+					$dataSubEvent = $this->read(SupportController::sanitizeParams('event',['superEvent'=>$value['idevent'],'properties'=>'location','fields'=>'location,name,startDate']));
 					if ($dataSubEvent['status'] === false) {
 						return $dataSubEvent;
 					}
@@ -67,7 +67,6 @@ class EventReadUseCase extends ThingReadUseCase
 			}
 
 		}
-		$data['data'] = array_map(fn($place) => (new Event($place))->jsonSerialize(), $data['data']);
 		return $data;
 	}
 }

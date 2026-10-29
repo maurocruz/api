@@ -20,7 +20,7 @@ readonly class PlaceController
 	{
 		$queryParams = $request->getQueryParams();
 		$sanitizedParams = SupportController::sanitizeParams('Place', $queryParams);
-		$dataUseCase = $this->placeReadUseCase->read($sanitizedParams);
+		$dataUseCase = SupportController::returnDTO($this->placeReadUseCase->read($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($dataUseCase, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

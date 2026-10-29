@@ -23,7 +23,8 @@ class Place extends Thing
 		$this->idplace = $value['idplace'] ?? null;
 		$this->publicAccess = isset($value['publicAccess']);
 		$this->keywords = $value['keywords'] ?? null;
-		$this->geo = isset($value['idgeoCoordinates']) ? (new GeoCoordinates($value))->jsonSerialize() : $value['geo'] ?? null;
+		// GEO
+		$this->geo = isset($value['idgeoCoordinates']) ? new GeoCoordinates($value) : $value['geo'] ?? null;
 	}
 
 	public function getId(): ?int

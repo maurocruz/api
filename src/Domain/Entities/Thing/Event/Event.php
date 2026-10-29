@@ -1,6 +1,7 @@
 <?php
 namespace Plinct\Api\Domain\Entities\Thing\Event;
 
+use Plinct\Api\Domain\Entities\Thing\Place\Place;
 use Plinct\Api\Domain\Entities\Thing\Thing;
 
 class Event extends Thing
@@ -29,7 +30,12 @@ class Event extends Thing
 		$this->director = $value['director'] ?? null;
 		$this->endDate = $value['endDate'] ?? null;
 		$this->keywords = $value['keywords'] ?? null;
-		$this->location = $value['location'] ?? null;
+		// LOCATION
+		if (isset($value['location']) && is_array($value['location'])) {
+			$this->location = new Place($value['location']);
+		} else {
+			$this->location = $value['location'] ?? null;
+		}
 		$this->organizer = $value['organizer'] ?? null;
 		$this->startDate = $value['startDate'] ?? null;
 		$this->subEvent = $value['subEvent'] ?? null;
