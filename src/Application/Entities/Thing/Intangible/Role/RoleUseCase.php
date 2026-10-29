@@ -1,7 +1,6 @@
 <?php
 namespace Plinct\Api\Application\Entities\Thing\Intangible\Role;
 
-use Plinct\Api\Domain\Entities\Thing\Intangible\Role\Role;
 use Plinct\Api\Infrastructure\Persistence\Database\DatabaseActions;
 use ReflectionException;
 
@@ -33,7 +32,6 @@ readonly class RoleUseCase
 				$data['data'][$key]['member'] = $dataMember['data'][0];
 			}
 		}
-		$data['data'] = array_map(fn($item) => (new Role($item))->jsonSerialize(), $data['data']);
 		return $data;
 	}
 }

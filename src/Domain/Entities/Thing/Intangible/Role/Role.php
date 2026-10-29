@@ -28,7 +28,7 @@ class Role extends Thing
 
 		$this->person = $value['person'] ?? null;
 
-		$this->member = (isset($value['member']) && is_array($value['member'])) ? (new Person($value['member']))->jsonSerialize() :  $value['member'] ?? null;
+		$this->member = (isset($value['member']) && is_array($value['member'])) ? new Person($value['member']) :  $value['member'] ?? null;
 
 		$this->organization = $value['organization'] ?? null;
 		$this->secondaryRole = $value['secondaryRole'] ?? null;

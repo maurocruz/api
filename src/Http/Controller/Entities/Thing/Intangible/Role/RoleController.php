@@ -19,7 +19,7 @@ readonly class RoleController
 	public function read(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
 	{
 		$sanitizedParams = SupportController::sanitizeParams('role', $request->getQueryParams());
-		$useCaseData = $this->roleUseCase->read($sanitizedParams);
+		$useCaseData = SupportController::returnDTO($this->roleUseCase->read($sanitizedParams));
 		$response = $response->withHeader('Content-Type', 'application/json');
 		$response->getBody()->write(json_encode($useCaseData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		return $response;

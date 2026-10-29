@@ -23,7 +23,7 @@ class GeoCoordinates extends Thing
 		$this->elevation = $value['elevation'] ?? null;
 		$this->latitude = $value['latitude'] ?? null;
 		$this->longitude = $value['longitude'] ?? null;
-		$this->address = isset($value['idpostalAddress']) ? (new PostalAddress($value))->jsonSerialize() : $value['address'] ?? null;
+		$this->address = isset($value['idpostalAddress']) ? new PostalAddress($value) : $value['address'] ?? null;
 		$this->idgeoCoordinates = $value['idgeoCoordinates'] ?? null;
 	}
 

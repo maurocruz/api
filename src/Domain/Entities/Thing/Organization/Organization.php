@@ -30,7 +30,7 @@ class Organization extends Thing
 		$this->hasOfferCatalog = $value['hasOfferCatalog'] ?? null;
 		$this->address = $value['address'] ?? null;
 		$this->areaServed = $value['areaServed'] ?? null;
-		$this->location = isset($value['idplace'])? (new Place($value))->jsonSerialize() : $value['location'] ?? null;
+		$this->location = isset($value['idplace'])? new Place($value) : $value['location'] ?? null;
 	}
 
 	public function getId(): ?int
