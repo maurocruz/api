@@ -59,11 +59,7 @@ class WebPageReadUseCase extends CreativeWorkReadUseCase
 
 			// IS PART OF
 			if (in_array('isPartOf', $properties)) {
-				$relationshipData = parent::getIsPartOf($idthing);
-				if ($relationshipData['status'] === false) {
-					return $relationshipData;
-				}
-				$databaseData['data'][$key]['isPartOf'] = $relationshipData['data'];
+				$databaseData['data'][$key]['isPartOf'] = $this->getIsPartOf($idthing);
 			}
 
 			// HAS PART
