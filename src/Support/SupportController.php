@@ -14,6 +14,8 @@ class SupportController
 	public static function sanitizeParams(string $type, array $params): array
 	{
 		$newParams = [];
+		$params['type'] = $params['type'] ?? $type;
+
 		foreach ($params as $key => $value) {
 			if ($value === null) {
 				continue;

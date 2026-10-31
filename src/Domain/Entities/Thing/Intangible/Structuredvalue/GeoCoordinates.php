@@ -8,7 +8,6 @@ class GeoCoordinates extends Thing
 	public const IS_MODULE = false;
 	public const DEPENDENCIES = ['PostalAddress'];
 
-	private ?int $thing;
 	protected ?int $idgeoCoordinates;
 	public mixed $address = null;
 	public ?string $elevation = null;
