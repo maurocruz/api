@@ -13,7 +13,6 @@ class GeoCoordinates extends Thing
 	public ?string $elevation = null;
 	public ?float $latitude = null;
 	public ?float $longitude = null;
-	public array $identifier = [];
 
 	public function __construct(array $value = ['@type' => 'GeoCoordinates'])
 	{
